@@ -1,0 +1,33 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <Deterministic>true</Deterministic>
+    <LangVersion>10</LangVersion>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>embedded</DebugType>
+    <MinVerSkip Condition="'$(Configuration)' == 'Debug'">true</MinVerSkip>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <AdditionalFiles Include="..\stylecop.json" Link="Properties/stylecop.json" />
+  </ItemGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="$(AssemblyName).Tests" />
+  </ItemGroup>
+  <ItemGroup Label="Package References">
+    <PackageReference Include="CaseExtensions" Version="1.1.0" />
+    <PackageReference Include="JetBrains.Annotations" Version="2021.3.0" />
+    <PackageReference Include="MinVer" PrivateAssets="All" Version="3.1.0" />
+    <PackageReference Include="StyleCop.Analyzers" Version="1.2.0-beta.406">
+      <PrivateAssets>All</PrivateAssets>
+    </PackageReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Remove="reset.css" />
+    <EmbeddedResource Include="reset.css" />
+  </ItemGroup>
+</Project>
