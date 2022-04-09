@@ -14,7 +14,28 @@ public record CssStylesheet(ImmutableList<CssMediaRule> MediaRules);
 /// </summary>
 /// <param name="Selector">The CSS selector.</param>
 /// <param name="DeclarationList">The CSS declaration list.</param>
-public record CssRuleSet(CssSelector Selector, CssDeclarationList DeclarationList);
+public record CssRuleSet(CssSelector Selector, CssDeclarationList DeclarationList)
+{
+    /// <summary>
+    /// Adds two rule sets together.
+    /// </summary>
+    /// <param name="ruleSet1">The first rule set.</param>
+    /// <param name="ruleSet2">The second rule set.</param>
+    /// <returns>A new instance of the two rule sets combined.</returns>
+    /// <exception cref="InvalidOperationException">Throws if the rule sets have different selectors.</exception>
+    public static CssRuleSet operator +(CssRuleSet ruleSet1, CssRuleSet ruleSet2)
+    {
+        if (ruleSet1.Selector.Equals(ruleSet2.Selector) == false)
+        {
+            throw new InvalidOperationException("Cannot add ruleset with different selectors.");
+        }
+
+        return ruleSet1 with
+        {
+            DeclarationList = ruleSet1.DeclarationList + ruleSet2.DeclarationList,
+        };
+    }
+}
 
 /// <summary>
 /// Represents a CSS selector.
@@ -41,6 +62,28 @@ public record CssSelector(string Selector, string? PseudoClass = default, string
         return sb.ToString();
     }
 
+    /// <inheritdoc />
+    public virtual bool Equals(CssSelector? other)
+    {
+        if (ReferenceEquals(null, other))
+        {
+            return false;
+        }
+
+        if (ReferenceEquals(this, other))
+        {
+            return true;
+        }
+
+        return Selector == other.Selector && PseudoClass == other.PseudoClass && PseudoElement == other.PseudoElement;
+    }
+
+    /// <inheritdoc />
+    public override int GetHashCode()
+    {
+        return HashCode.Combine(Selector, PseudoClass, PseudoElement);
+    }
+
     /// <summary>
     /// Returns a new CSS selector from a string.
     /// </summary>
@@ -62,9 +105,3 @@ public record CssDeclaration(string Property, string Value);
 /// <param name="Features">A list of media rules features.</param>
 /// <param name="RuleSets">The defined rule sets for the media rule feature.</param>
 public record CssMediaRule(ImmutableList<string> Features, ImmutableList<CssRuleSet> RuleSets);
-
-/// <summary>
-/// Represents the root media rule with no features.
-/// </summary>
-/// <param name="RuleSets">The rule sets.</param>
-public record RootMediaRule(ImmutableList<CssRuleSet> RuleSets) : CssMediaRule(ImmutableList<string>.Empty, RuleSets);

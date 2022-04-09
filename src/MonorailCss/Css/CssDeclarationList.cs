@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Concurrent;
+using System.Collections.Immutable;
 
 namespace MonorailCss.Css;
 
@@ -75,23 +76,55 @@ public class CssDeclarationList : IEnumerable<CssDeclaration>
 /// </summary>
 public class CssRuleSetList : IEnumerable<CssRuleSet>
 {
-    private readonly List<CssRuleSet> _declarations = new();
+    private ImmutableDictionary<CssSelector, CssRuleSet> _declarations = ImmutableDictionary<CssSelector, CssRuleSet>.Empty;
 
     /// <summary>
     /// Adds a new rule set to the list.
     /// </summary>
     /// <param name="ruleSet">The rule set to add.</param>
-    public void Add(CssRuleSet ruleSet) => _declarations.Add(ruleSet);
+    public void Add(CssRuleSet ruleSet)
+    {
+        if (_declarations.TryGetValue(ruleSet.Selector, out var existingRuleSet))
+        {
+            _declarations = _declarations.SetItem(ruleSet.Selector, existingRuleSet + ruleSet);
+        }
+        else
+        {
+            _declarations = _declarations.Add(ruleSet.Selector, ruleSet);
+        }
+    }
 
     /// <inheritdoc />
     public IEnumerator<CssRuleSet> GetEnumerator()
     {
-        return _declarations.GetEnumerator();
+        return _declarations.Values.GetEnumerator();
     }
 
     /// <inheritdoc/>
     IEnumerator IEnumerable.GetEnumerator()
     {
-        return _declarations.GetEnumerator();
+        return _declarations.Values.GetEnumerator();
+    }
+
+    /// <summary>
+    /// Adds two rule set lists together.
+    /// </summary>
+    /// <param name="ruleSet1">The first rule set.</param>
+    /// <param name="ruleSet2">The second rule set.</param>
+    /// <returns>A new rule set with the existing rules.</returns>
+    public static CssRuleSetList operator +(CssRuleSetList ruleSet1, CssRuleSetList ruleSet2)
+    {
+        var newRuleSetList = new CssRuleSetList();
+        foreach (var ruleSet in ruleSet1)
+        {
+            newRuleSetList.Add(ruleSet);
+        }
+
+        foreach (var ruleSet in ruleSet2)
+        {
+            newRuleSetList.Add(ruleSet);
+        }
+
+        return newRuleSetList;
     }
 }

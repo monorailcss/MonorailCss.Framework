@@ -8,6 +8,20 @@ namespace MonorailCss.Tests.Plugins;
 [ShouldlyMethods]
 public static class ShouldlyExtensions
 {
+    public static void ShouldContainElementWithCssProperty(this string value, string element, string property,
+        string propertyValue)
+    {
+        var parser = new CssParser();
+        var styleSheet = parser.ParseStyleSheet(value);
+        styleSheet.Rules.OfType<ICssStyleRule>().ShouldContain(i => i.SelectorText.Equals(element));
+        styleSheet.Rules.OfType<ICssStyleRule>()
+            .First(i => i.SelectorText == element)
+            .Style.ShouldSatisfyAllConditions(
+                i => i.ShouldContain(prop => prop.Name == property),
+                i => i.ShouldContain(prop => prop.Name == property && prop.Value == propertyValue)
+            );
+    }
+
     public static void ShouldBeCss(this string value,[LanguageInjection(InjectedLanguage.CSS)] string expected)
     {
         var parser = new CssParser();

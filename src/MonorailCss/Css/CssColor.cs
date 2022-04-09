@@ -54,7 +54,7 @@ public readonly struct CssColor
     /// <returns>Color in the format of rgb( r g b).</returns>
     public string AsRgb()
     {
-        return $"rgb({_r} {_g} {_b})";
+        return $"rgba({_r}, {_g}, {_b}, 1)";
     }
 
     /// <summary>
@@ -64,6 +64,6 @@ public readonly struct CssColor
     /// <returns>The color in the format of rgb(r g b / opacity).</returns>
     public string AsRgbWithOpacity(string opacity)
     {
-        return $"rgb({_r} {_g} {_b} / {opacity})";
+        return $"rgba({_r}, {_g}, {_b}, {opacity})";
     }
 }

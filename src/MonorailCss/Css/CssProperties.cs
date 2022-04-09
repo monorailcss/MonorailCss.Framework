@@ -1,11 +1,15 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using CaseExtensions;
+#pragma warning disable CS1591
+#pragma warning disable SA1600
 
 namespace MonorailCss.Css;
 
-// ReSharper disable UnusedMember.Global
+/// <summary>
+/// Collection of stand CSS property names.
+/// </summary>
 [SuppressMessage("StyleCop.CSharp.MaintainabilityRules", "SA1401:Fields should be private")]
-internal static class CssProperties
+public static class CssProperties
 {
     // future me will convert these to constants.
     public static string Background = nameof(Background).ToKebabCase();
