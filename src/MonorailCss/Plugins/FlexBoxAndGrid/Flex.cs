@@ -55,10 +55,10 @@ public class FlexDirection : BaseUtilityPlugin
     protected override ImmutableDictionary<string, string> Utilities =>
         new Dictionary<string, string>()
         {
-            { "flex-row	", "row" },
+            { "flex-row", "row" },
             { "flex-row-reverse", "row-reverse" },
-            { "flex-col", "col" },
-            { "flex-col-reverse", "col-reverse" },
+            { "flex-col", "column" },
+            { "flex-col-reverse", "column-reverse" },
         }.ToImmutableDictionary();
 }
 
