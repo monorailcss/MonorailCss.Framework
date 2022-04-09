@@ -1,0 +1,6 @@
+# configuration file for dotnet-releaser
+[msbuild]
+project = "MonorailCss.sln"
+[github]
+user = "phil-scott-78"
+repo = "monorail"

@@ -91,3 +91,5 @@ Thumbs.db
 *.received.*
 
 node_modules
+
+/artifacts-dotnet-releaser/

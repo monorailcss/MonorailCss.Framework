@@ -10,8 +10,13 @@
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <Description>MonorailCSS is a JIT CSS compiler inspired by Tailwind CSS</Description>
+    <Copyright>Phil Scott</Copyright>
+    <PackageProjectUrl>https://github.com/phil-scott-78/monorail</PackageProjectUrl>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
   </PropertyGroup>
-
+  
+  
   <ItemGroup>
     <AdditionalFiles Include="..\stylecop.json" Link="Properties/stylecop.json" />
   </ItemGroup>
