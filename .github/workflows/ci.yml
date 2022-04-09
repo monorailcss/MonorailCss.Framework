@@ -1,0 +1,33 @@
+name: ci
+
+on:
+  push:
+    paths-ignore:
+    - 'changelog.md'
+    - 'license.md'
+    - 'readme.md'
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-18.04
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+
+    - name: Install .NET 6.0
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: '6.0.x'
+
+    - name: Build and Test (Debug)
+      run: dotnet test -c Debug
+
+    - name: Self Build - Publish (main only)
+      shell: bash
+      run: |
+        dotnet tool install --global dotnet-releaser
+        dotnet-releaser publish --force  --nuget-token ${{secrets.NUGET_TOKEN}} --github-token ${{secrets.GITHUB_TOKEN}} dotnet-releaser.toml
