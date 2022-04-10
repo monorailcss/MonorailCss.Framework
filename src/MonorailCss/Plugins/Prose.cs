@@ -232,7 +232,7 @@ public class Prose : IUtilityNamespacePlugin, IVariantPluginProvider
                 }),
                 new("tbody tr", new CssDeclarationList()
                 {
-                    new(CssProperties.BorderBottomColor, _framework.GetCssVariableWithPrefix("prose-th-borders")),
+                    new(CssProperties.BorderBottomColor, _framework.GetCssVariableWithPrefix("prose-td-borders")),
                     new(CssProperties.BorderBottomWidth, "1px"),
                 }),
                 new(new CssSelector("tbody tr", ":last-child"), new CssDeclarationList()
@@ -361,6 +361,12 @@ public class Prose : IUtilityNamespacePlugin, IVariantPluginProvider
                             new(
                                 _framework.GetVariableNameWithPrefix("prose-pre-bg"),
                                 _framework.GetCssVariableWithPrefix("prose-invert-pre-bg")),
+                            new(
+                                _framework.GetVariableNameWithPrefix("prose-th-borders"),
+                                _framework.GetCssVariableWithPrefix("prose-invert-th-borders")),
+                            new(
+                                _framework.GetVariableNameWithPrefix("prose-td-borders"),
+                                _framework.GetCssVariableWithPrefix("prose-invert-td-borders")),
                         },
                     }
                 },
@@ -402,15 +408,25 @@ public class Prose : IUtilityNamespacePlugin, IVariantPluginProvider
                                     _framework.GetVariableNameWithPrefix("prose-pre-bg"),
                                     _designSystem.Colors[scale][ColorLevels._800].AsRgb()),
                                 new(
-                                    _framework.GetVariableNameWithPrefix("prose-invert-body"),
+                                    _framework.GetVariableNameWithPrefix("prose-th-borders"),
                                     _designSystem.Colors[scale][ColorLevels._300].AsRgb()),
+                                new(
+                                    _framework.GetVariableNameWithPrefix("prose-td-borders"),
+                                    _designSystem.Colors[scale][ColorLevels._200].AsRgb()),
+
+                                // inverts
+                                new(_framework.GetVariableNameWithPrefix("prose-invert-body"), _designSystem.Colors[scale][ColorLevels._300].AsRgb()),
                                 new(_framework.GetVariableNameWithPrefix("prose-invert-headings"), "white"),
                                 new(_framework.GetVariableNameWithPrefix("prose-invert-links"), "white"),
                                 new(_framework.GetVariableNameWithPrefix("prose-invert-code"), "white"),
-                                new(
-                                    _framework.GetVariableNameWithPrefix("prose-invert-pre-code"),
-                                    _designSystem.Colors[scale][ColorLevels._300].AsRgb()),
+                                new(_framework.GetVariableNameWithPrefix("prose-invert-pre-code"), _designSystem.Colors[scale][ColorLevels._300].AsRgb()),
                                 new(_framework.GetVariableNameWithPrefix("prose-invert-pre-bg"), "rgb(0 0 0 / 50%)"),
+                                new(
+                                    _framework.GetVariableNameWithPrefix("prose-invert-th-borders"),
+                                    _designSystem.Colors[scale][ColorLevels._600].AsRgb()),
+                                new(
+                                    _framework.GetVariableNameWithPrefix("prose-invert-td-borders"),
+                                    _designSystem.Colors[scale][ColorLevels._700].AsRgb()),
                             },
                         }
                     },
