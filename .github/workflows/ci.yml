@@ -23,11 +23,8 @@ jobs:
       with:
         dotnet-version: '6.0.x'
 
-    - name: Build and Test (Debug)
-      run: dotnet test -c Debug
-
-    - name: Self Build - Publish (main only)
+    - name: Build, Test (Debug & Release), Publish (main only)
       shell: bash
       run: |
         dotnet tool install --global dotnet-releaser
-        dotnet-releaser publish --force  --nuget-token ${{secrets.NUGET_TOKEN}} --github-token ${{secrets.GITHUB_TOKEN}} dotnet-releaser.toml
+        dotnet-releaser run --nuget-token "${{secrets.NUGET_TOKEN}}" --github-token "${{secrets.GITHUB_TOKEN}}" dotnet-releaser.toml

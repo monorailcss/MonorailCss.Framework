@@ -1,6 +1,11 @@
 # configuration file for dotnet-releaser
 [msbuild]
 project = "MonorailCss.sln"
+build_debug = true
+[test]
+run_tests_for_debug = true
+[nuget]
+publish_draft = true # publish draft NuGet package per commit
 [github]
 user = "phil-scott-78"
 repo = "monorail"
