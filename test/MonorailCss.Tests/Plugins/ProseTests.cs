@@ -43,4 +43,13 @@ public class ProseTests
         var results = framework.Process(new[] { "writing", "writing-sm", "mx-4" });
         results.ShouldContain(".writing");
     }
+
+    [Fact]
+    public void Prose_has_tbody_tr_last_child()
+    {
+        var framework = new CssFramework(MonorailCss.DesignSystem.Default)
+            .WithCssReset(string.Empty);
+        var results = framework.Process(new[] { "prose" });
+        results.ShouldContainElementWithCssProperty(".prose tbody tr:last-child", "border-bottom-width", "0" );
+    }
 }

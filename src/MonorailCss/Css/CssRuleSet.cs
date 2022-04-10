@@ -30,10 +30,7 @@ public record CssRuleSet(CssSelector Selector, CssDeclarationList DeclarationLis
             throw new InvalidOperationException("Cannot add ruleset with different selectors.");
         }
 
-        return ruleSet1 with
-        {
-            DeclarationList = ruleSet1.DeclarationList + ruleSet2.DeclarationList,
-        };
+        return ruleSet1 with { DeclarationList = ruleSet1.DeclarationList + ruleSet2.DeclarationList, };
     }
 }
 
@@ -51,12 +48,26 @@ public record CssSelector(string Selector, string? PseudoClass = default, string
         var sb = new StringBuilder(Selector);
         if (PseudoClass != default)
         {
-            sb.Append($":{PseudoClass}");
+            if (PseudoClass.StartsWith(":"))
+            {
+                sb.Append(PseudoClass);
+            }
+            else
+            {
+                sb.Append($":{PseudoClass}");
+            }
         }
 
         if (PseudoElement != default)
         {
-            sb.Append($"::{PseudoElement}");
+            if (!PseudoElement.StartsWith("::"))
+            {
+                sb.Append($"::{PseudoElement}");
+            }
+            else
+            {
+                sb.Append(PseudoElement);
+            }
         }
 
         return sb.ToString();

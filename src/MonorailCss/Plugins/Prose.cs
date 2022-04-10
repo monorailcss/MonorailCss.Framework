@@ -206,6 +206,48 @@ public class Prose : IUtilityNamespacePlugin, IVariantPluginProvider
                         new(CssProperties.Color, _framework.GetCssVariableWithPrefix("prose-headings")),
                     }),
                 new("h4 strong", new CssDeclarationList { new(CssProperties.FontWeight, "700"), }),
+                new("code", new CssDeclarationList()
+                {
+                    new(CssProperties.Color, _framework.GetCssVariableWithPrefix("prose-code")),
+                    new(CssProperties.FontWeight, "600"),
+                }),
+                new("table", new CssDeclarationList()
+                {
+                    new(CssProperties.Width, "100%"),
+                    new(CssProperties.TableLayout, "auto"),
+                    new(CssProperties.TextAlign, "left"),
+                    new(CssProperties.MarginTop, Em(32, 16)),
+                    new(CssProperties.MarginBottom, Em(32, 16)),
+                }),
+                new("thead", new CssDeclarationList()
+                {
+                    new(CssProperties.BorderBottomColor, _framework.GetCssVariableWithPrefix("prose-th-borders")),
+                    new(CssProperties.BorderBottomWidth, "1px"),
+                }),
+                new("thead th", new CssDeclarationList()
+                {
+                    new(CssProperties.Color, _framework.GetCssVariableWithPrefix("prose-headings")),
+                    new(CssProperties.FontWeight, "600"),
+                    new(CssProperties.VerticalAlign, "bottom"),
+                }),
+                new("tbody tr", new CssDeclarationList()
+                {
+                    new(CssProperties.BorderBottomColor, _framework.GetCssVariableWithPrefix("prose-th-borders")),
+                    new(CssProperties.BorderBottomWidth, "1px"),
+                }),
+                new(new CssSelector("tbody tr", ":last-child"), new CssDeclarationList()
+                {
+                    new(CssProperties.BorderBottomWidth, "0px"),
+                }),
+                new("tbody td", new CssDeclarationList()
+                {
+                    new(CssProperties.VerticalAlign, "baseline"),
+                }),
+                new("tfoot", new CssDeclarationList()
+                {
+                    new(CssProperties.BorderTopWidth, "1px"),
+                    new(CssProperties.BorderTopColor, _framework.GetCssVariableWithPrefix("prose-th-borders")),
+                }),
             },
         };
         return defaultSettings;
