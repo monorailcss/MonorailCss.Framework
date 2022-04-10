@@ -1,8 +1,10 @@
 # MonorailCSS
 
+[![Nuget (with prereleases)](https://img.shields.io/nuget/vpre/MonorailCss)](https://www.nuget.org/packages/MonorailCss/)
+
 MonorailCSS is a utility-first CSS library inspired heavily by Tailwind.
 
-Give a design system and a list of CSS classes it will produce a CSS file.
+Given a design system and a list of CSS classes it will produce a CSS file.
 
 ```csharp
 var framework = new CssFramework(MonorailCss.DesignSystem.Default);
