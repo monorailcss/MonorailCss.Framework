@@ -9,13 +9,30 @@ namespace MonorailCss.Plugins;
 public abstract class BaseUtilityNamespacePlugin : IUtilityNamespacePlugin
 {
     /// <inheritdoc />
-    public ImmutableArray<string> Namespaces => NamespacePropertyMapList.Namespaces.ToImmutableArray();
+    public ImmutableArray<string> Namespaces => _namespaces.Value;
+
+    private readonly Lazy<ImmutableArray<string>> _namespaces;
+    private readonly Lazy<CssNamespaceToPropertyMap> _namespacePropertyMapList;
+    private readonly Lazy<CssSuffixToValueMap> _suffixToValueMap;
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="BaseUtilityNamespacePlugin"/> class.
+    /// </summary>
+    protected BaseUtilityNamespacePlugin()
+    {
+        _namespaces = new Lazy<ImmutableArray<string>>(() => NamespacePropertyMapList.Namespaces.ToImmutableArray());
+        _suffixToValueMap = new Lazy<CssSuffixToValueMap>(() => Values);
+        _namespacePropertyMapList = new Lazy<CssNamespaceToPropertyMap>(() => NamespacePropertyMapList);
+    }
 
     /// <inheritdoc />
     public IEnumerable<CssRuleSet> Process(IParsedClassNameSyntax syntax)
     {
+        var namespacePropertyMapList = _namespacePropertyMapList.Value;
+        var cssSuffixToValuesMap = _suffixToValueMap.Value;
+
         // this utility only works for namespace syntax whose namespaces are defined here..
-        if (syntax is not NamespaceSyntax namespaceSyntax || !NamespacePropertyMapList.ContainsNamespace(namespaceSyntax.Namespace))
+        if (syntax is not NamespaceSyntax namespaceSyntax || !namespacePropertyMapList.ContainsNamespace(namespaceSyntax.Namespace))
         {
             yield break;
         }
@@ -23,13 +40,13 @@ public abstract class BaseUtilityNamespacePlugin : IUtilityNamespacePlugin
         var suffix = namespaceSyntax.Suffix ?? "DEFAULT";
 
         // gotta have a suffix that's defined.
-        if (!Values.ContainsSuffix(namespaceSyntax.Suffix ?? "DEFAULT"))
+        if (!cssSuffixToValuesMap.ContainsSuffix(namespaceSyntax.Suffix ?? "DEFAULT"))
         {
             yield break;
         }
 
-        var value = Values[suffix];
-        var props = NamespacePropertyMapList[namespaceSyntax.Namespace];
+        var value = cssSuffixToValuesMap[suffix];
+        var props = namespacePropertyMapList[namespaceSyntax.Namespace];
 
         var declarationList = new CssDeclarationList();
         foreach (var property in props.Values)

@@ -48,11 +48,12 @@ public class Prose : IUtilityNamespacePlugin, IVariantPluginProvider
         _framework = framework;
         _settings = settings;
 
-        var defaultSettings = DefaultSettings() + StandardSettings["base"] + StandardSettings[ColorNames.Gray];
+        var standardSettings = GetStandardSettings();
+        var defaultSettings = GetDefaultSettings() + standardSettings["base"] + standardSettings[ColorNames.Gray];
 
         var customSettings = _settings.CustomSettings(_designSystem);
 
-        _configuredSettings = StandardSettings.Add("DEFAULT", defaultSettings);
+        _configuredSettings = standardSettings.Add("DEFAULT", defaultSettings);
         foreach (var customSetting in customSettings)
         {
             _configuredSettings = _configuredSettings.ContainsKey(customSetting.Key)
@@ -120,7 +121,7 @@ public class Prose : IUtilityNamespacePlugin, IVariantPluginProvider
         return ($"{ns}-{modifer}", new SelectorVariant(selector));
     }
 
-    private CssSettings DefaultSettings()
+    private CssSettings GetDefaultSettings()
     {
         var defaultSettings = new CssSettings()
         {
@@ -253,185 +254,184 @@ public class Prose : IUtilityNamespacePlugin, IVariantPluginProvider
         return defaultSettings;
     }
 
-    private ImmutableDictionary<string, CssSettings> StandardSettings
+    private ImmutableDictionary<string, CssSettings> GetStandardSettings()
     {
-        get
+        var baseSettings = new Dictionary<string, CssSettings>
         {
-            var baseSettings = new Dictionary<string, CssSettings>
             {
+                "base", new CssSettings()
                 {
-                    "base", new CssSettings()
+                    Css =
+                        new CssDeclarationList
+                        {
+                            new(CssProperties.FontSize, Rem(16)), new(CssProperties.LineHeight, Rounds(28 / 18m)),
+                        },
+                    ChildRules = new CssRuleSetList()
                     {
-                        Css =
+                        new(
+                            "p",
                             new CssDeclarationList
                             {
-                                new(CssProperties.FontSize, Rem(16)), new(CssProperties.LineHeight, Rounds(28 / 18m)),
-                            },
-                        ChildRules = new CssRuleSetList()
+                                new(CssProperties.MarginTop, Em(20, 16)),
+                                new(CssProperties.MarginBottom, Em(20, 16)),
+                            }),
+                        new(
+                            "h1", new CssDeclarationList
+                            {
+                                new(CssProperties.FontSize, Em(36, 16)),
+                                new(CssProperties.MarginTop, "0"),
+                                new(CssProperties.MarginBottom, Em(32, 36)),
+                                new(CssProperties.LineHeight, Rounds(40 / 36m)),
+                            }),
+                        new("h2", new CssDeclarationList
                         {
-                            new(
-                                "p",
-                                new CssDeclarationList
-                                {
-                                    new(CssProperties.MarginTop, Em(20, 16)),
-                                    new(CssProperties.MarginBottom, Em(20, 16)),
-                                }),
-                            new(
-                                "h1", new CssDeclarationList
-                                {
-                                    new(CssProperties.FontSize, Em(36, 16)),
-                                    new(CssProperties.MarginTop, "0"),
-                                    new(CssProperties.MarginBottom, Em(32, 36)),
-                                    new(CssProperties.LineHeight, Rounds(40 / 36m)),
-                                }),
-                            new("h2", new CssDeclarationList
+                            new(CssProperties.FontSize, Em(24, 16)),
+                            new(CssProperties.MarginTop, Em(48, 24)),
+                            new(CssProperties.MarginBottom, Em(12, 20)),
+                            new(CssProperties.LineHeight, Rounds(32 / 24m)),
+                        }),
+                        new("h3", new CssDeclarationList
+                        {
+                            new(CssProperties.FontSize, Em(20, 16)),
+                            new(CssProperties.MarginTop, Em(32, 20)),
+                            new(CssProperties.MarginBottom, Em(12, 20)),
+                            new(CssProperties.LineHeight, Rounds(32 / 20m)),
+                        }),
+                        new(
+                            "h4",
+                            new CssDeclarationList
                             {
-                                new(CssProperties.FontSize, Em(24, 16)),
-                                new(CssProperties.MarginTop, Em(48, 24)),
-                                new(CssProperties.MarginBottom, Em(12, 20)),
-                                new(CssProperties.LineHeight, Rounds(32 / 24m)),
+                                new(CssProperties.MarginTop, Em(24, 16)),
+                                new(CssProperties.MarginBottom, Em(8, 16)),
+                                new(CssProperties.LineHeight, Rounds(24 / 16m)),
                             }),
-                            new("h3", new CssDeclarationList
+                        new("pre", new CssDeclarationList
+                        {
+                            new(CssProperties.FontSize, Em(14, 16)),
+                            new(CssProperties.LineHeight, Rounds(24 / 14m)),
+                            new(CssProperties.MarginTop, Em(24, 14)),
+                            new(CssProperties.MarginBottom, Em(24, 14)),
+                            new(CssProperties.PaddingTop, Em(12, 14)),
+                            new(CssProperties.PaddingBottom, Em(12, 14)),
+                            new(CssProperties.PaddingLeft, Em(16, 14)),
+                            new(CssProperties.PaddingRight, Em(16, 14)),
+                        }),
+                        new(
+                            "ol",
+                            new CssDeclarationList
                             {
-                                new(CssProperties.FontSize, Em(20, 16)),
-                                new(CssProperties.MarginTop, Em(32, 20)),
-                                new(CssProperties.MarginBottom, Em(12, 20)),
-                                new(CssProperties.LineHeight, Rounds(32 / 20m)),
+                                new(CssProperties.MarginTop, Em(20, 16)),
+                                new(CssProperties.MarginBottom, Em(20, 16)),
+                                new(CssProperties.PaddingLeft, Em(20, 16)),
                             }),
-                            new(
-                                "h4",
-                                new CssDeclarationList
-                                {
-                                    new(CssProperties.MarginTop, Em(24, 16)),
-                                    new(CssProperties.MarginBottom, Em(8, 16)),
-                                    new(CssProperties.LineHeight, Rounds(24 / 16m)),
-                                }),
-                            new("pre", new CssDeclarationList
+                        new(
+                            "ul",
+                            new CssDeclarationList
                             {
-                                new(CssProperties.FontSize, Em(14, 16)),
-                                new(CssProperties.LineHeight, Rounds(24 / 14m)),
-                                new(CssProperties.MarginTop, Em(24, 14)),
-                                new(CssProperties.MarginBottom, Em(24, 14)),
-                                new(CssProperties.PaddingTop, Em(12, 14)),
-                                new(CssProperties.PaddingBottom, Em(12, 14)),
-                                new(CssProperties.PaddingLeft, Em(16, 14)),
-                                new(CssProperties.PaddingRight, Em(16, 14)),
+                                new(CssProperties.MarginTop, Em(20, 16)),
+                                new(CssProperties.MarginBottom, Em(20, 16)),
+                                new(CssProperties.PaddingLeft, Em(20, 16)),
                             }),
-                            new(
-                                "ol",
-                                new CssDeclarationList
-                                {
-                                    new(CssProperties.MarginTop, Em(20, 16)),
-                                    new(CssProperties.MarginBottom, Em(20, 16)),
-                                    new(CssProperties.PaddingLeft, Em(20, 16)),
-                                }),
-                            new(
-                                "ul",
-                                new CssDeclarationList
-                                {
-                                    new(CssProperties.MarginTop, Em(20, 16)),
-                                    new(CssProperties.MarginBottom, Em(20, 16)),
-                                    new(CssProperties.PaddingLeft, Em(20, 16)),
-                                }),
-                            new("ol > li", new CssDeclarationList { new(CssProperties.PaddingLeft, Em(6, 16)) }),
-                            new("ul > li", new CssDeclarationList { new(CssProperties.PaddingLeft, Em(6, 16)) }),
-                        },
-                    }
-                },
+                        new("ol > li", new CssDeclarationList { new(CssProperties.PaddingLeft, Em(6, 16)) }),
+                        new("ul > li", new CssDeclarationList { new(CssProperties.PaddingLeft, Em(6, 16)) }),
+                    },
+                }
+            },
+            {
+                "invert", new CssSettings
                 {
-                    "invert", new CssSettings
+                    Css = new CssDeclarationList
+                    {
+                        new(
+                            _framework.GetVariableNameWithPrefix("prose-body"),
+                            _framework.GetCssVariableWithPrefix("prose-invert-body")),
+                        new(
+                            _framework.GetVariableNameWithPrefix("prose-links"),
+                            _framework.GetCssVariableWithPrefix("prose-invert-links")),
+                        new(
+                            _framework.GetVariableNameWithPrefix("prose-headings"),
+                            _framework.GetCssVariableWithPrefix("prose-invert-headings")),
+                        new(
+                            _framework.GetVariableNameWithPrefix("prose-code"),
+                            _framework.GetCssVariableWithPrefix("prose-invert-code")),
+                        new(
+                            _framework.GetVariableNameWithPrefix("prose-pre-code"),
+                            _framework.GetCssVariableWithPrefix("prose-invert-pre-code")),
+                        new(
+                            _framework.GetVariableNameWithPrefix("prose-pre-bg"),
+                            _framework.GetCssVariableWithPrefix("prose-invert-pre-bg")),
+                        new(
+                            _framework.GetVariableNameWithPrefix("prose-th-borders"),
+                            _framework.GetCssVariableWithPrefix("prose-invert-th-borders")),
+                        new(
+                            _framework.GetVariableNameWithPrefix("prose-td-borders"),
+                            _framework.GetCssVariableWithPrefix("prose-invert-td-borders")),
+                    },
+                }
+            },
+            {
+                "sm",
+                new CssSettings
+                {
+                    Css = new CssDeclarationList
+                    {
+                        new(CssProperties.FontSize, Rem(14)), new(CssProperties.LineHeight, Rounds(24 / 14m)),
+                    },
+                }
+            },
+        }.ToImmutableDictionary();
+
+        return _settings.GrayScales.Aggregate(baseSettings, (current, scale) => new Dictionary<string, CssSettings>
+            {
+                {
+                    scale, new CssSettings()
                     {
                         Css = new CssDeclarationList
                         {
                             new(
                                 _framework.GetVariableNameWithPrefix("prose-body"),
-                                _framework.GetCssVariableWithPrefix("prose-invert-body")),
-                            new(
-                                _framework.GetVariableNameWithPrefix("prose-links"),
-                                _framework.GetCssVariableWithPrefix("prose-invert-links")),
+                                _designSystem.Colors[scale][ColorLevels._700].AsRgb()),
                             new(
                                 _framework.GetVariableNameWithPrefix("prose-headings"),
-                                _framework.GetCssVariableWithPrefix("prose-invert-headings")),
+                                _designSystem.Colors[scale][ColorLevels._900].AsRgb()),
+                            new(
+                                _framework.GetVariableNameWithPrefix("prose-links"),
+                                _designSystem.Colors[scale][ColorLevels._900].AsRgb()),
                             new(
                                 _framework.GetVariableNameWithPrefix("prose-code"),
-                                _framework.GetCssVariableWithPrefix("prose-invert-code")),
+                                _designSystem.Colors[scale][ColorLevels._900].AsRgb()),
                             new(
                                 _framework.GetVariableNameWithPrefix("prose-pre-code"),
-                                _framework.GetCssVariableWithPrefix("prose-invert-pre-code")),
+                                _designSystem.Colors[scale][ColorLevels._200].AsRgb()),
                             new(
                                 _framework.GetVariableNameWithPrefix("prose-pre-bg"),
-                                _framework.GetCssVariableWithPrefix("prose-invert-pre-bg")),
+                                _designSystem.Colors[scale][ColorLevels._800].AsRgb()),
                             new(
                                 _framework.GetVariableNameWithPrefix("prose-th-borders"),
-                                _framework.GetCssVariableWithPrefix("prose-invert-th-borders")),
+                                _designSystem.Colors[scale][ColorLevels._300].AsRgb()),
                             new(
                                 _framework.GetVariableNameWithPrefix("prose-td-borders"),
-                                _framework.GetCssVariableWithPrefix("prose-invert-td-borders")),
+                                _designSystem.Colors[scale][ColorLevels._200].AsRgb()),
+
+                            // inverts
+                            new(_framework.GetVariableNameWithPrefix("prose-invert-body"),
+                                _designSystem.Colors[scale][ColorLevels._300].AsRgb()),
+                            new(_framework.GetVariableNameWithPrefix("prose-invert-headings"), "white"),
+                            new(_framework.GetVariableNameWithPrefix("prose-invert-links"), "white"),
+                            new(_framework.GetVariableNameWithPrefix("prose-invert-code"), "white"),
+                            new(_framework.GetVariableNameWithPrefix("prose-invert-pre-code"),
+                                _designSystem.Colors[scale][ColorLevels._300].AsRgb()),
+                            new(_framework.GetVariableNameWithPrefix("prose-invert-pre-bg"), "rgb(0 0 0 / 50%)"),
+                            new(
+                                _framework.GetVariableNameWithPrefix("prose-invert-th-borders"),
+                                _designSystem.Colors[scale][ColorLevels._600].AsRgb()),
+                            new(
+                                _framework.GetVariableNameWithPrefix("prose-invert-td-borders"),
+                                _designSystem.Colors[scale][ColorLevels._700].AsRgb()),
                         },
                     }
                 },
-                {
-                    "sm",
-                    new CssSettings
-                    {
-                        Css = new CssDeclarationList
-                        {
-                            new(CssProperties.FontSize, Rem(14)), new(CssProperties.LineHeight, Rounds(24 / 14m)),
-                        },
-                    }
-                },
-            }.ToImmutableDictionary();
-
-            return _settings.GrayScales.Aggregate(baseSettings, (current, scale) => new Dictionary<string, CssSettings>
-                {
-                    {
-                        scale, new CssSettings()
-                        {
-                            Css = new CssDeclarationList
-                            {
-                                new(
-                                    _framework.GetVariableNameWithPrefix("prose-body"),
-                                    _designSystem.Colors[scale][ColorLevels._700].AsRgb()),
-                                new(
-                                    _framework.GetVariableNameWithPrefix("prose-headings"),
-                                    _designSystem.Colors[scale][ColorLevels._900].AsRgb()),
-                                new(
-                                    _framework.GetVariableNameWithPrefix("prose-links"),
-                                    _designSystem.Colors[scale][ColorLevels._900].AsRgb()),
-                                new(
-                                    _framework.GetVariableNameWithPrefix("prose-code"),
-                                    _designSystem.Colors[scale][ColorLevels._900].AsRgb()),
-                                new(
-                                    _framework.GetVariableNameWithPrefix("prose-pre-code"),
-                                    _designSystem.Colors[scale][ColorLevels._200].AsRgb()),
-                                new(
-                                    _framework.GetVariableNameWithPrefix("prose-pre-bg"),
-                                    _designSystem.Colors[scale][ColorLevels._800].AsRgb()),
-                                new(
-                                    _framework.GetVariableNameWithPrefix("prose-th-borders"),
-                                    _designSystem.Colors[scale][ColorLevels._300].AsRgb()),
-                                new(
-                                    _framework.GetVariableNameWithPrefix("prose-td-borders"),
-                                    _designSystem.Colors[scale][ColorLevels._200].AsRgb()),
-
-                                // inverts
-                                new(_framework.GetVariableNameWithPrefix("prose-invert-body"), _designSystem.Colors[scale][ColorLevels._300].AsRgb()),
-                                new(_framework.GetVariableNameWithPrefix("prose-invert-headings"), "white"),
-                                new(_framework.GetVariableNameWithPrefix("prose-invert-links"), "white"),
-                                new(_framework.GetVariableNameWithPrefix("prose-invert-code"), "white"),
-                                new(_framework.GetVariableNameWithPrefix("prose-invert-pre-code"), _designSystem.Colors[scale][ColorLevels._300].AsRgb()),
-                                new(_framework.GetVariableNameWithPrefix("prose-invert-pre-bg"), "rgb(0 0 0 / 50%)"),
-                                new(
-                                    _framework.GetVariableNameWithPrefix("prose-invert-th-borders"),
-                                    _designSystem.Colors[scale][ColorLevels._600].AsRgb()),
-                                new(
-                                    _framework.GetVariableNameWithPrefix("prose-invert-td-borders"),
-                                    _designSystem.Colors[scale][ColorLevels._700].AsRgb()),
-                            },
-                        }
-                    },
-                }.ToImmutableDictionary()
-                .AddRange(current));
-        }
+            }.ToImmutableDictionary()
+            .AddRange(current));
     }
 }

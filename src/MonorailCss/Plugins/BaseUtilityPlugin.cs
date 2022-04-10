@@ -9,6 +9,16 @@ namespace MonorailCss.Plugins;
 public abstract class BaseUtilityPlugin : IUtilityPlugin
 {
     /// <summary>
+    /// Initializes a new instance of the <see cref="BaseUtilityPlugin"/> class.
+    /// </summary>
+    protected BaseUtilityPlugin()
+    {
+        _utilityValues = new Lazy<ImmutableDictionary<string, string>>(() => Utilities);
+    }
+
+    private readonly Lazy<ImmutableDictionary<string, string>> _utilityValues;
+
+    /// <summary>
     /// Gets the CSS property this utility returns.
     /// </summary>
     protected abstract string Property { get; }
@@ -26,12 +36,13 @@ public abstract class BaseUtilityPlugin : IUtilityPlugin
             yield break;
         }
 
-        var utility = utilitySyntax.Name.ToLowerInvariant();
-        if (!Utilities.ContainsKey(utility))
+        var utility = utilitySyntax.Name;
+
+        if (!_utilityValues.Value.ContainsKey(utility))
         {
             yield break;
         }
 
-        yield return new CssRuleSet(utilitySyntax.OriginalSyntax, new CssDeclarationList { new(Property, Utilities[utility]), });
+        yield return new CssRuleSet(utilitySyntax.OriginalSyntax, new CssDeclarationList { new(Property, _utilityValues.Value[utility]), });
     }
 }
