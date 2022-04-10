@@ -414,12 +414,14 @@ public class Prose : IUtilityNamespacePlugin, IVariantPluginProvider
                                 _designSystem.Colors[scale][ColorLevels._200].AsRgb()),
 
                             // inverts
-                            new(_framework.GetVariableNameWithPrefix("prose-invert-body"),
+                            new(
+                                _framework.GetVariableNameWithPrefix("prose-invert-body"),
                                 _designSystem.Colors[scale][ColorLevels._300].AsRgb()),
                             new(_framework.GetVariableNameWithPrefix("prose-invert-headings"), "white"),
                             new(_framework.GetVariableNameWithPrefix("prose-invert-links"), "white"),
                             new(_framework.GetVariableNameWithPrefix("prose-invert-code"), "white"),
-                            new(_framework.GetVariableNameWithPrefix("prose-invert-pre-code"),
+                            new(
+                                _framework.GetVariableNameWithPrefix("prose-invert-pre-code"),
                                 _designSystem.Colors[scale][ColorLevels._300].AsRgb()),
                             new(_framework.GetVariableNameWithPrefix("prose-invert-pre-bg"), "rgb(0 0 0 / 50%)"),
                             new(
