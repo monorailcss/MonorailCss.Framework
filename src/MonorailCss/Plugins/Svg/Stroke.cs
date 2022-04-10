@@ -1,4 +1,4 @@
-﻿using System.Collections.Immutable;
+using System.Collections.Immutable;
 using MonorailCss.Css;
 
 namespace MonorailCss.Plugins.Svg;
@@ -6,24 +6,24 @@ namespace MonorailCss.Plugins.Svg;
 /// <summary>
 /// The fill plugin.
 /// </summary>
-public class Fill : BaseUtilityNamespacePlugin
+public class Stroke : BaseUtilityNamespacePlugin
 {
-    private const string Namespace = "fill";
+    private const string Namespace = "stroke";
     private readonly DesignSystem _designSystem;
     private readonly ImmutableDictionary<string, CssColor> _flattenedColors;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="Fill"/> class.
+    /// Initializes a new instance of the <see cref="Stroke"/> class.
     /// </summary>
     /// <param name="designSystem">The design system.</param>
-    public Fill(DesignSystem designSystem)
+    public Stroke(DesignSystem designSystem)
     {
         _designSystem = designSystem;
         _flattenedColors = designSystem.Colors.Flatten();
     }
 
     /// <inheritdoc />
-    protected override CssNamespaceToPropertyMap NamespacePropertyMapList => new() { { Namespace, "fill" } };
+    protected override CssNamespaceToPropertyMap NamespacePropertyMapList => new() { { Namespace, "stroke" } };
 
     /// <inheritdoc />
     protected override CssSuffixToValueMap Values
