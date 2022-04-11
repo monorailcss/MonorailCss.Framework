@@ -15,4 +15,10 @@ public interface IUtilityPlugin
     /// <param name="syntax">The parsed utility class.</param>
     /// <returns>A list of CSS properties for this syntax.</returns>
     IEnumerable<CssRuleSet> Process(IParsedClassNameSyntax syntax);
+
+    /// <summary>
+    /// Gets all the possible rules of syntax this plugin supports.
+    /// </summary>
+    /// <returns>An enumerable of all rules.</returns>
+    IEnumerable<CssRuleSet> GetAllRules();
 }

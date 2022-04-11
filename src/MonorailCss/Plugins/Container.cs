@@ -72,6 +72,12 @@ public class Container : IUtilityNamespacePlugin
         yield return new CssRuleSet(syntax.OriginalSyntax, declarations);
     }
 
+    /// <inheritdoc />
+    public IEnumerable<CssRuleSet> GetAllRules()
+    {
+        yield break;
+    }
+
     private CssDeclarationList GetDeclarations(string property, string value, string paddingKey)
     {
         var declarationList = new CssDeclarationList { new(property, value), };

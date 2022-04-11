@@ -31,6 +31,13 @@ public class Accessibility : IUtilityPlugin
         yield return new CssRuleSet(utilityPlugin.OriginalSyntax, declarations);
     }
 
+    /// <inheritdoc />
+    public IEnumerable<CssRuleSet> GetAllRules()
+    {
+        yield return new CssRuleSet("sr-only", SrOnly);
+        yield return new CssRuleSet("not-sr-only", NotSrOnly);
+    }
+
     private static CssDeclarationList NotSrOnly => new()
     {
             new CssDeclaration(CSS.Position, "static"),

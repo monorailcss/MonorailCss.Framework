@@ -1,42 +1,32 @@
-﻿using MonorailCss.Css;
+﻿using System.Collections.Immutable;
+using MonorailCss.Css;
 
 namespace MonorailCss.Plugins.Typography;
 
 /// <summary>
 /// The font-smoothing plugin.
 /// </summary>
-public class FontSmoothing : IUtilityPlugin
+public class FontSmoothing : BaseLookupPlugin
 {
     /// <inheritdoc />
-    public IEnumerable<CssRuleSet> Process(IParsedClassNameSyntax syntax)
+    protected override ImmutableDictionary<string, CssDeclarationList> GetLookups()
     {
-        if (syntax is not UtilitySyntax utilitySyntax)
+        return new Dictionary<string, CssDeclarationList>()
         {
-            yield break;
-        }
-
-        CssDeclarationList declaration;
-        if (utilitySyntax.Name == "antialiased")
-        {
-            declaration = new CssDeclarationList()
             {
-                new("-webkit-font-smoothing", "antialiased"),
-                new("-moz-osx-font-smoothing", "grayscale"),
-            };
-        }
-        else if (utilitySyntax.Name == "subpixel-antialiased")
-        {
-            declaration = new CssDeclarationList()
+                "antialiased",
+                new CssDeclarationList()
+                {
+                    new("-webkit-font-smoothing", "antialiased"), new("-moz-osx-font-smoothing", "grayscale"),
+                }
+            },
             {
-                new("-webkit-font-smoothing", "auto"),
-                new("-moz-osx-font-smoothing", "auto"),
-            };
-        }
-        else
-        {
-            yield break;
-        }
-
-        yield return new CssRuleSet(utilitySyntax.OriginalSyntax, declaration);
+                "subpixel-antialiased",
+                new CssDeclarationList()
+                {
+                    new("-webkit-font-smoothing", "auto"), new("-moz-osx-font-smoothing", "auto"),
+                }
+            },
+        }.ToImmutableDictionary();
     }
 }

@@ -31,8 +31,10 @@ public class Prose : IUtilityNamespacePlugin, IVariantPluginProvider
     }
 
     private readonly DesignSystem _designSystem;
-    private readonly CssFramework _framework;
     private readonly Settings _settings;
+
+    private readonly Func<string, string> _cssVar = CssFramework.GetCssVariableWithPrefix;
+    private readonly Func<string, string> _var = CssFramework.GetVariableNameWithPrefix;
 
     private readonly ImmutableDictionary<string, CssSettings> _configuredSettings;
 
@@ -45,7 +47,6 @@ public class Prose : IUtilityNamespacePlugin, IVariantPluginProvider
     public Prose(DesignSystem designSystem, CssFramework framework, Settings settings)
     {
         _designSystem = designSystem;
-        _framework = framework;
         _settings = settings;
 
         var standardSettings = GetStandardSettings();
@@ -92,6 +93,13 @@ public class Prose : IUtilityNamespacePlugin, IVariantPluginProvider
     }
 
     /// <inheritdoc />
+    public IEnumerable<CssRuleSet> GetAllRules()
+    {
+        // this might not fit the mold...
+        yield break;
+    }
+
+    /// <inheritdoc />
     public ImmutableArray<string> Namespaces => new[] { _settings.Namespace, }.ToImmutableArray();
 
     /// <inheritdoc />
@@ -126,20 +134,20 @@ public class Prose : IUtilityNamespacePlugin, IVariantPluginProvider
         var defaultSettings = new CssSettings()
         {
             Css =
-                new CssDeclarationList { new(CssProperties.Color, _framework.GetCssVariableWithPrefix("prose-body")), },
+                new CssDeclarationList { new(CssProperties.Color, _cssVar("prose-body")), },
             ChildRules = new CssRuleSetList()
             {
                 new(
                     "a",
                     new CssDeclarationList
                     {
-                        new(CssProperties.Color, _framework.GetCssVariableWithPrefix("prose-links")),
+                        new(CssProperties.Color, _cssVar("prose-links")),
                         new(CssProperties.TextDecoration, "underline"),
                     }),
                 new("pre", new CssDeclarationList()
                 {
-                    new(CssProperties.Color, _framework.GetCssVariableWithPrefix("prose-pre-code")),
-                    new(CssProperties.BackgroundColor, _framework.GetCssVariableWithPrefix("prose-pre-bg")),
+                    new(CssProperties.Color, _cssVar("prose-pre-code")),
+                    new(CssProperties.BackgroundColor, _cssVar("prose-pre-bg")),
                     new("overflow-x", "auto"),
                     new(CssProperties.FontWeight, "300"),
                 }),
@@ -178,7 +186,7 @@ public class Prose : IUtilityNamespacePlugin, IVariantPluginProvider
                     new CssDeclarationList
                     {
                         new(CssProperties.FontWeight, "800"),
-                        new(CssProperties.Color, _framework.GetCssVariableWithPrefix("prose-headings")),
+                        new(CssProperties.Color, _cssVar("prose-headings")),
                     }),
                 new(
                     "h1 strong",
@@ -188,7 +196,7 @@ public class Prose : IUtilityNamespacePlugin, IVariantPluginProvider
                     new CssDeclarationList
                     {
                         new(CssProperties.FontWeight, "700"),
-                        new(CssProperties.Color, _framework.GetCssVariableWithPrefix("prose-headings")),
+                        new(CssProperties.Color, _cssVar("prose-headings")),
                     }),
                 new("h2 strong", new CssDeclarationList { new(CssProperties.FontWeight, "800"), }),
                 new(
@@ -196,7 +204,7 @@ public class Prose : IUtilityNamespacePlugin, IVariantPluginProvider
                     new CssDeclarationList
                     {
                         new(CssProperties.FontWeight, "600"),
-                        new(CssProperties.Color, _framework.GetCssVariableWithPrefix("prose-headings")),
+                        new(CssProperties.Color, _cssVar("prose-headings")),
                     }),
                 new("h3 strong", new CssDeclarationList { new(CssProperties.FontWeight, "700"), }),
                 new(
@@ -204,12 +212,12 @@ public class Prose : IUtilityNamespacePlugin, IVariantPluginProvider
                     new CssDeclarationList
                     {
                         new(CssProperties.FontWeight, "600"),
-                        new(CssProperties.Color, _framework.GetCssVariableWithPrefix("prose-headings")),
+                        new(CssProperties.Color, _cssVar("prose-headings")),
                     }),
                 new("h4 strong", new CssDeclarationList { new(CssProperties.FontWeight, "700"), }),
                 new("code", new CssDeclarationList()
                 {
-                    new(CssProperties.Color, _framework.GetCssVariableWithPrefix("prose-code")),
+                    new(CssProperties.Color, _cssVar("prose-code")),
                     new(CssProperties.FontWeight, "600"),
                 }),
                 new("table", new CssDeclarationList()
@@ -222,18 +230,18 @@ public class Prose : IUtilityNamespacePlugin, IVariantPluginProvider
                 }),
                 new("thead", new CssDeclarationList()
                 {
-                    new(CssProperties.BorderBottomColor, _framework.GetCssVariableWithPrefix("prose-th-borders")),
+                    new(CssProperties.BorderBottomColor, _cssVar("prose-th-borders")),
                     new(CssProperties.BorderBottomWidth, "1px"),
                 }),
                 new("thead th", new CssDeclarationList()
                 {
-                    new(CssProperties.Color, _framework.GetCssVariableWithPrefix("prose-headings")),
+                    new(CssProperties.Color, _cssVar("prose-headings")),
                     new(CssProperties.FontWeight, "600"),
                     new(CssProperties.VerticalAlign, "bottom"),
                 }),
                 new("tbody tr", new CssDeclarationList()
                 {
-                    new(CssProperties.BorderBottomColor, _framework.GetCssVariableWithPrefix("prose-td-borders")),
+                    new(CssProperties.BorderBottomColor, _cssVar("prose-td-borders")),
                     new(CssProperties.BorderBottomWidth, "1px"),
                 }),
                 new(new CssSelector("tbody tr", ":last-child"), new CssDeclarationList()
@@ -247,7 +255,7 @@ public class Prose : IUtilityNamespacePlugin, IVariantPluginProvider
                 new("tfoot", new CssDeclarationList()
                 {
                     new(CssProperties.BorderTopWidth, "1px"),
-                    new(CssProperties.BorderTopColor, _framework.GetCssVariableWithPrefix("prose-th-borders")),
+                    new(CssProperties.BorderTopColor, _cssVar("prose-th-borders")),
                 }),
             },
         };
@@ -343,29 +351,29 @@ public class Prose : IUtilityNamespacePlugin, IVariantPluginProvider
                     Css = new CssDeclarationList
                     {
                         new(
-                            _framework.GetVariableNameWithPrefix("prose-body"),
-                            _framework.GetCssVariableWithPrefix("prose-invert-body")),
+                            _var("prose-body"),
+                            _cssVar("prose-invert-body")),
                         new(
-                            _framework.GetVariableNameWithPrefix("prose-links"),
-                            _framework.GetCssVariableWithPrefix("prose-invert-links")),
+                            _var("prose-links"),
+                            _cssVar("prose-invert-links")),
                         new(
-                            _framework.GetVariableNameWithPrefix("prose-headings"),
-                            _framework.GetCssVariableWithPrefix("prose-invert-headings")),
+                            _var("prose-headings"),
+                            _cssVar("prose-invert-headings")),
                         new(
-                            _framework.GetVariableNameWithPrefix("prose-code"),
-                            _framework.GetCssVariableWithPrefix("prose-invert-code")),
+                            _var("prose-code"),
+                            _cssVar("prose-invert-code")),
                         new(
-                            _framework.GetVariableNameWithPrefix("prose-pre-code"),
-                            _framework.GetCssVariableWithPrefix("prose-invert-pre-code")),
+                            _var("prose-pre-code"),
+                            _cssVar("prose-invert-pre-code")),
                         new(
-                            _framework.GetVariableNameWithPrefix("prose-pre-bg"),
-                            _framework.GetCssVariableWithPrefix("prose-invert-pre-bg")),
+                            _var("prose-pre-bg"),
+                            _cssVar("prose-invert-pre-bg")),
                         new(
-                            _framework.GetVariableNameWithPrefix("prose-th-borders"),
-                            _framework.GetCssVariableWithPrefix("prose-invert-th-borders")),
+                            _var("prose-th-borders"),
+                            _cssVar("prose-invert-th-borders")),
                         new(
-                            _framework.GetVariableNameWithPrefix("prose-td-borders"),
-                            _framework.GetCssVariableWithPrefix("prose-invert-td-borders")),
+                            _var("prose-td-borders"),
+                            _cssVar("prose-invert-td-borders")),
                     },
                 }
             },
@@ -389,46 +397,46 @@ public class Prose : IUtilityNamespacePlugin, IVariantPluginProvider
                         Css = new CssDeclarationList
                         {
                             new(
-                                _framework.GetVariableNameWithPrefix("prose-body"),
+                                _var("prose-body"),
                                 _designSystem.Colors[scale][ColorLevels._700].AsRgb()),
                             new(
-                                _framework.GetVariableNameWithPrefix("prose-headings"),
+                                _var("prose-headings"),
                                 _designSystem.Colors[scale][ColorLevels._900].AsRgb()),
                             new(
-                                _framework.GetVariableNameWithPrefix("prose-links"),
+                                _var("prose-links"),
                                 _designSystem.Colors[scale][ColorLevels._900].AsRgb()),
                             new(
-                                _framework.GetVariableNameWithPrefix("prose-code"),
+                                _var("prose-code"),
                                 _designSystem.Colors[scale][ColorLevels._900].AsRgb()),
                             new(
-                                _framework.GetVariableNameWithPrefix("prose-pre-code"),
+                                _var("prose-pre-code"),
                                 _designSystem.Colors[scale][ColorLevels._200].AsRgb()),
                             new(
-                                _framework.GetVariableNameWithPrefix("prose-pre-bg"),
+                                _var("prose-pre-bg"),
                                 _designSystem.Colors[scale][ColorLevels._800].AsRgb()),
                             new(
-                                _framework.GetVariableNameWithPrefix("prose-th-borders"),
+                                _var("prose-th-borders"),
                                 _designSystem.Colors[scale][ColorLevels._300].AsRgb()),
                             new(
-                                _framework.GetVariableNameWithPrefix("prose-td-borders"),
+                                _var("prose-td-borders"),
                                 _designSystem.Colors[scale][ColorLevels._200].AsRgb()),
 
                             // inverts
                             new(
-                                _framework.GetVariableNameWithPrefix("prose-invert-body"),
+                                _var("prose-invert-body"),
                                 _designSystem.Colors[scale][ColorLevels._300].AsRgb()),
-                            new(_framework.GetVariableNameWithPrefix("prose-invert-headings"), "white"),
-                            new(_framework.GetVariableNameWithPrefix("prose-invert-links"), "white"),
-                            new(_framework.GetVariableNameWithPrefix("prose-invert-code"), "white"),
+                            new(_var("prose-invert-headings"), "white"),
+                            new(_var("prose-invert-links"), "white"),
+                            new(_var("prose-invert-code"), "white"),
                             new(
-                                _framework.GetVariableNameWithPrefix("prose-invert-pre-code"),
+                                _var("prose-invert-pre-code"),
                                 _designSystem.Colors[scale][ColorLevels._300].AsRgb()),
-                            new(_framework.GetVariableNameWithPrefix("prose-invert-pre-bg"), "rgb(0 0 0 / 50%)"),
+                            new(_var("prose-invert-pre-bg"), "rgb(0 0 0 / 50%)"),
                             new(
-                                _framework.GetVariableNameWithPrefix("prose-invert-th-borders"),
+                                _var("prose-invert-th-borders"),
                                 _designSystem.Colors[scale][ColorLevels._600].AsRgb()),
                             new(
-                                _framework.GetVariableNameWithPrefix("prose-invert-td-borders"),
+                                _var("prose-invert-td-borders"),
                                 _designSystem.Colors[scale][ColorLevels._700].AsRgb()),
                         },
                     }
