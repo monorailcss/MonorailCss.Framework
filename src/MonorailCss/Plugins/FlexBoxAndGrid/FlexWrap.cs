@@ -11,7 +11,7 @@ public class FlexWrap : BaseUtilityPlugin
     protected override string Property => "flex-wrap";
 
     /// <inheritdoc />
-    protected override ImmutableDictionary<string, string> Utilities =>
+    protected override ImmutableDictionary<string, string> GetUtilities() =>
         new Dictionary<string, string>()
         {
             { "flex-wrap", "wrap" },

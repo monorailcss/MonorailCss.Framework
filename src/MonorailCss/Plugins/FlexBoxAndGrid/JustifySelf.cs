@@ -11,12 +11,13 @@ public class JustifySelf : BaseUtilityPlugin
     protected override string Property => "justify-self";
 
     /// <inheritdoc />
-    protected override ImmutableDictionary<string, string> Utilities => new Dictionary<string, string>()
-    {
-        { "justify-self-auto", "auto" },
-        { "justify-self-start", "start" },
-        { "justify-self-end", "end" },
-        { "justify-self-center", "center" },
-        { "justify-self-stretch", "stretch" },
-    }.ToImmutableDictionary();
+    protected override ImmutableDictionary<string, string> GetUtilities() =>
+        new Dictionary<string, string>()
+        {
+            { "justify-self-auto", "auto" },
+            { "justify-self-start", "start" },
+            { "justify-self-end", "end" },
+            { "justify-self-center", "center" },
+            { "justify-self-stretch", "stretch" },
+        }.ToImmutableDictionary();
 }

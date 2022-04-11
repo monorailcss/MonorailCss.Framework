@@ -100,7 +100,7 @@ public record CssSelector(string Selector, string? PseudoClass = default, string
     /// </summary>
     /// <param name="selector">The selector.</param>
     /// <returns>A new CSS selector instance.</returns>
-    public static implicit operator CssSelector(string selector) => new CssSelector(selector);
+    public static implicit operator CssSelector(string selector) => new(selector);
 }
 
 /// <summary>

@@ -11,11 +11,12 @@ public class PlaceItems : BaseUtilityPlugin
     protected override string Property => "place-items";
 
     /// <inheritdoc />
-    protected override ImmutableDictionary<string, string> Utilities => new Dictionary<string, string>
-    {
-        { "place-items-start", "start" },
-        { "place-items-end", "end" },
-        { "place-items-center", "center" },
-        { "place-items-stretch", "stretch" },
-    }.ToImmutableDictionary();
+    protected override ImmutableDictionary<string, string> GetUtilities() =>
+        new Dictionary<string, string>
+        {
+            { "place-items-start", "start" },
+            { "place-items-end", "end" },
+            { "place-items-center", "center" },
+            { "place-items-stretch", "stretch" },
+        }.ToImmutableDictionary();
 }

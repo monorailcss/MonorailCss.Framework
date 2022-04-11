@@ -23,20 +23,17 @@ public class Stroke : BaseUtilityNamespacePlugin
     }
 
     /// <inheritdoc />
-    protected override CssNamespaceToPropertyMap NamespacePropertyMapList => new() { { Namespace, "stroke" } };
+    protected override CssNamespaceToPropertyMap GetNamespacePropertyMapList() => new() { { Namespace, "stroke" } };
 
     /// <inheritdoc />
-    protected override CssSuffixToValueMap Values
-    {
-        get =>
-            _flattenedColors.ToImmutableDictionary(k => k.Key, v => v.Value.AsRgb()).AddRange(
-                new Dictionary<string, string>
-                {
-                    { "inherit", "inherit" },
-                    { "current", "currentColor" },
-                    { "transparent", "transparent" },
-                    { "black", "#000" },
-                    { "white", "#000" },
-                });
-    }
+    protected override CssSuffixToValueMap GetValues() =>
+        _flattenedColors.ToImmutableDictionary(k => k.Key, v => v.Value.AsRgb()).AddRange(
+            new Dictionary<string, string>
+            {
+                { "inherit", "inherit" },
+                { "current", "currentColor" },
+                { "transparent", "transparent" },
+                { "black", "#000" },
+                { "white", "#000" },
+            });
 }

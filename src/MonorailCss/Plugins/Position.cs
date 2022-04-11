@@ -11,12 +11,13 @@ public class Position : BaseUtilityPlugin
     protected override string Property => "position";
 
     /// <inheritdoc />
-    protected override ImmutableDictionary<string, string> Utilities => new Dictionary<string, string>()
-    {
-        { "static", "static" },
-        { "fixed", "fixed" },
-        { "absolute", "absolute" },
-        { "relative", "relative" },
-        { "sticky", "sticky" },
-    }.ToImmutableDictionary();
+    protected override ImmutableDictionary<string, string> GetUtilities() =>
+        new Dictionary<string, string>()
+        {
+            { "static", "static" },
+            { "fixed", "fixed" },
+            { "absolute", "absolute" },
+            { "relative", "relative" },
+            { "sticky", "sticky" },
+        }.ToImmutableDictionary();
 }

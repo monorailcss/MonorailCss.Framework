@@ -8,6 +8,7 @@ namespace MonorailCss.Plugins.Sizing;
 public class MaxHeight : BaseUtilityNamespacePlugin
 {
     private const string Namespace = "max-h";
+    private readonly DesignSystem _designSystem;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="MaxHeight"/> class.
@@ -15,7 +16,16 @@ public class MaxHeight : BaseUtilityNamespacePlugin
     /// <param name="designSystem">The design system.</param>
     public MaxHeight(DesignSystem designSystem)
     {
-        Values = new Dictionary<string, string>()
+        _designSystem = designSystem;
+    }
+
+    /// <inheritdoc />
+    protected override CssNamespaceToPropertyMap GetNamespacePropertyMapList() => new() { { Namespace, "max-height" }, };
+
+    /// <inheritdoc />
+    protected override CssSuffixToValueMap GetValues()
+    {
+        return new Dictionary<string, string>()
             {
                 { "full", "100%" },
                 { "screen", "100vh" },
@@ -23,12 +33,6 @@ public class MaxHeight : BaseUtilityNamespacePlugin
                 { "max", "max-content" },
                 { "fit", "fit-content" },
             }.ToImmutableDictionary()
-            .AddRange(designSystem.Spacing);
+            .AddRange(_designSystem.Spacing);
     }
-
-    /// <inheritdoc />
-    protected override CssNamespaceToPropertyMap NamespacePropertyMapList => new() { { Namespace, "max-height" }, };
-
-    /// <inheritdoc />
-    protected override CssSuffixToValueMap Values { get; }
 }

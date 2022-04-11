@@ -11,6 +11,6 @@ public class FlexGrow : BaseUtilityPlugin
     protected override string Property => "flex-grow";
 
     /// <inheritdoc />
-    protected override ImmutableDictionary<string, string> Utilities =>
+    protected override ImmutableDictionary<string, string> GetUtilities() =>
         new Dictionary<string, string>() { { "grow", "1" }, { "grow-0", "0" }, }.ToImmutableDictionary();
 }

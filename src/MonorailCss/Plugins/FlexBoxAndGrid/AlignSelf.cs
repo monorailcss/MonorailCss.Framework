@@ -11,13 +11,14 @@ public class AlignSelf : BaseUtilityPlugin
     protected override string Property => "align-self";
 
     /// <inheritdoc />
-    protected override ImmutableDictionary<string, string> Utilities => new Dictionary<string, string>
-    {
-        { "self-auto", "auto" },
-        { "self-start", "flex-start" },
-        { "self-end", "flex-end" },
-        { "self-center", "center" },
-        { "self-stretch", "stretch" },
-        { "self-baseline", "baseline" },
-    }.ToImmutableDictionary();
+    protected override ImmutableDictionary<string, string> GetUtilities() =>
+        new Dictionary<string, string>
+        {
+            { "self-auto", "auto" },
+            { "self-start", "flex-start" },
+            { "self-end", "flex-end" },
+            { "self-center", "center" },
+            { "self-stretch", "stretch" },
+            { "self-baseline", "baseline" },
+        }.ToImmutableDictionary();
 }

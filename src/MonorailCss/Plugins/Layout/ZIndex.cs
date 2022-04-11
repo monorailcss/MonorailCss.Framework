@@ -11,14 +11,15 @@ public class ZIndex : BaseUtilityPlugin
     protected override string Property => "z-index";
 
     /// <inheritdoc />
-    protected override ImmutableDictionary<string, string> Utilities => new Dictionary<string, string>()
-    {
-        { "z-0", "0" },
-        { "z-10", "10" },
-        { "z-20", "20" },
-        { "z-30", "30" },
-        { "z-40", "40" },
-        { "z-50", "50" },
-        { "z-auto", "auto" },
-    }.ToImmutableDictionary();
+    protected override ImmutableDictionary<string, string> GetUtilities() =>
+        new Dictionary<string, string>()
+        {
+            { "z-0", "0" },
+            { "z-10", "10" },
+            { "z-20", "20" },
+            { "z-30", "30" },
+            { "z-40", "40" },
+            { "z-50", "50" },
+            { "z-auto", "auto" },
+        }.ToImmutableDictionary();
 }
