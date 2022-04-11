@@ -11,7 +11,7 @@ public class Order : BaseUtilityPlugin
     protected override string Property => "order";
 
     /// <inheritdoc />
-    protected override ImmutableDictionary<string, string> Utilities =>
+    protected override ImmutableDictionary<string, string> GetUtilities() =>
         new Dictionary<string, string>()
         {
             { "order-1", "1" },

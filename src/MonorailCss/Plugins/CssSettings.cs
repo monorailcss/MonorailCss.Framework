@@ -16,7 +16,7 @@ public record CssSettings
     /// <summary>
     /// Gets the child rules for the element.
     /// </summary>
-    public CssRuleSetList ChildRules { get; init; } = new CssRuleSetList();
+    public CssRuleSetList ChildRules { get; init; } = new();
 
     /// <summary>
     /// Combines two settings together. The right operator will override.

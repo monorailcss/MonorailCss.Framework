@@ -11,13 +11,14 @@ public class JustifyContent : BaseUtilityPlugin
     protected override string Property => "justify-content";
 
     /// <inheritdoc />
-    protected override ImmutableDictionary<string, string> Utilities => new Dictionary<string, string>()
-    {
-        { "justify-start", "flex-start" },
-        { "justify-end", "flex-end" },
-        { "justify-center", "center" },
-        { "justify-between", "space-between" },
-        { "justify-around", "space-around" },
-        { "justify-evenly", "space-evenly" },
-    }.ToImmutableDictionary();
+    protected override ImmutableDictionary<string, string> GetUtilities() =>
+        new Dictionary<string, string>()
+        {
+            { "justify-start", "flex-start" },
+            { "justify-end", "flex-end" },
+            { "justify-center", "center" },
+            { "justify-between", "space-between" },
+            { "justify-around", "space-around" },
+            { "justify-evenly", "space-evenly" },
+        }.ToImmutableDictionary();
 }

@@ -20,9 +20,9 @@ public abstract class BaseUtilityNamespacePlugin : IUtilityNamespacePlugin
     /// </summary>
     protected BaseUtilityNamespacePlugin()
     {
-        _namespaces = new Lazy<ImmutableArray<string>>(() => NamespacePropertyMapList.Namespaces.ToImmutableArray());
-        _suffixToValueMap = new Lazy<CssSuffixToValueMap>(() => Values);
-        _namespacePropertyMapList = new Lazy<CssNamespaceToPropertyMap>(() => NamespacePropertyMapList);
+        _namespaces = new Lazy<ImmutableArray<string>>(() => GetNamespacePropertyMapList().Namespaces.ToImmutableArray());
+        _suffixToValueMap = new Lazy<CssSuffixToValueMap>(GetValues);
+        _namespacePropertyMapList = new Lazy<CssNamespaceToPropertyMap>(GetNamespacePropertyMapList);
     }
 
     /// <inheritdoc />
@@ -70,10 +70,12 @@ public abstract class BaseUtilityNamespacePlugin : IUtilityNamespacePlugin
     /// <summary>
     /// Gets the property mapping lists.
     /// </summary>
-    protected abstract CssNamespaceToPropertyMap NamespacePropertyMapList { get; }
+    /// <returns>The mapped namespaces to properties.</returns>
+    protected abstract CssNamespaceToPropertyMap GetNamespacePropertyMapList();
 
     /// <summary>
     /// Gets the values to map to the namespace property map.
     /// </summary>
-    protected abstract CssSuffixToValueMap Values { get; }
+    /// <returns>The mapped values.</returns>
+    protected abstract CssSuffixToValueMap GetValues();
 }

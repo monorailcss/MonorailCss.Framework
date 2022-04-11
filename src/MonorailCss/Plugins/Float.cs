@@ -11,10 +11,11 @@ public class Float : BaseUtilityPlugin
     protected override string Property => "float";
 
     /// <inheritdoc />
-    protected override ImmutableDictionary<string, string> Utilities => new Dictionary<string, string>
-    {
-        { "float-left", "left" },
-        { "float-right", "right" },
-        { "float-none", "none" },
-    }.ToImmutableDictionary();
+    protected override ImmutableDictionary<string, string> GetUtilities() =>
+        new Dictionary<string, string>
+        {
+            { "float-left", "left" },
+            { "float-right", "right" },
+            { "float-none", "none" },
+        }.ToImmutableDictionary();
 }

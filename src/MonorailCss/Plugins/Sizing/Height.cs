@@ -6,6 +6,7 @@ namespace MonorailCss.Plugins.Sizing;
 public class Height : BaseUtilityNamespacePlugin
 {
     private const string Namespace = "h";
+    private readonly DesignSystem _designSystem;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="Height"/> class.
@@ -13,8 +14,17 @@ public class Height : BaseUtilityNamespacePlugin
     /// <param name="designSystem">The design system.</param>
     public Height(DesignSystem designSystem)
     {
-        Values = SizeHelpers.Percentages
-            .AddRange(designSystem.Spacing)
+        _designSystem = designSystem;
+    }
+
+    /// <inheritdoc />
+    protected override CssNamespaceToPropertyMap GetNamespacePropertyMapList() => new() { { Namespace, "height" }, };
+
+    /// <inheritdoc />
+    protected override CssSuffixToValueMap GetValues()
+    {
+        return SizeHelpers.Percentages
+            .AddRange(_designSystem.Spacing)
             .AddRange(new Dictionary<string, string>()
             {
                 { "auto", "auto" },
@@ -25,10 +35,4 @@ public class Height : BaseUtilityNamespacePlugin
                 { "fit", "fit-content" },
             });
     }
-
-    /// <inheritdoc />
-    protected override CssNamespaceToPropertyMap NamespacePropertyMapList => new() { { Namespace, "height" }, };
-
-    /// <inheritdoc />
-    protected override CssSuffixToValueMap Values { get; }
 }

@@ -9,13 +9,24 @@ public class MaxWidth : BaseUtilityNamespacePlugin
 {
     private const string Namespace = "max-w";
 
+    private readonly DesignSystem _designSystem;
+
     /// <summary>
     /// Initializes a new instance of the <see cref="MaxWidth"/> class.
     /// </summary>
     /// <param name="designSystem">The design system.</param>
     public MaxWidth(DesignSystem designSystem)
     {
-        Values = new Dictionary<string, string>()
+        _designSystem = designSystem;
+    }
+
+    /// <inheritdoc />
+    protected override CssNamespaceToPropertyMap GetNamespacePropertyMapList() => new() { { Namespace, "max-width" }, };
+
+    /// <inheritdoc />
+    protected override CssSuffixToValueMap GetValues()
+    {
+        return new Dictionary<string, string>()
             {
                 { "none", "none" },
                 { "0", "0rem" },
@@ -36,12 +47,6 @@ public class MaxWidth : BaseUtilityNamespacePlugin
                 { "fit", "fit-content" },
                 { "prose", "65ch" },
             }.ToImmutableDictionary()
-            .AddRange(designSystem.Screens.ToImmutableDictionary(i => $"screen-{i.Key}", i => i.Value));
+            .AddRange(_designSystem.Screens.ToImmutableDictionary(i => $"screen-{i.Key}", i => i.Value));
     }
-
-    /// <inheritdoc />
-    protected override CssNamespaceToPropertyMap NamespacePropertyMapList => new() { { Namespace, "max-width" }, };
-
-    /// <inheritdoc />
-    protected override CssSuffixToValueMap Values { get; }
 }

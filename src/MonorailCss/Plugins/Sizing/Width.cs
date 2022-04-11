@@ -6,6 +6,7 @@ namespace MonorailCss.Plugins.Sizing;
 public class Width : BaseUtilityNamespacePlugin
 {
     private const string Namespace = "w";
+    private readonly DesignSystem _designSystem;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="Width"/> class.
@@ -13,8 +14,17 @@ public class Width : BaseUtilityNamespacePlugin
     /// <param name="designSystem">The design system.</param>
     public Width(DesignSystem designSystem)
     {
-        Values = SizeHelpers.Percentages
-            .AddRange(designSystem.Spacing)
+        _designSystem = designSystem;
+    }
+
+    /// <inheritdoc />
+    protected override CssNamespaceToPropertyMap GetNamespacePropertyMapList() => new() { { Namespace, "width" }, };
+
+    /// <inheritdoc />
+    protected override CssSuffixToValueMap GetValues()
+    {
+        return SizeHelpers.Percentages
+            .AddRange(_designSystem.Spacing)
             .AddRange(new Dictionary<string, string>()
             {
                 { "auto", "auto" },
@@ -25,10 +35,4 @@ public class Width : BaseUtilityNamespacePlugin
                 { "fit", "fit-content" },
             });
     }
-
-    /// <inheritdoc />
-    protected override CssNamespaceToPropertyMap NamespacePropertyMapList => new() { { Namespace, "width" }, };
-
-    /// <inheritdoc />
-    protected override CssSuffixToValueMap Values { get; }
 }

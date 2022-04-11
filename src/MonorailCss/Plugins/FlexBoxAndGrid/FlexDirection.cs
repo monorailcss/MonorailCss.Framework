@@ -11,7 +11,7 @@ public class FlexDirection : BaseUtilityPlugin
     protected override string Property => "flex-direction";
 
     /// <inheritdoc />
-    protected override ImmutableDictionary<string, string> Utilities =>
+    protected override ImmutableDictionary<string, string> GetUtilities() =>
         new Dictionary<string, string>()
         {
             { "flex-row", "row" },

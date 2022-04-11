@@ -13,7 +13,7 @@ public abstract class BaseUtilityPlugin : IUtilityPlugin
     /// </summary>
     protected BaseUtilityPlugin()
     {
-        _utilityValues = new Lazy<ImmutableDictionary<string, string>>(() => Utilities);
+        _utilityValues = new Lazy<ImmutableDictionary<string, string>>(GetUtilities);
     }
 
     private readonly Lazy<ImmutableDictionary<string, string>> _utilityValues;
@@ -26,7 +26,8 @@ public abstract class BaseUtilityPlugin : IUtilityPlugin
     /// <summary>
     /// Gets a list of utilities and their values.
     /// </summary>
-    protected abstract ImmutableDictionary<string, string> Utilities { get; }
+    /// <returns>The list of utilities.</returns>
+    protected abstract ImmutableDictionary<string, string> GetUtilities();
 
     /// <inheritdoc />
     public IEnumerable<CssRuleSet> Process(IParsedClassNameSyntax syntax)
