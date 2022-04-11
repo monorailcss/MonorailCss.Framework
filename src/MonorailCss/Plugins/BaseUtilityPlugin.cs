@@ -46,4 +46,12 @@ public abstract class BaseUtilityPlugin : IUtilityPlugin
 
         yield return new CssRuleSet(utilitySyntax.OriginalSyntax, new CssDeclarationList { new(Property, _utilityValues.Value[utility]), });
     }
+
+    /// <inheritdoc />
+    public IEnumerable<CssRuleSet> GetAllRules()
+    {
+        return _utilityValues.Value.ToArray().Select(i => new CssRuleSet(
+            i.Key,
+            new CssDeclarationList { new(Property, i.Value), }));
+    }
 }

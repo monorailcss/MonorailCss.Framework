@@ -1,6 +1,4 @@
-﻿using System.Collections.Immutable;
-
-namespace MonorailCss.Plugins.Layout;
+﻿namespace MonorailCss.Plugins.Layout;
 
 /// <summary>
 /// The overflow plugin.

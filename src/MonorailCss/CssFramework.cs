@@ -108,17 +108,6 @@ public class CssFramework
     }
 
     /// <summary>
-    /// Marks the theme to use a different prefix for CSS utilities generated.
-    /// </summary>
-    /// <param name="prefix">The new prefix.</param>
-    /// <returns>The current instance.</returns>
-    public CssFramework WithVariablePrefix(string prefix)
-    {
-        _variablePrefix = prefix.StartsWith("--") ? prefix : $"--{prefix}";
-        return this;
-    }
-
-    /// <summary>
     /// Marks the theme to use a different separator between variants and the utilities
     /// e.g. a separator of _ would give you dark_sm_bg-red-100.
     /// </summary>
@@ -164,9 +153,9 @@ public class CssFramework
     /// </summary>
     /// <param name="name">The variable name.</param>
     /// <returns>A string in the format of --{prefix}-{name}.</returns>
-    public string GetVariableNameWithPrefix(string name)
+    public static string GetVariableNameWithPrefix(string name)
     {
-        return $"{_variablePrefix}-{name}";
+        return $"--monorail-{name}";
     }
 
     /// <summary>
@@ -174,9 +163,9 @@ public class CssFramework
     /// </summary>
     /// <param name="name">The name of the variable.</param>
     /// <returns>The variable name prefixed and wrapped with var.</returns>
-    public string GetCssVariableWithPrefix(string name)
+    public static string GetCssVariableWithPrefix(string name)
     {
-        return $"var({_variablePrefix}-{name})";
+        return $"var(--monorail-{name})";
     }
 
     private string GetElementNameWithPrefix(string name)

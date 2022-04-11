@@ -37,7 +37,7 @@ public class Space : IUtilityNamespacePlugin
 
         if (namespaceSyntax.Suffix == "reverse")
         {
-            var variable = _framework.GetVariableNameWithPrefix("{ns}-reverse");
+            var variable = CssFramework.GetVariableNameWithPrefix("{ns}-reverse");
             yield return new CssRuleSet(GetSelector(namespaceSyntax), new CssDeclarationList() { new(variable, "1"), });
 
             yield break;
@@ -54,12 +54,18 @@ public class Space : IUtilityNamespacePlugin
 
         var declarations = new CssDeclarationList()
         {
-            new(_framework.GetVariableNameWithPrefix(names.Item1), "0"),
-            new(names.Item2, $"calc({value} * calc(1 - {_framework.GetCssVariableWithPrefix(names.Item1)}))"),
-            new(names.Item3, $"calc({value} * {_framework.GetCssVariableWithPrefix(names.Item1)})"),
+            new(CssFramework.GetVariableNameWithPrefix(names.Item1), "0"),
+            new(names.Item2, $"calc({value} * calc(1 - {CssFramework.GetCssVariableWithPrefix(names.Item1)}))"),
+            new(names.Item3, $"calc({value} * {CssFramework.GetCssVariableWithPrefix(names.Item1)})"),
         };
 
         yield return new CssRuleSet(GetSelector(syntax), declarations);
+    }
+
+    /// <inheritdoc />
+    public IEnumerable<CssRuleSet> GetAllRules()
+    {
+        yield break;
     }
 
     private static CssSelector GetSelector(IParsedClassNameSyntax syntax)

@@ -78,5 +78,14 @@ public class BorderColor : IUtilityNamespacePlugin
     }
 
     /// <inheritdoc />
+    public IEnumerable<CssRuleSet> GetAllRules()
+    {
+        return _flattenedColors.Select(color => new CssRuleSet("border-" + color.Key, new CssDeclarationList()
+        {
+            new("border-color", color.Value.AsRgb()),
+        }));
+    }
+
+    /// <inheritdoc />
     public ImmutableArray<string> Namespaces => ImmutableArray.Create<string>(Namespace);
 }

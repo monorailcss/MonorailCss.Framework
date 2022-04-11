@@ -7,7 +7,7 @@ namespace MonorailCss.Plugins;
 /// <summary>
 /// Represents a mapping of a namespace to property values.
 /// </summary>
-public record CssNamespaceToPropertyMap : IEnumerable
+public record CssNamespaceToPropertyMap : IEnumerable<(string Namespace, string[] Values)>
 {
     private readonly ConcurrentDictionary<string, CssMultipleValue> _items = new();
 
@@ -26,8 +26,14 @@ public record CssNamespaceToPropertyMap : IEnumerable
     /// </summary>
     public IEnumerable<string> Namespaces => _items.Keys;
 
+    /// <inheritdoc/>
+    IEnumerator<(string Namespace, string[] Values)> IEnumerable<(string Namespace, string[] Values)>.GetEnumerator()
+    {
+        return _items.Select(i => (i.Key, i.Value.Values)).GetEnumerator();
+    }
+
     /// <inheritdoc />
-    public IEnumerator GetEnumerator() => _items.GetEnumerator();
+    public IEnumerator GetEnumerator() => _items.Select(i => (i.Key, i.Value.Values)).GetEnumerator();
 
     /// <summary>
     /// Gets whether this namespace is defined.
@@ -95,7 +101,7 @@ public record CssNamespaceToPropertyMap : IEnumerable
     /// <summary>
     /// Represents a collection of suffixes to values for namespace mapping.
     /// </summary>
-public record CssSuffixToValueMap : IEnumerable
+public record CssSuffixToValueMap : IEnumerable<(string Suffix, string Value)>
     {
         private ImmutableDictionary<string, string> _items;
 
@@ -118,8 +124,17 @@ public record CssSuffixToValueMap : IEnumerable
             _items = _items.Add(suffix, value);
         }
 
+    /// <inheritdoc/>
+        IEnumerator<(string Suffix, string Value)> IEnumerable<(string Suffix, string Value)>.GetEnumerator()
+        {
+            return _items.Select(i => (i.Key, i.Value)).GetEnumerator();
+        }
+
         /// <inheritdoc />
-        public IEnumerator GetEnumerator() => _items.GetEnumerator();
+        public IEnumerator GetEnumerator()
+        {
+            return _items.Select(i => (i.Key, i.Value)).GetEnumerator();
+        }
 
         /// <summary>
         /// Determines whether the map contains the suffix.

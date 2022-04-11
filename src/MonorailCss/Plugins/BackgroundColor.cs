@@ -31,7 +31,8 @@ internal class BackgroundColor : IUtilityNamespacePlugin
     /// <inheritdoc />
     public IEnumerable<CssRuleSet> Process(IParsedClassNameSyntax syntax)
     {
-        if (syntax is not NamespaceSyntax { Suffix: { } } namespaceSyntax || !namespaceSyntax.NamespaceEquals(Namespace))
+        if (syntax is not NamespaceSyntax { Suffix: { } } namespaceSyntax ||
+            !namespaceSyntax.NamespaceEquals(Namespace))
         {
             yield break;
         }
@@ -55,14 +56,21 @@ internal class BackgroundColor : IUtilityNamespacePlugin
         {
             // include a variable here so that if the text-opacity add-on is used it gets applied
             // it'll override this value and get applied properly.
-            var varName = _cssFramework.GetVariableNameWithPrefix("bg-opacity");
+            var varName = CssFramework.GetVariableNameWithPrefix("bg-opacity");
             declarations = new CssDeclarationList
             {
-                new(varName, "1"),
-                new(CssProperties.BackgroundColor, color.AsRgbWithOpacity($"var({varName})")),
+                new(varName, "1"), new(CssProperties.BackgroundColor, color.AsRgbWithOpacity($"var({varName})")),
             };
         }
 
         yield return new CssRuleSet(namespaceSyntax.OriginalSyntax, declarations);
+    }
+
+    public IEnumerable<CssRuleSet> GetAllRules()
+    {
+        return _flattenedColors.Select(color =>
+            new CssRuleSet(
+                "bg-" + color.Key,
+                new CssDeclarationList() { new("background-color", color.Value.AsRgb()), }));
     }
 }

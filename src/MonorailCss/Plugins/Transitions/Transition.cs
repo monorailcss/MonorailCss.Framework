@@ -75,5 +75,11 @@ public class Transition : IUtilityNamespacePlugin
     }
 
     /// <inheritdoc />
+    public IEnumerable<CssRuleSet> GetAllRules()
+    {
+        yield break;
+    }
+
+    /// <inheritdoc />
     public ImmutableArray<string> Namespaces => new[] { Namespace }.ToImmutableArray();
 }
