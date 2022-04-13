@@ -1,5 +1,6 @@
 ﻿using System.Collections.Immutable;
 using System.Text;
+using MonorailCss.Variants;
 
 namespace MonorailCss.Css;
 
@@ -120,4 +121,4 @@ public record CssDeclaration(string Property, string Value);
 /// </summary>
 /// <param name="Features">A list of media rules features.</param>
 /// <param name="RuleSets">The defined rule sets for the media rule feature.</param>
-public record CssMediaRule(ImmutableList<string> Features, ImmutableList<CssRuleSet> RuleSets);
+public record CssMediaRule(ImmutableList<MediaQueryVariant> Features, ImmutableList<CssRuleSet> RuleSets);
