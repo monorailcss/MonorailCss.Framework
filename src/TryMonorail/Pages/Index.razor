@@ -53,6 +53,15 @@
         FoldingHighlight = false,
         RenderLineHighlightOnlyWhenFocus = true,
         RenderLineHighlight = "none",
+        FontFamily = "'Cascadia Code', Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace",
+        FontWeight = "300",
+        FontSize = 14,
+        
+        Hover = new EditorHoverOptions()
+        {
+            Enabled = true,
+            Delay = 100,
+        },
         Minimap = new EditorMinimapOptions()
         {
             Enabled = false,
@@ -113,8 +122,9 @@
                 ["editor.background"] = "#FFFFFF00",
                 ["editorCursor.foreground"] = "#E0E0E0",
                 ["editorLineNumber.foreground"] = "#7A7A7A66"
-            }
+            },
         });
+        
         await MonacoEditor.SetTheme("my-custom-theme");
 
     }

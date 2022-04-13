@@ -29,7 +29,9 @@ public class VariantSystem
     private ImmutableDictionary<string, IVariant> GetDefaultVariantSystem(DesignSystem designSystem)
     {
         var variants = new Dictionary<string, IVariant>();
-        void AddPseudoClass(string name, string? css = null) => variants.Add(name, new PseudoClassVariant(css ?? $":{name}"));
+
+        void AddPseudoClass(string name, string? css = null) =>
+            variants.Add(name, new PseudoClassVariant(css ?? $":{name}"));
 
         // Positional
         AddPseudoClass("first", ":first-child'");
@@ -74,7 +76,16 @@ public class VariantSystem
 
         foreach (var (key, size) in designSystem.Screens)
         {
-            variants.Add(key, new MediaQueryVariant($"(min-width:{size})"));
+            // try and extract the size and use this as a priority. we want the screens
+            // with the largest sizes listed after the smaller ones so that if someone specifies
+            // something like md:bg-green-200 sm:bg-blue-200 bg-red-200 the media variants
+            // are ordered so that the largest screen overrides the smaller screens as well as the
+            // selector with no variant.
+            var variant = int.TryParse(size.Replace("px", string.Empty), out var sizeValue)
+                ? new MediaQueryVariant($"(min-width:{size})", sizeValue)
+                : new MediaQueryVariant($"(min-width:{size})");
+
+            variants.Add(key, variant);
         }
 
         variants.Add("placeholder", new PseudoElementVariant("::placeholder"));

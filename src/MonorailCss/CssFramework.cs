@@ -270,12 +270,12 @@ public class CssFramework
         return sb.ToString();
     }
 
-    private ImmutableList<string> GetFeatureList(
+    private ImmutableList<MediaQueryVariant> GetFeatureList(
         string[] mediaModifiers,
         ImmutableDictionary<string, IVariant> variants) =>
         mediaModifiers.Select(m => variants[m])
             .OfType<MediaQueryVariant>()
-            .Select(i => i.Feature).ToImmutableList();
+            .Select(i => i).ToImmutableList();
 
     private static string GetDefaultCssReset()
     {

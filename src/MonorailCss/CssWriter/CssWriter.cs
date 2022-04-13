@@ -7,8 +7,9 @@ internal static class CssWriter
 {
     public static void AppendCssRules(CssStylesheet stylesheet, StringBuilder stringBuilder)
     {
-        // make sure the rules without a media feature are listed first
-        var mediaRulesOrdered = stylesheet.MediaRules.OrderBy(i => i.Features.Count);
+        // need to order the media rules so that no rules get overriden by items with a rule, and that
+        // size related variants are ordered properly with larger sizes coming after smaller.
+        var mediaRulesOrdered = stylesheet.MediaRules.OrderBy(i => i.Features.Sum(feature => feature.Priority));
 
         foreach (var mediaRule in mediaRulesOrdered)
         {
@@ -17,7 +18,7 @@ internal static class CssWriter
 
             if (hasModifiers)
             {
-                stringBuilder.AppendLine($"@media {string.Join(" and ", mediaRule.Features)} {{");
+                stringBuilder.AppendLine($"@media {string.Join(" and ", mediaRule.Features.Select(i => i.Feature))} {{");
                 indent = 2;
             }
 
