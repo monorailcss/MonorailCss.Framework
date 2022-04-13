@@ -1,21 +1,17 @@
-﻿using System.Collections.Immutable;
-
-namespace MonorailCss.Plugins.Typography;
+﻿namespace MonorailCss.Plugins.Typography;
 
 /// <summary>
 /// The text-align plugin.
 /// </summary>
-public class TextAlign : BaseUtilityPlugin
+public class TextAlign : BaseUtilityNamespacePlugin
 {
     /// <inheritdoc />
-    protected override string Property => "text-align";
+    protected override CssNamespaceToPropertyMap GetNamespacePropertyMapList() => new("text", "text-align");
 
     /// <inheritdoc />
-    protected override ImmutableDictionary<string, string> GetUtilities()
-    {
-        return new Dictionary<string, string>()
+    protected override CssSuffixToValueMap GetValues() =>
+        new()
         {
             { "left", "left" }, { "center", "center" }, { "right", "right" }, { "justify", "justify" },
-        }.ToImmutableDictionary();
-    }
+        };
 }

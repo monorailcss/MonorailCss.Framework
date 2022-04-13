@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>BlazorWasmTestApp</title>
+    <link href="_content/BlazorMonaco/lib/monaco-editor/min/vs/editor/editor.main.css" rel="stylesheet" />
+
+    <style>
+        .monaco-editor-container {
+            height: 100%;
+            width: 100%;
+        }
+    </style>
+
+    <base href="/" />
+</head>
+
+<body>
+<div id="app">Loading...</div>
+
+<div id="blazor-error-ui">
+</div>
+<script src="https://unpkg.com/split-grid/dist/split-grid.js"></script>
+<script src="_content/BlazorMonaco/lib/monaco-editor/min/vs/loader.js"></script>
+<script>require.config({ paths: { 'vs': '_content/BlazorMonaco/lib/monaco-editor/min/vs' } });</script>
+<script src="_content/BlazorMonaco/lib/monaco-editor/min/vs/editor/editor.main.js"></script>
+<script src="_content/BlazorMonaco/jsInterop.js"></script>
+<script src="_framework/blazor.webassembly.js"></script>
+
+</body>
+
+</html>

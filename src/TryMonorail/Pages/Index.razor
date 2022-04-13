@@ -1,0 +1,119 @@
+﻿@page "/"
+@using BlazorMonaco
+@using AngleSharp.Html.Parser
+@using MonorailCss
+@using System.Reactive.Subjects
+@using System.Reactive.Linq
+
+<PageTitle>Index</PageTitle>
+
+<div class="max-w-full inset-4 h-screen grid grid-cols-2 grid-rows-1">
+    <div class="grid grid-cols-1 grid-rows-2">
+        <div class="flex flex-col pb-2">
+            <header class="flex-1 px-6 py-4 mb-2 bg-gray-800 text-gray-50 border-b border-gray-700">HTML</header>
+            <MonacoEditor @ref="HtmlEditor" Id="htmlEditor" ConstructionOptions="EditorConstructionOptions" OnDidInit="EditorOnInit" OnDidChangeModelContent="_processHtml.OnNext"/>
+        </div>
+        <div class="flex flex-col border-t border-gray-700 pb-2">
+            <header class="flex-1 px-6 py-4 mb-2 bg-gray-800 text-gray-50 border-b border-gray-700">Generated CSS</header>
+            <MonacoEditor @ref="CssEditor" Id="cssViewer" ConstructionOptions="ViewerConstructionOptions" OnDidInit="EditorOnInit"/>
+        </div>
+    </div>
+    <div>
+        <div class="h-full w-full flex">
+                <iframe class="flex-1 h-full w-full bg-white" srcdoc="@HtmlContents"></iframe>
+        </div>
+    </div>
+</div>
+
+@code{
+    private MonacoEditor HtmlEditor { get; set; } = null!;
+    private MonacoEditor CssEditor { get; set; } = null!;
+    private string HtmlContents { get; set; } = null!;
+
+    private readonly Subject <ModelContentChangedEvent> _processHtml = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        _processHtml.Throttle(TimeSpan.FromMilliseconds(500))
+            .Subscribe(async ts =>
+            {
+                await ModelChanged();
+                StateHasChanged();
+            });
+    }
+
+    private StandaloneEditorConstructionOptions StandardOptions() => new StandaloneEditorConstructionOptions
+    {
+        AutomaticLayout = true,
+        Language = "html",
+        GlyphMargin = true,
+        HighlightActiveIndentGuide = false,
+        FoldingHighlight = false,
+        RenderLineHighlightOnlyWhenFocus = true,
+        RenderLineHighlight = "none",
+        Minimap = new EditorMinimapOptions()
+        {
+            Enabled = false,
+        },
+        Folding = true,
+        LineDecorationsWidth = "0",
+        Contextmenu = false,
+        Theme = "my-custom-theme"
+    };
+
+    private StandaloneEditorConstructionOptions EditorConstructionOptions(MonacoEditor editor)
+    {
+        return StandardOptions();
+    }
+
+    private StandaloneEditorConstructionOptions ViewerConstructionOptions(MonacoEditor editor)
+    {
+        var opts = StandardOptions();
+        opts.ReadOnly = true;
+        opts.Language = "css";
+        return opts;
+    }
+
+    private async Task ModelChanged()
+    {
+       var htmlParser = new HtmlParser();
+        var htmlContent = await HtmlEditor.GetValue();
+        var htmlDocument = await htmlParser.ParseDocumentAsync(htmlContent);
+        List<string> allClasses = new();
+        foreach (var element in htmlDocument.All.Where(x => x.ClassName != null))
+        {
+            var classes = element.ClassName!.Split(' ', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
+            allClasses.AddRange(classes);
+        }
+
+        var framework = new CssFramework(DesignSystem.Default).WithCssReset(string.Empty);
+        await CssEditor.SetValue(framework.Process(allClasses));
+
+        var framework2 = new CssFramework(DesignSystem.Default).Apply("body", "font-sans");
+        var full = framework2.Process(allClasses);
+
+        HtmlContents = $@"<html><head><style>{full}</style><body>{htmlContent}</body></html>";
+    }
+
+    private async Task EditorOnInit(MonacoEditorBase editor)
+    {
+        await MonacoEditorBase.DefineTheme("my-custom-theme", new StandaloneThemeData
+        {
+            Base = "vs-dark",
+            Inherit = true,
+            Rules = new List<TokenThemeRule>
+            {
+                new() { Background = "363636", Foreground = "E0E0E0" },
+            },
+            Colors = new Dictionary<string, string>
+            {
+                ["editor.background"] = "#FFFFFF00",
+                ["editorCursor.foreground"] = "#E0E0E0",
+                ["editorLineNumber.foreground"] = "#7A7A7A66"
+            }
+        });
+        await MonacoEditor.SetTheme("my-custom-theme");
+
+    }
+
+}

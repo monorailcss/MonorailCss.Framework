@@ -12,7 +12,7 @@ public class Order : BaseUtilityPlugin
 
     /// <inheritdoc />
     protected override ImmutableDictionary<string, string> GetUtilities() =>
-        new Dictionary<string, string>()
+        new Dictionary<string, string>
         {
             { "order-1", "1" },
             { "order-2", "2" },

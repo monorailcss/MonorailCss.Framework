@@ -30,38 +30,32 @@ public class BorderColor : IUtilityNamespacePlugin
             yield break;
         }
 
-        if (namespaceSyntax.Suffix == default)
-        {
-            yield break;
-        }
-
-        var (colorValue, opacityKey) = ClassHelper.SplitColor(namespaceSyntax.Suffix);
+        var suffix = namespaceSyntax.Suffix ?? "DEFAULT";
+        var (colorValue, opacityValue) = ClassHelper.SplitColor(suffix);
 
         CssDeclarationList declarations;
         if (!_flattenedColors.TryGetValue(colorValue, out var color))
         {
-            var additionalValues = new Dictionary<string, string>()
+            var additionalValues = new Dictionary<string, string>
             {
                 { "inherit", "inherit" },
                 { "current", "currentColor" },
                 { "transparent", "transparent" },
-                { "black", "rgb(0 0 0)" },
-                { "white", "rgb(255 255 255)" },
             };
 
-            if (!additionalValues.ContainsKey(namespaceSyntax.Suffix))
+            if (!additionalValues.ContainsKey(suffix))
             {
                 yield break;
             }
 
             declarations = new CssDeclarationList
             {
-                new(CssProperties.BorderColor, additionalValues[namespaceSyntax.Suffix]),
+                new(CssProperties.BorderColor, additionalValues[suffix]),
             };
         }
-        else if (opacityKey != default)
+        else if (opacityValue != default)
         {
-            var opacity = _opacities.GetValueOrDefault(opacityKey, "1");
+            var opacity = _opacities.GetValueOrDefault(opacityValue, "1");
             declarations = new CssDeclarationList
             {
                 new(CssProperties.BorderColor, color.AsRgbWithOpacity(opacity)),
@@ -80,7 +74,7 @@ public class BorderColor : IUtilityNamespacePlugin
     /// <inheritdoc />
     public IEnumerable<CssRuleSet> GetAllRules()
     {
-        return _flattenedColors.Select(color => new CssRuleSet("border-" + color.Key, new CssDeclarationList()
+        return _flattenedColors.Select(color => new CssRuleSet("border-" + color.Key, new CssDeclarationList
         {
             new("border-color", color.Value.AsRgb()),
         }));

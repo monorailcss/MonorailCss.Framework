@@ -11,7 +11,7 @@ public class WordBreak : BaseLookupPlugin
     /// <inheritdoc />
     protected override ImmutableDictionary<string, CssDeclarationList> GetLookups()
     {
-        return new Dictionary<string, CssDeclarationList>()
+        return new Dictionary<string, CssDeclarationList>
         {
             { "break-normal", new CssDeclarationList { new("overflow-wrap", "normal"), new("break-words", "normal"), } },
             { "break-words", new CssDeclarationList { new("overflow-wrap", "break-word") } },

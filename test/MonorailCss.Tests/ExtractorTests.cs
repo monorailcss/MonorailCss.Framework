@@ -35,7 +35,7 @@ public class ExtractorTests
     public void Can_extract_utilities(string className, string[] variants, string utility, string prefix,
         char separator)
     {
-        var r = ClassHelper.Extract(className, new []{ "bg", "text", "flex" }, prefix, separator) as UtilitySyntax;
+        var r = ClassHelper.Extract(className, new []{ "bg", "flex" }, prefix, separator) as UtilitySyntax;
         r.ShouldNotBeNull();
         r.ShouldSatisfyAllConditions(
             i => i.Modifiers.ShouldBe(variants, ignoreOrder:true),
@@ -45,6 +45,10 @@ public class ExtractorTests
 
     [Theory]
     [InlineData("ml-2", new string[0], "ml", "2", "", ':')]
+    [InlineData("ml-2-", new string[0], "ml", "2-", "", ':')]
+    [InlineData("-ml-2", new string[0], "ml", "2-", "", ':')]
+    [InlineData("sm:ml-2-", new [] {"sm"}, "ml", "2-", "", ':')]
+    [InlineData("sm:-ml-2", new [] {"sm"}, "ml", "2-", "", ':')]
     [InlineData("max-w-prose", new string[0], "max-w","prose",  "", ':')]
     [InlineData("bg-blue-100", new string[0], "bg", "blue-100",  "", ':')]
     [InlineData("flex",  new string[0], "flex", null,  "", ':')]
@@ -54,7 +58,9 @@ public class ExtractorTests
     [InlineData("dark_md_bg-blue-100", new [] {"dark", "md"}, "bg", "blue-100", "", '_')]
     [InlineData("dark_md_mono-bg-blue-100", new [] {"dark", "md"}, "bg", "blue-100", "mono-", '_')]
     [InlineData("bg-blue-100/50", new string[0], "bg", "blue-100/50", "", ':')]
+    [InlineData("text-blue-100/50", new string[0], "text", "blue-100/50", "", ':')]
     [InlineData("dark:text-blue-100/50", new[] {"dark"}, "text", "blue-100/50", "", ':')]
+    [InlineData("text-white", new string[0], "text", "white", "", ':')]
     [InlineData("mono-bg-blue-100", new string[0], "bg", "blue-100", "mono-", ':')]
     [InlineData("mono-bg-blue-100", new string[0], "bg", "blue-100", "mono-", '_')]
     [InlineData("border-b", new string[0], "border-b", null, "", ':')]

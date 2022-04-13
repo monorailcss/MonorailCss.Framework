@@ -1,19 +1,19 @@
-using System.Collections.Immutable;
-
 namespace MonorailCss.Plugins.Svg;
 
 /// <summary>
 /// The stroke-width plugin.
 /// </summary>
-public class StrokeWidth : BaseUtilityPlugin
+public class StrokeWidth : BaseUtilityNamespacePlugin
 {
     /// <inheritdoc />
-    protected override string Property => "stroke-width";
+    protected override CssNamespaceToPropertyMap GetNamespacePropertyMapList()
+    {
+        return new CssNamespaceToPropertyMap("stroke", "stroke-width");
+    }
 
     /// <inheritdoc />
-    protected override ImmutableDictionary<string, string> GetUtilities() =>
-        new Dictionary<string, string>()
-        {
-            { "stroke-0", "0" }, { "stroke-1", "1" }, { "stroke-2", "2" },
-        }.ToImmutableDictionary();
+    protected override CssSuffixToValueMap GetValues()
+    {
+        return new CssSuffixToValueMap { { "0", "0" }, { "1", "1" }, { "2", "2" }, };
+    }
 }

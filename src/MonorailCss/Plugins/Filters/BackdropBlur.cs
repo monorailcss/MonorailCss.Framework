@@ -12,7 +12,7 @@ public class BackdropBlur : BaseUtilityPlugin
 
     /// <inheritdoc />
     protected override ImmutableDictionary<string, string> GetUtilities() =>
-        new Dictionary<string, string>()
+        new Dictionary<string, string>
         {
             { "backdrop-blur-none", "blur(0)" },
             { "backdrop-blur-sm", "blur(4px)" },

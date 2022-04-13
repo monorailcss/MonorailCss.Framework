@@ -20,44 +20,12 @@ public class FlexBasis : BaseUtilityNamespacePlugin
     protected override CssNamespaceToPropertyMap GetNamespacePropertyMapList() =>
         new()
         {
-            { "basis", "flex-basis" },
+            new("basis", "flex-basis"),
         };
 
     /// <inheritdoc />
     protected override CssSuffixToValueMap GetValues()
     {
         return _designSystem.Spacing.AddRange(SizeHelpers.Percentages).Add("auto", "auto");
-    }
-}
-
-/// <summary>
-/// The gap plugin.
-/// </summary>
-public class Gap : BaseUtilityNamespacePlugin
-{
-    private readonly CssSuffixToValueMap _values;
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="Gap"/> class.
-    /// </summary>
-    /// <param name="designSystem">The design system.</param>
-    public Gap(DesignSystem designSystem)
-    {
-        _values = designSystem.Spacing;
-    }
-
-    /// <inheritdoc />
-    protected override CssNamespaceToPropertyMap GetNamespacePropertyMapList() =>
-        new()
-        {
-            { "gap", "gap" },
-            { "gap-x", "column-gap" },
-            { "gap-y", "row-gap" },
-        };
-
-    /// <inheritdoc />
-    protected override CssSuffixToValueMap GetValues()
-    {
-        return _values;
     }
 }

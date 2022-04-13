@@ -12,7 +12,7 @@ public class LineHeight : BaseUtilityPlugin
 
     /// <inheritdoc />
     protected override ImmutableDictionary<string, string> GetUtilities() =>
-        new Dictionary<string, string>()
+        new Dictionary<string, string>
         {
             { "leading-3", ".75rem" }, /* 12px */
             { "leading-4", "1rem" }, /* 16px */

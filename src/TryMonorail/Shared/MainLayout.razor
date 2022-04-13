@@ -1,0 +1,30 @@
+﻿@using MonorailCss
+@inherits LayoutComponentBase
+
+<HeadContent>
+    <style>
+        @_cssContent
+    </style>
+</HeadContent>
+
+<div class="font-sans bg-gray-900">
+    <header class="uppercase py-3 pl-5 pr-3 items-center space-x-4 antialiased text-gray-100 font-thin text-3xl text-uppercase">
+        Monorail<span class="text-sky-500 font-black">Play</span> 
+    </header>
+    <main>
+        @Body
+    </main>
+</div>
+
+
+@code{
+    private string _cssContent = null!;
+
+    protected override void OnInitialized()
+    {
+        var foo = new CssFramework(DesignSystem.Default);
+        var values = CssJit.Values();
+        _cssContent = foo.Process(values);
+    }
+
+}

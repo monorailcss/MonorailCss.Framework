@@ -10,22 +10,22 @@ public class BorderRadius : BaseUtilityNamespacePlugin
     {
         return new CssNamespaceToPropertyMap
         {
-            { "rounded", "border-radius" },
-            { "rounded-t", ("border-top-left-radius", "border-top-right-radius") },
-            { "rounded-r", ("border-top-right-radius", "border-bottom-right-radius") },
-            { "rounded-b", ("border-bottom-right-radius", "border-bottom-left-radius") },
-            { "rounded-l", ("border-top-left-radius", "border-bottom-left-radius") },
-            { "rounded-tl", "border-top-left-radius" },
-            { "rounded-tr", "border-top-right-radius" },
-            { "rounded-br", "border-bottom-right-radius" },
-            { "rounded-bl", "border-bottom-left-radius" },
+            new("rounded", "border-radius", 0),
+            new("rounded-t", ("border-top-left-radius", "border-top-right-radius"), 10),
+            new("rounded-r", ("border-top-right-radius", "border-bottom-right-radius"), 10),
+            new("rounded-b", ("border-bottom-right-radius", "border-bottom-left-radius"), 10),
+            new("rounded-l", ("border-top-left-radius", "border-bottom-left-radius"), 10),
+            new("rounded-tl", "border-top-left-radius", 1000),
+            new("rounded-tr", "border-top-right-radius", 1000),
+            new("rounded-br", "border-bottom-right-radius", 1000),
+            new("rounded-bl", "border-bottom-left-radius", 1000),
         };
     }
 
     /// <inheritdoc />
     protected override CssSuffixToValueMap GetValues()
     {
-        return new CssSuffixToValueMap()
+        return new CssSuffixToValueMap
         {
             { "none", "0px" },
             { "sm", "0.125rem" },

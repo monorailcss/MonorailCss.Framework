@@ -10,6 +10,7 @@ internal class TextColor : IUtilityNamespacePlugin
 {
     private const string Namespace = "text";
     private readonly ImmutableDictionary<string, CssColor> _flattenedColors;
+    private readonly ImmutableDictionary<string, string> _opacities;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="TextColor"/> class.
@@ -19,6 +20,7 @@ internal class TextColor : IUtilityNamespacePlugin
     public TextColor(DesignSystem designSystem, CssFramework cssFramework)
     {
         _flattenedColors = designSystem.Colors.Flatten();
+        _opacities = designSystem.Opacities;
     }
 
     /// <inheritdoc/>
@@ -33,12 +35,9 @@ internal class TextColor : IUtilityNamespacePlugin
             yield break;
         }
 
-        if (namespaceSyntax.Suffix == default)
-        {
-            yield break;
-        }
+        var suffix = namespaceSyntax.Suffix;
 
-        var (colorValue, opacityValue) = ClassHelper.SplitColor(namespaceSyntax.Suffix);
+        var (colorValue, opacityValue) = ClassHelper.SplitColor(suffix);
 
         if (!_flattenedColors.TryGetValue(colorValue, out var color))
         {
@@ -48,7 +47,8 @@ internal class TextColor : IUtilityNamespacePlugin
         CssDeclarationList declarations;
         if (opacityValue != default)
         {
-            declarations = new CssDeclarationList { new(CssProperties.Color, color.AsRgbWithOpacity(opacityValue)), };
+            var opacity = _opacities.GetValueOrDefault(opacityValue, "1");
+            declarations = new CssDeclarationList { new(CssProperties.Color, color.AsRgbWithOpacity(opacity)), };
         }
         else
         {
@@ -66,7 +66,7 @@ internal class TextColor : IUtilityNamespacePlugin
 
     public IEnumerable<CssRuleSet> GetAllRules()
     {
-        return _flattenedColors.Select(color => new CssRuleSet("text-" + color.Key, new CssDeclarationList()
+        return _flattenedColors.Select(color => new CssRuleSet("text-" + color.Key, new CssDeclarationList
         {
             new("color", color.Value.AsRgb()),
         }));

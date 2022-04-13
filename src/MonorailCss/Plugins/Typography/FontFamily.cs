@@ -12,7 +12,7 @@ public class FontFamily : BaseUtilityPlugin
 
     /// <inheritdoc />
     protected override ImmutableDictionary<string, string> GetUtilities() =>
-        new Dictionary<string, string>()
+        new Dictionary<string, string>
         {
             {
                 "font-sans",
@@ -36,7 +36,7 @@ public class FontWeight : BaseUtilityPlugin
 
     /// <inheritdoc />
     protected override ImmutableDictionary<string, string> GetUtilities() =>
-        new Dictionary<string, string>()
+        new Dictionary<string, string>
         {
             { "font-thin", "100" },
             { "font-extralight", "200" },

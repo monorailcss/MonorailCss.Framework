@@ -46,12 +46,10 @@ public abstract class BaseUtilityNamespacePlugin : IUtilityNamespacePlugin
         }
 
         var value = cssSuffixToValuesMap[suffix];
-        var props = namespacePropertyMapList[namespaceSyntax.Namespace];
+        var mapping = namespacePropertyMapList[namespaceSyntax.Namespace];
+        var declarationList = CssDeclarationList(value, mapping.Values.Values);
 
-        var propsValues = props.Values;
-        var declarationList = CssDeclarationList(value, propsValues);
-
-        yield return new CssRuleSet(GetSelector(namespaceSyntax), declarationList);
+        yield return new CssRuleSet(GetSelector(namespaceSyntax), declarationList, mapping.Importance);
     }
 
     private static CssDeclarationList CssDeclarationList(string value, string[] propsValues)
@@ -68,11 +66,11 @@ public abstract class BaseUtilityNamespacePlugin : IUtilityNamespacePlugin
     /// <inheritdoc />
     public IEnumerable<CssRuleSet> GetAllRules()
     {
-        foreach (var (ns, properties) in _namespacePropertyMapList.Value.ToArray())
+        foreach (var (ns, properties, importance) in _namespacePropertyMapList.Value.ToArray())
         {
             foreach (var (suffix, value) in _suffixToValueMap.Value.ToArray())
             {
-                yield return new CssRuleSet($"{ns}-{suffix}", CssDeclarationList(value, properties));
+                yield return new CssRuleSet($"{ns}-{suffix}", CssDeclarationList(value, properties.Values));
             }
         }
     }
@@ -143,12 +141,11 @@ public abstract class BaseColorUtilityNamespacePlugin : IUtilityNamespacePlugin
         }
 
         var value = cssSuffixToValuesMap[suffix];
-        var props = namespacePropertyMapList[namespaceSyntax.Namespace];
+        var (_, propsValues, importance) = namespacePropertyMapList[namespaceSyntax.Namespace];
 
-        var propsValues = props.Values;
-        var declarationList = CssDeclarationList(value, propsValues);
+        var declarationList = CssDeclarationList(value, propsValues.Values);
 
-        yield return new CssRuleSet(GetSelector(namespaceSyntax), declarationList);
+        yield return new CssRuleSet(GetSelector(namespaceSyntax), declarationList, importance);
     }
 
     private static CssDeclarationList CssDeclarationList(string value, string[] propsValues)
@@ -165,11 +162,11 @@ public abstract class BaseColorUtilityNamespacePlugin : IUtilityNamespacePlugin
     /// <inheritdoc />
     public IEnumerable<CssRuleSet> GetAllRules()
     {
-        foreach (var (ns, properties) in _namespacePropertyMapList.Value.ToArray())
+        foreach (var (ns, properties, importance) in _namespacePropertyMapList.Value.ToArray())
         {
             foreach (var (suffix, value) in _suffixToValueMap.Value.ToArray())
             {
-                yield return new CssRuleSet($"{ns}-{suffix}", CssDeclarationList(value, properties));
+                yield return new CssRuleSet($"{ns}-{suffix}", CssDeclarationList(value, properties.Values), importance);
             }
         }
     }

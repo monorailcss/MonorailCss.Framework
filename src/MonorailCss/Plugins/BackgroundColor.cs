@@ -31,13 +31,15 @@ internal class BackgroundColor : IUtilityNamespacePlugin
     /// <inheritdoc />
     public IEnumerable<CssRuleSet> Process(IParsedClassNameSyntax syntax)
     {
-        if (syntax is not NamespaceSyntax { Suffix: { } } namespaceSyntax ||
+        if (syntax is not NamespaceSyntax namespaceSyntax ||
             !namespaceSyntax.NamespaceEquals(Namespace))
         {
             yield break;
         }
 
-        var (colorValue, opacityValue) = ClassHelper.SplitColor(namespaceSyntax.Suffix);
+        var suffix = namespaceSyntax.Suffix ?? "DEFAULT";
+
+        var (colorValue, opacityValue) = ClassHelper.SplitColor(suffix);
 
         if (!_flattenedColors.TryGetValue(colorValue, out var color))
         {
@@ -45,8 +47,9 @@ internal class BackgroundColor : IUtilityNamespacePlugin
         }
 
         CssDeclarationList declarations;
-        if (opacityValue != default && _opacity.TryGetValue(opacityValue, out var opacity))
+        if (opacityValue != default)
         {
+            var opacity = _opacity.GetValueOrDefault(opacityValue, "1");
             declarations = new CssDeclarationList
             {
                 new(CssProperties.BackgroundColor, color.AsRgbWithOpacity(opacity)),
@@ -71,6 +74,6 @@ internal class BackgroundColor : IUtilityNamespacePlugin
         return _flattenedColors.Select(color =>
             new CssRuleSet(
                 "bg-" + color.Key,
-                new CssDeclarationList() { new("background-color", color.Value.AsRgb()), }));
+                new CssDeclarationList { new("background-color", color.Value.AsRgb()), }));
     }
 }

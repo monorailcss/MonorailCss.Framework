@@ -25,9 +25,9 @@ public readonly struct CssColor
         }
         else if (hex.Length == 3)
         {
-            _r = int.Parse(hex[1..1], System.Globalization.NumberStyles.HexNumber);
-            _g = int.Parse(hex[2..2], System.Globalization.NumberStyles.HexNumber);
-            _b = int.Parse(hex[3..3], System.Globalization.NumberStyles.HexNumber);
+            _r = int.Parse(hex[0] + hex[0].ToString(), System.Globalization.NumberStyles.HexNumber);
+            _g = int.Parse(hex[1] + hex[1].ToString(), System.Globalization.NumberStyles.HexNumber);
+            _b = int.Parse(hex[2] + hex[2].ToString(), System.Globalization.NumberStyles.HexNumber);
         }
         else
         {

@@ -1,4 +1,5 @@
 ﻿using MonorailCss.Tests.Plugins;
+using Shouldly;
 
 namespace MonorailCss.Tests;
 
@@ -9,7 +10,16 @@ public class FrameworkTests
     {
         var framework = new CssFramework(MonorailCss.DesignSystem.Default)
             .WithCssReset(string.Empty);
-        var r = framework.Process(new[] { "bg-blue-100", "dark:bg-blue-50", "hover:bg-blue-200", "hover:sm:bg-blue-300", "sm:bg-blue-400", "dark:sm:bg-blue-500", "prose-h1:bg-blue-200" });
+        var r = framework.Process(new[]
+        {
+            "bg-blue-100",
+            "dark:bg-blue-50",
+            "hover:bg-blue-200",
+            "hover:sm:bg-blue-300",
+            "sm:bg-blue-400",
+            "dark:sm:bg-blue-500",
+            "prose-h1:bg-blue-200"
+        });
         r.ShouldBeCss(@"
 .bg-blue-100 {
   --monorail-bg-opacity:1;
@@ -49,15 +59,106 @@ public class FrameworkTests
     public void Can_Do_Apply()
     {
         var framework = new CssFramework(MonorailCss.DesignSystem.Default)
-                .WithCssReset(string.Empty)
-                .Apply("body", "font-sans mb-2");
-        var r =  framework.Process(Array.Empty<string>());
+            .WithCssReset(string.Empty)
+            .Apply("body", "font-sans mb-2");
+        var r = framework.Process(Array.Empty<string>());
         r.ShouldBeCss(@"
 body {
   font-family:-apple-system, BlinkMacSystemFont, avenir next, avenir, segoe ui, helvetica neue, helvetica, Ubuntu, roboto, noto, arial, sans-serif;
   margin-bottom:0.5rem;
 }
 ");
+    }
 
+    [Fact]
+    public void Unknown_variants_are_swallowed()
+    {
+        var framework = new CssFramework(MonorailCss.DesignSystem.Default)
+            .WithCssReset(string.Empty);
+
+        var r = framework.Process(new[] { "group-hover:font-xl", "test" });
+        r.ShouldBeCss(@"
+        ");
+    }
+
+    [Fact]
+    public void Importance_is_respected()
+    {
+        var framework = new CssFramework(MonorailCss.DesignSystem.Default)
+            .WithCssReset(string.Empty);
+
+        var r = framework.Process(new[] { "m-4", "my-3", "mb-2" });
+        r.Trim().ReplaceLineEndings().ShouldBe(@"
+.m-4 {
+  margin:1rem;
+}
+.my-3 {
+  margin-bottom:0.75rem;
+  margin-top:0.75rem;
+}
+.mb-2 {
+  margin-bottom:0.5rem;
+}
+".Trim().ReplaceLineEndings());
+
+        // now check if we send them in the opposite way. output ordering should remain equal.
+        var r2 = framework.Process(new[] { "mb-2", "my-3", "m-4" });
+        r2.Trim().ReplaceLineEndings().ShouldBe(@"
+.m-4 {
+  margin:1rem;
+}
+.my-3 {
+  margin-bottom:0.75rem;
+  margin-top:0.75rem;
+}
+.mb-2 {
+  margin-bottom:0.5rem;
+}
+".Trim().ReplaceLineEndings());
+
+        var r3 = framework.Process(new[] { "lg:rounded-none", "lg:rounded-l-lg" });
+        r3.Trim().ReplaceLineEndings().ShouldBe(@"
+@media (min-width:1024px) {
+  .lg\:rounded-none {
+    border-radius:0px;
+  }
+  .lg\:rounded-l-lg {
+    border-bottom-left-radius:0.5rem;
+    border-top-left-radius:0.5rem;
+  }
+}
+".Trim().ReplaceLineEndings());
+
+        var r4 = framework.Process(new[] { "lg:rounded-l-lg", "lg:rounded-none" });
+        r4.Trim().ReplaceLineEndings().ShouldBe(@"
+@media (min-width:1024px) {
+  .lg\:rounded-none {
+    border-radius:0px;
+  }
+  .lg\:rounded-l-lg {
+    border-bottom-left-radius:0.5rem;
+    border-top-left-radius:0.5rem;
+  }
+}
+".Trim().ReplaceLineEndings());
+    }
+
+    [Fact]
+    public void Placeholder_variant_works()
+    {
+        var framework = new CssFramework(MonorailCss.DesignSystem.Default).WithCssReset(string.Empty);
+        var r = framework.Process(new[] { "placeholder:text-gray-200", "md:hover:placeholder:text-gray-400" });
+        r.ShouldBeCss(@"
+.placeholder\:text-gray-200::placeholder {
+  --monorail-text-opacity:1;
+  color:rgba(229, 231, 235, var(--monorail-text-opacity));
+}
+@media (min-width:768px) {
+  .md\:hover\:placeholder\:text-gray-200:hover::placeholder {
+    --monorail-text-opacity:1;
+    color:rgba(156, 163, 175, var(--monorail-text-opacity));
+  }
+}
+");
     }
 }

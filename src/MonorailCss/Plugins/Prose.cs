@@ -131,11 +131,11 @@ public class Prose : IUtilityNamespacePlugin, IVariantPluginProvider
 
     private CssSettings GetDefaultSettings()
     {
-        var defaultSettings = new CssSettings()
+        var defaultSettings = new CssSettings
         {
             Css =
                 new CssDeclarationList { new(CssProperties.Color, _cssVar("prose-body")), },
-            ChildRules = new CssRuleSetList()
+            ChildRules = new CssRuleSetList
             {
                 new(
                     "a",
@@ -144,14 +144,14 @@ public class Prose : IUtilityNamespacePlugin, IVariantPluginProvider
                         new(CssProperties.Color, _cssVar("prose-links")),
                         new(CssProperties.TextDecoration, "underline"),
                     }),
-                new("pre", new CssDeclarationList()
+                new("pre", new CssDeclarationList
                 {
                     new(CssProperties.Color, _cssVar("prose-pre-code")),
                     new(CssProperties.BackgroundColor, _cssVar("prose-pre-bg")),
                     new("overflow-x", "auto"),
                     new(CssProperties.FontWeight, "300"),
                 }),
-                new("pre code", new CssDeclarationList()
+                new("pre code", new CssDeclarationList
                 {
                     new(CssProperties.BackgroundColor, "transparent"),
                     new(CssProperties.BorderWidth, "0"),
@@ -215,12 +215,12 @@ public class Prose : IUtilityNamespacePlugin, IVariantPluginProvider
                         new(CssProperties.Color, _cssVar("prose-headings")),
                     }),
                 new("h4 strong", new CssDeclarationList { new(CssProperties.FontWeight, "700"), }),
-                new("code", new CssDeclarationList()
+                new("code", new CssDeclarationList
                 {
                     new(CssProperties.Color, _cssVar("prose-code")),
                     new(CssProperties.FontWeight, "600"),
                 }),
-                new("table", new CssDeclarationList()
+                new("table", new CssDeclarationList
                 {
                     new(CssProperties.Width, "100%"),
                     new(CssProperties.TableLayout, "auto"),
@@ -228,31 +228,31 @@ public class Prose : IUtilityNamespacePlugin, IVariantPluginProvider
                     new(CssProperties.MarginTop, Em(32, 16)),
                     new(CssProperties.MarginBottom, Em(32, 16)),
                 }),
-                new("thead", new CssDeclarationList()
+                new("thead", new CssDeclarationList
                 {
                     new(CssProperties.BorderBottomColor, _cssVar("prose-th-borders")),
                     new(CssProperties.BorderBottomWidth, "1px"),
                 }),
-                new("thead th", new CssDeclarationList()
+                new("thead th", new CssDeclarationList
                 {
                     new(CssProperties.Color, _cssVar("prose-headings")),
                     new(CssProperties.FontWeight, "600"),
                     new(CssProperties.VerticalAlign, "bottom"),
                 }),
-                new("tbody tr", new CssDeclarationList()
+                new("tbody tr", new CssDeclarationList
                 {
                     new(CssProperties.BorderBottomColor, _cssVar("prose-td-borders")),
                     new(CssProperties.BorderBottomWidth, "1px"),
                 }),
-                new(new CssSelector("tbody tr", ":last-child"), new CssDeclarationList()
+                new(new CssSelector("tbody tr", ":last-child"), new CssDeclarationList
                 {
                     new(CssProperties.BorderBottomWidth, "0px"),
                 }),
-                new("tbody td", new CssDeclarationList()
+                new("tbody td", new CssDeclarationList
                 {
                     new(CssProperties.VerticalAlign, "baseline"),
                 }),
-                new("tfoot", new CssDeclarationList()
+                new("tfoot", new CssDeclarationList
                 {
                     new(CssProperties.BorderTopWidth, "1px"),
                     new(CssProperties.BorderTopColor, _cssVar("prose-th-borders")),
@@ -267,14 +267,14 @@ public class Prose : IUtilityNamespacePlugin, IVariantPluginProvider
         var baseSettings = new Dictionary<string, CssSettings>
         {
             {
-                "base", new CssSettings()
+                "base", new CssSettings
                 {
                     Css =
                         new CssDeclarationList
                         {
                             new(CssProperties.FontSize, Rem(16)), new(CssProperties.LineHeight, Rounds(28 / 18m)),
                         },
-                    ChildRules = new CssRuleSetList()
+                    ChildRules = new CssRuleSetList
                     {
                         new(
                             "p",
@@ -392,7 +392,7 @@ public class Prose : IUtilityNamespacePlugin, IVariantPluginProvider
         return _settings.GrayScales.Aggregate(baseSettings, (current, scale) => new Dictionary<string, CssSettings>
             {
                 {
-                    scale, new CssSettings()
+                    scale, new CssSettings
                     {
                         Css = new CssDeclarationList
                         {

@@ -12,7 +12,7 @@ public class FlexWrap : BaseUtilityPlugin
 
     /// <inheritdoc />
     protected override ImmutableDictionary<string, string> GetUtilities() =>
-        new Dictionary<string, string>()
+        new Dictionary<string, string>
         {
             { "flex-wrap", "wrap" },
             { "flex-wrap-reverse", "wrap-reverse" },

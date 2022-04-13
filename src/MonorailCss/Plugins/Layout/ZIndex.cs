@@ -12,7 +12,7 @@ public class ZIndex : BaseUtilityPlugin
 
     /// <inheritdoc />
     protected override ImmutableDictionary<string, string> GetUtilities() =>
-        new Dictionary<string, string>()
+        new Dictionary<string, string>
         {
             { "z-0", "0" },
             { "z-10", "10" },

@@ -10,12 +10,12 @@ public class MinWidth : BaseUtilityNamespacePlugin
     private const string Namespace = "min-w";
 
     /// <inheritdoc />
-    protected override CssNamespaceToPropertyMap GetNamespacePropertyMapList() => new() { { Namespace, "min-width" }, };
+    protected override CssNamespaceToPropertyMap GetNamespacePropertyMapList() => new(Namespace, "min-width");
 
     /// <inheritdoc />
     protected override CssSuffixToValueMap GetValues()
     {
-        return new Dictionary<string, string>()
+        return new Dictionary<string, string>
         {
             { "0", "0px" },
             { "full", "100%" },

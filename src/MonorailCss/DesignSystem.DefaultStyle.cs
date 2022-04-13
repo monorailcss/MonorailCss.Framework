@@ -27,7 +27,7 @@ public partial record DesignSystem
         };
     }
 
-    private static ImmutableDictionary<string, string> DefaultOpacities => new Dictionary<string, string>()
+    private static ImmutableDictionary<string, string> DefaultOpacities => new Dictionary<string, string>
     {
         { "0", "0" },
         { "5", "0.05" },
@@ -55,7 +55,7 @@ public partial record DesignSystem
         { "2xl", "1536px" },
     }.ToImmutableDictionary();
 
-    private static ImmutableDictionary<string, string> DefaultFontWeights => new Dictionary<string, string>()
+    private static ImmutableDictionary<string, string> DefaultFontWeights => new Dictionary<string, string>
     {
         { "thin", "100" },
         { "extralight", "200" },
@@ -110,6 +110,18 @@ public partial record DesignSystem
     private static ImmutableDictionary<string, ImmutableDictionary<string, CssColor>> DefaultColors =>
         new Dictionary<string, ImmutableDictionary<string, CssColor>>
         {
+            {
+                "White", new Dictionary<string, CssColor>
+                {
+                    { _Default, new CssColor("#fff") },
+                }.ToImmutableDictionary()
+            },
+            {
+                "Black", new Dictionary<string, CssColor>
+                {
+                    { _Default, new CssColor("#000") },
+                }.ToImmutableDictionary()
+            },
             {
                 Blue, new Dictionary<string, CssColor>
                 {

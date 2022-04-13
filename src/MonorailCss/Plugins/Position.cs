@@ -12,7 +12,7 @@ public class Position : BaseUtilityPlugin
 
     /// <inheritdoc />
     protected override ImmutableDictionary<string, string> GetUtilities() =>
-        new Dictionary<string, string>()
+        new Dictionary<string, string>
         {
             { "static", "static" },
             { "fixed", "fixed" },

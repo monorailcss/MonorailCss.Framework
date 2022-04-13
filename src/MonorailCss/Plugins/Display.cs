@@ -1,17 +1,14 @@
 ﻿using System.Collections.Immutable;
+using MonorailCss.Css;
 
 namespace MonorailCss.Plugins;
 
 /// <summary>
 /// The display plugin.
 /// </summary>
-public class Display : BaseUtilityPlugin
+public class Display : IUtilityPlugin
 {
-    /// <inheritdoc />
-    protected override string Property => "display";
-
-    /// <inheritdoc />
-    protected override ImmutableDictionary<string, string> GetUtilities() =>
+    private ImmutableDictionary<string, string> GetUtilities() =>
         new Dictionary<string, string>
         {
             { "block", "block" },
@@ -36,4 +33,41 @@ public class Display : BaseUtilityPlugin
             { "list-item", "list-item" },
             { "hidden", "wnone" },
         }.ToImmutableDictionary();
+
+    /// <inheritdoc />
+    public IEnumerable<CssRuleSet> Process(IParsedClassNameSyntax syntax)
+    {
+        var utilities = GetUtilities();
+        if (syntax is UtilitySyntax utilitySyntax)
+        {
+            if (!utilities.TryGetValue(utilitySyntax.Name, out var value))
+            {
+                yield break;
+            }
+
+            yield return new CssRuleSet(
+                utilitySyntax.OriginalSyntax,
+                new CssDeclarationList() { new("display", value), });
+        }
+        else if (syntax is NamespaceSyntax namespaceSyntax)
+        {
+            if (!utilities.TryGetValue(namespaceSyntax.Namespace, out var value))
+            {
+                yield break;
+            }
+
+            yield return new CssRuleSet(
+                namespaceSyntax.OriginalSyntax,
+                new CssDeclarationList() { new("display", value), });
+        }
+    }
+
+    /// <inheritdoc />
+    public IEnumerable<CssRuleSet> GetAllRules()
+    {
+        return GetUtilities()
+            .Select(utility => new CssRuleSet(
+                utility.Key,
+                new CssDeclarationList() { new("display", utility.Value) }));
+    }
 }

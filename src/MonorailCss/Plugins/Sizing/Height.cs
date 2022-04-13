@@ -18,14 +18,14 @@ public class Height : BaseUtilityNamespacePlugin
     }
 
     /// <inheritdoc />
-    protected override CssNamespaceToPropertyMap GetNamespacePropertyMapList() => new() { { Namespace, "height" }, };
+    protected override CssNamespaceToPropertyMap GetNamespacePropertyMapList() => new() { new(Namespace, "height"), };
 
     /// <inheritdoc />
     protected override CssSuffixToValueMap GetValues()
     {
         return SizeHelpers.Percentages
             .AddRange(_designSystem.Spacing)
-            .AddRange(new Dictionary<string, string>()
+            .AddRange(new Dictionary<string, string>
             {
                 { "auto", "auto" },
                 { "full", "100%" },

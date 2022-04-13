@@ -21,12 +21,12 @@ public class MaxWidth : BaseUtilityNamespacePlugin
     }
 
     /// <inheritdoc />
-    protected override CssNamespaceToPropertyMap GetNamespacePropertyMapList() => new() { { Namespace, "max-width" }, };
+    protected override CssNamespaceToPropertyMap GetNamespacePropertyMapList() => new() { new(Namespace, "max-width"), };
 
     /// <inheritdoc />
     protected override CssSuffixToValueMap GetValues()
     {
-        return new Dictionary<string, string>()
+        return new Dictionary<string, string>
             {
                 { "none", "none" },
                 { "0", "0rem" },
