@@ -6,21 +6,19 @@
 public class BorderWidth : BaseUtilityNamespacePlugin
 {
     /// <inheritdoc />
-    protected override CssNamespaceToPropertyMap GetNamespacePropertyMapList() =>
-        new()
+    protected override CssNamespaceToPropertyMap GetNamespacePropertyMapList() => new()
         {
-            { "border", "border-width" },
-            { "border-x", ("border-left-width", "border-right-width") },
-            { "border-y", ("border-top-width", "border-bottom-width") },
-            { "border-r", "border-right-width" },
-            { "border-t", "border-top-width" },
-            { "border-b", "border-bottom-width" },
-            { "border-l", "border-left-width" },
+            new("border", "border-width"),
+            new("border-x", ("border-left-width", "border-right-width")),
+            new("border-y", ("border-top-width", "border-bottom-width")),
+            new("border-r", "border-right-width"),
+            new("border-t", "border-top-width"),
+            new("border-b", "border-bottom-width"),
+            new("border-l", "border-left-width"),
         };
 
     /// <inheritdoc />
-    protected override CssSuffixToValueMap GetValues() =>
-        new()
+    protected override CssSuffixToValueMap GetValues() => new()
         {
             { "0", "0px" },
             { "DEFAULT", "1px" },

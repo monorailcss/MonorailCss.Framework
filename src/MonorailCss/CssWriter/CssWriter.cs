@@ -3,7 +3,7 @@ using MonorailCss.Css;
 
 namespace MonorailCss.CssWriter;
 
-internal class CssWriter
+internal static class CssWriter
 {
     public static void AppendCssRules(CssStylesheet stylesheet, StringBuilder stringBuilder)
     {
@@ -21,7 +21,7 @@ internal class CssWriter
                 indent = 2;
             }
 
-            foreach (var groupedRuleSet in mediaRule.RuleSets.GroupBy(i => i.Selector.Selector, set => set).OrderBy(i => i.Key))
+            foreach (var groupedRuleSet in mediaRule.RuleSets.OrderBy(i => i.Importance).GroupBy(i => i.Selector.Selector, set => set))
             {
                 var selectorIndent = new string(' ', indent);
                 var propIndent = new string(' ', indent + 2);

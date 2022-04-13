@@ -4,7 +4,7 @@ namespace MonorailCss;
 
 public partial record DesignSystem
 {
-    private static ImmutableDictionary<string, string> DefaultSpacing => new Dictionary<string, string>()
+    private static ImmutableDictionary<string, string> DefaultSpacing => new Dictionary<string, string>
     {
         { "px", "1px" },
         { "0", "0px" },

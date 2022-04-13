@@ -38,7 +38,7 @@ public class Space : IUtilityNamespacePlugin
         if (namespaceSyntax.Suffix == "reverse")
         {
             var variable = CssFramework.GetVariableNameWithPrefix("{ns}-reverse");
-            yield return new CssRuleSet(GetSelector(namespaceSyntax), new CssDeclarationList() { new(variable, "1"), });
+            yield return new CssRuleSet(GetSelector(namespaceSyntax), new CssDeclarationList { new(variable, "1"), });
 
             yield break;
         }
@@ -52,7 +52,7 @@ public class Space : IUtilityNamespacePlugin
             ? ("space-x-reverse", "margin-left", "margin-right")
             : ("space-y-reverse", "margin-top", "margin-bottom");
 
-        var declarations = new CssDeclarationList()
+        var declarations = new CssDeclarationList
         {
             new(CssFramework.GetVariableNameWithPrefix(names.Item1), "0"),
             new(names.Item2, $"calc({value} * calc(1 - {CssFramework.GetCssVariableWithPrefix(names.Item1)}))"),

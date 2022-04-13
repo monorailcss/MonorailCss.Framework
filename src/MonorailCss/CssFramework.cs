@@ -22,7 +22,6 @@ public class CssFramework
 
     private string _elementPrefix = string.Empty;
     private string _rootElement = string.Empty;
-    private string _variablePrefix = "--monorail";
     private char _separator = ':';
     private string? _cssResetContent;
 
@@ -210,7 +209,10 @@ public class CssFramework
             .Concat(distinctCss.Select(i => new { Selector = string.Empty, CssClassList = i }));
 
         var selectorWithSyntaxItems = selectorWithClassListItems
-            .Select(i => new { i.Selector, Syntax = ClassHelper.Extract(i.CssClassList, namespaces, _elementPrefix, _separator), })
+            .Select(i => new
+            {
+                i.Selector, Syntax = ClassHelper.Extract(i.CssClassList, namespaces, _elementPrefix, _separator),
+            })
             .Where(i => i.Syntax != null);
 
         var mediaGrouping = new ConcurrentDictionary<string[], ImmutableList<CssRuleSet>>(new ModifierComparer());
@@ -230,7 +232,7 @@ public class CssFramework
                     var selectorSyntax = string.IsNullOrWhiteSpace(elementSelector)
                         ? ClassHelper.GetSelectorSyntax(
                             ruleSet.Selector,
-                            syntax.Modifiers.Select(i => variants[i]))
+                            syntax.Modifiers.Select(i => !variants.ContainsKey(i) ? default : variants[i]).Where(i => i != default).OfType<IVariant>())
                         : elementSelector;
 
                     var rootSelector = string.IsNullOrWhiteSpace(_rootElement) switch
@@ -243,14 +245,23 @@ public class CssFramework
                 }));
             }
 
+            if (declarations.Count == 0 && item.Syntax != default)
+            {
+                var originalSyntax = item.Syntax.OriginalSyntax;
+                if (originalSyntax.Contains("-") && !originalSyntax.StartsWith("roslyn") &&
+                    !originalSyntax.StartsWith("language"))
+                {
+                    Console.WriteLine($"Found selector with no declarations returned - {originalSyntax}");
+                }
+            }
+
             mediaGrouping.AddOrUpdate(mediaModifiers, _ => declarations.ToImmutableList(),
                 (_, existing) => existing.AddRange(declarations));
         }
 
-        var mediaRules = mediaGrouping.Select(i => new CssMediaRule(GetFeatureList(i.Key, variants), i.Value)).ToImmutableList();
+        var mediaRules = mediaGrouping.Select(i => new CssMediaRule(GetFeatureList(i.Key, variants), i.Value))
+            .ToImmutableList();
         var styleSheet = new CssStylesheet(mediaRules);
-
-        var writer = new CssWriter.CssWriter();
 
         var cssReset = _cssResetContent ?? GetDefaultCssReset();
         var sb = new StringBuilder(cssReset);
@@ -259,103 +270,12 @@ public class CssFramework
         return sb.ToString();
     }
 
-    private ImmutableList<string> GetFeatureList(string[] mediaModifiers, ImmutableDictionary<string, IVariant> variants) =>
+    private ImmutableList<string> GetFeatureList(
+        string[] mediaModifiers,
+        ImmutableDictionary<string, IVariant> variants) =>
         mediaModifiers.Select(m => variants[m])
             .OfType<MediaQueryVariant>()
             .Select(i => i.Feature).ToImmutableList();
-
-    /// <summary>
-    /// Processes a list of CSS classes with the current framework and returns the resulting CSS stylesheet.
-    /// </summary>
-    /// <param name="cssClasses">An enumerable of CSS classes.</param>
-    /// <returns>A string containing a complete CSS stylesheet.</returns>
-    public string ProcessOld(IEnumerable<string> cssClasses)
-    {
-        // we need all the namespaces up front so that the CSS parser can do its thing.
-        var allPlugins = _pluginTypes
-            .Select(GetPluginInstance)
-            .OfType<IUtilityPlugin>().ToArray();
-
-        var variantSystem = new VariantSystem(
-            _designSystem, allPlugins.OfType<IVariantPluginProvider>().ToArray());
-        var variants = variantSystem.Variants;
-
-        var namespaces = allPlugins
-            .OfType<IUtilityNamespacePlugin>()
-            .SelectMany(i => i.Namespaces)
-            .ToArray();
-
-        var distinctCss = cssClasses.Distinct().Select(i => new { Selector = i, CssClass = i });
-        var cssReset = _cssResetContent ?? GetDefaultCssReset();
-
-        var sb = new StringBuilder(cssReset);
-        sb.AppendLine();
-
-        // parse the class names into their elements.
-        var parsedClassNameSyntaxes = distinctCss
-            .Select(cssClass => ClassHelper.Extract(cssClass.CssClass, namespaces, _elementPrefix, _separator))
-            .Where(syntax => syntax != null)
-            .OfType<IParsedClassNameSyntax>()
-            .ToList();
-
-        // group them by media queries.
-        var groupedByMediaModifierSyntaxes = parsedClassNameSyntaxes
-            .Select(c => new { Modifers = GetMediaModifiers(c.Modifiers, variants), Item = c })
-            .GroupBy(i => i.Modifers, i => i.Item, new ModifierComparer());
-
-        foreach (var groupedByMediaModifierSyntax in groupedByMediaModifierSyntaxes)
-        {
-            var modifiers = groupedByMediaModifierSyntax.Key;
-            var hasModifiers = modifiers.Length > 0;
-            var indent = 0;
-
-            if (hasModifiers)
-            {
-                var mediaQueryBuilder = modifiers.Select(m => variants[m])
-                    .OfType<MediaQueryVariant>()
-                    .Select(i => i.Feature);
-
-                sb.AppendLine($"@media {string.Join(" and ", mediaQueryBuilder)} {{");
-                indent = 2;
-            }
-
-            foreach (var item in groupedByMediaModifierSyntax)
-            {
-                foreach (var plugin in allPlugins)
-                {
-                    var elements = plugin.Process(item);
-                    foreach (var element in elements)
-                    {
-                        if (element.DeclarationList.Count <= 0)
-                        {
-                            continue;
-                        }
-
-                        var selectorIndent = new string(' ', indent);
-                        var propIndent = new string(' ', indent + 2);
-                        var selectorSyntax = ClassHelper.GetSelectorSyntax(
-                            element.Selector,
-                            item.Modifiers.Select(i => variants[i]));
-                        sb.AppendLine($"{selectorIndent}{selectorSyntax} {{");
-
-                        foreach (var cssProperty in element.DeclarationList.OrderBy(i => i.Property))
-                        {
-                            sb.AppendLine($"{propIndent}{cssProperty.Property}:{cssProperty.Value};");
-                        }
-
-                        sb.AppendLine($"{selectorIndent}}}");
-                    }
-                }
-            }
-
-            if (hasModifiers)
-            {
-                sb.AppendLine("}");
-            }
-        }
-
-        return sb.ToString();
-    }
 
     private static string GetDefaultCssReset()
     {

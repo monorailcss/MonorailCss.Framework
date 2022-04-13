@@ -12,5 +12,5 @@ public class FlexShrink : BaseUtilityPlugin
 
     /// <inheritdoc />
     protected override ImmutableDictionary<string, string> GetUtilities() =>
-        new Dictionary<string, string>() { { "shrink", "1" }, { "shrink-0", "0" }, }.ToImmutableDictionary();
+        new Dictionary<string, string> { { "flex-shrink", "1" }, { "flex-shrink-0", "0" }, }.ToImmutableDictionary();
 }

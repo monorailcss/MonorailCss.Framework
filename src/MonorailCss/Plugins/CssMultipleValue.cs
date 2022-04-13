@@ -7,18 +7,35 @@ namespace MonorailCss.Plugins;
 /// <summary>
 /// Represents a mapping of a namespace to property values.
 /// </summary>
-public record CssNamespaceToPropertyMap : IEnumerable<(string Namespace, string[] Values)>
+public record CssNamespaceToPropertyMap : IEnumerable<CssNamespaceToPropertyMap.CssNamespaceToPropertyMapItem>
 {
-    private readonly ConcurrentDictionary<string, CssMultipleValue> _items = new();
+    /// <summary>
+    /// Initializes a new instance of the <see cref="CssNamespaceToPropertyMap"/> class.
+    /// </summary>
+    public CssNamespaceToPropertyMap()
+    {
+    }
 
     /// <summary>
-    /// Adds a new namespace with a property map.
+    /// Initializes a new instance of the <see cref="CssNamespaceToPropertyMap"/> class.
     /// </summary>
     /// <param name="ns">The namespace.</param>
-    /// <param name="map">The property map.</param>
-    public void Add(string ns, CssMultipleValue map)
+    /// <param name="multipleValue">The values for this namespace.</param>
+    public CssNamespaceToPropertyMap(string ns, CssMultipleValue multipleValue)
+        : this()
     {
-        _items.AddOrUpdate(ns, _ => map, (_, _) => map);
+        Add(new CssNamespaceToPropertyMapItem(ns, multipleValue));
+    }
+
+    private readonly ConcurrentDictionary<string, CssNamespaceToPropertyMapItem> _items = new();
+
+    /// <summary>
+    /// Adds a new item to the list.
+    /// </summary>
+    /// <param name="item">The item to add.</param>
+    public void Add(CssNamespaceToPropertyMapItem item)
+    {
+        _items.AddOrUpdate(item.Namespace, _ => item, (_, _) => item);
     }
 
     /// <summary>
@@ -27,13 +44,13 @@ public record CssNamespaceToPropertyMap : IEnumerable<(string Namespace, string[
     public IEnumerable<string> Namespaces => _items.Keys;
 
     /// <inheritdoc/>
-    IEnumerator<(string Namespace, string[] Values)> IEnumerable<(string Namespace, string[] Values)>.GetEnumerator()
+    IEnumerator<CssNamespaceToPropertyMapItem> IEnumerable<CssNamespaceToPropertyMapItem>.GetEnumerator()
     {
-        return _items.Select(i => (i.Key, i.Value.Values)).GetEnumerator();
+        return _items.Values.GetEnumerator();
     }
 
     /// <inheritdoc />
-    public IEnumerator GetEnumerator() => _items.Select(i => (i.Key, i.Value.Values)).GetEnumerator();
+    public IEnumerator GetEnumerator() => _items.Values.GetEnumerator();
 
     /// <summary>
     /// Gets whether this namespace is defined.
@@ -46,10 +63,18 @@ public record CssNamespaceToPropertyMap : IEnumerable<(string Namespace, string[
     /// Gets the property value for this namespace.
     /// </summary>
     /// <param name="ns">The namespace.</param>
-    public CssMultipleValue this[string ns]
+    public CssNamespaceToPropertyMapItem this[string ns]
     {
         get => _items[ns];
     }
+
+    /// <summary>
+    /// Represents a mapping item.
+    /// </summary>
+    /// <param name="Namespace">The namespace.</param>
+    /// <param name="Values">A list of values for the namespace.</param>
+    /// <param name="Importance">The importance. Will be used for ordering on output.</param>
+    public record CssNamespaceToPropertyMapItem(string Namespace, CssMultipleValue Values, int Importance = 0);
 
     /// <summary>
     /// Represents a CSS property value list.

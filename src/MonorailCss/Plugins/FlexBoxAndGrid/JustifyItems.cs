@@ -12,7 +12,7 @@ public class JustifyItems : BaseUtilityPlugin
 
     /// <inheritdoc />
     protected override ImmutableDictionary<string, string> GetUtilities() =>
-        new Dictionary<string, string>()
+        new Dictionary<string, string>
         {
             { "justify-items-start", "start" },
             { "justify-items-end", "end" },

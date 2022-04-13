@@ -53,7 +53,7 @@ public class CssJitGenerator : IIncrementalGenerator
         }
 
         var value = literalExpressionSyntax.ToString().Replace("\"", string.Empty);
-        return value.Split(' ');
+        return value.Split(new []{ ' ', '\t' }, StringSplitOptions.RemoveEmptyEntries);
     }
 
     private static string[]? GetCssClassesFromAddMarkup(GeneratorSyntaxContext context)

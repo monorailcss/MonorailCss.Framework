@@ -23,7 +23,7 @@ public class Stroke : BaseUtilityNamespacePlugin
     }
 
     /// <inheritdoc />
-    protected override CssNamespaceToPropertyMap GetNamespacePropertyMapList() => new() { { Namespace, "stroke" } };
+    protected override CssNamespaceToPropertyMap GetNamespacePropertyMapList() => new(Namespace, "stroke");
 
     /// <inheritdoc />
     protected override CssSuffixToValueMap GetValues() =>
@@ -33,7 +33,5 @@ public class Stroke : BaseUtilityNamespacePlugin
                 { "inherit", "inherit" },
                 { "current", "currentColor" },
                 { "transparent", "transparent" },
-                { "black", "#000" },
-                { "white", "#000" },
             });
 }

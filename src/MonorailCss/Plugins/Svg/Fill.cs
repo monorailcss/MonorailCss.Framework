@@ -23,7 +23,7 @@ public class Fill : BaseUtilityNamespacePlugin
     }
 
     /// <inheritdoc />
-    protected override CssNamespaceToPropertyMap GetNamespacePropertyMapList() => new() { { Namespace, "fill" } };
+    protected override CssNamespaceToPropertyMap GetNamespacePropertyMapList() => new(Namespace, "fill");
 
     /// <inheritdoc />
     protected override CssSuffixToValueMap GetValues() =>
@@ -33,7 +33,5 @@ public class Fill : BaseUtilityNamespacePlugin
                 { "inherit", "inherit" },
                 { "current", "currentColor" },
                 { "transparent", "transparent" },
-                { "black", "#000" },
-                { "white", "#000" },
             });
 }

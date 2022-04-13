@@ -98,10 +98,11 @@ internal static class ClassHelper
             selector += ":" + original.PseudoClass;
         }
 
-        selector = variants.Aggregate(selector, (current, variant) => variant switch
+        selector = variants.OrderBy(v => typeof(PseudoElementVariant) == v.GetType() ? 1 : 0).Aggregate(selector, (current, variant) => variant switch
         {
             SelectorVariant selectorVariant => $"{selectorVariant.Selector} {current}",
             PseudoClassVariant pseudoClassVariant => $"{current}{pseudoClassVariant.PseudoClass}",
+            PseudoElementVariant pseudoElementVariant => $"{current}{pseudoElementVariant.PseudoElement}",
             _ => current,
         });
 
@@ -125,6 +126,7 @@ internal static class ClassHelper
         // Arbitrary properties
         // {{modifier}:}*[{validCssPropertyName}:{arbitraryValue}]
         var value = className;
+
         if (value.EndsWith(separator) || value.StartsWith(separator))
         {
             // can't begin or end with the separator character.
@@ -173,6 +175,11 @@ internal static class ClassHelper
                     modifiers,
                     arbitraryPropertyUtility.Value.Property,
                     arbitraryPropertyUtility.Value.Value);
+        }
+
+        if (value.StartsWith("-"))
+        {
+            value = value[1..] + '-';
         }
 
         // find the namespace from a list of valid namespace. we need to whitelist these

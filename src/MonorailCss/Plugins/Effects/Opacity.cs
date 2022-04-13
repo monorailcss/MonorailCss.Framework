@@ -12,7 +12,7 @@ public class Opacity : BaseUtilityPlugin
 
     /// <inheritdoc />
     protected override ImmutableDictionary<string, string> GetUtilities() =>
-        new Dictionary<string, string>()
+        new Dictionary<string, string>
         {
             { "opacity-0", "0" },
             { "opacity-5", "0.05" },

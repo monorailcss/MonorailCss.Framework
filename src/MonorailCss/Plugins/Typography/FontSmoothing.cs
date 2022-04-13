@@ -11,18 +11,16 @@ public class FontSmoothing : BaseLookupPlugin
     /// <inheritdoc />
     protected override ImmutableDictionary<string, CssDeclarationList> GetLookups()
     {
-        return new Dictionary<string, CssDeclarationList>()
+        return new Dictionary<string, CssDeclarationList>
         {
             {
-                "antialiased",
-                new CssDeclarationList()
+                "antialiased", new CssDeclarationList
                 {
                     new("-webkit-font-smoothing", "antialiased"), new("-moz-osx-font-smoothing", "grayscale"),
                 }
             },
             {
-                "subpixel-antialiased",
-                new CssDeclarationList()
+                "subpixel-antialiased", new CssDeclarationList
                 {
                     new("-webkit-font-smoothing", "auto"), new("-moz-osx-font-smoothing", "auto"),
                 }

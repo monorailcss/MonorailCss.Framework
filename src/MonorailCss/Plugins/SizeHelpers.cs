@@ -4,7 +4,7 @@ namespace MonorailCss.Plugins;
 
 internal static class SizeHelpers
 {
-    public static readonly ImmutableDictionary<string, string> Percentages = new Dictionary<string, string>()
+    public static readonly ImmutableDictionary<string, string> Percentages = new Dictionary<string, string>
     {
         { "1/2", "50%" },
         { "1/3", "33.333333%" },

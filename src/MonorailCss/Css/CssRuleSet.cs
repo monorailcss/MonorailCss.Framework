@@ -14,7 +14,8 @@ public record CssStylesheet(ImmutableList<CssMediaRule> MediaRules);
 /// </summary>
 /// <param name="Selector">The CSS selector.</param>
 /// <param name="DeclarationList">The CSS declaration list.</param>
-public record CssRuleSet(CssSelector Selector, CssDeclarationList DeclarationList)
+/// <param name="Importance">The importance of the rule. Will affect the ordering during output. Lower importance will be listed first.</param>
+public record CssRuleSet(CssSelector Selector, CssDeclarationList DeclarationList, int Importance = 0)
 {
     /// <summary>
     /// Adds two rule sets together.
@@ -30,7 +31,11 @@ public record CssRuleSet(CssSelector Selector, CssDeclarationList DeclarationLis
             throw new InvalidOperationException("Cannot add ruleset with different selectors.");
         }
 
-        return ruleSet1 with { DeclarationList = ruleSet1.DeclarationList + ruleSet2.DeclarationList, };
+        return ruleSet1 with
+        {
+            DeclarationList = ruleSet1.DeclarationList + ruleSet2.DeclarationList,
+            Importance = Math.Max(ruleSet1.Importance, ruleSet2.Importance),
+        };
     }
 }
 

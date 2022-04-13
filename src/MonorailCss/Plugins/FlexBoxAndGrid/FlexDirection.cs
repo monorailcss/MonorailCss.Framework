@@ -12,7 +12,7 @@ public class FlexDirection : BaseUtilityPlugin
 
     /// <inheritdoc />
     protected override ImmutableDictionary<string, string> GetUtilities() =>
-        new Dictionary<string, string>()
+        new Dictionary<string, string>
         {
             { "flex-row", "row" },
             { "flex-row-reverse", "row-reverse" },

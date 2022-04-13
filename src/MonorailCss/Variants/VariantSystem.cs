@@ -77,6 +77,8 @@ public class VariantSystem
             variants.Add(key, new MediaQueryVariant($"(min-width:{size})"));
         }
 
+        variants.Add("placeholder", new PseudoElementVariant("::placeholder"));
+
         foreach (var plugin in _plugins)
         {
             foreach (var (modifier, variant) in plugin.GetVariants())

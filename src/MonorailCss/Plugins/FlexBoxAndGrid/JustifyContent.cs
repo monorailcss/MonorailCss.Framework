@@ -12,7 +12,7 @@ public class JustifyContent : BaseUtilityPlugin
 
     /// <inheritdoc />
     protected override ImmutableDictionary<string, string> GetUtilities() =>
-        new Dictionary<string, string>()
+        new Dictionary<string, string>
         {
             { "justify-start", "flex-start" },
             { "justify-end", "flex-end" },

@@ -16,7 +16,7 @@ public static class DesignSystemExtensions
     public static ImmutableDictionary<string, CssColor> Flatten(
         this ImmutableDictionary<string, ImmutableDictionary<string, CssColor>> colors)
     {
-        return colors.SelectMany(kvp => kvp.Value, (pair, tuple) => (pair.Key + "-" + tuple.Key, tuple.Value))
+        return colors.SelectMany(kvp => kvp.Value, (pair, tuple) => tuple.Key == "DEFAULT" ? (pair.Key, tuple.Value) : (pair.Key + "-" + tuple.Key, tuple.Value))
             .ToImmutableDictionary(t => t.Item1.ToLowerInvariant(), t => t.Value);
     }
 }

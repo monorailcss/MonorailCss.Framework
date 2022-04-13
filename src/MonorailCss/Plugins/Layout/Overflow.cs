@@ -9,9 +9,9 @@ public class Overflow : BaseUtilityNamespacePlugin
     protected override CssNamespaceToPropertyMap GetNamespacePropertyMapList() =>
         new()
         {
-            { "overflow", "overflow" },
-            { "overflow-x", "overflow-x " },
-            { "overflow-y", "overflow-y " },
+            new("overflow", "overflow"),
+            new("overflow-x", "overflow-x "),
+            new("overflow-y", "overflow-y "),
         };
 
     /// <inheritdoc />
