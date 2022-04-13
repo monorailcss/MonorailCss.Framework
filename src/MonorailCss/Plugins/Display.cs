@@ -31,7 +31,7 @@ public class Display : IUtilityPlugin
             { "inline-grid", "inline-grid" },
             { "contents", "contents" },
             { "list-item", "list-item" },
-            { "hidden", "wnone" },
+            { "hidden", "none" },
         }.ToImmutableDictionary();
 
     /// <inheritdoc />

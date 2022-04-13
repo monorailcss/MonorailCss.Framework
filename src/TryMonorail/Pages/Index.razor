@@ -32,12 +32,13 @@
 
     private readonly Subject <ModelContentChangedEvent> _processHtml = new();
 
-    protected override async Task OnInitializedAsync()
+    protected override void OnInitialized()
     {
         _processHtml.Throttle(TimeSpan.FromMilliseconds(500))
-            .Subscribe(async ts =>
+            .SelectMany(_ => ModelChanged())
+            .Subscribe(ts =>
             {
-                await ModelChanged();
+
                 StateHasChanged();
             });
     }
@@ -48,6 +49,7 @@
         Language = "html",
         GlyphMargin = true,
         HighlightActiveIndentGuide = false,
+        Scrollbar = new EditorScrollbarOptions(){HorizontalScrollbarSize = 2, VerticalScrollbarSize = 2},
         FoldingHighlight = false,
         RenderLineHighlightOnlyWhenFocus = true,
         RenderLineHighlight = "none",
@@ -74,7 +76,7 @@
         return opts;
     }
 
-    private async Task ModelChanged()
+    private async Task<bool> ModelChanged()
     {
        var htmlParser = new HtmlParser();
         var htmlContent = await HtmlEditor.GetValue();
@@ -93,6 +95,7 @@
         var full = framework2.Process(allClasses);
 
         HtmlContents = $@"<html><head><style>{full}</style><body>{htmlContent}</body></html>";
+        return true;
     }
 
     private async Task EditorOnInit(MonacoEditorBase editor)
