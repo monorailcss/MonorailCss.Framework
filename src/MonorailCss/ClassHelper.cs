@@ -95,7 +95,7 @@ internal static class ClassHelper
         var selector = $".{original.Selector.Replace(":", "\\:").Replace("/", "\\/")}";
         if (original.PseudoClass != default)
         {
-            selector += ":" + original.PseudoClass;
+            selector += original.PseudoClass;
         }
 
         selector = variants.OrderBy(v => typeof(PseudoElementVariant) == v.GetType() ? 1 : 0).Aggregate(selector, (current, variant) => variant switch
@@ -108,7 +108,7 @@ internal static class ClassHelper
 
         if (original.PseudoElement != default)
         {
-            selector += "::";
+            selector += original.PseudoElement;
         }
 
         return selector;

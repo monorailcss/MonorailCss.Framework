@@ -22,3 +22,15 @@ public interface IUtilityPlugin
     /// <returns>An enumerable of all rules.</returns>
     IEnumerable<CssRuleSet> GetAllRules();
 }
+
+/// <summary>
+/// Marks a plugin as having default values that will be applied to body, ::before and ::after.
+/// </summary>
+public interface IRegisterDefaults
+{
+    /// <summary>
+    /// Gets the defaults.
+    /// </summary>
+    /// <returns>The defaults.</returns>
+    CssDeclarationList GetDefaults();
+}

@@ -4,6 +4,8 @@
 @using MonorailCss
 @using System.Reactive.Subjects
 @using System.Reactive.Linq
+@inject IJSRuntime JS
+
 
 <PageTitle>Index</PageTitle>
 
@@ -20,7 +22,7 @@
     </div>
     <div>
         <div class="h-full w-full flex">
-                <iframe class="flex-1 h-full w-full bg-white" srcdoc="@HtmlContents"></iframe>
+            <iframe @ref="PreviewViewer" class="flex-1 h-full w-full bg-white" sandbox="allow-popups-to-escape-sandbox allow-scripts allow-popups allow-forms allow-pointer-lock allow-top-navigation allow-modals" srcdoc="@HtmlContents"></iframe>
         </div>
     </div>
 </div>
@@ -28,35 +30,35 @@
 @code{
     private MonacoEditor HtmlEditor { get; set; } = null!;
     private MonacoEditor CssEditor { get; set; } = null!;
-    private string HtmlContents { get; set; } = null!;
+    private ElementReference PreviewViewer { get; set; }
+    private string HtmlContents { get; set; } = string.Empty;
 
-    private readonly Subject <ModelContentChangedEvent> _processHtml = new();
+    private readonly CssFramework _frameworkWithNoReset = new CssFramework(DesignSystem.Default).WithCssReset(string.Empty);
+    private readonly CssFramework _framework = new CssFramework(DesignSystem.Default).Apply("body", "font-sans");
+    private readonly Subject<ModelContentChangedEvent> _processHtml = new();
 
     protected override void OnInitialized()
     {
-        _processHtml.Throttle(TimeSpan.FromMilliseconds(500))
-            .SelectMany(_ => ModelChanged())
-            .Subscribe(ts =>
-            {
+        HtmlContents = PreviewHtml;
 
-                StateHasChanged();
-            });
+        _processHtml.Throttle(TimeSpan.FromMilliseconds(250))
+            .SelectMany(_ => ModelChanged())
+            .Subscribe(ts => { StateHasChanged(); });
     }
 
-    private StandaloneEditorConstructionOptions StandardOptions() => new StandaloneEditorConstructionOptions
+    private StandaloneEditorConstructionOptions StandardOptions() => new()
     {
         AutomaticLayout = true,
         Language = "html",
         GlyphMargin = true,
         HighlightActiveIndentGuide = false,
-        Scrollbar = new EditorScrollbarOptions(){HorizontalScrollbarSize = 2, VerticalScrollbarSize = 2},
+        Scrollbar = new EditorScrollbarOptions() { HorizontalScrollbarSize = 2, VerticalScrollbarSize = 8 },
         FoldingHighlight = false,
         RenderLineHighlightOnlyWhenFocus = true,
         RenderLineHighlight = "none",
         FontFamily = "'Cascadia Code', Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace",
         FontWeight = "300",
         FontSize = 14,
-        
         Hover = new EditorHoverOptions()
         {
             Enabled = true,
@@ -87,7 +89,7 @@
 
     private async Task<bool> ModelChanged()
     {
-       var htmlParser = new HtmlParser();
+        var htmlParser = new HtmlParser();
         var htmlContent = await HtmlEditor.GetValue();
         var htmlDocument = await htmlParser.ParseDocumentAsync(htmlContent);
         List<string> allClasses = new();
@@ -97,13 +99,20 @@
             allClasses.AddRange(classes);
         }
 
-        var framework = new CssFramework(DesignSystem.Default).WithCssReset(string.Empty);
-        await CssEditor.SetValue(framework.Process(allClasses));
+        Console.WriteLine("Gonna set the CSS value");
+        await CssEditor.SetValue(_frameworkWithNoReset.Process(allClasses));
 
-        var framework2 = new CssFramework(DesignSystem.Default).Apply("body", "font-sans");
-        var full = framework2.Process(allClasses);
+        var full = _framework.Process(allClasses);
 
-        HtmlContents = $@"<html><head><style>{full}</style><body>{htmlContent}</body></html>";
+        var previewData = new PreviewData()
+        {
+            Html = htmlContent,
+            Css = full
+        };
+
+        Console.WriteLine("gonna send a message");
+        await JS.InvokeVoidAsync("postPreviewMessage", PreviewViewer, previewData);
+
         return true;
     }
 
@@ -124,9 +133,96 @@
                 ["editorLineNumber.foreground"] = "#7A7A7A66"
             },
         });
-        
-        await MonacoEditor.SetTheme("my-custom-theme");
 
+        await MonacoEditor.SetTheme("my-custom-theme");
     }
 
+    class PreviewData
+    {
+        public string Css { get; init; } = string.Empty;
+        public string Html { get; init; } = string.Empty;
+    }
+
+    const string PreviewHtml = @"
+<!-- adapted from https://github.com/tailwindlabs/play.tailwindcss.com/blob/master/src/components/Preview.js -->
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset=""utf-8"">
+    <meta name=""viewport"" content=""width=device-width, initial-scale=1"">
+    <style id=""_style""></style>
+    <script>
+        console.log('here we go')
+        var hasHtml = false
+        var hasCss = false
+        var visible = false
+        window.addEventListener('message', (e) => {
+            console.log(e)
+            if (typeof e.data.clear !== 'undefined') {
+                setHtml()
+                setCss()
+                checkVisibility()
+                return
+            }
+            if (typeof e.data.css !== 'undefined') {
+                setCss(e.data.css)
+            }
+            if (typeof e.data.html !== 'undefined') {
+                setHtml(e.data.html)
+            }
+            checkVisibility()
+        })
+        function checkVisibility() {
+            if (!visible && hasHtml && hasCss) {
+                visible = true
+                document.body.style.display = ''
+            } else if (visible && (!hasHtml || !hasCss)) {
+                visible = false
+                document.body.style.display = 'none'
+            }
+        }
+        function setHtml(html) {
+            if (typeof html === 'undefined') {
+                document.body.innerHTML = ''
+                hasHtml = false
+            } else {
+                document.body.innerHTML = html
+                hasHtml = true
+            }
+        }
+        function setCss(css) {
+            const style = document.getElementById('_style')
+            const newStyle = document.createElement('style')
+            newStyle.id = '_style'
+            newStyle.innerHTML = typeof css === 'undefined' ? '' : css
+            style.parentNode.replaceChild(newStyle, style)
+            hasCss = typeof css === 'undefined' ? false : true
+        }
+    </script>
+</head>
+<body style=""display:none"">
+</body>
+<script>
+    // https://github.com/sveltejs/svelte-repl/blob/master/src/Output/srcdoc/index.html
+    // https://github.com/sveltejs/svelte-repl/blob/master/LICENSE
+    document.body.addEventListener('click', event => {
+        if (event.which !== 1) return;
+        if (event.metaKey || event.ctrlKey || event.shiftKey) return;
+        if (event.defaultPrevented) return;
+
+        // ensure target is a link
+        let el = event.target;
+        while (el && el.nodeName !== 'A') el = el.parentNode;
+        if (!el || el.nodeName !== 'A') return;
+
+        if (el.hasAttribute('download') || el.getAttribute('rel') === 'external' || el.target) return;
+
+        event.preventDefault();
+        window.open(el.href, '_blank');
+    });
+</script>
+</html>
+              
+";
 }
+

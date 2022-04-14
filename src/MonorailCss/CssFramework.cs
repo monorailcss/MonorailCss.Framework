@@ -161,10 +161,11 @@ public class CssFramework
     /// Returns a prefixed variable name along wrapped with var for using in CSS.
     /// </summary>
     /// <param name="name">The name of the variable.</param>
-    /// <returns>The variable name prefixed and wrapped with var.</returns>
+    /// <returns>A string in the format of var(--{prefix}-{name}.</returns>
     public static string GetCssVariableWithPrefix(string name)
     {
-        return $"var(--monorail-{name})";
+        var cssVariableWithPrefix = $"var(--monorail-{name})";
+        return cssVariableWithPrefix;
     }
 
     private string GetElementNameWithPrefix(string name)
@@ -215,6 +216,7 @@ public class CssFramework
             })
             .Where(i => i.Syntax != null);
 
+        var pluginsWithDefaultsCalled = new List<IRegisterDefaults>();
         var mediaGrouping = new ConcurrentDictionary<string[], ImmutableList<CssRuleSet>>(new ModifierComparer());
         foreach (var item in selectorWithSyntaxItems)
         {
@@ -232,7 +234,8 @@ public class CssFramework
                     var selectorSyntax = string.IsNullOrWhiteSpace(elementSelector)
                         ? ClassHelper.GetSelectorSyntax(
                             ruleSet.Selector,
-                            syntax.Modifiers.Select(i => !variants.ContainsKey(i) ? default : variants[i]).Where(i => i != default).OfType<IVariant>())
+                            syntax.Modifiers.Select(i => !variants.ContainsKey(i) ? default : variants[i])
+                                .Where(i => i != default).OfType<IVariant>())
                         : elementSelector;
 
                     var rootSelector = string.IsNullOrWhiteSpace(_rootElement) switch
@@ -240,6 +243,14 @@ public class CssFramework
                         false => _rootElement + " ",
                         true => string.Empty,
                     };
+
+                    if (plugin is IRegisterDefaults registerDefaultPlugin)
+                    {
+                        if (!pluginsWithDefaultsCalled.Contains(registerDefaultPlugin))
+                        {
+                            pluginsWithDefaultsCalled.Add(registerDefaultPlugin);
+                        }
+                    }
 
                     return ruleSet with { Selector = $"{rootSelector}{selectorSyntax}" };
                 }));
@@ -255,16 +266,26 @@ public class CssFramework
                 }
             }
 
-            mediaGrouping.AddOrUpdate(mediaModifiers, _ => declarations.ToImmutableList(),
+            mediaGrouping.AddOrUpdate(
+                mediaModifiers,
+                _ => declarations.ToImmutableList(),
                 (_, existing) => existing.AddRange(declarations));
         }
 
         var mediaRules = mediaGrouping.Select(i => new CssMediaRule(GetFeatureList(i.Key, variants), i.Value))
             .ToImmutableList();
+
+        var defaultVariableDeclarationList = new CssDeclarationList();
+        foreach (var defaultPlugin in pluginsWithDefaultsCalled)
+        {
+            defaultVariableDeclarationList += defaultPlugin.GetDefaults();
+        }
+
         var styleSheet = new CssStylesheet(mediaRules);
 
         var cssReset = _cssResetContent ?? GetDefaultCssReset();
         var sb = new StringBuilder(cssReset);
+        CssWriter.CssWriter.AppendCssRules(defaultVariableDeclarationList, sb);
         CssWriter.CssWriter.AppendCssRules(styleSheet, sb);
 
         return sb.ToString();

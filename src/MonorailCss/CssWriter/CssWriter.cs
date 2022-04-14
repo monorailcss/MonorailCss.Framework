@@ -46,4 +46,20 @@ internal static class CssWriter
             }
         }
     }
+
+    public static void AppendCssRules(CssDeclarationList defaultVariableDeclarationList, StringBuilder stringBuilder)
+    {
+        if (defaultVariableDeclarationList.Count == 0)
+        {
+            return;
+        }
+
+        stringBuilder.AppendLine("body, ::before, ::after {");
+        foreach (var declaration in defaultVariableDeclarationList.OrderBy(i => i.Property))
+        {
+            stringBuilder.AppendLine($"  {declaration.Property}:{declaration.Value};");
+        }
+
+        stringBuilder.AppendLine("}");
+    }
 }

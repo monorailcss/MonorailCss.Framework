@@ -119,6 +119,14 @@
 <script src="_content/BlazorMonaco/jsInterop.js"></script>
 <script src="_framework/blazor.webassembly.js"></script>
 
+<script>
+    window.postPreviewMessage = (element, data) =>  {
+            if (element !== undefined){
+                element.contentWindow.postMessage(data, '*')    
+            }         
+    };
+</script>
+
 </body>
 
 </html>
