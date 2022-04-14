@@ -54,26 +54,12 @@ public record CssSelector(string Selector, string? PseudoClass = default, string
         var sb = new StringBuilder(Selector);
         if (PseudoClass != default)
         {
-            if (PseudoClass.StartsWith(":"))
-            {
-                sb.Append(PseudoClass);
-            }
-            else
-            {
-                sb.Append($":{PseudoClass}");
-            }
+            sb.Append(PseudoClass);
         }
 
         if (PseudoElement != default)
         {
-            if (!PseudoElement.StartsWith("::"))
-            {
-                sb.Append($"::{PseudoElement}");
-            }
-            else
-            {
-                sb.Append(PseudoElement);
-            }
+            sb.Append(PseudoElement);
         }
 
         return sb.ToString();
