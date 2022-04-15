@@ -68,7 +68,11 @@ public class ExtractorTests
     [InlineData("divide-x-2", new string[0], "divide-x", "2", "", ':')]
     public void Can_extract_namespace_utilities(string className, string[] variants, string ns, string suffix, string prefix, char separator)
     {
-        var r = ClassHelper.Extract(className, new[] { "bg", "text", "divide-x", "border", "border-b", "flex", "m", "ml", "mx", "max-w" }, prefix, separator) as NamespaceSyntax;
+        var namespaces = new[] { "bg", "text", "divide-x", "border", "border-b", "flex", "m", "ml", "mx", "max-w" }
+            .OrderByDescending(i => i.Length)
+            .ToArray();
+
+        var r = ClassHelper.Extract(className, namespaces, prefix, separator) as NamespaceSyntax;
         r.ShouldNotBeNull();
         r.ShouldSatisfyAllConditions(
             i => i.Modifiers.ShouldBe(variants, ignoreOrder:true),

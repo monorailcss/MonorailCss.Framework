@@ -18,7 +18,7 @@ public class BorderColor : IUtilityNamespacePlugin
     /// <param name="designSystem">The design system.</param>
     public BorderColor(DesignSystem designSystem)
     {
-        _flattenedColors = designSystem.Colors.Flatten();
+        _flattenedColors = designSystem.GetFlattenColors();
         _opacities = designSystem.Opacities;
     }
 

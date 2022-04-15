@@ -19,7 +19,7 @@ public class Fill : BaseUtilityNamespacePlugin
     public Fill(DesignSystem designSystem)
     {
         _designSystem = designSystem;
-        _flattenedColors = designSystem.Colors.Flatten();
+        _flattenedColors = designSystem.GetFlattenColors();
     }
 
     /// <inheritdoc />

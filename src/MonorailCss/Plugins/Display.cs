@@ -8,7 +8,7 @@ namespace MonorailCss.Plugins;
 /// </summary>
 public class Display : IUtilityPlugin
 {
-    private ImmutableDictionary<string, string> GetUtilities() =>
+    private readonly ImmutableDictionary<string, string> _utilities =
         new Dictionary<string, string>
         {
             { "block", "block" },
@@ -37,10 +37,9 @@ public class Display : IUtilityPlugin
     /// <inheritdoc />
     public IEnumerable<CssRuleSet> Process(IParsedClassNameSyntax syntax)
     {
-        var utilities = GetUtilities();
         if (syntax is UtilitySyntax utilitySyntax)
         {
-            if (!utilities.TryGetValue(utilitySyntax.Name, out var value))
+            if (!_utilities.TryGetValue(utilitySyntax.Name, out var value))
             {
                 yield break;
             }
@@ -51,7 +50,7 @@ public class Display : IUtilityPlugin
         }
         else if (syntax is NamespaceSyntax namespaceSyntax)
         {
-            if (!utilities.TryGetValue(namespaceSyntax.Namespace, out var value))
+            if (!_utilities.TryGetValue(namespaceSyntax.Namespace, out var value))
             {
                 yield break;
             }
@@ -65,7 +64,7 @@ public class Display : IUtilityPlugin
     /// <inheritdoc />
     public IEnumerable<CssRuleSet> GetAllRules()
     {
-        return GetUtilities()
+        return _utilities
             .Select(utility => new CssRuleSet(
                 utility.Key,
                 new CssDeclarationList() { new("display", utility.Value) }));

@@ -184,7 +184,7 @@ internal static class ClassHelper
 
         // find the namespace from a list of valid namespace. we need to whitelist these
         // so we can tell the difference between bg-blue which is namespaced and line-through which is not.
-        var ns = Array.Find(namespaces.OrderByDescending(i => i.Length).ToArray(), n => value.StartsWith($"{n}-") || value == n);
+        var ns = Array.Find(namespaces, n => value.Equals(n, StringComparison.Ordinal) || (value.StartsWith(n, StringComparison.Ordinal) && value.Length > n.Length && value[n.Length] == '-'));
         var dashSearchStartPos = ns?.Length - 1 ?? 0;
         var firstDashIndex = value.IndexOf("-", dashSearchStartPos, StringComparison.Ordinal);
         if (firstDashIndex < 0)

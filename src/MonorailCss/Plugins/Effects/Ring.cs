@@ -137,7 +137,7 @@ public class RingColor : IUtilityNamespacePlugin
     /// <param name="cssFramework">The theme.</param>
     public RingColor(DesignSystem designSystem, CssFramework cssFramework)
     {
-        _flattenedColors = designSystem.Colors.Flatten();
+        _flattenedColors = designSystem.GetFlattenColors();
         _opacities = designSystem.Opacities;
     }
 
@@ -208,7 +208,7 @@ public class RingOffsetColor : IUtilityNamespacePlugin
     /// <param name="cssFramework">The theme.</param>
     public RingOffsetColor(DesignSystem designSystem, CssFramework cssFramework)
     {
-        _flattenedColors = designSystem.Colors.Flatten();
+        _flattenedColors = designSystem.GetFlattenColors();
         _opacities = designSystem.Opacities;
     }
 

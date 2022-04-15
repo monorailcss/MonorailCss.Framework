@@ -108,7 +108,7 @@ public class DivideColor : IUtilityNamespacePlugin
     /// <param name="designSystem">The design system.</param>
     public DivideColor(DesignSystem designSystem)
     {
-        _flattenedColors = designSystem.Colors.Flatten();
+        _flattenedColors = designSystem.GetFlattenColors();
         _opacities = designSystem.Opacities;
     }
 

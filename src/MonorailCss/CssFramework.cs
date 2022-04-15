@@ -16,8 +16,9 @@ public class CssFramework
 {
     private readonly DesignSystem _designSystem;
     private readonly Dictionary<Type, object> _settings = new();
-    private ImmutableList<Type> _pluginTypes;
+    private readonly ConcurrentDictionary<string, IUtilityPlugin[]> _namespacePluginsMap = new();
 
+    private ImmutableList<Type> _pluginTypes;
     private ImmutableDictionary<string, string> _applies = ImmutableDictionary<string, string>.Empty;
 
     private string _elementPrefix = string.Empty;
@@ -191,6 +192,7 @@ public class CssFramework
         var namespaces = allPlugins
             .OfType<IUtilityNamespacePlugin>()
             .SelectMany(i => i.Namespaces)
+            .OrderByDescending(i => i.Length)
             .ToArray();
 
         var distinctCss = cssClasses.Distinct();
@@ -224,7 +226,8 @@ public class CssFramework
             var syntax = item.Syntax!; // filtered with the where above.
             var mediaModifiers = GetMediaModifiers(syntax.Modifiers, variants);
             var declarations = new List<CssRuleSet>();
-            foreach (var plugin in allPlugins)
+            var getPluginsForSyntax = GetPlugins(allPlugins, syntax);
+            foreach (var plugin in getPluginsForSyntax)
             {
                 var elements = plugin.Process(syntax);
                 declarations.AddRange(elements.Select(ruleSet =>
@@ -289,6 +292,23 @@ public class CssFramework
         CssWriter.CssWriter.AppendCssRules(styleSheet, sb);
 
         return sb.ToString();
+    }
+
+    private IEnumerable<IUtilityPlugin> GetPlugins(IUtilityPlugin[] allPlugins, IParsedClassNameSyntax syntax)
+    {
+        if (syntax is NamespaceSyntax namespaceSyntax)
+        {
+            return _namespacePluginsMap.GetOrAdd(namespaceSyntax.Namespace, ns =>
+            {
+                return allPlugins
+                    .OfType<IUtilityNamespacePlugin>()
+                    .Where(i => i.Namespaces.Contains(ns))
+                    .Cast<IUtilityPlugin>()
+                    .ToArray();
+            });
+        }
+
+        return allPlugins;
     }
 
     private ImmutableList<MediaQueryVariant> GetFeatureList(

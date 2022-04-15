@@ -8,6 +8,8 @@ namespace MonorailCss;
 /// </summary>
 public partial record DesignSystem
 {
+    private ImmutableDictionary<string, CssColor>? _flattenedColors;
+
     /// <summary>
     /// Gets the screen design system.
     /// </summary>
@@ -44,6 +46,15 @@ public partial record DesignSystem
     /// Gets the settings for plugins.
     /// </summary>
     public ImmutableDictionary<string, ImmutableDictionary<string, object>> PluginSettings { get; init; } = ImmutableDictionary<string, ImmutableDictionary<string, object>>.Empty;
+
+    /// <summary>
+    /// Gets a cached list of flattened colors.
+    /// </summary>
+    /// <returns>The flattened colors.</returns>
+    internal ImmutableDictionary<string, CssColor> GetFlattenColors()
+    {
+        return _flattenedColors ??= Colors.Flatten();
+    }
 
     /// <summary>
     /// Gets a plugin setting or returns a default value.

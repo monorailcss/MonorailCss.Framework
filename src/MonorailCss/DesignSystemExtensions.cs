@@ -13,7 +13,7 @@ public static class DesignSystemExtensions
     /// </summary>
     /// <param name="colors">The color dictionary to flatten.</param>
     /// <returns>The flattened colors.</returns>
-    public static ImmutableDictionary<string, CssColor> Flatten(
+    internal static ImmutableDictionary<string, CssColor> Flatten(
         this ImmutableDictionary<string, ImmutableDictionary<string, CssColor>> colors)
     {
         return colors.SelectMany(kvp => kvp.Value, (pair, tuple) => tuple.Key == "DEFAULT" ? (pair.Key, tuple.Value) : (pair.Key + "-" + tuple.Key, tuple.Value))

@@ -8,15 +8,7 @@ namespace MonorailCss.Plugins;
 /// </summary>
 public abstract class BaseUtilityPlugin : IUtilityPlugin
 {
-    /// <summary>
-    /// Initializes a new instance of the <see cref="BaseUtilityPlugin"/> class.
-    /// </summary>
-    protected BaseUtilityPlugin()
-    {
-        _utilityValues = new Lazy<ImmutableDictionary<string, string>>(GetUtilities);
-    }
-
-    private readonly Lazy<ImmutableDictionary<string, string>> _utilityValues;
+    private ImmutableDictionary<string, string>? _utilityValues;
 
     /// <summary>
     /// Gets the CSS property this utility returns.
@@ -32,6 +24,8 @@ public abstract class BaseUtilityPlugin : IUtilityPlugin
     /// <inheritdoc />
     public IEnumerable<CssRuleSet> Process(IParsedClassNameSyntax syntax)
     {
+        _utilityValues ??= GetUtilities();
+
         if (syntax is not UtilitySyntax utilitySyntax)
         {
             yield break;
@@ -39,18 +33,19 @@ public abstract class BaseUtilityPlugin : IUtilityPlugin
 
         var utility = utilitySyntax.Name;
 
-        if (!_utilityValues.Value.ContainsKey(utility))
+        if (!_utilityValues.ContainsKey(utility))
         {
             yield break;
         }
 
-        yield return new CssRuleSet(utilitySyntax.OriginalSyntax, new CssDeclarationList { new(Property, _utilityValues.Value[utility]), });
+        yield return new CssRuleSet(utilitySyntax.OriginalSyntax, new CssDeclarationList { new(Property, _utilityValues[utility]), });
     }
 
     /// <inheritdoc />
     public IEnumerable<CssRuleSet> GetAllRules()
     {
-        return _utilityValues.Value.ToArray().Select(i => new CssRuleSet(
+        _utilityValues ??= GetUtilities();
+        return _utilityValues.ToArray().Select(i => new CssRuleSet(
             i.Key,
             new CssDeclarationList { new(Property, i.Value), }));
     }

@@ -19,7 +19,7 @@ internal class TextColor : IUtilityNamespacePlugin
     /// <param name="cssFramework">The theme.</param>
     public TextColor(DesignSystem designSystem, CssFramework cssFramework)
     {
-        _flattenedColors = designSystem.Colors.Flatten();
+        _flattenedColors = designSystem.GetFlattenColors();
         _opacities = designSystem.Opacities;
     }
 

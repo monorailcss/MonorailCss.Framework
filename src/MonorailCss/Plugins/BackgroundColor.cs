@@ -21,7 +21,7 @@ internal class BackgroundColor : IUtilityNamespacePlugin
     public BackgroundColor(DesignSystem designSystem, CssFramework cssFramework)
     {
         _cssFramework = cssFramework;
-        _flattenedColors = designSystem.Colors.Flatten();
+        _flattenedColors = designSystem.GetFlattenColors();
         _opacity = designSystem.Opacities;
     }
 
