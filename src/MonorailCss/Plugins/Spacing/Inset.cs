@@ -35,6 +35,7 @@ public class Inset : BaseUtilityNamespacePlugin
         return _designSystem
             .Spacing
             .Add("auto", "auto")
+            .AddRange(SizeHelpers.Percentages)
             .AddRange(_designSystem.Spacing.Select(i => new KeyValuePair<string, string>($"{i.Key}-", $"-{i.Value}")));
     }
 }

@@ -11,12 +11,12 @@
 
 <div class="max-w-full inset-4 h-screen grid grid-cols-2 grid-rows-1">
     <div class="grid grid-cols-1 grid-rows-2">
-        <div class="flex flex-col pb-2">
-            <header class="flex-1 px-6 py-4 mb-2 bg-gray-800 text-gray-50 border-b border-gray-700">HTML</header>
+        <div class="flex flex-col">
+            <header class="flex-1 px-6 py-4 bg-gray-800 text-gray-50 border-b border-gray-700">HTML</header>
             <MonacoEditor @ref="HtmlEditor" Id="htmlEditor" ConstructionOptions="EditorConstructionOptions" OnDidInit="EditorOnInit" OnDidChangeModelContent="_processHtml.OnNext"/>
         </div>
-        <div class="flex flex-col border-t border-gray-700 pb-2">
-            <header class="flex-1 px-6 py-4 mb-2 bg-gray-800 text-gray-50 border-b border-gray-700">Generated CSS</header>
+        <div class="flex flex-col border-t border-gray-700">
+            <header class="flex-1 px-6 py-4 bg-gray-800 text-gray-50 border-b border-gray-700">Generated CSS</header>
             <MonacoEditor @ref="CssEditor" Id="cssViewer" ConstructionOptions="ViewerConstructionOptions" OnDidInit="EditorOnInit"/>
         </div>
     </div>
@@ -33,7 +33,6 @@
     private ElementReference PreviewViewer { get; set; }
     private string HtmlContents { get; set; } = string.Empty;
 
-    private readonly CssFramework _frameworkWithNoReset = new CssFramework(DesignSystem.Default).WithCssReset(string.Empty);
     private readonly CssFramework _framework = new CssFramework(DesignSystem.Default).Apply("body", "font-sans");
     private readonly Subject<ModelContentChangedEvent> _processHtml = new();
 
@@ -52,13 +51,14 @@
         Language = "html",
         GlyphMargin = true,
         HighlightActiveIndentGuide = false,
-        Scrollbar = new EditorScrollbarOptions() { HorizontalScrollbarSize = 2, VerticalScrollbarSize = 8 },
+        Scrollbar = new EditorScrollbarOptions() { HorizontalScrollbarSize = 8, VerticalScrollbarSize = 8, },
         FoldingHighlight = false,
         RenderLineHighlightOnlyWhenFocus = true,
         RenderLineHighlight = "none",
         FontFamily = "'Cascadia Code', Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace",
         FontWeight = "300",
-        FontSize = 16,
+        FontSize = 15,
+        Padding = new EditorPaddingOptions(){ Top = 4, Bottom = 4},
         Hover = new EditorHoverOptions()
         {
             Enabled = true,
@@ -99,18 +99,16 @@
             allClasses.AddRange(classes);
         }
 
-        Console.WriteLine("Gonna set the CSS value");
-        await CssEditor.SetValue(_frameworkWithNoReset.Process(allClasses));
+        var (reset, css) = _framework.ProcessSplit(allClasses);
 
-        var full = _framework.Process(allClasses);
+        await CssEditor.SetValue(css);
 
         var previewData = new PreviewData()
         {
             Html = htmlContent,
-            Css = full
+            Css = reset + css
         };
 
-        Console.WriteLine("gonna send a message");
         await JS.InvokeVoidAsync("postPreviewMessage", PreviewViewer, previewData);
 
         return true;
@@ -157,7 +155,6 @@
         var hasCss = false
         var visible = false
         window.addEventListener('message', (e) => {
-            console.log(e)
             if (typeof e.data.clear !== 'undefined') {
                 setHtml()
                 setCss()

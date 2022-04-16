@@ -1,5 +1,6 @@
 ﻿using System.Collections.Immutable;
 using MonorailCss.Css;
+using MonorailCss.Parser;
 
 namespace MonorailCss.Plugins.Typography;
 
@@ -37,7 +38,7 @@ internal class TextColor : IUtilityNamespacePlugin
 
         var suffix = namespaceSyntax.Suffix;
 
-        var (colorValue, opacityValue) = ClassHelper.SplitColor(suffix);
+        var (colorValue, opacityValue) = ColorParser.SplitColor(suffix);
 
         if (!_flattenedColors.TryGetValue(colorValue, out var color))
         {

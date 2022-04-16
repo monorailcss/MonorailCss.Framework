@@ -1,5 +1,6 @@
 ﻿using System.Collections.Immutable;
 using MonorailCss.Css;
+using MonorailCss.Parser;
 
 namespace MonorailCss.Plugins.Effects;
 
@@ -155,7 +156,7 @@ public class RingColor : IUtilityNamespacePlugin
 
         var suffix = namespaceSyntax.Suffix;
 
-        var (colorValue, opacityValue) = ClassHelper.SplitColor(suffix);
+        var (colorValue, opacityValue) = ColorParser.SplitColor(suffix);
 
         if (!_flattenedColors.TryGetValue(colorValue, out var color))
         {
@@ -226,7 +227,7 @@ public class RingOffsetColor : IUtilityNamespacePlugin
 
         var suffix = namespaceSyntax.Suffix;
 
-        var (colorValue, opacityValue) = ClassHelper.SplitColor(suffix);
+        var (colorValue, opacityValue) = ColorParser.SplitColor(suffix);
 
         if (!_flattenedColors.TryGetValue(colorValue, out var color))
         {

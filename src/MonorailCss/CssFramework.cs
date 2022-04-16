@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Reflection;
 using System.Text;
 using MonorailCss.Css;
+using MonorailCss.Parser;
 using MonorailCss.Plugins;
 using MonorailCss.Variants;
 
@@ -16,7 +17,7 @@ public class CssFramework
 {
     private readonly DesignSystem _designSystem;
     private readonly Dictionary<Type, object> _settings = new();
-    private readonly ConcurrentDictionary<string, IUtilityPlugin[]> _namespacePluginsMap = new();
+    private ImmutableDictionary<string, IUtilityPlugin[]> _namespacePluginsMap = ImmutableDictionary<string, IUtilityPlugin[]>.Empty;
 
     private ImmutableList<Type> _pluginTypes;
     private ImmutableDictionary<string, string> _applies = ImmutableDictionary<string, string>.Empty;
@@ -181,6 +182,17 @@ public class CssFramework
     /// <returns>A full CSS stylesheet.</returns>
     public string Process(IEnumerable<string> cssClasses)
     {
+        var (cssReset, utilities) = ProcessSplit(cssClasses);
+        return $"{cssReset}{Environment.NewLine}{utilities}";
+    }
+
+    /// <summary>
+    /// Builds the CSS.
+    /// </summary>
+    /// <param name="cssClasses">List of CSS classes to use as the root.</param>
+    /// <returns>A full CSS stylesheet.</returns>
+    public (string CssReset, string Utilities) ProcessSplit(IEnumerable<string> cssClasses)
+    {
         // we need all the namespaces up front so that the CSS parser can do its thing.
         var allPlugins = _pluginTypes
             .Select(GetPluginInstance)
@@ -189,7 +201,10 @@ public class CssFramework
         var variantSystem = new VariantSystem(_designSystem, allPlugins.OfType<IVariantPluginProvider>().ToArray());
         var variants = variantSystem.Variants;
 
-        var namespaces = allPlugins
+        // it's important to order these by length. we traverse the list sequentially
+        // looking for matching namespaces and we want the longer ones to match before shorter ones
+        // e.g. if rounded-l is registered as well as rounded then we want to ensure the later comes first.
+        var namespacesOrderedByLength = allPlugins
             .OfType<IUtilityNamespacePlugin>()
             .SelectMany(i => i.Namespaces)
             .OrderByDescending(i => i.Length)
@@ -208,18 +223,21 @@ public class CssFramework
         }
 
         var selectorWithClassListItems = applyItems
-            .Select(i => new { Selector = $"{root}{i.Root}", CssClassList = i.CssClass })
-            .Concat(distinctCss.Select(i => new { Selector = string.Empty, CssClassList = i }));
+            .Select(i => new { Selector = $"{root}{i.Root}", i.CssClass })
+            .Concat(distinctCss.Select(i => new { Selector = string.Empty, CssClass = i }));
+
+        var classParser = new ClassParser(namespacesOrderedByLength, _elementPrefix, _separator);
 
         var selectorWithSyntaxItems = selectorWithClassListItems
             .Select(i => new
             {
-                i.Selector, Syntax = ClassHelper.Extract(i.CssClassList, namespaces, _elementPrefix, _separator),
+                i.Selector, Syntax = classParser.Extract(i.CssClass),
             })
             .Where(i => i.Syntax != null);
 
         var pluginsWithDefaultsCalled = new List<IRegisterDefaults>();
-        var mediaGrouping = new ConcurrentDictionary<string[], ImmutableList<CssRuleSet>>(new ModifierComparer());
+        var mediaGrouping = ImmutableDictionary.Create<string[], ImmutableList<CssRuleSet>>(new ModifierComparer());
+        
         foreach (var item in selectorWithSyntaxItems)
         {
             var elementSelector = item.Selector;
@@ -230,20 +248,29 @@ public class CssFramework
             foreach (var plugin in getPluginsForSyntax)
             {
                 var elements = plugin.Process(syntax);
-                declarations.AddRange(elements.Select(ruleSet =>
+                foreach (var ruleSet in elements)
                 {
                     // typically we won't have an elementSelector. This only comes up when applies is being used.
                     // we'll generate it based on the selector syntax.
-                    var selectorSyntax = string.IsNullOrWhiteSpace(elementSelector)
-                        ? ClassHelper.GetSelectorSyntax(
+                    string selectorSyntax;
+                    if (!string.IsNullOrWhiteSpace(elementSelector))
+                    {
+                        selectorSyntax = elementSelector;
+                    }
+                    else
+                    {
+                        var modifiers = syntax.Modifiers
+                            .Select(i => !variants.ContainsKey(i) ? default : variants[i])
+                            .Where(i => i != default).OfType<IVariant>();
+
+                        selectorSyntax = GetSelectorSyntax(
                             ruleSet.Selector,
-                            syntax.Modifiers.Select(i => !variants.ContainsKey(i) ? default : variants[i])
-                                .Where(i => i != default).OfType<IVariant>())
-                        : elementSelector;
+                            modifiers);
+                    }
 
                     var rootSelector = string.IsNullOrWhiteSpace(_rootElement) switch
                     {
-                        false => _rootElement + " ",
+                        false => $"{_rootElement} ",
                         true => string.Empty,
                     };
 
@@ -255,24 +282,22 @@ public class CssFramework
                         }
                     }
 
-                    return ruleSet with { Selector = $"{rootSelector}{selectorSyntax}" };
-                }));
-            }
-
-            if (declarations.Count == 0 && item.Syntax != default)
-            {
-                var originalSyntax = item.Syntax.OriginalSyntax;
-                if (originalSyntax.Contains("-") && !originalSyntax.StartsWith("roslyn") &&
-                    !originalSyntax.StartsWith("language"))
-                {
-                    Console.WriteLine($"Found selector with no declarations returned - {originalSyntax}");
+                    declarations.Add(ruleSet with { Selector = $"{rootSelector}{selectorSyntax}" });
                 }
             }
 
-            mediaGrouping.AddOrUpdate(
-                mediaModifiers,
-                _ => declarations.ToImmutableList(),
-                (_, existing) => existing.AddRange(declarations));
+
+            ImmutableList<CssRuleSet> mediaGroupingDeclarations;
+            if (mediaGrouping.TryGetValue(mediaModifiers, out var existingMediaGroupingDeclarations))
+            {
+                mediaGroupingDeclarations = existingMediaGroupingDeclarations.AddRange(declarations);
+            }
+            else
+            {
+                mediaGroupingDeclarations = declarations.ToImmutableList();
+            }
+
+            mediaGrouping = mediaGrouping.SetItem(mediaModifiers, mediaGroupingDeclarations);
         }
 
         var mediaRules = mediaGrouping.Select(i => new CssMediaRule(GetFeatureList(i.Key, variants), i.Value))
@@ -287,26 +312,33 @@ public class CssFramework
         var styleSheet = new CssStylesheet(mediaRules);
 
         var cssReset = _cssResetContent ?? GetDefaultCssReset();
-        var sb = new StringBuilder(cssReset);
+
+        var sb = new StringBuilder();
         CssWriter.CssWriter.AppendCssRules(defaultVariableDeclarationList, sb);
         CssWriter.CssWriter.AppendCssRules(styleSheet, sb);
 
-        return sb.ToString();
+        return (cssReset,  sb.ToString());
     }
 
     private IEnumerable<IUtilityPlugin> GetPlugins(IUtilityPlugin[] allPlugins, IParsedClassNameSyntax syntax)
     {
-        if (syntax is NamespaceSyntax namespaceSyntax)
+        if (syntax is not NamespaceSyntax namespaceSyntax)
         {
-            return _namespacePluginsMap.GetOrAdd(namespaceSyntax.Namespace, ns =>
-            {
-                return allPlugins
-                    .OfType<IUtilityNamespacePlugin>()
-                    .Where(i => i.Namespaces.Contains(ns))
-                    .Cast<IUtilityPlugin>()
-                    .ToArray();
-            });
+            return allPlugins;
         }
+
+        if (_namespacePluginsMap.TryGetValue(namespaceSyntax.Namespace, out var existValue))
+        {
+            return existValue;
+        }
+
+        var plugins = allPlugins
+            .OfType<IUtilityNamespacePlugin>()
+            .Where(i => i.Namespaces.Contains(namespaceSyntax.Namespace))
+            .Cast<IUtilityPlugin>()
+            .ToArray();
+
+        _namespacePluginsMap = _namespacePluginsMap.Add(namespaceSyntax.Namespace, plugins);
 
         return allPlugins;
     }
@@ -409,6 +441,30 @@ public class CssFramework
         }
 
         return plugin;
+    }
+
+    internal static string GetSelectorSyntax(CssSelector original, IEnumerable<IVariant> variants)
+    {
+        var selector = $".{original.Selector.Replace(":", "\\:").Replace("/", "\\/")}";
+        if (original.PseudoClass != default)
+        {
+            selector = $"{selector}{original.PseudoClass}";
+        }
+
+        selector = variants.OrderBy(v => typeof(PseudoElementVariant) == v.GetType() ? 1 : 0).Aggregate(selector, (current, variant) => variant switch
+        {
+            SelectorVariant selectorVariant => $"{selectorVariant.Selector} {current}",
+            PseudoClassVariant pseudoClassVariant => $"{current}{pseudoClassVariant.PseudoClass}",
+            PseudoElementVariant pseudoElementVariant => $"{current}{pseudoElementVariant.PseudoElement}",
+            _ => current,
+        });
+
+        if (original.PseudoElement != default)
+        {
+            selector = $"{selector}{original.PseudoElement}";
+        }
+
+        return selector;
     }
 
     /// <summary>

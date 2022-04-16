@@ -1,5 +1,6 @@
 ﻿using System.Collections.Immutable;
 using MonorailCss.Css;
+using MonorailCss.Parser;
 
 namespace MonorailCss.Plugins;
 
@@ -39,7 +40,7 @@ internal class BackgroundColor : IUtilityNamespacePlugin
 
         var suffix = namespaceSyntax.Suffix ?? "DEFAULT";
 
-        var (colorValue, opacityValue) = ClassHelper.SplitColor(suffix);
+        var (colorValue, opacityValue) = ColorParser.SplitColor(suffix);
 
         if (!_flattenedColors.TryGetValue(colorValue, out var color))
         {

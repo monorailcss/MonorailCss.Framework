@@ -1,5 +1,6 @@
 ﻿using System.Collections.Immutable;
 using MonorailCss.Css;
+using MonorailCss.Parser;
 
 namespace MonorailCss.Plugins.Borders;
 
@@ -31,7 +32,7 @@ public class BorderColor : IUtilityNamespacePlugin
         }
 
         var suffix = namespaceSyntax.Suffix ?? "DEFAULT";
-        var (colorValue, opacityValue) = ClassHelper.SplitColor(suffix);
+        var (colorValue, opacityValue) = ColorParser.SplitColor(suffix);
 
         CssDeclarationList declarations;
         if (!_flattenedColors.TryGetValue(colorValue, out var color))

@@ -1,5 +1,6 @@
 ﻿using System.Collections.Immutable;
 using MonorailCss.Css;
+using MonorailCss.Parser;
 using MonorailCss.Variants;
 using static MonorailCss.Plugins.ModifierSettings;
 

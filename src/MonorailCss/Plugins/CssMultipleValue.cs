@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Immutable;
+using System.Runtime.InteropServices.ComTypes;
 
 namespace MonorailCss.Plugins;
 
@@ -27,7 +28,7 @@ public record CssNamespaceToPropertyMap : IEnumerable<CssNamespaceToPropertyMap.
         Add(new CssNamespaceToPropertyMapItem(ns, multipleValue));
     }
 
-    private readonly ConcurrentDictionary<string, CssNamespaceToPropertyMapItem> _items = new();
+    private ImmutableDictionary<string, CssNamespaceToPropertyMapItem> _items = ImmutableDictionary<string, CssNamespaceToPropertyMapItem>.Empty;
 
     /// <summary>
     /// Adds a new item to the list.
@@ -35,7 +36,7 @@ public record CssNamespaceToPropertyMap : IEnumerable<CssNamespaceToPropertyMap.
     /// <param name="item">The item to add.</param>
     public void Add(CssNamespaceToPropertyMapItem item)
     {
-        _items.AddOrUpdate(item.Namespace, _ => item, (_, _) => item);
+        _items = _items.SetItem(item.Namespace, item);
     }
 
     /// <summary>

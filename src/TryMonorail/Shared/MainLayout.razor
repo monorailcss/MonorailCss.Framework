@@ -22,7 +22,8 @@
 
     protected override void OnInitialized()
     {
-        var foo = new CssFramework(DesignSystem.Default);
+        var foo = new CssFramework(DesignSystem.Default)
+            .Apply("body", "w-full min-h-full");
         var values = CssJit.Values();
         _cssContent = foo.Process(values);
     }

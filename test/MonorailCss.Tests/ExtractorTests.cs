@@ -1,4 +1,5 @@
-﻿using MonorailCss.Variants;
+﻿using MonorailCss.Parser;
+using MonorailCss.Variants;
 using Shouldly;
 
 namespace MonorailCss.Tests;
@@ -19,7 +20,7 @@ public class VariantNameTests
     [MemberData(nameof(Data))]
     public void Extract(string original, IVariant[] variants, string expected)
     {
-        ClassHelper.GetSelectorSyntax(original, variants).ShouldBe(expected);
+        CssFramework.GetSelectorSyntax(original, variants).ShouldBe(expected);
     }
 }
 
@@ -35,7 +36,8 @@ public class ExtractorTests
     public void Can_extract_utilities(string className, string[] variants, string utility, string prefix,
         char separator)
     {
-        var r = ClassHelper.Extract(className, new []{ "bg", "flex" }, prefix, separator) as UtilitySyntax;
+        var classParser = new ClassParser(new []{ "bg", "flex" }, prefix, separator);
+        var r = classParser.Extract(className) as UtilitySyntax;
         r.ShouldNotBeNull();
         r.ShouldSatisfyAllConditions(
             i => i.Modifiers.ShouldBe(variants, ignoreOrder:true),
@@ -72,7 +74,8 @@ public class ExtractorTests
             .OrderByDescending(i => i.Length)
             .ToArray();
 
-        var r = ClassHelper.Extract(className, namespaces, prefix, separator) as NamespaceSyntax;
+        var classParser = new ClassParser(namespaces, prefix, separator);
+        var r = classParser.Extract(className) as NamespaceSyntax;
         r.ShouldNotBeNull();
         r.ShouldSatisfyAllConditions(
             i => i.Modifiers.ShouldBe(variants, ignoreOrder:true),
@@ -92,7 +95,8 @@ public class ExtractorTests
     [InlineData("mono-bg-[#ccc]", new string[0], "bg", "#ccc", "mono-", '_')]
     public void Can_extract_arbitrary_utilities(string className, string[]? variants, string ns, string arbitraryValue, string prefix, char separator)
     {
-        var r = ClassHelper.Extract(className, new[] { "bg", "w" }, prefix, separator) as ArbitraryValueSyntax;
+        var classParser = new ClassParser(new[] { "bg", "w" }, prefix, separator);
+        var r = classParser.Extract(className) as ArbitraryValueSyntax;
         r.ShouldNotBeNull();
         r.ShouldSatisfyAllConditions(
             i => i.Modifiers.ShouldBe(variants, ignoreOrder:true),
@@ -109,7 +113,8 @@ public class ExtractorTests
     [InlineData("dark:md:mono-[my-item:12px]", new [] {"dark", "md"}, "my-item", "12px", "mono-", ':')]
     public void Can_extract_arbitrary_values(string className, string[]? variants, string property, string value, string prefix, char separator)
     {
-        var r = ClassHelper.Extract(className, new[] { "bg" }, prefix, separator) as ArbitraryPropertySyntax;
+        var classParser = new ClassParser(new[] { "bg" }, prefix, separator);
+        var r = classParser.Extract(className) as ArbitraryPropertySyntax;
         r.ShouldNotBeNull();
         r.ShouldSatisfyAllConditions(
             i => i.Modifiers.ShouldBe(variants, ignoreOrder:true),
@@ -127,7 +132,8 @@ public class ExtractorTests
     [InlineData("[:value]")]
     public void Return_null_for_invalid_classnames(string className)
     {
-        var r = ClassHelper.Extract(className, new []{ "bg" }, string.Empty, ':');
+        var classParser = new ClassParser(new[] { "bg" }, string.Empty, ':');
+        var r = classParser.Extract(className);
         r.ShouldBeNull();
     }
 }

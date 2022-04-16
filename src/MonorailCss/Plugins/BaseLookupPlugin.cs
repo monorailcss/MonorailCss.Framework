@@ -1,7 +1,8 @@
 ﻿using System.Collections.Immutable;
 using MonorailCss.Css;
+using MonorailCss.Parser;
 
-namespace MonorailCss.Plugins.Typography;
+namespace MonorailCss.Plugins;
 
 /// <summary>
 /// Plugin where each full selector maps to a complete CSS declaration list.

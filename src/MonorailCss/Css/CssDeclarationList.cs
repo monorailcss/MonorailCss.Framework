@@ -9,7 +9,7 @@ namespace MonorailCss.Css;
 /// </summary>
 public class CssDeclarationList : IEnumerable<CssDeclaration>
 {
-    private readonly ConcurrentDictionary<string, CssDeclaration> _declarations = new();
+    private ImmutableDictionary<string, CssDeclaration> _declarations = ImmutableDictionary<string, CssDeclaration>.Empty;
 
     /// <summary>
     /// Adds a new item to the declaration list.
@@ -17,7 +17,7 @@ public class CssDeclarationList : IEnumerable<CssDeclaration>
     /// <param name="declaration">The declaration to add.</param>
     public void Add(CssDeclaration declaration)
     {
-        _declarations.AddOrUpdate(declaration.Property, _ => declaration, (_, _) => declaration);
+        _declarations = _declarations.SetItem(declaration.Property, declaration);
     }
 
     /// <summary>
