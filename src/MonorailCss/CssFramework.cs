@@ -237,7 +237,7 @@ public class CssFramework
 
         var pluginsWithDefaultsCalled = new List<IRegisterDefaults>();
         var mediaGrouping = ImmutableDictionary.Create<string[], ImmutableList<CssRuleSet>>(new ModifierComparer());
-        
+
         foreach (var item in selectorWithSyntaxItems)
         {
             var elementSelector = item.Selector;
@@ -285,7 +285,6 @@ public class CssFramework
                     declarations.Add(ruleSet with { Selector = $"{rootSelector}{selectorSyntax}" });
                 }
             }
-
 
             ImmutableList<CssRuleSet> mediaGroupingDeclarations;
             if (mediaGrouping.TryGetValue(mediaModifiers, out var existingMediaGroupingDeclarations))
