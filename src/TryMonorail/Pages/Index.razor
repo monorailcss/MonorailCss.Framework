@@ -17,7 +17,7 @@
         </div>
         <div class="flex flex-col border-t border-gray-700">
             <header class="flex-1 px-6 py-4 bg-gray-800 text-gray-50 border-b border-gray-700">Generated CSS</header>
-            <MonacoEditor @ref="CssEditor" Id="cssViewer" ConstructionOptions="ViewerConstructionOptions" OnDidInit="EditorOnInit"/>
+            <MonacoEditor @ref="CssEditor" Id="cssViewer" ConstructionOptions="ViewerConstructionOptions" OnDidInit="EditorOnInit" />
         </div>
     </div>
     <div>
@@ -132,6 +132,23 @@
             },
         });
 
+        await HtmlEditor.SetValue(@"
+<div class=""grid place-items-center h-screen w-full bg-gradient-to-b from-sky-100 via-indigo-200 to-purple-300"">
+    <div class=""text-slate-800 border border-slate-400 p-8 bg-slate-100 rounded-md shadow"">
+        <h2 class=""text-4xl font-extrabold mb-4"">Welcome to Monorail<span class=""text-sky-500"">CSS</span></h2>
+        
+        <ul class=""list-disc list-inside mb-8"">
+            <li>Fully .NET utility-first CSS Framework.</li>
+            <li>No javascript. No SASS. No bundlers. No NPM.</li>
+            <li>Fast - can be executed at runtime in milliseconds.
+            <li>Aims to be compatable with TailwindCSS utilty syntax.</li>            
+        </ul>
+
+        <p>Find out more at <a class=""text-sky-600"" href=""https://github.com/monorailcss/MonorailCss.Framework"">https://github.com/monorailcss/MonorailCss.Framework</a></p>        
+    </div>
+</div>
+");
+        
         await MonacoEditor.SetTheme("my-custom-theme");
     }
 
