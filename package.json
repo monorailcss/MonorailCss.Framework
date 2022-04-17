@@ -1,0 +1,13 @@
+{
+  "name": "trymonorail",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "install-dotnet": "./dotnet-install.sh --channel 6.0 --install-dir ~/.net/",
+    "build:vercel": "npm run install-dotnet && ~/.net/dotnet publish -c Release ./src/TryMonorail"
+  },
+  "author": "",
+  "license": "MIT"
+}
+

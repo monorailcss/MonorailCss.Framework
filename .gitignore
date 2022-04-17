@@ -14,7 +14,6 @@ cakeup-x86_64-latest.exe
 # .NET Core CLI
 /.dotnet/
 /.packages/
-dotnet-install.sh*
 *.lock.json
 
 # Visual Studio

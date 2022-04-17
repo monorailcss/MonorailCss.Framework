@@ -6,7 +6,7 @@
     <LangVersion>10</LangVersion>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>embedded</DebugType>
-    <MinVerSkip Condition="'$(Configuration)' == 'Debug'">true</MinVerSkip>
+    <MinVerSkip Condition="'$(Configuration)' == 'Debug' or '$(Vercel)' == '1'">true</MinVerSkip>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
