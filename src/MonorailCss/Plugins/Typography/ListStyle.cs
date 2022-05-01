@@ -13,7 +13,7 @@ public class ListStyle : BaseUtilityPlugin
     /// <inheritdoc />
     protected override ImmutableDictionary<string, string> GetUtilities()
     {
-        return new Dictionary<string, string>()
+        return new Dictionary<string, string>
         {
             { "list-none", "none" }, { "list-disc", "disc" }, { "list-decimal", "decimal" },
         }.ToImmutableDictionary();
@@ -31,7 +31,7 @@ public class ListStylePosition : BaseUtilityPlugin
     /// <inheritdoc />
     protected override ImmutableDictionary<string, string> GetUtilities()
     {
-        return new Dictionary<string, string>() { { "list-inside", "inside" }, { "list-outside", "outside" }, }
+        return new Dictionary<string, string> { { "list-inside", "inside" }, { "list-outside", "outside" }, }
             .ToImmutableDictionary();
     }
 }

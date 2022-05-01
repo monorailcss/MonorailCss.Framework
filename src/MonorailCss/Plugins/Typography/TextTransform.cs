@@ -13,7 +13,7 @@ public class TextTransform : BaseUtilityPlugin
     /// <inheritdoc />
     protected override ImmutableDictionary<string, string> GetUtilities()
     {
-        return new Dictionary<string, string>()
+        return new Dictionary<string, string>
         {
             { "uppercase", "uppercase" },
             { "lowercase", "lowercase" },

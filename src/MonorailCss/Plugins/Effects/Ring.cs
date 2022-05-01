@@ -11,7 +11,7 @@ public class Ring : IUtilityNamespacePlugin, IRegisterDefaults
 {
     private const string Namespace = "ring";
 
-    private readonly ImmutableDictionary<string, string> _values = new Dictionary<string, string>()
+    private readonly ImmutableDictionary<string, string> _values = new Dictionary<string, string>
     {
         { "0", "0px" },
         { "1", "1px" },
@@ -33,7 +33,7 @@ public class Ring : IUtilityNamespacePlugin, IRegisterDefaults
         {
             yield return new CssRuleSet(
                 namespaceSyntax.OriginalSyntax,
-                new CssDeclarationList() { new(CssFramework.GetVariableNameWithPrefix("ring-inset"), "inset"), });
+                new CssDeclarationList { new(CssFramework.GetVariableNameWithPrefix("ring-inset"), "inset"), });
 
             yield break;
         }
@@ -81,7 +81,7 @@ public class Ring : IUtilityNamespacePlugin, IRegisterDefaults
     /// <inheritdoc />
     public CssDeclarationList GetDefaults()
     {
-        return new CssDeclarationList()
+        return new CssDeclarationList
         {
             new(CssFramework.GetVariableNameWithPrefix("ring-inset"), string.Empty),
             new(CssFramework.GetVariableNameWithPrefix("ring-offset-width"), "0px"),
@@ -111,7 +111,7 @@ public class RingOffset : BaseUtilityNamespacePlugin
     /// <inheritdoc />
     protected override CssSuffixToValueMap GetValues()
     {
-        return new CssSuffixToValueMap()
+        return new CssSuffixToValueMap
         {
             { "0", "0px" },
             { "1", "1px" },

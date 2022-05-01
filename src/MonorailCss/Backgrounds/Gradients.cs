@@ -18,7 +18,7 @@ public class BackgroundImage : BaseUtilityNamespacePlugin
     protected override CssSuffixToValueMap GetValues()
     {
         var stopsVar = CssFramework.GetVariableNameWithPrefix("gradient-stops");
-        return new CssSuffixToValueMap()
+        return new CssSuffixToValueMap
         {
             { "none", "none" },
             { "gradient-to-t", $"linear-gradient(to top, var({stopsVar}))" },
@@ -83,7 +83,7 @@ public class GradientFromPlugin : IUtilityNamespacePlugin
         var toVar = CssFramework.GetVariableNameWithPrefix("gradient-to");
         var stopsVar = CssFramework.GetVariableNameWithPrefix("gradient-stops");
 
-        var declarations = new CssDeclarationList()
+        var declarations = new CssDeclarationList
         {
             new(fromVar, colorValue), new(stopsVar, $"var({fromVar}), var({toVar}, {colorValue})"),
         };
@@ -151,7 +151,7 @@ public class GradientToPlugin : IUtilityNamespacePlugin
 
         var toVar = CssFramework.GetVariableNameWithPrefix("gradient-to");
 
-        var declarations = new CssDeclarationList()
+        var declarations = new CssDeclarationList
         {
             new(toVar, colorValue),
         };
@@ -221,7 +221,7 @@ public class GradientViaPlugin : IUtilityNamespacePlugin
         var toVar = CssFramework.GetVariableNameWithPrefix("gradient-to");
         var stopsVar = CssFramework.GetVariableNameWithPrefix("gradient-stops");
 
-        var declarations = new CssDeclarationList()
+        var declarations = new CssDeclarationList
         {
             new(stopsVar, $"var({fromVar}), {colorValue}, var({toVar}, {colorValue});"),
         };

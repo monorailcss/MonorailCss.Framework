@@ -5,7 +5,7 @@ public class BackgroundTests
     [Fact]
     public void Can_do_gradient()
     {
-        var framework = new CssFramework(MonorailCss.DesignSystem.Default).WithCssReset(string.Empty);
+        var framework =  new CssFramework(new CssFrameworkSettings { CssResetOverride = string.Empty } );
         var r = framework.Process(new[] {"from-green-600", "via-purple-500", "bg-gradient-to-r", "to-blue-900"});
         r.ShouldBeCss(@"
 .from-green-600 {

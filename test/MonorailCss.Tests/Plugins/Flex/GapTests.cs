@@ -5,7 +5,7 @@ public class GapTests
     [Fact]
     public void Can_handle_gap()
     {
-        var framework = new CssFramework(MonorailCss.DesignSystem.Default).WithCssReset(string.Empty);
+        var framework =  new CssFramework(new CssFrameworkSettings { CssResetOverride = string.Empty } );
         var result = framework.Process(new[] {"gap-2", "gap-x-4", "gap-y-8"});
 result.ShouldBeCss(@"
 .gap-2 {

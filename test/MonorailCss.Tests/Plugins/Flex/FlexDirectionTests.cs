@@ -5,7 +5,7 @@ public class FlexDirectionTests
     [Fact]
     public void Can_do_flex_direction()
     {
-        var framework = new CssFramework(MonorailCss.DesignSystem.Default).WithCssReset(string.Empty);
+        var framework =  new CssFramework(new CssFrameworkSettings { CssResetOverride = string.Empty } );
         var r =framework.Process(new[] {"flex-col", "md:flex-row"});
         r.ShouldBeCss(@"
 .flex-col {

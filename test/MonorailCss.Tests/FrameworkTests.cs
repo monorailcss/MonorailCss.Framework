@@ -8,8 +8,7 @@ public class FrameworkTests
     [Fact]
     public void Smoke_Test()
     {
-        var framework = new CssFramework(MonorailCss.DesignSystem.Default)
-            .WithCssReset(string.Empty);
+        var framework = new CssFramework(new CssFrameworkSettings { CssResetOverride = string.Empty });
         var r = framework.Process(new[]
         {
             "bg-blue-100",
@@ -58,9 +57,10 @@ public class FrameworkTests
     [Fact]
     public void Can_Do_Apply()
     {
-        var framework = new CssFramework(MonorailCss.DesignSystem.Default)
-            .WithCssReset(string.Empty)
-            .Apply("body", "font-sans mb-2");
+        var framework = new CssFramework(new CssFrameworkSettings { CssResetOverride = string.Empty, Applies = new Dictionary<string, string>()
+            {
+                {"body", "font-sans mb-2"},
+            }});
         var r = framework.Process(Array.Empty<string>());
         r.ShouldBeCss(@"
 body {
@@ -73,8 +73,7 @@ body {
     [Fact]
     public void Unknown_variants_are_swallowed()
     {
-        var framework = new CssFramework(MonorailCss.DesignSystem.Default)
-            .WithCssReset(string.Empty);
+        var framework = new CssFramework(new CssFrameworkSettings { CssResetOverride = string.Empty } );
 
         var r = framework.Process(new[] { "group-hover:font-xl", "test" });
         r.ShouldBeCss(@"
@@ -84,8 +83,7 @@ body {
     [Fact]
     public void Importance_is_respected()
     {
-        var framework = new CssFramework(MonorailCss.DesignSystem.Default)
-            .WithCssReset(string.Empty);
+        var framework = new CssFramework(new CssFrameworkSettings { CssResetOverride = string.Empty } );
 
         var r = framework.Process(new[] { "m-4", "my-3", "mb-2" });
         r.Trim().ReplaceLineEndings().ShouldBe(@"
@@ -146,7 +144,7 @@ body {
     [Fact]
     public void Placeholder_variant_works()
     {
-        var framework = new CssFramework(MonorailCss.DesignSystem.Default).WithCssReset(string.Empty);
+        var framework = new CssFramework(new CssFrameworkSettings { CssResetOverride = string.Empty } );
         var r = framework.Process(new[] { "placeholder:text-gray-200", "md:hover:placeholder:text-gray-400" });
         r.ShouldBeCss(@"
 .placeholder\:text-gray-200::placeholder {
@@ -450,7 +448,7 @@ body {
             "dark:bg-sky-900/75",
         };
 
-        var framework = new CssFramework(MonorailCss.DesignSystem.Default);
+        var framework = new CssFramework(new CssFrameworkSettings { CssResetOverride = string.Empty });
         var r = framework.Process(classes);
     }
 }

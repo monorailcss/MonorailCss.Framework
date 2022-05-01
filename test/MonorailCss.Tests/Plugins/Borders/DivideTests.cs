@@ -5,8 +5,7 @@ public class DivideTests
     [Fact]
     public void Divide_x_works()
     {
-        var framework = new CssFramework(MonorailCss.DesignSystem.Default)
-            .WithCssReset(string.Empty);
+        var framework = new CssFramework(new CssFrameworkSettings { CssResetOverride = string.Empty } );
         var result = framework.Process(new[] { "divide-x" });
         result.ShouldBeCss(@"
 .divide-x > :not([hidden]) ~ :not([hidden]) {

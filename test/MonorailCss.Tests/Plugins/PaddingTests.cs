@@ -5,8 +5,7 @@ public class PaddingTests
     [Fact]
     public void Supports_Negative_Values()
     {
-        var framework = new CssFramework(MonorailCss.DesignSystem.Default)
-            .WithCssReset(string.Empty);
+        var framework = new CssFramework(new CssFrameworkSettings {CssResetOverride = string.Empty});
         var result = framework.Process(new[] { "py-4-", "px-4" });
         result.ShouldBeCss(@"
 .py-4- {
@@ -26,8 +25,7 @@ public class PositionTests
     [Fact]
     public void Position_works()
     {
-        var framework = new CssFramework(MonorailCss.DesignSystem.Default)
-            .WithCssReset(string.Empty);
+        var framework = new CssFramework(new CssFrameworkSettings {CssResetOverride = string.Empty});
         var result = framework.Process(new[] { "static", "fixed", "absolute", "relative", "sticky" });
         result.ShouldBeCss(@"
 .static {

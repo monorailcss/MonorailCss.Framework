@@ -7,7 +7,7 @@ public class TextColorTests
     [Fact]
     public void Can_do_white()
     {
-        var framework = new CssFramework(MonorailCss.DesignSystem.Default).WithCssReset(string.Empty);
+        var framework = new CssFramework(new CssFrameworkSettings { CssResetOverride = string.Empty } );
         var result = framework.Process(new[] {"text-white"});
         result.ShouldBeCss(@"
 .text-white {
@@ -21,7 +21,7 @@ public class TextColorTests
     [Fact]
     public void Can_do_opacities()
     {
-        var framework = new CssFramework(MonorailCss.DesignSystem.Default).WithCssReset(string.Empty);
+        var framework =  new CssFramework(new CssFrameworkSettings { CssResetOverride = string.Empty } );
         var result = framework.Process(new[] {"text-blue-400/50"});
         result.ShouldBeCss(@"
 .text-blue-400\/50 {

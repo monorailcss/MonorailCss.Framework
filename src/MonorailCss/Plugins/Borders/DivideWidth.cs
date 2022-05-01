@@ -9,7 +9,7 @@ namespace MonorailCss.Plugins.Borders;
 /// </summary>
 public class DivideWidth : IUtilityNamespacePlugin
 {
-    private readonly ImmutableDictionary<string, string> _widths = new Dictionary<string, string>()
+    private readonly ImmutableDictionary<string, string> _widths = new Dictionary<string, string>
     {
         { "0", "0px" },
         { "DEFAULT", "1px" },
@@ -65,7 +65,7 @@ public class DivideWidth : IUtilityNamespacePlugin
         var blankBorderPropValue = $"calc({width} * var({varReverse}))";
         var borderPropValue = $"calc({width} * calc(1 - var({varReverse})))";
 
-        var cssDeclarationList = new CssDeclarationList()
+        var cssDeclarationList = new CssDeclarationList
         {
             new(varReverse, "0"),
             new(borderedProperty, borderPropValue),

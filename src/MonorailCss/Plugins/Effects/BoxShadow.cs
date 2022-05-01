@@ -61,7 +61,7 @@ public class BoxShadow : IUtilityNamespacePlugin, IRegisterDefaults
         var coloredShadow =
             shadow.Shadow.Replace("COLOR_PLACE_HOLDER", CssFramework.GetVariableNameWithPrefix("shadow-color"));
         var shadowValue = $"{CssFramework.GetCssVariableWithPrefix("ring-offset-shadow")}, 0 0 #0000, {CssFramework.GetCssVariableWithPrefix("ring-shadow")}, 0 0 #0000, {CssFramework.GetCssVariableWithPrefix("shadow")}";
-        var declarations = new CssDeclarationList()
+        var declarations = new CssDeclarationList
         {
             new(CssFramework.GetVariableNameWithPrefix("shadow"), color),
             new(CssFramework.GetVariableNameWithPrefix("shadow-colored"), coloredShadow),
@@ -99,7 +99,7 @@ public class BoxShadow : IUtilityNamespacePlugin, IRegisterDefaults
     /// <inheritdoc />
     public CssDeclarationList GetDefaults()
     {
-        return new CssDeclarationList()
+        return new CssDeclarationList
         {
             new(CssFramework.GetVariableNameWithPrefix("ring-offset-shadow"), "0 0 #0000"),
             new(CssFramework.GetVariableNameWithPrefix("ring-shadow"), "0 0 #0000"),

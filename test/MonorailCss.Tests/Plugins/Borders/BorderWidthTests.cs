@@ -5,8 +5,7 @@ public class BorderWidthTests
     [Fact]
     public void Border_width_works()
     {
-        var framework = new CssFramework(MonorailCss.DesignSystem.Default)
-            .WithCssReset(string.Empty);
+        var framework = new CssFramework(new CssFrameworkSettings { CssResetOverride = string.Empty } );
         var result = framework.Process(new[] { "border", "border-2", "border-b-4", "border-t" });
         result.ShouldBeCss(@"
 .border-b-4 {

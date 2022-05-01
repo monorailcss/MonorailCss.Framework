@@ -13,7 +13,7 @@ public class PointerEvents : BaseUtilityPlugin
     /// <inheritdoc />
     protected override ImmutableDictionary<string, string> GetUtilities()
     {
-        return new Dictionary<string, string>()
+        return new Dictionary<string, string>
         {
             { "pointer-events-none", "none" }, { "pointer-events-auto", "auto" },
         }.ToImmutableDictionary();

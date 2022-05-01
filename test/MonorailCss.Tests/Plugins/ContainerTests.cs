@@ -1,4 +1,5 @@
 ﻿using System.Collections.Immutable;
+using MonorailCss.Plugins;
 
 namespace MonorailCss.Tests.Plugins;
 
@@ -7,8 +8,7 @@ public class ContainerTests
     [Fact]
     public void Container_works()
     {
-        var framework = new CssFramework(MonorailCss.DesignSystem.Default)
-            .WithCssReset(string.Empty);
+        var framework = new CssFramework(new CssFrameworkSettings { CssResetOverride = string.Empty });
         var result = framework.Process(new[] { "container" });
         result.ShouldBeCss(@"
 .container {
@@ -20,9 +20,12 @@ public class ContainerTests
     [Fact]
     public void Container_with_center()
     {
-        var framework = new CssFramework(MonorailCss.DesignSystem.Default)
-            .WithCssReset(string.Empty)
-            .WithSettings(new MonorailCss.Plugins.Container.Settings() { Center = true });
+        var framework = new CssFramework(new CssFrameworkSettings
+        {
+            CssResetOverride = string.Empty,
+            PluginSettings = new List<ISettings> { new Container.Settings { Center = true }, }
+        });
+
         var result = framework.Process(new[] { "container" });
         result.ShouldBeCss(@"
 .container {
@@ -37,14 +40,16 @@ public class ContainerTests
     [Fact]
     public void Container_with_padding()
     {
-        var framework = new CssFramework(MonorailCss.DesignSystem.Default)
-            .WithCssReset(string.Empty)
-            .WithSettings(new MonorailCss.Plugins.Container.Settings()
-                {
-                    Center = true,
-                    Padding = new Dictionary<string, string> { { "DEFAULT", "4px" } }.ToImmutableDictionary()
-                }
-            );
+        var framework = new CssFramework(new CssFrameworkSettings
+        {
+            CssResetOverride = string.Empty,
+            PluginSettings = new List<ISettings> { new Container.Settings
+            {
+                Center = true,
+                Padding = new Dictionary<string, string> { { "DEFAULT", "4px" } }.ToImmutableDictionary()
+            }, }
+        });
+
         var result = framework.Process(new[] { "container" });
         result.ShouldBeCss(@"
 .container {
@@ -60,17 +65,17 @@ public class ContainerTests
     [Fact]
     public void Container_with_padding_and_variants()
     {
-        var framework = new CssFramework(MonorailCss.DesignSystem.Default)
-            .WithCssReset(string.Empty)
-            .WithSettings(new MonorailCss.Plugins.Container.Settings()
+        var framework = new CssFramework(new CssFrameworkSettings
+        {
+            CssResetOverride = string.Empty,
+            PluginSettings = new List<ISettings> { new Container.Settings
             {
                 Center = true,
-                Padding = new Dictionary<string, string>
-                {
-                    { "DEFAULT", "4px" },
-                    { "xl", "8px" },
-                }.ToImmutableDictionary()
-            });
+                Padding = new Dictionary<string, string> { { "DEFAULT", "4px" }, { "xl", "8px" }, }
+                    .ToImmutableDictionary()
+            }, }
+        });
+
         var result = framework.Process(new[] { "container", "xl:container-xl" });
         result.ShouldBeCss(@"
 .container {

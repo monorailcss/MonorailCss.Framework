@@ -5,7 +5,7 @@ public class StrokeTests
     [Fact]
     public void Stroke_works()
     {
-        var framework = new CssFramework(MonorailCss.DesignSystem.Default).WithCssReset(string.Empty);
+        var framework =  new CssFramework(new CssFrameworkSettings { CssResetOverride = string.Empty } );
         var r =framework.Process(new[] { "stroke-1" });
         r.ShouldBeCss(@"
 .stroke-1 {

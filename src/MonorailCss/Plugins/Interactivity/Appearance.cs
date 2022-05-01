@@ -13,6 +13,6 @@ public class Appearance : BaseUtilityPlugin
     /// <inheritdoc />
     protected override ImmutableDictionary<string, string> GetUtilities()
     {
-        return new Dictionary<string, string>() { { "appearance-none", "none" }, }.ToImmutableDictionary();
+        return new Dictionary<string, string> { { "appearance-none", "none" }, }.ToImmutableDictionary();
     }
 }

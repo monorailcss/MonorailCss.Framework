@@ -24,7 +24,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\MonorailCss.BlazorCssJit\MonorailCss.BlazorCssJit.csproj" />
     <ProjectReference Include="..\..\src\MonorailCss\MonorailCss.csproj" />
   </ItemGroup>
 

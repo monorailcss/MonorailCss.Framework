@@ -1,5 +1,4 @@
-﻿using System.Collections.Concurrent;
-using System.Collections.Immutable;
+﻿using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Reflection;
 using System.Text;
@@ -11,33 +10,66 @@ using MonorailCss.Variants;
 namespace MonorailCss;
 
 /// <summary>
+/// Settings for the CSS Framework.
+/// </summary>
+public class CssFrameworkSettings
+{
+    /// <summary>
+    /// Gets the design system.
+    /// </summary>
+    public DesignSystem DesignSystem { get; init; } = DesignSystem.Default;
+
+    /// <summary>
+    /// Gets the plugin-settings.
+    /// </summary>
+    public IList<ISettings> PluginSettings { get; init; } = ImmutableList<ISettings>.Empty;
+
+    /// <summary>
+    /// Gets the override the default CSS Reset.
+    /// </summary>
+    public string? CssResetOverride { get; init; }
+
+    /// <summary>
+    /// Gets the root element for all selectors..
+    /// </summary>
+    public string RootElement { get; init; } = string.Empty;
+
+    /// <summary>
+    /// Gets the element prefix.
+    /// </summary>
+    public string ElementPrefix { get; init; } = string.Empty;
+
+    /// <summary>
+    /// Gets the seperator between variants and selectors. Cannot be a colon.
+    /// </summary>
+    public char Separator { get; init; } = ':';
+
+    /// <summary>
+    /// Gets an additional set of elements to include.
+    /// </summary>
+    public IDictionary<string, string> Applies { get; init; } = ImmutableDictionary<string, string>.Empty;
+}
+
+/// <summary>
 /// A full Monorail CSS theme based on a design system and variants.
 /// </summary>
 public class CssFramework
 {
-    private readonly DesignSystem _designSystem;
-    private readonly Dictionary<Type, object> _settings = new();
+    private readonly CssFrameworkSettings _frameworkSettings;
+    private readonly IUtilityPlugin[] _allPlugins;
+    private readonly VariantSystem _variantSystem;
+    private readonly string[] _namespacesOrderedByLength;
+    private readonly ImmutableDictionary<Type, ISettings> _pluginSettingsMap = ImmutableDictionary<Type, ISettings>.Empty;
     private ImmutableDictionary<string, IUtilityPlugin[]> _namespacePluginsMap = ImmutableDictionary<string, IUtilityPlugin[]>.Empty;
-
-    private ImmutableList<Type> _pluginTypes;
-    private ImmutableDictionary<string, string> _applies = ImmutableDictionary<string, string>.Empty;
-
-    private string _elementPrefix = string.Empty;
-    private string _rootElement = string.Empty;
-    private char _separator = ':';
-    private string? _cssResetContent;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="CssFramework"/> class.
     /// </summary>
-    /// <param name="designSystem">The design system.</param>
-    public CssFramework(DesignSystem designSystem)
+    /// <param name="frameworkSettings">The framework settings.</param>
+    public CssFramework(CssFrameworkSettings? frameworkSettings = default)
     {
-        _designSystem = designSystem;
-
-        // order, unfortunately, matters right here. GetPluginInstance relies on the design system being set prior
-        // to being called.
-        _pluginTypes = typeof(IUtilityPlugin)
+        _frameworkSettings = frameworkSettings ?? new CssFrameworkSettings();
+        var pluginTypes = typeof(IUtilityPlugin)
             .Assembly
             .GetTypes()
             .Where(type => type.IsClass
@@ -46,107 +78,31 @@ public class CssFramework
                            && type.GetCustomAttributes(typeof(PluginNotIncludedAutomaticallyAttribute), true).Length ==
                            0)
             .ToImmutableList();
-    }
 
-    /// <summary>
-    /// Adds a new plugin setting.
-    /// </summary>
-    /// <param name="settings">The settings. If not specified defaults will be used.</param>
-    /// <typeparam name="T">The plugin type.</typeparam>
-    /// <returns>The current instance.</returns>
-    public CssFramework WithSettings<T>(ISettings<T> settings)
-        where T : class, IUtilityPlugin
-    {
-        var genericSettingsType = typeof(ISettings<>).MakeGenericType(typeof(T));
-        _settings.Add(genericSettingsType, settings);
-        return this;
-    }
-
-    /// <summary>
-    /// Adds additional CSS elements to the stylesheet.
-    /// </summary>
-    /// <param name="selector">The selector.</param>
-    /// <param name="css">A space seperated list of utility classes to apply.</param>
-    /// <returns>The current instance.</returns>
-    public CssFramework Apply(string selector, string css)
-    {
-        _applies = _applies.Add(selector, css);
-        return this;
-    }
-
-    /// <summary>
-    /// Marks theme to use a prefix for all CSS utilities generated.
-    /// </summary>
-    /// <param name="prefix">The prefix to use.</param>
-    /// <returns>The current instance.</returns>
-    public CssFramework WithElementPrefix(string prefix)
-    {
-        _elementPrefix = prefix;
-        return this;
-    }
-
-    /// <summary>
-    /// Sets the root element for the generated CSS class. Useful if you want to restrict all generated
-    /// code to an element like #app.
-    /// </summary>
-    /// <param name="selector">The CSS selector.</param>
-    /// <returns>The current instance.</returns>
-    public CssFramework WithRootElement(string selector)
-    {
-        _rootElement = selector;
-        return this;
-    }
-
-    /// <summary>
-    /// Sets a custom CSS reset.
-    /// </summary>
-    /// <param name="css">The CSS reset to use, or an empty string for none.</param>
-    /// <returns>The current instance.</returns>
-    public CssFramework WithCssReset(string css)
-    {
-        _cssResetContent = css;
-        return this;
-    }
-
-    /// <summary>
-    /// Marks the theme to use a different separator between variants and the utilities
-    /// e.g. a separator of _ would give you dark_sm_bg-red-100.
-    /// </summary>
-    /// <param name="separator">The new separator character.</param>
-    /// <returns>The current instance.</returns>
-    public CssFramework WithSeparator(char separator)
-    {
-        _separator = separator;
-        return this;
-    }
-
-    /// <summary>
-    /// Removes a plugin from the framework.
-    /// </summary>
-    /// <typeparam name="T">The plugin to remove.</typeparam>
-    /// <returns>The current instance.</returns>
-    public CssFramework RemovePlugin<T>()
-        where T : IUtilityPlugin
-    {
-        if (!_pluginTypes.Contains(typeof(T)))
+        foreach (var pluginSetting in _frameworkSettings.PluginSettings)
         {
-            throw new InvalidOperationException($"Plug-in {typeof(T)} not found.");
+            var genericSettingsType = pluginSetting
+                .GetType()
+                .GetInterfaces()
+                .First(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(ISettings<>));
+            _pluginSettingsMap = _pluginSettingsMap.Add(genericSettingsType, pluginSetting);
         }
 
-        _pluginTypes = _pluginTypes.Remove(typeof(T));
-        return this;
-    }
+        // we need all the namespaces up front so that the CSS parser can do its thing.
+        _allPlugins = pluginTypes
+            .Select(GetPluginInstance)
+            .OfType<IUtilityPlugin>().ToArray();
 
-    /// <summary>
-    /// Adds a new plugin to the framework.
-    /// </summary>
-    /// <typeparam name="T">The type of plugin to add.</typeparam>
-    /// <returns>The current instance.</returns>
-    public CssFramework AddPlugin<T>()
-        where T : IUtilityPlugin
-    {
-        _pluginTypes = _pluginTypes.Add(typeof(T));
-        return this;
+        _variantSystem = new VariantSystem(_frameworkSettings.DesignSystem, _allPlugins.OfType<IVariantPluginProvider>().ToArray());
+
+        // it's important to order these by length. we traverse the list sequentially
+        // looking for matching namespaces and we want the longer ones to match before shorter ones
+        // e.g. if rounded-l is registered as well as rounded then we want to ensure the later comes first.
+        _namespacesOrderedByLength = _allPlugins
+            .OfType<IUtilityNamespacePlugin>()
+            .SelectMany(i => i.Namespaces)
+            .OrderByDescending(i => i.Length)
+            .ToArray();
     }
 
     /// <summary>
@@ -170,11 +126,6 @@ public class CssFramework
         return cssVariableWithPrefix;
     }
 
-    private string GetElementNameWithPrefix(string name)
-    {
-        return string.IsNullOrWhiteSpace(_elementPrefix) ? name : $"{_elementPrefix}-{name}";
-    }
-
     /// <summary>
     /// Builds the CSS.
     /// </summary>
@@ -193,30 +144,19 @@ public class CssFramework
     /// <returns>A full CSS stylesheet.</returns>
     public (string CssReset, string Utilities) ProcessSplit(IEnumerable<string> cssClasses)
     {
-        // we need all the namespaces up front so that the CSS parser can do its thing.
-        var allPlugins = _pluginTypes
-            .Select(GetPluginInstance)
-            .OfType<IUtilityPlugin>().ToArray();
+        var distinctCss = new HashSet<string>();
+        var separator = new[] { ' ', '\t' };
+        foreach (var cssClass in cssClasses)
+        {
+            distinctCss.UnionWith(cssClass.Split(separator, StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries));
+        }
 
-        var variantSystem = new VariantSystem(_designSystem, allPlugins.OfType<IVariantPluginProvider>().ToArray());
-        var variants = variantSystem.Variants;
-
-        // it's important to order these by length. we traverse the list sequentially
-        // looking for matching namespaces and we want the longer ones to match before shorter ones
-        // e.g. if rounded-l is registered as well as rounded then we want to ensure the later comes first.
-        var namespacesOrderedByLength = allPlugins
-            .OfType<IUtilityNamespacePlugin>()
-            .SelectMany(i => i.Namespaces)
-            .OrderByDescending(i => i.Length)
-            .ToArray();
-
-        var distinctCss = cssClasses.Distinct();
-        var root = string.IsNullOrWhiteSpace(_rootElement) ? string.Empty : _rootElement.Trim() + " ";
+        var root = string.IsNullOrWhiteSpace(_frameworkSettings.RootElement) ? string.Empty : _frameworkSettings.RootElement.Trim() + " ";
 
         // create a list of all elements from applies with their root element, and all the ones passed in as parameter.
         // with a root of ""
         var applyItems = new List<(string Root, string CssClass)>();
-        foreach (var apply in _applies)
+        foreach (var apply in _frameworkSettings.Applies)
         {
             var values = apply.Value.Split(' ', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
             applyItems.AddRange(values.Select(value => (apply.Key, value)));
@@ -226,7 +166,7 @@ public class CssFramework
             .Select(i => new { Selector = $"{root}{i.Root}", i.CssClass })
             .Concat(distinctCss.Select(i => new { Selector = string.Empty, CssClass = i }));
 
-        var classParser = new ClassParser(namespacesOrderedByLength, _elementPrefix, _separator);
+        var classParser = new ClassParser(_namespacesOrderedByLength, _frameworkSettings.ElementPrefix, _frameworkSettings.Separator);
 
         var selectorWithSyntaxItems = selectorWithClassListItems
             .Select(i => new
@@ -242,9 +182,9 @@ public class CssFramework
         {
             var elementSelector = item.Selector;
             var syntax = item.Syntax!; // filtered with the where above.
-            var mediaModifiers = GetMediaModifiers(syntax.Modifiers, variants);
+            var mediaModifiers = GetMediaModifiers(syntax.Modifiers, _variantSystem.Variants);
             var declarations = new List<CssRuleSet>();
-            var getPluginsForSyntax = GetPlugins(allPlugins, syntax);
+            var getPluginsForSyntax = GetPlugins(syntax);
             foreach (var plugin in getPluginsForSyntax)
             {
                 var elements = plugin.Process(syntax);
@@ -260,7 +200,7 @@ public class CssFramework
                     else
                     {
                         var modifiers = syntax.Modifiers
-                            .Select(i => !variants.ContainsKey(i) ? default : variants[i])
+                            .Select(i => !_variantSystem.Variants.ContainsKey(i) ? default : _variantSystem.Variants[i])
                             .Where(i => i != default).OfType<IVariant>();
 
                         selectorSyntax = GetSelectorSyntax(
@@ -268,9 +208,9 @@ public class CssFramework
                             modifiers);
                     }
 
-                    var rootSelector = string.IsNullOrWhiteSpace(_rootElement) switch
+                    var rootSelector = string.IsNullOrWhiteSpace(_frameworkSettings.RootElement) switch
                     {
-                        false => $"{_rootElement} ",
+                        false => $"{_frameworkSettings.RootElement} ",
                         true => string.Empty,
                     };
 
@@ -299,7 +239,7 @@ public class CssFramework
             mediaGrouping = mediaGrouping.SetItem(mediaModifiers, mediaGroupingDeclarations);
         }
 
-        var mediaRules = mediaGrouping.Select(i => new CssMediaRule(GetFeatureList(i.Key, variants), i.Value))
+        var mediaRules = mediaGrouping.Select(i => new CssMediaRule(GetFeatureList(i.Key, _variantSystem.Variants), i.Value))
             .ToImmutableList();
 
         var defaultVariableDeclarationList = new CssDeclarationList();
@@ -310,7 +250,7 @@ public class CssFramework
 
         var styleSheet = new CssStylesheet(mediaRules);
 
-        var cssReset = _cssResetContent ?? GetDefaultCssReset();
+        var cssReset = _frameworkSettings.CssResetOverride ?? GetDefaultCssReset();
 
         var sb = new StringBuilder();
         CssWriter.CssWriter.AppendCssRules(defaultVariableDeclarationList, sb);
@@ -319,11 +259,11 @@ public class CssFramework
         return (cssReset,  sb.ToString());
     }
 
-    private IEnumerable<IUtilityPlugin> GetPlugins(IUtilityPlugin[] allPlugins, IParsedClassNameSyntax syntax)
+    private IEnumerable<IUtilityPlugin> GetPlugins(IParsedClassNameSyntax syntax)
     {
         if (syntax is not NamespaceSyntax namespaceSyntax)
         {
-            return allPlugins;
+            return _allPlugins;
         }
 
         if (_namespacePluginsMap.TryGetValue(namespaceSyntax.Namespace, out var existValue))
@@ -331,7 +271,7 @@ public class CssFramework
             return existValue;
         }
 
-        var plugins = allPlugins
+        var plugins = _allPlugins
             .OfType<IUtilityNamespacePlugin>()
             .Where(i => i.Namespaces.Contains(namespaceSyntax.Namespace))
             .Cast<IUtilityPlugin>()
@@ -339,7 +279,7 @@ public class CssFramework
 
         _namespacePluginsMap = _namespacePluginsMap.Add(namespaceSyntax.Namespace, plugins);
 
-        return allPlugins;
+        return _allPlugins;
     }
 
     private ImmutableList<MediaQueryVariant> GetFeatureList(
@@ -396,7 +336,7 @@ public class CssFramework
                 {
                     if (parameterInfo.ParameterType == typeof(DesignSystem))
                     {
-                        parameters.Add(_designSystem);
+                        parameters.Add(_frameworkSettings.DesignSystem);
                     }
                     else if (parameterInfo.ParameterType == typeof(CssFramework))
                     {
@@ -407,9 +347,9 @@ public class CssFramework
                         var settingsGenericType = typeof(ISettings<>).MakeGenericType(type);
                         if (parameterInfo.ParameterType.IsAssignableTo(settingsGenericType))
                         {
-                            if (_settings.ContainsKey(settingsGenericType))
+                            if (_pluginSettingsMap.ContainsKey(settingsGenericType))
                             {
-                                parameters.Add(_settings[settingsGenericType]);
+                                parameters.Add(_pluginSettingsMap[settingsGenericType]);
                             }
                             else
                             {

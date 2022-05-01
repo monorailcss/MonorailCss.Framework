@@ -300,7 +300,7 @@ public class FrameworkBenchmarks
         };
 
         _designSystem = DesignSystem.Default;
-        _framework = new CssFramework(_designSystem);
+        _framework = new CssFramework(new CssFrameworkSettings { CssResetOverride = string.Empty } );
     }
 
     [Benchmark]
