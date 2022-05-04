@@ -2,9 +2,8 @@
 using System.Diagnostics.CodeAnalysis;
 using MonorailCss.Css;
 using MonorailCss.Parser;
-using MonorailCss.Plugins;
 
-namespace MonorailCss.Backgrounds;
+namespace MonorailCss.Plugins.Backgrounds;
 
 /// <summary>
 /// A base helper class for working with utilities that map to the color system.

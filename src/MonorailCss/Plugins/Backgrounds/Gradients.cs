@@ -1,9 +1,8 @@
 ﻿using System.Collections.Immutable;
 using MonorailCss.Css;
 using MonorailCss.Parser;
-using MonorailCss.Plugins;
 
-namespace MonorailCss.Backgrounds;
+namespace MonorailCss.Plugins.Backgrounds;
 
 /// <summary>
 /// The background-image plugin.

@@ -43,45 +43,12 @@ public partial record DesignSystem
     public ImmutableDictionary<string, string> Opacities { get; init; } = ImmutableDictionary<string, string>.Empty;
 
     /// <summary>
-    /// Gets the settings for plugins.
-    /// </summary>
-    public ImmutableDictionary<string, ImmutableDictionary<string, object>> PluginSettings { get; init; } = ImmutableDictionary<string, ImmutableDictionary<string, object>>.Empty;
-
-    /// <summary>
     /// Gets a cached list of flattened colors.
     /// </summary>
     /// <returns>The flattened colors.</returns>
     internal ImmutableDictionary<string, CssColor> GetFlattenColors()
     {
         return _flattenedColors ??= Colors.Flatten();
-    }
-
-    /// <summary>
-    /// Gets a plugin setting or returns a default value.
-    /// </summary>
-    /// <param name="pluginName">The plugin name. Recommended to use nameof(PluginName) for value.</param>
-    /// <param name="setting">The plugin name. Recommended to use nameof(Setting) for value.</param>
-    /// <param name="defaultValue">The default value.</param>
-    /// <typeparam name="T">The expected type.</typeparam>
-    /// <returns>The setting if set, otherwise the default value.</returns>
-    public T GetPluginSetting<T>(string pluginName, string setting, T defaultValue)
-    {
-        if (!PluginSettings.TryGetValue(pluginName, out var settings))
-        {
-            return defaultValue;
-        }
-
-        if (!settings.TryGetValue(setting, out var settingValue))
-        {
-            return defaultValue;
-        }
-
-        if (typeof(T) != settingValue.GetType())
-        {
-            return defaultValue;
-        }
-
-        return (T)settingValue;
     }
 }
 

@@ -71,7 +71,7 @@ public class Space : IUtilityNamespacePlugin
 
     private static CssSelector GetSelector(IParsedClassNameSyntax syntax)
     {
-        return new CssSelector(syntax.OriginalSyntax + ">", "not([hidden])~:not([hidden])");
+        return new CssSelector(syntax.OriginalSyntax + " > ", ":not([hidden])~:not([hidden])");
     }
 
     /// <inheritdoc />
