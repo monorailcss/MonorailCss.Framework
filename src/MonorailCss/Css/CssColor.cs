@@ -15,37 +15,32 @@ public readonly struct CssColor
     /// <param name="hex">A three or six character hex color.</param>
     public CssColor(string hex)
     {
-        hex = hex.Replace("#", string.Empty);
-
-        if (hex.Length == 6)
+        var offset = 0;
+        if (hex.StartsWith("#"))
         {
-            _r = int.Parse(hex[..2], System.Globalization.NumberStyles.HexNumber);
-            _g = int.Parse(hex[2..4], System.Globalization.NumberStyles.HexNumber);
-            _b = int.Parse(hex[4..6], System.Globalization.NumberStyles.HexNumber);
+            offset = 1;
         }
-        else if (hex.Length == 3)
+
+        if (hex.Length == 6 + offset)
         {
-            _r = int.Parse(hex[0] + hex[0].ToString(), System.Globalization.NumberStyles.HexNumber);
-            _g = int.Parse(hex[1] + hex[1].ToString(), System.Globalization.NumberStyles.HexNumber);
-            _b = int.Parse(hex[2] + hex[2].ToString(), System.Globalization.NumberStyles.HexNumber);
+            _r = int.Parse(hex[offset..(offset + 2)], System.Globalization.NumberStyles.HexNumber);
+            _g = int.Parse(hex[(offset + 2)..(offset + 4)], System.Globalization.NumberStyles.HexNumber);
+            _b = int.Parse(hex[(offset + 4)..(offset + 6)], System.Globalization.NumberStyles.HexNumber);
+        }
+        else if (hex.Length == 3 + offset)
+        {
+            _r = HexToInt(hex[0 + offset]);
+            _g = HexToInt(hex[1 + offset]);
+            _b = HexToInt(hex[2 + offset]);
+
+            _r = (_r * 16) + _r;
+            _g = (_g * 16) + _g;
+            _b = (_b * 16) + _b;
         }
         else
         {
             throw new ArgumentOutOfRangeException(nameof(hex), "Length should be three or six hex characters.");
         }
-    }
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="CssColor"/> struct.
-    /// </summary>
-    /// <param name="r">Red.</param>
-    /// <param name="g">Green.</param>
-    /// <param name="b">Blue.</param>
-    public CssColor(int r, int g, int b)
-    {
-        _r = r;
-        _g = g;
-        _b = b;
     }
 
     /// <summary>
@@ -65,5 +60,19 @@ public readonly struct CssColor
     public string AsRgbWithOpacity(string opacity)
     {
         return $"rgba({_r}, {_g}, {_b}, {opacity})";
+    }
+    
+    private static int HexToInt(char hexChar)
+    {
+        hexChar = char.ToUpper(hexChar);  // may not be necessary
+
+        if (hexChar < 'A')
+        {
+            return hexChar - '0';
+        }
+        else
+        {
+            return 10 + (hexChar - 'A');
+        }
     }
 }

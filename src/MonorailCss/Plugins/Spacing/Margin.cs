@@ -1,4 +1,4 @@
-﻿namespace MonorailCss.Plugins;
+﻿namespace MonorailCss.Plugins.Spacing;
 
 /// <summary>
 /// Margin plugin.

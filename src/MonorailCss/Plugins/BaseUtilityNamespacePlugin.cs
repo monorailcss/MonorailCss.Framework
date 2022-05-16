@@ -21,7 +21,8 @@ public abstract class BaseUtilityNamespacePlugin : IUtilityNamespacePlugin
     /// </summary>
     protected BaseUtilityNamespacePlugin()
     {
-        _namespaces = new Lazy<ImmutableArray<string>>(() => GetNamespacePropertyMapList().Namespaces.ToImmutableArray());
+        _namespaces =
+            new Lazy<ImmutableArray<string>>(() => GetNamespacePropertyMapList().Namespaces.ToImmutableArray());
         _suffixToValueMap = new Lazy<CssSuffixToValueMap>(GetValues);
         _namespacePropertyMapList = new Lazy<CssNamespaceToPropertyMap>(GetNamespacePropertyMapList);
     }
@@ -32,12 +33,43 @@ public abstract class BaseUtilityNamespacePlugin : IUtilityNamespacePlugin
         var namespacePropertyMapList = _namespacePropertyMapList.Value;
         var cssSuffixToValuesMap = _suffixToValueMap.Value;
 
-        // this utility only works for namespace syntax whose namespaces are defined here..
-        if (syntax is not NamespaceSyntax namespaceSyntax || !namespacePropertyMapList.ContainsNamespace(namespaceSyntax.Namespace))
+        switch (syntax)
         {
-            yield break;
-        }
+            case ArbitraryValueSyntax arbitraryValueSyntax:
+                {
+                    var arbitraryMapping = namespacePropertyMapList[arbitraryValueSyntax.Namespace];
+                    var arbitraryDeclarationList = CssDeclarationList(
+                        arbitraryValueSyntax.ArbitraryValue,
+                        arbitraryMapping.Values.Values);
+                    yield return new CssRuleSet(GetSelector(arbitraryValueSyntax), arbitraryDeclarationList,
+                        arbitraryMapping.Importance);
 
+                    break;
+                }
+
+            // this utility only works for namespace syntax whose namespaces are defined here..
+            case NamespaceSyntax namespaceSyntax
+                when namespacePropertyMapList.ContainsNamespace(namespaceSyntax.Namespace):
+                {
+                    foreach (var cssRuleSet in GetNamespaceCssRuleSets(namespaceSyntax, cssSuffixToValuesMap,
+                                 namespacePropertyMapList))
+                    {
+                        yield return cssRuleSet;
+                    }
+
+                    break;
+                }
+
+            default:
+                yield break;
+        }
+    }
+
+    private IEnumerable<CssRuleSet> GetNamespaceCssRuleSets(
+        NamespaceSyntax namespaceSyntax,
+        CssSuffixToValueMap cssSuffixToValuesMap,
+        CssNamespaceToPropertyMap namespacePropertyMapList)
+    {
         var suffix = namespaceSyntax.Suffix ?? "DEFAULT";
 
         // gotta have a suffix that's defined.
@@ -67,7 +99,7 @@ public abstract class BaseUtilityNamespacePlugin : IUtilityNamespacePlugin
     /// <inheritdoc />
     public IEnumerable<CssRuleSet> GetAllRules()
     {
-        foreach (var (ns, properties, importance) in _namespacePropertyMapList.Value.ToArray())
+        foreach (var (ns, properties, _) in _namespacePropertyMapList.Value.ToArray())
         {
             foreach (var (suffix, value) in _suffixToValueMap.Value.ToArray())
             {
@@ -81,7 +113,7 @@ public abstract class BaseUtilityNamespacePlugin : IUtilityNamespacePlugin
     /// </summary>
     /// <param name="namespaceSyntax">The parsed namespace syntax.</param>
     /// <returns>A string with the current selector name.</returns>
-    protected virtual string GetSelector(NamespaceSyntax namespaceSyntax)
+    protected virtual string GetSelector(IParsedClassNameSyntax namespaceSyntax)
     {
         return namespaceSyntax.OriginalSyntax;
     }

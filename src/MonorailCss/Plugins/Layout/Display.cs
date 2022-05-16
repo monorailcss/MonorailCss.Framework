@@ -2,7 +2,7 @@
 using MonorailCss.Css;
 using MonorailCss.Parser;
 
-namespace MonorailCss.Plugins;
+namespace MonorailCss.Plugins.Layout;
 
 /// <summary>
 /// The display plugin.

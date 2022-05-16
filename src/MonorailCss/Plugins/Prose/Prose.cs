@@ -4,7 +4,7 @@ using MonorailCss.Parser;
 using MonorailCss.Variants;
 using static MonorailCss.Plugins.ModifierSettings;
 
-namespace MonorailCss.Plugins;
+namespace MonorailCss.Plugins.Prose;
 
 /// <summary>
 /// Represents a typographical plugin.

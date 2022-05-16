@@ -2,6 +2,7 @@
 using MonorailCss.Css;
 using MonorailCss.Plugins;
 using MonorailCss.Plugins.Borders;
+using MonorailCss.Plugins.Prose;
 using Shouldly;
 
 namespace MonorailCss.Tests.Plugins;

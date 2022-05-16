@@ -1,5 +1,6 @@
 ﻿using System.Collections.Immutable;
 using MonorailCss.Plugins;
+using MonorailCss.Plugins.Layout;
 
 namespace MonorailCss.Tests.Plugins;
 

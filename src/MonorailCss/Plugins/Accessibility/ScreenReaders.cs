@@ -2,12 +2,12 @@
 using MonorailCss.Parser;
 using CSS = MonorailCss.Css.CssProperties;
 
-namespace MonorailCss.Plugins;
+namespace MonorailCss.Plugins.Accessibility;
 
 /// <summary>
 /// Accessibility plugin.
 /// </summary>
-public class Accessibility : IUtilityPlugin
+public class ScreenReaders : IUtilityPlugin
 {
     /// <inheritdoc />
     public IEnumerable<CssRuleSet> Process(IParsedClassNameSyntax syntax)

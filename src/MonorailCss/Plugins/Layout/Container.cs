@@ -1,9 +1,8 @@
 ﻿using System.Collections.Immutable;
 using MonorailCss.Css;
 using MonorailCss.Parser;
-using Css = MonorailCss.Css.CssProperties;
 
-namespace MonorailCss.Plugins;
+namespace MonorailCss.Plugins.Layout;
 
 /// <summary>
 /// The container plugin.

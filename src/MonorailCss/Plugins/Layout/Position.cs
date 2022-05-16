@@ -1,6 +1,6 @@
 ﻿using System.Collections.Immutable;
 
-namespace MonorailCss.Plugins;
+namespace MonorailCss.Plugins.Layout;
 
 /// <summary>
 /// The position plugin.
