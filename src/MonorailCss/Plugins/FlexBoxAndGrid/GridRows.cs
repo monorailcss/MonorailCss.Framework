@@ -20,7 +20,7 @@ public class GridRows : BaseUtilityPlugin
             dict.Add($"grid-rows-{i}", $"repeat({i}, minmax(0, 1fr))");
         }
 
-        dict.Add("grid-cols-none", "none");
+        dict.Add("grid-rows-none", "none");
         return dict.ToImmutableDictionary();
     }
 }

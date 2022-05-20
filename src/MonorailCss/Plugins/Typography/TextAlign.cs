@@ -12,6 +12,9 @@ public class TextAlign : BaseUtilityNamespacePlugin
     protected override CssSuffixToValueMap GetValues() =>
         new()
         {
-            { "left", "left" }, { "center", "center" }, { "right", "right" }, { "justify", "justify" },
+            { "left", "left" },
+            { "center", "center" },
+            { "right", "right" },
+            { "justify", "justify" },
         };
 }

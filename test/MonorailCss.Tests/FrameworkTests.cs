@@ -1,4 +1,5 @@
-﻿using MonorailCss.Tests.Plugins;
+﻿using MonorailCss.Css;
+using MonorailCss.Tests.Plugins;
 using Shouldly;
 
 namespace MonorailCss.Tests;
@@ -52,6 +53,14 @@ public class FrameworkTests
 }
 
 ");
+    }
+
+    [Fact]
+    public void Can_get_all_rules()
+    {
+        var framework = new CssFramework();
+        var rules = framework.GetAllRules();
+        rules.ShouldNotBeEmpty();
     }
 
     [Fact]

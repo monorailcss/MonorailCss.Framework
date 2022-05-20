@@ -2,11 +2,42 @@ root = true
 
 [*]
 charset = utf-8
-end_of_line = CRLF
+end_of_line = crlf
 indent_style = space
 indent_size = 4
 insert_final_newline = false
 trim_trailing_whitespace = true
+
+# Microsoft .NET properties
+csharp_new_line_before_members_in_object_initializers = false
+csharp_new_line_before_open_brace = all
+csharp_preferred_modifier_order = protected, private, public, override, new, virtual, internal, abstract, sealed, static, readonly, extern, unsafe, volatile, async:suggestion
+csharp_preserve_single_line_blocks = true
+
+# ReSharper properties
+resharper_blank_lines_after_control_transfer_statements = 1
+resharper_blank_lines_after_start_comment = 0
+resharper_blank_lines_after_using_list = 0
+resharper_blank_lines_around_block_case_section = 1
+resharper_braces_for_for = required
+resharper_braces_for_foreach = required
+resharper_braces_for_ifelse = not_required
+resharper_braces_redundant = false
+resharper_csharp_case_block_braces = next_line_shifted_2
+resharper_csharp_max_line_length = 220
+resharper_instance_members_qualify_declared_in = base_class
+resharper_keep_existing_enum_arrangement = false
+resharper_max_initializer_elements_on_line = 2
+resharper_method_or_operator_body = expression_body
+resharper_parentheses_non_obvious_operations = none, conditional_and, bitwise, bitwise_inclusive_or, bitwise_exclusive_or, shift, multiplicative, bitwise_and
+resharper_parentheses_redundancy_style = remove
+resharper_place_expr_accessor_on_single_line = true
+resharper_place_expr_property_on_single_line = true
+resharper_place_simple_initializer_on_single_line = false
+resharper_remove_blank_lines_near_braces_in_code = false
+resharper_remove_blank_lines_near_braces_in_declarations = false
+resharper_trailing_comma_in_multiline_lists = true
+resharper_wrap_object_and_collection_initializer_style = chop_always
 
 [*.sln]
 indent_style = tab
@@ -178,4 +209,4 @@ csharp_preserve_single_line_blocks = true
 csharp_preserve_single_line_statements = true
 
 # warning RS0037: PublicAPI.txt is missing '#nullable enable'
-dotnet_diagnostic.RS0037.severity = none
+dotnet_diagnostic.rs0037.severity = none

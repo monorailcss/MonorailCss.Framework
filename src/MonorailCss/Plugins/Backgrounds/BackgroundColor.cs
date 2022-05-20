@@ -64,6 +64,13 @@ public abstract class BaseColorNamespacePlugin : IUtilityNamespacePlugin
             yield break;
         }
 
+        var declarations = GetDeclarations(color, opacityValue);
+        yield return new CssRuleSet(namespaceSyntax.OriginalSyntax, declarations);
+    }
+
+    private CssDeclarationList GetDeclarations(CssColor color, string? opacityValue)
+    {
+
         CssDeclarationList declarations;
 
         if (ShouldSplitOpacityIntoOwnProperty(out var opacityPropertyName))
@@ -97,13 +104,18 @@ public abstract class BaseColorNamespacePlugin : IUtilityNamespacePlugin
                 : new CssDeclarationList { new(ColorPropertyName(), color.AsRgbWithOpacity(opacityValue)) };
         }
 
-        yield return new CssRuleSet(namespaceSyntax.OriginalSyntax, declarations);
+        return declarations;
     }
 
     /// <inheritdoc />
     public IEnumerable<CssRuleSet> GetAllRules()
     {
-        throw new NotImplementedException();
+        var ns = Namespace();
+        foreach (var flattenedColor in _flattenedColors)
+        {
+            var colorName = $"{ns}-{flattenedColor.Key}";
+            yield return new CssRuleSet(colorName, GetDeclarations(flattenedColor.Value, default));
+        }
     }
 
     /// <inheritdoc />

@@ -431,4 +431,19 @@ public class CssFramework
             return string.Join(",", obj).GetHashCode();
         }
     }
+
+    public ImmutableDictionary<string, string> GetAllRules()
+    {
+        var dictBuilder = ImmutableDictionary.CreateBuilder<string, string>();
+        var rules = _allPlugins.SelectMany(plugin => plugin.GetAllRules());
+        var sb = new StringBuilder();
+        foreach (var cssRuleSet in rules)
+        {
+            sb.Clear();
+            CssWriter.CssWriter.AppendCssRules(cssRuleSet.DeclarationList, sb);
+            dictBuilder.Add(cssRuleSet.Selector.Selector, sb.ToString());
+        }
+
+        return dictBuilder.ToImmutable();
+    }
 }
