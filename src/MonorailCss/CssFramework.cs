@@ -253,7 +253,7 @@ public class CssFramework
         var cssReset = _frameworkSettings.CssResetOverride ?? GetDefaultCssReset();
 
         var sb = new StringBuilder();
-        CssWriter.CssWriter.AppendCssRules(defaultVariableDeclarationList, sb);
+        CssWriter.CssWriter.AppendDefaultCssRules(defaultVariableDeclarationList, sb);
         CssWriter.CssWriter.AppendCssRules(styleSheet, sb);
 
         return (cssReset,  sb.ToString());
@@ -440,7 +440,10 @@ public class CssFramework
         foreach (var cssRuleSet in rules)
         {
             sb.Clear();
-            CssWriter.CssWriter.AppendCssRules(cssRuleSet.DeclarationList, sb);
+            foreach (var ruleSet in cssRuleSet.DeclarationList)
+            {
+                sb.Append($"{ruleSet.Property}: {ruleSet.Value};");
+            }
             dictBuilder.Add(cssRuleSet.Selector.Selector, sb.ToString());
         }
 

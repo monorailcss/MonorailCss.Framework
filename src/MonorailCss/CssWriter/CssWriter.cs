@@ -47,7 +47,7 @@ internal static class CssWriter
         }
     }
 
-    public static void AppendCssRules(CssDeclarationList defaultVariableDeclarationList, StringBuilder stringBuilder)
+    public static void AppendDefaultCssRules(CssDeclarationList defaultVariableDeclarationList, StringBuilder stringBuilder)
     {
         if (defaultVariableDeclarationList.Count == 0)
         {
