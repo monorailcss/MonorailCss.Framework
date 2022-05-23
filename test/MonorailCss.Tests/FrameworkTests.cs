@@ -7,6 +7,23 @@ namespace MonorailCss.Tests;
 public class FrameworkTests
 {
     [Fact]
+    public void Can_do_pseudo_variants()
+    {
+        var framework = new CssFramework(new CssFrameworkSettings { CssResetOverride = string.Empty });
+        var r = framework.Process(new[]
+        {
+            "first:text-red-100",
+        });
+
+        r.ShouldBeCss(@"
+.first\:text-red-100:first-child {
+  --monorail-text-opacity:1;
+  color:rgba(254, 226, 226, var(--monorail-text-opacity));
+}
+");
+    }
+
+    [Fact]
     public void Smoke_Test()
     {
         var framework = new CssFramework(new CssFrameworkSettings { CssResetOverride = string.Empty });

@@ -34,11 +34,11 @@ public class VariantSystem
             variants.Add(name, new PseudoClassVariant(css ?? $":{name}"));
 
         // Positional
-        AddPseudoClass("first", ":first-child'");
-        AddPseudoClass("last", ":last-child'");
-        AddPseudoClass("only", ":only-child'");
-        AddPseudoClass("odd", ":nth-child(odd)'");
-        AddPseudoClass("even", ":nth-child(even)'");
+        AddPseudoClass("first", ":first-child");
+        AddPseudoClass("last", ":last-child");
+        AddPseudoClass("only", ":only-child");
+        AddPseudoClass("odd", ":nth-child(odd)");
+        AddPseudoClass("even", ":nth-child(even)");
         AddPseudoClass("first-of-type");
         AddPseudoClass("last-of-type");
         AddPseudoClass("only-of-type");
