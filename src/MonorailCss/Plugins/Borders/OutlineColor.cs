@@ -5,19 +5,19 @@ using MonorailCss.Parser;
 namespace MonorailCss.Plugins.Borders;
 
 /// <summary>
-/// The border-color plugin.
+/// The outline-color plugin.
 /// </summary>
-public class BorderColor : IUtilityNamespacePlugin
+public class OutlineColor : IUtilityNamespacePlugin
 {
-    private const string Namespace = "border";
+    private const string Namespace = "outline";
     private readonly ImmutableDictionary<string, CssColor> _flattenedColors;
     private readonly ImmutableDictionary<string, string> _opacities;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="BorderColor"/> class.
+    /// Initializes a new instance of the <see cref="OutlineColor"/> class.
     /// </summary>
     /// <param name="designSystem">The design system.</param>
-    public BorderColor(DesignSystem designSystem)
+    public OutlineColor(DesignSystem designSystem)
     {
         _flattenedColors = designSystem.GetFlattenColors();
         _opacities = designSystem.Opacities;
@@ -51,7 +51,7 @@ public class BorderColor : IUtilityNamespacePlugin
 
             declarations = new CssDeclarationList
             {
-                new(CssProperties.BorderColor, additionalValues[suffix]),
+                new(CssProperties.OutlineColor, additionalValues[suffix]),
             };
         }
         else if (opacityValue != default)
@@ -59,12 +59,12 @@ public class BorderColor : IUtilityNamespacePlugin
             var opacity = _opacities.GetValueOrDefault(opacityValue, "1");
             declarations = new CssDeclarationList
             {
-                new(CssProperties.BorderColor, color.AsRgbWithOpacity(opacity)),
+                new(CssProperties.OutlineColor, color.AsRgbWithOpacity(opacity)),
             };
         }
         else
         {
-            declarations = new CssDeclarationList { new(CssProperties.BorderColor, color.AsRgb()), };
+            declarations = new CssDeclarationList { new(CssProperties.OutlineColor, color.AsRgb()), };
         }
 
         yield return new CssRuleSet(namespaceSyntax.OriginalSyntax, declarations);
@@ -73,9 +73,9 @@ public class BorderColor : IUtilityNamespacePlugin
     /// <inheritdoc />
     public IEnumerable<CssRuleSet> GetAllRules()
     {
-        return _flattenedColors.Select(color => new CssRuleSet("border-" + color.Key, new CssDeclarationList
+        return _flattenedColors.Select(color => new CssRuleSet("outline-" + color.Key, new CssDeclarationList
         {
-            new("border-color", color.Value.AsRgb()),
+            new("outline-color", color.Value.AsRgb()),
         }));
     }
 

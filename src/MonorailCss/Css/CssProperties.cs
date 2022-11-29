@@ -12,6 +12,7 @@ namespace MonorailCss.Css;
 public static class CssProperties
 {
     // future me will convert these to constants.
+    public static string Appearance = nameof(Appearance).ToKebabCase();
     public static string Background = nameof(Background).ToKebabCase();
     public static string BackgroundAttachment = nameof(BackgroundAttachment).ToKebabCase();
     public static string BackgroundClip = nameof(BackgroundClip).ToKebabCase();
@@ -98,6 +99,7 @@ public static class CssProperties
     public static string Orphans = nameof(Orphans).ToKebabCase();
     public static string Outline = nameof(Outline).ToKebabCase();
     public static string OutlineColor = nameof(OutlineColor).ToKebabCase();
+    public static string OutlineOffset = nameof(OutlineOffset).ToKebabCase();
     public static string OutlineStyle = nameof(OutlineStyle).ToKebabCase();
     public static string OutlineWidth = nameof(OutlineWidth).ToKebabCase();
     public static string Overflow = nameof(Overflow).ToKebabCase();
