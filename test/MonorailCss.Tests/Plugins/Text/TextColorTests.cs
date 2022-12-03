@@ -1,6 +1,4 @@
-﻿using NuGet.Frameworks;
-
-namespace MonorailCss.Tests.Plugins.Text;
+﻿namespace MonorailCss.Tests.Plugins.Text;
 
 public class TextColorTests
 {

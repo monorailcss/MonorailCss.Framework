@@ -1,17 +1,17 @@
-﻿using System.Collections.Immutable;
-
-namespace MonorailCss.Plugins.Interactivity;
+﻿namespace MonorailCss.Plugins.Interactivity;
 
 /// <summary>
 /// The cursor plugin.
 /// </summary>
 public class Cursor : BaseUtilityNamespacePlugin
 {
+    /// <inheritdoc />
     protected override CssNamespaceToPropertyMap GetNamespacePropertyMapList()
     {
         return new CssNamespaceToPropertyMap("cursor", "cursor");
     }
 
+    /// <inheritdoc />
     protected override CssSuffixToValueMap GetValues()
     {
         return new CssSuffixToValueMap()

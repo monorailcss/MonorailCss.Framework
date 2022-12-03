@@ -1,7 +1,4 @@
-﻿using MonorailCss.Css;
-using MonorailCss.Variants;
-
-namespace MonorailCss.Parser;
+﻿namespace MonorailCss.Parser;
 
 internal class ClassParser
 {
@@ -129,27 +126,6 @@ internal class ClassParser
         }
 
         return new ArbitraryValueSyntax(className, modifiers, ns, value);
-    }
-
-    private static bool TryParseOpacity(ref string value, out string? opacity)
-    {
-        var opacitySplit = value.Split('/', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
-        switch (opacitySplit)
-        {
-            case { Length: 1 }:
-                value = opacitySplit[0];
-                opacity = default;
-                break;
-            case { Length: 2 }:
-                value = opacitySplit[0];
-                opacity = opacitySplit[1];
-                break;
-            default:
-                opacity = default;
-                return false;
-        }
-
-        return true;
     }
 
     private static (string Property, string Value)? ParseArbitraryProperty(string value)

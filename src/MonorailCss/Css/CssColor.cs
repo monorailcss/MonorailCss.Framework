@@ -61,7 +61,7 @@ public readonly struct CssColor
     {
         return $"rgba({_r}, {_g}, {_b}, {opacity})";
     }
-    
+
     private static int HexToInt(char hexChar)
     {
         hexChar = char.ToUpper(hexChar);  // may not be necessary

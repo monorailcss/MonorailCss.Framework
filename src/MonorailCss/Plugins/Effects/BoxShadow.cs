@@ -9,17 +9,6 @@ namespace MonorailCss.Plugins.Effects;
 /// </summary>
 public class BoxShadow : IUtilityNamespacePlugin, IRegisterDefaults
 {
-    private readonly CssFramework _cssFramework;
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="BoxShadow"/> class.
-    /// </summary>
-    /// <param name="cssFramework">The CSS framework.</param>
-    public BoxShadow(CssFramework cssFramework)
-    {
-        _cssFramework = cssFramework;
-    }
-
     private readonly ImmutableDictionary<string, (string Shadow, string Color)> _utilities = new Dictionary<string, (string, string)>
     {
         { "sm", ("0 1px 2px 0 COLOR_PLACE_HOLDER", "rgb(0 0 0 / 0.05)") },

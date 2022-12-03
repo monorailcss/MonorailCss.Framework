@@ -13,6 +13,18 @@ public class FloatTests
 }
 ");
     }
+
+    [Fact]
+    public void Float_right_works()
+    {
+        var framework = new CssFramework(new CssFrameworkSettings { CssResetOverride = string.Empty });
+        var result = framework.Process(new[] { "float-right" });
+        result.ShouldBeCss(@"
+.float-right {
+  float:right;
+}
+");
+    }
 }
 
 public class MaxWidthTests

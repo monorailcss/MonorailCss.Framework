@@ -1,7 +1,6 @@
 ﻿using System.Collections.Immutable;
 using MonorailCss.Css;
 using MonorailCss.Plugins;
-using MonorailCss.Plugins.Borders;
 using MonorailCss.Plugins.Prose;
 using Shouldly;
 

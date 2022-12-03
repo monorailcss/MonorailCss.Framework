@@ -1,4 +1,4 @@
-﻿namespace MonorailCss.Tests.Plugins;
+﻿namespace MonorailCss.Tests.Plugins.Spacing;
 
 public class SpaceTests
 {

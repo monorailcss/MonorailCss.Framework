@@ -144,8 +144,22 @@ public class CssFramework
     /// <returns>A full CSS stylesheet.</returns>
     public (string CssReset, string Utilities) ProcessSplit(IEnumerable<string> cssClasses)
     {
+        var r = ProcessSplitWithWarnings(cssClasses);
+        return (r.CssReset, r.Utilities);
+    }
+
+    /// <summary>
+    /// Builds the CSS.
+    /// </summary>
+    /// <param name="cssClasses">List of CSS classes to use as the root.</param>
+    /// <returns>A full CSS stylesheet.</returns>
+    public (string CssReset, string Utilities, string[] Warnings) ProcessSplitWithWarnings(IEnumerable<string> cssClasses)
+    {
         var distinctCss = new HashSet<string>();
-        var separator = new[] { ' ', '\t' };
+        var separator = new[]
+        {
+            ' ', '\t',
+        };
         foreach (var cssClass in cssClasses)
         {
             distinctCss.UnionWith(cssClass.Split(separator, StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries));
@@ -163,8 +177,14 @@ public class CssFramework
         }
 
         var selectorWithClassListItems = applyItems
-            .Select(i => new { Selector = $"{root}{i.Root}", i.CssClass })
-            .Concat(distinctCss.Select(i => new { Selector = string.Empty, CssClass = i }));
+            .Select(i => new
+            {
+                Selector = $"{root}{i.Root}", i.CssClass,
+            })
+            .Concat(distinctCss.Select(i => new
+            {
+                Selector = string.Empty, CssClass = i,
+            }));
 
         var classParser = new ClassParser(_namespacesOrderedByLength, _frameworkSettings.ElementPrefix, _frameworkSettings.Separator);
 
@@ -178,6 +198,7 @@ public class CssFramework
         var pluginsWithDefaultsCalled = new List<IRegisterDefaults>();
         var mediaGrouping = ImmutableDictionary.Create<string[], ImmutableList<CssRuleSet>>(new ModifierComparer());
 
+        var missingSelectors = new List<string>();
         foreach (var item in selectorWithSyntaxItems)
         {
             var elementSelector = item.Selector;
@@ -222,21 +243,28 @@ public class CssFramework
                         }
                     }
 
-                    declarations.Add(ruleSet with { Selector = $"{rootSelector}{selectorSyntax}" });
+                    declarations.Add(ruleSet with
+                    {
+                        Selector = $"{rootSelector}{selectorSyntax}",
+                    });
                 }
             }
 
-            ImmutableList<CssRuleSet> mediaGroupingDeclarations;
-            if (mediaGrouping.TryGetValue(mediaModifiers, out var existingMediaGroupingDeclarations))
+            if (declarations.Count > 0)
             {
-                mediaGroupingDeclarations = existingMediaGroupingDeclarations.AddRange(declarations);
+                var mediaGroupingDeclarations = mediaGrouping.TryGetValue(mediaModifiers, out var existingMediaGroupingDeclarations)
+                    ? existingMediaGroupingDeclarations.AddRange(declarations)
+                    : declarations.ToImmutableList();
+
+                mediaGrouping = mediaGrouping.SetItem(mediaModifiers, mediaGroupingDeclarations);
             }
             else
             {
-                mediaGroupingDeclarations = declarations.ToImmutableList();
+                if (item.Syntax != null)
+                {
+                    missingSelectors.Add(item.Syntax.OriginalSyntax);
+                }
             }
-
-            mediaGrouping = mediaGrouping.SetItem(mediaModifiers, mediaGroupingDeclarations);
         }
 
         var mediaRules = mediaGrouping.Select(i => new CssMediaRule(GetFeatureList(i.Key, _variantSystem.Variants), i.Value))
@@ -256,7 +284,7 @@ public class CssFramework
         CssWriter.CssWriter.AppendDefaultCssRules(defaultVariableDeclarationList, sb);
         CssWriter.CssWriter.AppendCssRules(styleSheet, sb);
 
-        return (cssReset,  sb.ToString());
+        return (cssReset, sb.ToString(), missingSelectors.ToArray());
     }
 
     private IEnumerable<IUtilityPlugin> GetPlugins(IParsedClassNameSyntax syntax)
@@ -432,6 +460,10 @@ public class CssFramework
         }
     }
 
+    /// <summary>
+    /// Gets all defined rules.
+    /// </summary>
+    /// <returns>A list of the defined rules and their CSS.</returns>
     public ImmutableDictionary<string, string> GetAllRules()
     {
         var dictBuilder = ImmutableDictionary.CreateBuilder<string, string>();
@@ -444,6 +476,7 @@ public class CssFramework
             {
                 sb.Append($"{ruleSet.Property}: {ruleSet.Value};");
             }
+
             dictBuilder.Add(cssRuleSet.Selector.Selector, sb.ToString());
         }
 

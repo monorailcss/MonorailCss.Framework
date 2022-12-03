@@ -70,7 +70,6 @@ public abstract class BaseColorNamespacePlugin : IUtilityNamespacePlugin
 
     private CssDeclarationList GetDeclarations(CssColor color, string? opacityValue)
     {
-
         CssDeclarationList declarations;
 
         if (ShouldSplitOpacityIntoOwnProperty(out var opacityPropertyName))

@@ -7,7 +7,6 @@ namespace Benchmarks;
 public class FrameworkBenchmarks
 {
     private string[] _classes = null!;
-    private DesignSystem _designSystem = null!;
     private CssFramework _framework = null!;
 
 
@@ -299,7 +298,6 @@ public class FrameworkBenchmarks
             "dark:bg-sky-900/75",
         };
 
-        _designSystem = DesignSystem.Default;
         _framework = new CssFramework(new CssFrameworkSettings { CssResetOverride = string.Empty } );
     }
 

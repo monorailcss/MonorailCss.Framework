@@ -1,11 +1,23 @@
-﻿using MonorailCss.Css;
-using MonorailCss.Tests.Plugins;
+﻿using MonorailCss.Tests.Plugins;
 using Shouldly;
 
 namespace MonorailCss.Tests;
 
 public class FrameworkTests
 {
+    [Fact]
+    public void Missing_cssclass_is_reported()
+    {
+        var framework = new CssFramework(new CssFrameworkSettings
+            { CssResetOverride = string.Empty});
+        var r = framework.ProcessSplitWithWarnings(new[]
+        {
+            "missing", "block", "missing", "another-missing", "bg-red-101",
+        });
+
+        r.Warnings.ShouldBe(new[] {"missing", "another-missing", "bg-red-101" }, ignoreOrder: true);
+    }
+
     [Fact]
     public void Can_do_pseudo_variants()
     {
@@ -476,5 +488,6 @@ body {
 
         var framework = new CssFramework(new CssFrameworkSettings { CssResetOverride = string.Empty });
         var r = framework.Process(classes);
+        r.ShouldNotBeEmpty();
     }
 }

@@ -9,17 +9,14 @@ namespace MonorailCss.Plugins.Spacing;
 /// </summary>
 public class Space : IUtilityNamespacePlugin
 {
-    private readonly CssFramework _framework;
     private readonly ImmutableDictionary<string, string> _spacing;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="Space"/> class.
     /// </summary>
-    /// <param name="framework">The framework.</param>
     /// <param name="designSystem">The design system.</param>
-    public Space(CssFramework framework, DesignSystem designSystem)
+    public Space(DesignSystem designSystem)
     {
-        _framework = framework;
         _spacing = designSystem.Spacing;
     }
 

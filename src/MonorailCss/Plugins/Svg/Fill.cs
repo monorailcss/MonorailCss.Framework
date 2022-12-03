@@ -9,7 +9,6 @@ namespace MonorailCss.Plugins.Svg;
 public class Fill : BaseUtilityNamespacePlugin
 {
     private const string Namespace = "fill";
-    private readonly DesignSystem _designSystem;
     private readonly ImmutableDictionary<string, CssColor> _flattenedColors;
 
     /// <summary>
@@ -18,7 +17,6 @@ public class Fill : BaseUtilityNamespacePlugin
     /// <param name="designSystem">The design system.</param>
     public Fill(DesignSystem designSystem)
     {
-        _designSystem = designSystem;
         _flattenedColors = designSystem.GetFlattenColors();
     }
 
