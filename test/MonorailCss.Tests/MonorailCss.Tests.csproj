@@ -27,4 +27,8 @@
     <ProjectReference Include="..\..\src\MonorailCss\MonorailCss.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Plugins\Transitions" />
+  </ItemGroup>
+
 </Project>

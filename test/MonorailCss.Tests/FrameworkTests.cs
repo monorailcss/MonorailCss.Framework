@@ -19,6 +19,25 @@ public class FrameworkTests
     }
 
     [Fact]
+    public void Can_rewrite_negative_margins()
+    {
+        var framework = new CssFramework(new CssFrameworkSettings
+        {
+            CssResetOverride = string.Empty
+        });
+        var r = framework.Process(new[]
+        {
+            "-my-4",
+        });
+        r.ShouldBeCss(@"
+.-my-4 {
+  margin-bottom:-1rem;
+  margin-top:-1rem;
+}
+    ");
+    }
+
+    [Fact]
     public void Can_do_pseudo_variants()
     {
         var framework = new CssFramework(new CssFrameworkSettings { CssResetOverride = string.Empty });

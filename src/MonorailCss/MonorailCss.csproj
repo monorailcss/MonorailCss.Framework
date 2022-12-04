@@ -35,4 +35,7 @@
     <None Remove="reset.css" />
     <EmbeddedResource Include="reset.css" />
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Plugins\Transforms" />
+  </ItemGroup>
 </Project>
