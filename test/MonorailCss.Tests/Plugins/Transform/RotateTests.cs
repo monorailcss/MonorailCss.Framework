@@ -17,6 +17,12 @@ public class RotateTests
         r.ShouldBeCss(@"
 body, ::before, ::after {
   --monorail-rotate:0;
+  --monorail-scale-x:0;
+  --monorail-scale-y:0;
+  --monorail-skew-x:0;
+  --monorail-skew-y:0;
+  --monorail-translate-x:0;
+  --monorail-translate-y:0;
 }
 .rotate-180 {
   --monorail-rotate:180deg;
@@ -40,6 +46,12 @@ body, ::before, ::after {
         r.ShouldBeCss(@"
 body, ::before, ::after {
   --monorail-rotate:0;
+  --monorail-scale-x:0;
+  --monorail-scale-y:0;
+  --monorail-skew-x:0;
+  --monorail-skew-y:0;
+  --monorail-translate-x:0;
+  --monorail-translate-y:0;
 }
 .-rotate-180 {
   --monorail-rotate:-180deg;

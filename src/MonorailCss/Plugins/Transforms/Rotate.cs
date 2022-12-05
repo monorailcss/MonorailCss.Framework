@@ -47,7 +47,13 @@ public class Rotate : BaseUtilityNamespacePlugin, IRegisterDefaults
     {
         return new CssDeclarationList
         {
+            new(CssFramework.GetVariableNameWithPrefix("scale-x"), "0"),
+            new(CssFramework.GetVariableNameWithPrefix("scale-y"), "0"),
+            new(CssFramework.GetVariableNameWithPrefix("skew-x"), "0"),
+            new(CssFramework.GetVariableNameWithPrefix("skew-y"), "0"),
             new(CssFramework.GetVariableNameWithPrefix("rotate"), "0"),
+            new(CssFramework.GetVariableNameWithPrefix("translate-x"), "0"),
+            new(CssFramework.GetVariableNameWithPrefix("translate-y"), "0"),
         };
     }
 }
