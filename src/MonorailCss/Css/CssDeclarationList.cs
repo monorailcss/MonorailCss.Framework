@@ -61,8 +61,13 @@ public class CssDeclarationList : IEnumerable<CssDeclaration>
     /// <param name="list1">The first list.</param>
     /// <param name="list2">The second list. Values will overwrite the second.</param>
     /// <returns>A new CSS declaration list.</returns>
-    public static CssDeclarationList operator +(CssDeclarationList list1, CssDeclarationList list2)
+    public static CssDeclarationList operator +(CssDeclarationList list1, CssDeclarationList? list2)
     {
+        if (list2 == null)
+        {
+            return list1;
+        }
+
         var newList = new CssDeclarationList();
         newList.AddRange(list1);
         newList.AddRange(list2);

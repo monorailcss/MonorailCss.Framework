@@ -1,4 +1,5 @@
-﻿using MonorailCss.Tests.Plugins;
+﻿using MonorailCss.Plugins.Transforms;
+using MonorailCss.Tests.Plugins;
 using Shouldly;
 
 namespace MonorailCss.Tests;
@@ -109,6 +110,12 @@ public class FrameworkTests
         var framework = new CssFramework();
         var rules = framework.GetAllRules();
         rules.ShouldNotBeEmpty();
+    }
+
+    [Fact]
+    public void Transform_PropertyValue_With_Variables_Should_Be_Ok()
+    {
+        Transform.TransformValue.ShouldBe("translate(var(--monorail-translate-x), var(--monorail-translate-y)) rotate(var(--monorail-rotate)) skewX(var(--monorail-skew-x)) skewY(var(--monorail-skew-y)) scaleX(var(--monorail-scale-x)) scaleY(var(--monorail-scale-y))");
     }
 
     [Fact]

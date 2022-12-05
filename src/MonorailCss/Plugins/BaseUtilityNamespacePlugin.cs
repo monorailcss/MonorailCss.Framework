@@ -81,6 +81,7 @@ public abstract class BaseUtilityNamespacePlugin : IUtilityNamespacePlugin
         var value = cssSuffixToValuesMap[suffix];
         var mapping = namespacePropertyMapList[namespaceSyntax.Namespace];
         var declarationList = CssDeclarationList(value, mapping.Values.Values);
+        declarationList += AdditionalDeclarations();
 
         yield return new CssRuleSet(GetSelector(namespaceSyntax), declarationList, mapping.Importance);
     }
@@ -103,7 +104,7 @@ public abstract class BaseUtilityNamespacePlugin : IUtilityNamespacePlugin
         {
             foreach (var (suffix, value) in _suffixToValueMap.Value.ToArray())
             {
-                yield return new CssRuleSet($"{ns}-{suffix}", CssDeclarationList(value, properties.Values));
+                yield return new CssRuleSet($"{ns}-{suffix}", CssDeclarationList(value, properties.Values) + AdditionalDeclarations());
             }
         }
     }
@@ -116,6 +117,15 @@ public abstract class BaseUtilityNamespacePlugin : IUtilityNamespacePlugin
     protected virtual string GetSelector(IParsedClassNameSyntax namespaceSyntax)
     {
         return namespaceSyntax.OriginalSyntax;
+    }
+
+    /// <summary>
+    /// Gets additional declarations that should be included with the generated rules.
+    /// </summary>
+    /// <returns>A list of declarations or null if none.</returns>
+    protected virtual CssDeclarationList? AdditionalDeclarations()
+    {
+        return null;
     }
 
     /// <summary>
