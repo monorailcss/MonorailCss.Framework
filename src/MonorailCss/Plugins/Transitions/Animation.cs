@@ -24,6 +24,14 @@ public class Animation : IUtilityPlugin
         }
         else if (utilityPlugin.Name == "animate-ping")
         {
+            yield return new CssRuleSet("@keyframes ping", new CssDeclarationList()
+            {
+                new CssKeyframeDeclaration("75%, 100%", new()
+                {
+                    (CssProperties.Transform, "scale(2)"),
+                    (CssProperties.Opacity, "0"),
+                }),
+            });
             yield return new CssRuleSet(utilityPlugin.OriginalSyntax, AnimatePing);
         }
         else if (utilityPlugin.Name == "animate-spin")
@@ -36,10 +44,7 @@ public class Animation : IUtilityPlugin
                 }),
             });
 
-            yield return new CssRuleSet(utilityPlugin.OriginalSyntax, new CssDeclarationList()
-            {
-                (CssProperties.Animation, "spin 1s linear infinite"),
-            });
+            yield return new CssRuleSet(utilityPlugin.OriginalSyntax, AnimateSpin);
         }
     }
 
@@ -48,6 +53,7 @@ public class Animation : IUtilityPlugin
     {
         yield return new CssRuleSet("animate-none", AnimateNone);
         yield return new CssRuleSet("animate-ping", AnimatePing);
+        yield return new CssRuleSet("animate-spin", AnimateSpin);
     }
 
     private static CssDeclarationList AnimateNone => new()
@@ -58,5 +64,10 @@ public class Animation : IUtilityPlugin
     private static CssDeclarationList AnimatePing => new()
     {
         ("animation", "ping 1s cubic-bezier(0, 0, 0.2, 1) infinite"),
+    };
+    
+    private static CssDeclarationList AnimateSpin => new()
+    {
+        ("animation", "spin 1s linear infinite"),
     };
 }
