@@ -413,10 +413,13 @@ public class CssFramework
     internal static string GetSelectorSyntax(CssSelector original, IEnumerable<IVariant> variants)
     {
         var selector = $"{original.Selector.Replace(":", "\\:").Replace("/", "\\/")}";
-        if (!original.Selector.StartsWith("@"))
+        if (original.Selector.StartsWith("@"))
         {
-            selector = $".{selector}";
+            // keyframe, so we don't want to mess with the name.
+            return original.Selector;
         }
+
+        selector = $".{selector}";
 
         if (original.PseudoClass != default)
         {

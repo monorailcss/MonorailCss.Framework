@@ -1,4 +1,5 @@
-﻿using AngleSharp.Css.Dom;
+﻿using System.Reflection;
+using AngleSharp.Css.Dom;
 using AngleSharp.Css.Parser;
 using JetBrains.Annotations;
 using Shouldly;
@@ -22,15 +23,13 @@ public static class ShouldlyExtensions
             );
     }
 
-    public static void ShouldBeCss(this string value,[LanguageInjection(InjectedLanguage.CSS)] string expected)
+    public static void ShouldBeCss(this string value, [LanguageInjection(InjectedLanguage.CSS)] string expected)
     {
         var parser = new CssParser();
         var originalSheet = parser.ParseStyleSheet(value);
         var expectedSheet = parser.ParseStyleSheet(expected);
 
-        RulesShouldBeEqual(
-            originalSheet.Rules.OfType<ICssStyleRule>().ToArray(),
-            expectedSheet.Rules.OfType<ICssStyleRule>().ToArray());
+        RulesShouldBeEqual(originalSheet.Rules, expectedSheet.Rules);
 
         var originalMediaRules = originalSheet.Rules.OfType<ICssMediaRule>().ToArray();
         var expectedMediaRules = expectedSheet.Rules.OfType<ICssMediaRule>().ToArray();
@@ -40,9 +39,42 @@ public static class ShouldlyExtensions
         foreach (var originalMediaRule in originalMediaRules)
         {
             var expectedMediaRule = expectedMediaRules.First(i => i.ConditionText == originalMediaRule.ConditionText);
-            RulesShouldBeEqual(
-                originalMediaRule.Rules.OfType<ICssStyleRule>().ToArray(),
-                expectedMediaRule.Rules.OfType<ICssStyleRule>().ToArray());
+            RulesShouldBeEqual(originalMediaRule.Rules, expectedMediaRule.Rules);
+        }
+    }
+
+    private static void RulesShouldBeEqual(ICssRuleList originalRuleList, ICssRuleList expectedRuleList)
+    {
+        RulesShouldBeEqual(originalRuleList.OfType<ICssStyleRule>().ToArray(), expectedRuleList.OfType<ICssStyleRule>().ToArray());
+        RulesShouldBeEqual(originalRuleList.OfType<ICssKeyframesRule>().ToArray(), expectedRuleList.OfType<ICssKeyframesRule>().ToArray());
+    }
+
+    private static void RulesShouldBeEqual(ICssKeyframesRule[] originalRules, ICssKeyframesRule[] expectedRules)
+    {
+        var originalSelectors = originalRules.Select(i => i.Name).ToArray();
+        var expectedSelectors = expectedRules.Select(i => i.Name).ToArray();
+
+        originalSelectors.ShouldBe(expectedSelectors, customMessage: "Missing keyframe in style sheet",
+            ignoreOrder: true);
+
+        // for each rule in the original sheet, there should be a rule in the expected sheet with the same properties
+        foreach (var originalRule in originalRules)
+        {
+            var expectedRule = expectedRules.First(i => i.Name == originalRule.Name);
+            RulesShouldBeEqual(originalRule.Rules.OfType<ICssKeyframeRule>().ToArray(), expectedRule.Rules.OfType<ICssKeyframeRule>().ToArray());
+        }
+    }
+
+    private static void RulesShouldBeEqual(ICssKeyframeRule[] originalRules, ICssKeyframeRule[] expectedRules)
+    {
+        // foreach property in original rules there should be a matching property in the expected rules
+        foreach (var originalRule in originalRules)
+        {
+            var expectedRule = expectedRules.First(i => i.KeyText == originalRule.KeyText);
+
+            var originalPropertiesAndValues = originalRule.Style.Select(i => (i.Name, i.Value)).OrderBy(i => i.Name).ToArray();
+            var expectedPropertiesAndValues = expectedRule.Style.Select(i => (i.Name, i.Value)).OrderBy(i => i.Name).ToArray();
+            originalPropertiesAndValues.ShouldBe(expectedPropertiesAndValues, ignoreOrder: true);
         }
     }
 
