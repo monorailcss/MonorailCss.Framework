@@ -12,7 +12,7 @@ public class AnimationTests
             CssResetOverride = string.Empty
         });
         var r= framework.Process(new[] { "animate-spin" });
-        r.Trim().ShouldBe(@"
+        r.ShouldBeCss(@"
 
 @keyframes spin {
   to {
@@ -22,7 +22,7 @@ public class AnimationTests
 .animate-spin {
   animation:spin 1s linear infinite;
 }
-".Trim());
+");
     }
 
 
@@ -34,7 +34,7 @@ public class AnimationTests
             CssResetOverride = string.Empty
         });
         var r= framework.Process(new[] { "animate-ping" });
-        r.Trim().ShouldBe(@"
+        r.ShouldBeCss(@"
 @keyframes ping {
   75%, 100% {
     transform:scale(2);
@@ -44,6 +44,6 @@ public class AnimationTests
 .animate-ping {
   animation:ping 1s cubic-bezier(0, 0, 0.2, 1) infinite;
 }
-".Trim());
+");
     }
 }
