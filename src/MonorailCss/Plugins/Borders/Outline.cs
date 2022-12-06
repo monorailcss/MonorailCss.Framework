@@ -41,7 +41,7 @@ public class Outline : IUtilityNamespacePlugin
         {
             return new CssDeclarationList()
             {
-                new(CssProperties.Outline, "2px solid transparent"), new(CssProperties.OutlineOffset, "2px"),
+                (CssProperties.Outline, "2px solid transparent"), (CssProperties.OutlineOffset, "2px"),
             };
         }
 
@@ -52,7 +52,7 @@ public class Outline : IUtilityNamespacePlugin
 
         var declarations = new CssDeclarationList
         {
-            new(CssProperties.OutlineStyle, outline),
+            (CssProperties.OutlineStyle, outline),
         };
         return declarations;
     }

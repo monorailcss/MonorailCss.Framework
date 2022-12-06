@@ -33,7 +33,7 @@ public class Ring : IUtilityNamespacePlugin, IRegisterDefaults
         {
             yield return new CssRuleSet(
                 namespaceSyntax.OriginalSyntax,
-                new CssDeclarationList { new(CssFramework.GetVariableNameWithPrefix("ring-inset"), "inset"), });
+                new CssDeclarationList { (CssFramework.GetVariableNameWithPrefix("ring-inset"), "inset"), });
 
             yield break;
         }
@@ -83,14 +83,14 @@ public class Ring : IUtilityNamespacePlugin, IRegisterDefaults
     {
         return new CssDeclarationList
         {
-            new(CssFramework.GetVariableNameWithPrefix("ring-inset"), string.Empty),
-            new(CssFramework.GetVariableNameWithPrefix("ring-offset-width"), "0px"),
-            new(CssFramework.GetVariableNameWithPrefix("ring-offset-color"), "#fff"),
-            new(CssFramework.GetVariableNameWithPrefix("ring-color"), "rgb(59 130 246 / 0.5)"),
-            new(CssFramework.GetVariableNameWithPrefix("ring-offset-shadow"), "0 0 #0000"),
-            new(CssFramework.GetVariableNameWithPrefix("ring-shadow"), "0 0 #0000"),
-            new(CssFramework.GetVariableNameWithPrefix("shadow"), "0 0 #0000"),
-            new(CssFramework.GetVariableNameWithPrefix("shadow-colored"), "0 0 #0000"),
+            (CssFramework.GetVariableNameWithPrefix("ring-inset"), string.Empty),
+            (CssFramework.GetVariableNameWithPrefix("ring-offset-width"), "0px"),
+            (CssFramework.GetVariableNameWithPrefix("ring-offset-color"), "#fff"),
+            (CssFramework.GetVariableNameWithPrefix("ring-color"), "rgb(59 130 246 / 0.5)"),
+            (CssFramework.GetVariableNameWithPrefix("ring-offset-shadow"), "0 0 #0000"),
+            (CssFramework.GetVariableNameWithPrefix("ring-shadow"), "0 0 #0000"),
+            (CssFramework.GetVariableNameWithPrefix("shadow"), "0 0 #0000"),
+            (CssFramework.GetVariableNameWithPrefix("shadow-colored"), "0 0 #0000"),
         };
     }
 }
@@ -169,7 +169,7 @@ public class RingColor : IUtilityNamespacePlugin
         if (opacityValue != default)
         {
             var opacity = _opacities.GetValueOrDefault(opacityValue, "1");
-            declarations = new CssDeclarationList { new(property, color.AsRgbWithOpacity(opacity)), };
+            declarations = new CssDeclarationList { (property, color.AsRgbWithOpacity(opacity)), };
         }
         else
         {
@@ -178,7 +178,7 @@ public class RingColor : IUtilityNamespacePlugin
             var varName = CssFramework.GetVariableNameWithPrefix("ring-opacity");
             declarations = new CssDeclarationList
             {
-                new(varName, "1"), new(property, color.AsRgbWithOpacity($"var({varName})")),
+                (varName, "1"), (property, color.AsRgbWithOpacity($"var({varName})")),
             };
         }
 
@@ -189,7 +189,7 @@ public class RingColor : IUtilityNamespacePlugin
     public IEnumerable<CssRuleSet> GetAllRules()
     {
         return _flattenedColors.Select(color =>
-            new CssRuleSet("ring-" + color.Key, new CssDeclarationList { new("color", color.Value.AsRgb()), }));
+            new CssRuleSet("ring-" + color.Key, new CssDeclarationList { ("color", color.Value.AsRgb()), }));
     }
 }
 
@@ -240,7 +240,7 @@ public class RingOffsetColor : IUtilityNamespacePlugin
         if (opacityValue != default)
         {
             var opacity = _opacities.GetValueOrDefault(opacityValue, "1");
-            declarations = new CssDeclarationList { new(property, color.AsRgbWithOpacity(opacity)), };
+            declarations = new CssDeclarationList { (property, color.AsRgbWithOpacity(opacity)), };
         }
         else
         {
@@ -249,7 +249,7 @@ public class RingOffsetColor : IUtilityNamespacePlugin
             var varName = CssFramework.GetVariableNameWithPrefix("ring-opacity");
             declarations = new CssDeclarationList
             {
-                new(varName, "1"), new(property, color.AsRgbWithOpacity($"var({varName})")),
+                (varName, "1"), (property, color.AsRgbWithOpacity($"var({varName})")),
             };
         }
 
@@ -260,6 +260,6 @@ public class RingOffsetColor : IUtilityNamespacePlugin
     public IEnumerable<CssRuleSet> GetAllRules()
     {
         return _flattenedColors.Select(color =>
-            new CssRuleSet("ring-offset-" + color.Key, new CssDeclarationList { new("color", color.Value.AsRgb()), }));
+            new CssRuleSet("ring-offset-" + color.Key, new CssDeclarationList { ("color", color.Value.AsRgb()), }));
     }
 }

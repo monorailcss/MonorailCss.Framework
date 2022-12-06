@@ -33,7 +33,11 @@ internal static class CssWriter
                 {
                     foreach (var declaration in grouping.DeclarationList.OrderBy(i => i.Property))
                     {
-                        stringBuilder.AppendLine($"{propIndent}{declaration.Property}:{declaration.Value};");
+                        var declarationLines = declaration.ToCssString().Split(Environment.NewLine);
+                        foreach (var line in declarationLines)
+                        {
+                            stringBuilder.AppendLine($"{propIndent}{line}");
+                        }
                     }
                 }
 
@@ -57,9 +61,10 @@ internal static class CssWriter
         stringBuilder.AppendLine("body, ::before, ::after {");
         foreach (var declaration in defaultVariableDeclarationList.OrderBy(i => i.Property))
         {
-            stringBuilder.AppendLine($"  {declaration.Property}:{declaration.Value};");
+            stringBuilder.AppendLine($"  {declaration.ToCssString()}");
         }
 
         stringBuilder.AppendLine("}");
     }
 }
+

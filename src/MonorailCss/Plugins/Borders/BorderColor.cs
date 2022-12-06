@@ -51,7 +51,7 @@ public class BorderColor : IUtilityNamespacePlugin
 
             declarations = new CssDeclarationList
             {
-                new(CssProperties.BorderColor, additionalValues[suffix]),
+                (CssProperties.BorderColor, additionalValues[suffix]),
             };
         }
         else if (opacityValue != default)
@@ -59,12 +59,12 @@ public class BorderColor : IUtilityNamespacePlugin
             var opacity = _opacities.GetValueOrDefault(opacityValue, "1");
             declarations = new CssDeclarationList
             {
-                new(CssProperties.BorderColor, color.AsRgbWithOpacity(opacity)),
+                (CssProperties.BorderColor, color.AsRgbWithOpacity(opacity)),
             };
         }
         else
         {
-            declarations = new CssDeclarationList { new(CssProperties.BorderColor, color.AsRgb()), };
+            declarations = new CssDeclarationList { (CssProperties.BorderColor, color.AsRgb()), };
         }
 
         yield return new CssRuleSet(namespaceSyntax.OriginalSyntax, declarations);
@@ -75,7 +75,7 @@ public class BorderColor : IUtilityNamespacePlugin
     {
         return _flattenedColors.Select(color => new CssRuleSet("border-" + color.Key, new CssDeclarationList
         {
-            new("border-color", color.Value.AsRgb()),
+            ("border-color", color.Value.AsRgb()),
         }));
     }
 

@@ -26,6 +26,21 @@ public class Animation : IUtilityPlugin
         {
             yield return new CssRuleSet(utilityPlugin.OriginalSyntax, AnimatePing);
         }
+        else if (utilityPlugin.Name == "animate-spin")
+        {
+            yield return new CssRuleSet("@keyframes spin", new CssDeclarationList()
+            {
+                new CssKeyframeDeclaration("to", new()
+                {
+                    (CssProperties.Transform, "rotate(360deg)"),
+                }),
+            });
+
+            yield return new CssRuleSet(utilityPlugin.OriginalSyntax, new CssDeclarationList()
+            {
+                (CssProperties.Animation, "spin 1s linear infinite"),
+            });
+        }
     }
 
     /// <inheritdoc />
@@ -37,11 +52,11 @@ public class Animation : IUtilityPlugin
 
     private static CssDeclarationList AnimateNone => new()
     {
-        new("animation", "none"),
+        ("animation", "none"),
     };
 
     private static CssDeclarationList AnimatePing => new()
     {
-        new("animation", "ping 1s cubic-bezier(0, 0, 0.2, 1) infinite"),
+        ("animation", "ping 1s cubic-bezier(0, 0, 0.2, 1) infinite"),
     };
 }

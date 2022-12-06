@@ -44,7 +44,7 @@ public class TextSize : IUtilityNamespacePlugin
     {
         return new CssDeclarationList
         {
-            new(CssProperties.FontSize, value.FontSize), new(CssProperties.LineHeight, value.LineHeight),
+            (CssProperties.FontSize, value.FontSize), (CssProperties.LineHeight, value.LineHeight),
         };
     }
 

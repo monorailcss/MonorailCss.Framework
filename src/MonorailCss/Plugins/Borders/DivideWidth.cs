@@ -67,9 +67,9 @@ public class DivideWidth : IUtilityNamespacePlugin
 
         var cssDeclarationList = new CssDeclarationList
         {
-            new(varReverse, "0"),
-            new(borderedProperty, borderPropValue),
-            new(blankBorderProperty, blankBorderPropValue),
+            (varReverse, "0"),
+            (borderedProperty, borderPropValue),
+            (blankBorderProperty, blankBorderPropValue),
         };
         return cssDeclarationList;
     }

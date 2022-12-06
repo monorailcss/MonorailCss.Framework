@@ -52,11 +52,9 @@ public class BoxShadow : IUtilityNamespacePlugin, IRegisterDefaults
         var shadowValue = $"{CssFramework.GetCssVariableWithPrefix("ring-offset-shadow")}, 0 0 #0000, {CssFramework.GetCssVariableWithPrefix("ring-shadow")}, 0 0 #0000, {CssFramework.GetCssVariableWithPrefix("shadow")}";
         var declarations = new CssDeclarationList
         {
-            new(CssFramework.GetVariableNameWithPrefix("shadow"), color),
-            new(CssFramework.GetVariableNameWithPrefix("shadow-colored"), coloredShadow),
-            new(
-                CssProperties.BoxShadow,
-                shadowValue),
+            (CssFramework.GetVariableNameWithPrefix("shadow"), color),
+            (CssFramework.GetVariableNameWithPrefix("shadow-colored"), coloredShadow),
+            (CssProperties.BoxShadow, shadowValue),
         };
         return declarations;
     }
@@ -90,10 +88,10 @@ public class BoxShadow : IUtilityNamespacePlugin, IRegisterDefaults
     {
         return new CssDeclarationList
         {
-            new(CssFramework.GetVariableNameWithPrefix("ring-offset-shadow"), "0 0 #0000"),
-            new(CssFramework.GetVariableNameWithPrefix("ring-shadow"), "0 0 #0000"),
-            new(CssFramework.GetVariableNameWithPrefix("shadow"), "0 0 #0000"),
-            new(CssFramework.GetVariableNameWithPrefix("shadow-colored"), "0 0 #0000"),
+            (CssFramework.GetVariableNameWithPrefix("ring-offset-shadow"), "0 0 #0000"),
+            (CssFramework.GetVariableNameWithPrefix("ring-shadow"), "0 0 #0000"),
+            (CssFramework.GetVariableNameWithPrefix("shadow"), "0 0 #0000"),
+            (CssFramework.GetVariableNameWithPrefix("shadow-colored"), "0 0 #0000"),
         };
     }
 }

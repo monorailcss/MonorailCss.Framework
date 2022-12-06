@@ -81,7 +81,7 @@ public abstract class BaseColorNamespacePlugin : IUtilityNamespacePlugin
                 var opacity = _opacity.GetValueOrDefault(opacityValue, "1");
                 declarations = new CssDeclarationList
                 {
-                    new(ColorPropertyName(), color.AsRgbWithOpacity(opacity)),
+                    (ColorPropertyName(), color.AsRgbWithOpacity(opacity)),
                 };
             }
             else
@@ -91,7 +91,7 @@ public abstract class BaseColorNamespacePlugin : IUtilityNamespacePlugin
                 var varName = CssFramework.GetVariableNameWithPrefix(opacityPropertyName);
                 declarations = new CssDeclarationList
                 {
-                    new(varName, "1"), new(ColorPropertyName(), color.AsRgbWithOpacity($"var({varName})")),
+                    (varName, "1"), (ColorPropertyName(), color.AsRgbWithOpacity($"var({varName})")),
                 };
             }
         }
@@ -99,8 +99,8 @@ public abstract class BaseColorNamespacePlugin : IUtilityNamespacePlugin
         {
             // this plug-in doesn't support an opacity property so either it has an opacity or it doesn't.
             declarations = opacityValue == default
-                ? new CssDeclarationList { new(ColorPropertyName(), color.AsRgb()), }
-                : new CssDeclarationList { new(ColorPropertyName(), color.AsRgbWithOpacity(opacityValue)) };
+                ? new CssDeclarationList { (ColorPropertyName(), color.AsRgb()), }
+                : new CssDeclarationList { (ColorPropertyName(), color.AsRgbWithOpacity(opacityValue)) };
         }
 
         return declarations;

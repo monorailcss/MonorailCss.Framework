@@ -80,7 +80,7 @@ public class Container : IUtilityNamespacePlugin
 
     private CssDeclarationList GetDeclarations(string property, string value, string paddingKey)
     {
-        var declarationList = new CssDeclarationList { new(property, value), };
+        var declarationList = new CssDeclarationList { (property, value), };
         if (_settings.Center)
         {
             declarationList.Add(new CssDeclaration(CssProperties.MarginLeft, "auto"));

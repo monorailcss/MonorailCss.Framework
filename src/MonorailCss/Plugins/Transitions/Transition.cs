@@ -23,46 +23,42 @@ public class Transition : IUtilityNamespacePlugin
 
         var declarationList = suffix switch
         {
-            "none" => new CssDeclarationList { new("transition-property", "none") },
+            "none" => new CssDeclarationList { ("transition-property", "none") },
             "all" => new CssDeclarationList
             {
-                new("transition-property", "all"),
-                new("transition-timing-function", "cubic-bezier(0.4, 0, 0.2, 1)"),
-                new("transition-duration", "150ms"),
+                ("transition-property", "all"),
+                ("transition-timing-function", "cubic-bezier(0.4, 0, 0.2, 1)"),
+                ("transition-duration", "150ms"),
             },
             "colors" => new CssDeclarationList
             {
-                new(
-                    "transition-property",
-                    "color, background-color, border-color, text-decoration-color, fill, stroke"),
-                new("transition-timing-function", "cubic-bezier(0.4, 0, 0.2, 1)"),
-                new("transition-duration", "150ms"),
+                ("transition-property", "color, background-color, border-color, text-decoration-color, fill, stroke"),
+                ("transition-timing-function", "cubic-bezier(0.4, 0, 0.2, 1)"),
+                ("transition-duration", "150ms"),
             },
             "opacity" => new CssDeclarationList
             {
-                new("transition-property", "opacity"),
-                new("transition-timing-function", "cubic-bezier(0.4, 0, 0.2, 1)"),
-                new("transition-duration", "150ms"),
+                ("transition-property", "opacity"),
+                ("transition-timing-function", "cubic-bezier(0.4, 0, 0.2, 1)"),
+                ("transition-duration", "150ms"),
             },
             "shadow" => new CssDeclarationList
             {
-                new("transition-property", "box-shadow"),
-                new("transition-timing-function", "cubic-bezier(0.4, 0, 0.2, 1)"),
-                new("transition-duration", "150ms"),
+                ("transition-property", "box-shadow"),
+                ("transition-timing-function", "cubic-bezier(0.4, 0, 0.2, 1)"),
+                ("transition-duration", "150ms"),
             },
             "transform" => new CssDeclarationList
             {
-                new("transition-property", "transform"),
-                new("transition-timing-function", "cubic-bezier(0.4, 0, 0.2, 1)"),
-                new("transition-duration", "150ms"),
+                ("transition-property", "transform"),
+                ("transition-timing-function", "cubic-bezier(0.4, 0, 0.2, 1)"),
+                ("transition-duration", "150ms"),
             },
             "DEFAULT" => new CssDeclarationList
             {
-                new(
-                    "transition-property",
-                    "color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter;"),
-                new("transition-timing-function", "cubic-bezier(0.4, 0, 0.2, 1)"),
-                new("transition-duration", "150ms"),
+                ("transition-property", "color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter;"),
+                ("transition-timing-function", "cubic-bezier(0.4, 0, 0.2, 1)"),
+                ("transition-duration", "150ms"),
             },
             _ => default,
         };

@@ -39,7 +39,7 @@ public class Rotate : BaseUtilityNamespacePlugin, IRegisterDefaults
     /// <inheritdoc />
     protected override CssDeclarationList AdditionalDeclarations()
     {
-        return new CssDeclarationList { new("transform", Transform.TransformValue) };
+        return new CssDeclarationList { ("transform", Transform.TransformValue) };
     }
 
     /// <inheritdoc />
@@ -47,13 +47,13 @@ public class Rotate : BaseUtilityNamespacePlugin, IRegisterDefaults
     {
         return new CssDeclarationList
         {
-            new(CssFramework.GetVariableNameWithPrefix("scale-x"), "1"),
-            new(CssFramework.GetVariableNameWithPrefix("scale-y"), "1"),
-            new(CssFramework.GetVariableNameWithPrefix("skew-x"), "0"),
-            new(CssFramework.GetVariableNameWithPrefix("skew-y"), "0"),
-            new(CssFramework.GetVariableNameWithPrefix("rotate"), "0"),
-            new(CssFramework.GetVariableNameWithPrefix("translate-x"), "0"),
-            new(CssFramework.GetVariableNameWithPrefix("translate-y"), "0"),
+            (CssFramework.GetVariableNameWithPrefix("scale-x"), "1"),
+            (CssFramework.GetVariableNameWithPrefix("scale-y"), "1"),
+            (CssFramework.GetVariableNameWithPrefix("skew-x"), "0"),
+            (CssFramework.GetVariableNameWithPrefix("skew-y"), "0"),
+            (CssFramework.GetVariableNameWithPrefix("rotate"), "0"),
+            (CssFramework.GetVariableNameWithPrefix("translate-x"), "0"),
+            (CssFramework.GetVariableNameWithPrefix("translate-y"), "0"),
         };
     }
 }

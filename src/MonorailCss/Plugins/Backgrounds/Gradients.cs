@@ -84,7 +84,7 @@ public class GradientFromPlugin : IUtilityNamespacePlugin
 
         var declarations = new CssDeclarationList
         {
-            new(fromVar, colorValue), new(stopsVar, $"var({fromVar}), var({toVar}, {colorValue})"),
+            (fromVar, colorValue), (stopsVar, $"var({fromVar}), var({toVar}, {colorValue})"),
         };
         return declarations;
     }
@@ -152,7 +152,7 @@ public class GradientToPlugin : IUtilityNamespacePlugin
 
         var declarations = new CssDeclarationList
         {
-            new(toVar, colorValue),
+            (toVar, colorValue),
         };
         return declarations;
     }
@@ -222,7 +222,7 @@ public class GradientViaPlugin : IUtilityNamespacePlugin
 
         var declarations = new CssDeclarationList
         {
-            new(stopsVar, $"var({fromVar}), {colorValue}, var({toVar}, {colorValue});"),
+            (stopsVar, $"var({fromVar}), {colorValue}, var({toVar}, {colorValue});"),
         };
         return declarations;
     }

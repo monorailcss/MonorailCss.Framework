@@ -412,7 +412,12 @@ public class CssFramework
 
     internal static string GetSelectorSyntax(CssSelector original, IEnumerable<IVariant> variants)
     {
-        var selector = $".{original.Selector.Replace(":", "\\:").Replace("/", "\\/")}";
+        var selector = $"{original.Selector.Replace(":", "\\:").Replace("/", "\\/")}";
+        if (!original.Selector.StartsWith("@"))
+        {
+            selector = $".{selector}";
+        }
+
         if (original.PseudoClass != default)
         {
             selector = $"{selector}{original.PseudoClass}";
@@ -474,7 +479,7 @@ public class CssFramework
             sb.Clear();
             foreach (var ruleSet in cssRuleSet.DeclarationList)
             {
-                sb.Append($"{ruleSet.Property}: {ruleSet.Value};");
+                sb.Append(ruleSet.ToCssString());
             }
 
             dictBuilder.Add(cssRuleSet.Selector.Selector, sb.ToString());

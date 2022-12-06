@@ -51,7 +51,7 @@ public class DivideColor : IUtilityNamespacePlugin
 
             declarations = new CssDeclarationList
             {
-                new(CssProperties.BorderColor, additionalValues[suffix]),
+                (CssProperties.BorderColor, additionalValues[suffix]),
             };
         }
         else if (opacityValue != default)
@@ -59,14 +59,14 @@ public class DivideColor : IUtilityNamespacePlugin
             var opacity = _opacities.GetValueOrDefault(opacityValue, "1");
             declarations = new CssDeclarationList
             {
-                new(CssProperties.BorderColor, color.AsRgbWithOpacity(opacity)),
+                (CssProperties.BorderColor, color.AsRgbWithOpacity(opacity)),
             };
         }
         else
         {
             // include a variable here so that if the text-opacity add-on is used it gets applied
             // it'll override this value and get applied properly.
-            declarations = new CssDeclarationList { new(CssProperties.BorderColor, color.AsRgb()), };
+            declarations = new CssDeclarationList { (CssProperties.BorderColor, color.AsRgb()), };
         }
 
         yield return new CssRuleSet(new CssSelector(namespaceSyntax.OriginalSyntax, " > :not([hidden]) ~ :not([hidden])"), declarations);
@@ -77,7 +77,7 @@ public class DivideColor : IUtilityNamespacePlugin
     {
         return _flattenedColors.Select(color => new CssRuleSet("divide-" + color.Key, new CssDeclarationList
         {
-            new("border-color", color.Value.AsRgb()),
+            ("border-color", color.Value.AsRgb()),
         }));
     }
 

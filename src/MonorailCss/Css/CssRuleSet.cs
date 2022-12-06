@@ -96,11 +96,62 @@ public record CssSelector(string Selector, string? PseudoClass = default, string
 }
 
 /// <summary>
+/// Represents a CSS declaration list.
+/// </summary>
+/// <param name="Property">The property.</param>
+public abstract record BaseCssDeclaration(string Property)
+{
+    /// <summary>
+    /// Returns a new CSS declaration from a string.
+    /// </summary>
+    /// <returns>The CSS declaration.</returns>
+    public abstract string ToCssString();
+
+    /// <summary>
+    /// Converts a tuple to a CSS declaration.
+    /// </summary>
+    /// <param name="tuple">A two string tuple representing the property and value.</param>
+    /// <returns>A CSS declaration object.</returns>
+    public static implicit operator BaseCssDeclaration((string Property, string Value) tuple)
+        => new CssDeclaration(tuple.Property, tuple.Value);
+}
+
+/// <summary>
 /// Represents a CSS declaration.
 /// </summary>
 /// <param name="Property">The property.</param>
 /// <param name="Value">The value.</param>
-public record CssDeclaration(string Property, string Value);
+public record CssDeclaration(string Property, string Value) : BaseCssDeclaration(Property)
+{
+    /// <inheritdoc />
+    public override string ToCssString()
+    {
+        return $"{Property}:{Value};";
+    }
+}
+
+/// <summary>
+/// Represents a CSS keyframe declaration.
+/// </summary>
+/// <param name="Property">The keyframe property name.</param>
+/// <param name="DeclarationList">List of CSS properties this keyframe manipulates.</param>
+public record CssKeyframeDeclaration(string Property, CssDeclarationList DeclarationList) : BaseCssDeclaration(Property)
+{
+    /// <inheritdoc />
+    public override string ToCssString()
+    {
+        var sb = new StringBuilder();
+        sb.AppendLine($"{Property} {{");
+        foreach (var declaration in DeclarationList)
+        {
+            sb.AppendLine($"  {declaration.ToCssString()}");
+        }
+
+        sb.Append('}');
+
+        return sb.ToString();
+    }
+}
 
 /// <summary>
 /// Represents a CSS media rule declaration.

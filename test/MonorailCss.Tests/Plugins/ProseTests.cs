@@ -23,11 +23,10 @@ public class ProseTests
                             new("a",
                                 new CssDeclarationList
                                 {
-                                    new(CssProperties.FontWeight, "inherit"),
-                                    new(CssProperties.TextDecoration, "none"),
-                                    new(CssProperties.BorderBottomWidth, "1px"),
-                                    new(CssProperties.Color,
-                                        designSystem.Colors[ColorNames.Blue][ColorLevels._500].AsRgb())
+                                    (CssProperties.FontWeight, "inherit"),
+                                    (CssProperties.TextDecoration, "none"),
+                                    (CssProperties.BorderBottomWidth, "1px"),
+                                    (CssProperties.Color, designSystem.Colors[ColorNames.Blue][ColorLevels._500].AsRgb())
                                 })
                         }
                     }

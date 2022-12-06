@@ -13,6 +13,7 @@ public static class CssProperties
 {
     // future me will convert these to constants.
     public static string Appearance = nameof(Appearance).ToKebabCase();
+    public static string Animation = nameof(Animation).ToKebabCase();
     public static string Background = nameof(Background).ToKebabCase();
     public static string BackgroundAttachment = nameof(BackgroundAttachment).ToKebabCase();
     public static string BackgroundClip = nameof(BackgroundClip).ToKebabCase();

@@ -135,128 +135,128 @@ public class Prose : IUtilityNamespacePlugin, IVariantPluginProvider
         var defaultSettings = new CssSettings
         {
             Css =
-                new CssDeclarationList { new(CssProperties.Color, _cssVar("prose-body")), },
+                new CssDeclarationList { (CssProperties.Color, _cssVar("prose-body")), },
             ChildRules = new CssRuleSetList
             {
                 new(
                     "a",
                     new CssDeclarationList
                     {
-                        new(CssProperties.Color, _cssVar("prose-links")),
-                        new(CssProperties.TextDecoration, "underline"),
+                        (CssProperties.Color, _cssVar("prose-links")),
+                        (CssProperties.TextDecoration, "underline"),
                     }),
                 new("pre", new CssDeclarationList
                 {
-                    new(CssProperties.Color, _cssVar("prose-pre-code")),
-                    new(CssProperties.BackgroundColor, _cssVar("prose-pre-bg")),
-                    new("overflow-x", "auto"),
-                    new(CssProperties.FontWeight, "300"),
+                    (CssProperties.Color, _cssVar("prose-pre-code")),
+                    (CssProperties.BackgroundColor, _cssVar("prose-pre-bg")),
+                    ("overflow-x", "auto"),
+                    (CssProperties.FontWeight, "300"),
                 }),
                 new("pre code", new CssDeclarationList
                 {
-                    new(CssProperties.BackgroundColor, "transparent"),
-                    new(CssProperties.BorderWidth, "0"),
-                    new(CssProperties.BorderRadius, "0"),
-                    new(CssProperties.Padding, "0"),
-                    new(CssProperties.FontWeight, "inherit"),
-                    new(CssProperties.Color, "inherit"),
-                    new(CssProperties.FontSize, "inherit"),
-                    new(CssProperties.FontFamily, "inherit"),
-                    new(CssProperties.LineHeight, "inherit"),
+                    (CssProperties.BackgroundColor, "transparent"),
+                    (CssProperties.BorderWidth, "0"),
+                    (CssProperties.BorderRadius, "0"),
+                    (CssProperties.Padding, "0"),
+                    (CssProperties.FontWeight, "inherit"),
+                    (CssProperties.Color, "inherit"),
+                    (CssProperties.FontSize, "inherit"),
+                    (CssProperties.FontFamily, "inherit"),
+                    (CssProperties.LineHeight, "inherit"),
                 }),
-                new("ol", new CssDeclarationList { new(CssProperties.ListStyleType, "decimal") }),
+                new("ol", new CssDeclarationList { (CssProperties.ListStyleType, "decimal") }),
                 new(
                     "ol[type=\"A\"]",
-                    new CssDeclarationList { new(CssProperties.ListStyleType, "upper-alpha") }),
+                    new CssDeclarationList { (CssProperties.ListStyleType, "upper-alpha") }),
                 new(
                     "ol[type=\"a\"]",
-                    new CssDeclarationList { new(CssProperties.ListStyleType, "lower-alpha") }),
+                    new CssDeclarationList { (CssProperties.ListStyleType, "lower-alpha") }),
                 new(
                     "ol[type=\"I\"]",
-                    new CssDeclarationList { new(CssProperties.ListStyleType, "upper-roman") }),
+                    new CssDeclarationList { (CssProperties.ListStyleType, "upper-roman") }),
                 new(
                     "ol[type=\"i\"]",
-                    new CssDeclarationList { new(CssProperties.ListStyleType, "lower-roman") }),
+                    new CssDeclarationList { (CssProperties.ListStyleType, "lower-roman") }),
                 new(
                     "ol[type=\"1\"]",
-                    new CssDeclarationList { new(CssProperties.ListStyleType, "decimal") }),
+                    new CssDeclarationList { (CssProperties.ListStyleType, "decimal") }),
                 new(
-                    "ul", new CssDeclarationList { new(CssProperties.ListStyleType, "disc") }),
+                    "ul", new CssDeclarationList { (CssProperties.ListStyleType, "disc") }),
                 new(
                     "h1",
                     new CssDeclarationList
                     {
-                        new(CssProperties.FontWeight, "800"),
-                        new(CssProperties.Color, _cssVar("prose-headings")),
+                        (CssProperties.FontWeight, "800"),
+                        (CssProperties.Color, _cssVar("prose-headings")),
                     }),
                 new(
                     "h1 strong",
-                    new CssDeclarationList { new(CssProperties.FontWeight, "900"), }),
+                    new CssDeclarationList { (CssProperties.FontWeight, "900"), }),
                 new(
                     "h2",
                     new CssDeclarationList
                     {
-                        new(CssProperties.FontWeight, "700"),
-                        new(CssProperties.Color, _cssVar("prose-headings")),
+                        (CssProperties.FontWeight, "700"),
+                        (CssProperties.Color, _cssVar("prose-headings")),
                     }),
-                new("h2 strong", new CssDeclarationList { new(CssProperties.FontWeight, "800"), }),
+                new("h2 strong", new CssDeclarationList { (CssProperties.FontWeight, "800"), }),
                 new(
                     "h3",
                     new CssDeclarationList
                     {
-                        new(CssProperties.FontWeight, "600"),
-                        new(CssProperties.Color, _cssVar("prose-headings")),
+                        (CssProperties.FontWeight, "600"),
+                        (CssProperties.Color, _cssVar("prose-headings")),
                     }),
-                new("h3 strong", new CssDeclarationList { new(CssProperties.FontWeight, "700"), }),
+                new("h3 strong", new CssDeclarationList { (CssProperties.FontWeight, "700"), }),
                 new(
                     "h4",
                     new CssDeclarationList
                     {
-                        new(CssProperties.FontWeight, "600"),
-                        new(CssProperties.Color, _cssVar("prose-headings")),
+                        (CssProperties.FontWeight, "600"),
+                        (CssProperties.Color, _cssVar("prose-headings")),
                     }),
-                new("h4 strong", new CssDeclarationList { new(CssProperties.FontWeight, "700"), }),
+                new("h4 strong", new CssDeclarationList { (CssProperties.FontWeight, "700"), }),
                 new("code", new CssDeclarationList
                 {
-                    new(CssProperties.Color, _cssVar("prose-code")),
-                    new(CssProperties.FontWeight, "600"),
+                    (CssProperties.Color, _cssVar("prose-code")),
+                    (CssProperties.FontWeight, "600"),
                 }),
                 new("table", new CssDeclarationList
                 {
-                    new(CssProperties.Width, "100%"),
-                    new(CssProperties.TableLayout, "auto"),
-                    new(CssProperties.TextAlign, "left"),
-                    new(CssProperties.MarginTop, Em(32, 16)),
-                    new(CssProperties.MarginBottom, Em(32, 16)),
+                    (CssProperties.Width, "100%"),
+                    (CssProperties.TableLayout, "auto"),
+                    (CssProperties.TextAlign, "left"),
+                    (CssProperties.MarginTop, Em(32, 16)),
+                    (CssProperties.MarginBottom, Em(32, 16)),
                 }),
                 new("thead", new CssDeclarationList
                 {
-                    new(CssProperties.BorderBottomColor, _cssVar("prose-th-borders")),
-                    new(CssProperties.BorderBottomWidth, "1px"),
+                    (CssProperties.BorderBottomColor, _cssVar("prose-th-borders")),
+                    (CssProperties.BorderBottomWidth, "1px"),
                 }),
                 new("thead th", new CssDeclarationList
                 {
-                    new(CssProperties.Color, _cssVar("prose-headings")),
-                    new(CssProperties.FontWeight, "600"),
-                    new(CssProperties.VerticalAlign, "bottom"),
+                    (CssProperties.Color, _cssVar("prose-headings")),
+                    (CssProperties.FontWeight, "600"),
+                    (CssProperties.VerticalAlign, "bottom"),
                 }),
                 new("tbody tr", new CssDeclarationList
                 {
-                    new(CssProperties.BorderBottomColor, _cssVar("prose-td-borders")),
-                    new(CssProperties.BorderBottomWidth, "1px"),
+                    (CssProperties.BorderBottomColor, _cssVar("prose-td-borders")),
+                    (CssProperties.BorderBottomWidth, "1px"),
                 }),
                 new(new CssSelector("tbody tr", ":last-child"), new CssDeclarationList
                 {
-                    new(CssProperties.BorderBottomWidth, "0px"),
+                    (CssProperties.BorderBottomWidth, "0px"),
                 }),
                 new("tbody td", new CssDeclarationList
                 {
-                    new(CssProperties.VerticalAlign, "baseline"),
+                    (CssProperties.VerticalAlign, "baseline"),
                 }),
                 new("tfoot", new CssDeclarationList
                 {
-                    new(CssProperties.BorderTopWidth, "1px"),
-                    new(CssProperties.BorderTopColor, _cssVar("prose-th-borders")),
+                    (CssProperties.BorderTopWidth, "1px"),
+                    (CssProperties.BorderTopColor, _cssVar("prose-th-borders")),
                 }),
             },
         };
@@ -273,7 +273,7 @@ public class Prose : IUtilityNamespacePlugin, IVariantPluginProvider
                     Css =
                         new CssDeclarationList
                         {
-                            new(CssProperties.FontSize, Rem(16)), new(CssProperties.LineHeight, Rounds(28 / 18m)),
+                            (CssProperties.FontSize, Rem(16)), (CssProperties.LineHeight, Rounds(28 / 18m)),
                         },
                     ChildRules = new CssRuleSetList
                     {
@@ -281,68 +281,68 @@ public class Prose : IUtilityNamespacePlugin, IVariantPluginProvider
                             "p",
                             new CssDeclarationList
                             {
-                                new(CssProperties.MarginTop, Em(20, 16)),
-                                new(CssProperties.MarginBottom, Em(20, 16)),
+                                (CssProperties.MarginTop, Em(20, 16)),
+                                (CssProperties.MarginBottom, Em(20, 16)),
                             }),
                         new(
                             "h1", new CssDeclarationList
                             {
-                                new(CssProperties.FontSize, Em(36, 16)),
-                                new(CssProperties.MarginTop, "0"),
-                                new(CssProperties.MarginBottom, Em(32, 36)),
-                                new(CssProperties.LineHeight, Rounds(40 / 36m)),
+                                (CssProperties.FontSize, Em(36, 16)),
+                                (CssProperties.MarginTop, "0"),
+                                (CssProperties.MarginBottom, Em(32, 36)),
+                                (CssProperties.LineHeight, Rounds(40 / 36m)),
                             }),
                         new("h2", new CssDeclarationList
                         {
-                            new(CssProperties.FontSize, Em(24, 16)),
-                            new(CssProperties.MarginTop, Em(48, 24)),
-                            new(CssProperties.MarginBottom, Em(12, 20)),
-                            new(CssProperties.LineHeight, Rounds(32 / 24m)),
+                            (CssProperties.FontSize, Em(24, 16)),
+                            (CssProperties.MarginTop, Em(48, 24)),
+                            (CssProperties.MarginBottom, Em(12, 20)),
+                            (CssProperties.LineHeight, Rounds(32 / 24m)),
                         }),
                         new("h3", new CssDeclarationList
                         {
-                            new(CssProperties.FontSize, Em(20, 16)),
-                            new(CssProperties.MarginTop, Em(32, 20)),
-                            new(CssProperties.MarginBottom, Em(12, 20)),
-                            new(CssProperties.LineHeight, Rounds(32 / 20m)),
+                            (CssProperties.FontSize, Em(20, 16)),
+                            (CssProperties.MarginTop, Em(32, 20)),
+                            (CssProperties.MarginBottom, Em(12, 20)),
+                            (CssProperties.LineHeight, Rounds(32 / 20m)),
                         }),
                         new(
                             "h4",
                             new CssDeclarationList
                             {
-                                new(CssProperties.MarginTop, Em(24, 16)),
-                                new(CssProperties.MarginBottom, Em(8, 16)),
-                                new(CssProperties.LineHeight, Rounds(24 / 16m)),
+                                (CssProperties.MarginTop, Em(24, 16)),
+                                (CssProperties.MarginBottom, Em(8, 16)),
+                                (CssProperties.LineHeight, Rounds(24 / 16m)),
                             }),
                         new("pre", new CssDeclarationList
                         {
-                            new(CssProperties.FontSize, Em(14, 16)),
-                            new(CssProperties.LineHeight, Rounds(24 / 14m)),
-                            new(CssProperties.MarginTop, Em(24, 14)),
-                            new(CssProperties.MarginBottom, Em(24, 14)),
-                            new(CssProperties.PaddingTop, Em(12, 14)),
-                            new(CssProperties.PaddingBottom, Em(12, 14)),
-                            new(CssProperties.PaddingLeft, Em(16, 14)),
-                            new(CssProperties.PaddingRight, Em(16, 14)),
+                            (CssProperties.FontSize, Em(14, 16)),
+                            (CssProperties.LineHeight, Rounds(24 / 14m)),
+                            (CssProperties.MarginTop, Em(24, 14)),
+                            (CssProperties.MarginBottom, Em(24, 14)),
+                            (CssProperties.PaddingTop, Em(12, 14)),
+                            (CssProperties.PaddingBottom, Em(12, 14)),
+                            (CssProperties.PaddingLeft, Em(16, 14)),
+                            (CssProperties.PaddingRight, Em(16, 14)),
                         }),
                         new(
                             "ol",
                             new CssDeclarationList
                             {
-                                new(CssProperties.MarginTop, Em(20, 16)),
-                                new(CssProperties.MarginBottom, Em(20, 16)),
-                                new(CssProperties.PaddingLeft, Em(20, 16)),
+                                (CssProperties.MarginTop, Em(20, 16)),
+                                (CssProperties.MarginBottom, Em(20, 16)),
+                                (CssProperties.PaddingLeft, Em(20, 16)),
                             }),
                         new(
                             "ul",
                             new CssDeclarationList
                             {
-                                new(CssProperties.MarginTop, Em(20, 16)),
-                                new(CssProperties.MarginBottom, Em(20, 16)),
-                                new(CssProperties.PaddingLeft, Em(20, 16)),
+                                (CssProperties.MarginTop, Em(20, 16)),
+                                (CssProperties.MarginBottom, Em(20, 16)),
+                                (CssProperties.PaddingLeft, Em(20, 16)),
                             }),
-                        new("ol > li", new CssDeclarationList { new(CssProperties.PaddingLeft, Em(6, 16)) }),
-                        new("ul > li", new CssDeclarationList { new(CssProperties.PaddingLeft, Em(6, 16)) }),
+                        new("ol > li", new CssDeclarationList { (CssProperties.PaddingLeft, Em(6, 16)) }),
+                        new("ul > li", new CssDeclarationList { (CssProperties.PaddingLeft, Em(6, 16)) }),
                     },
                 }
             },
@@ -351,28 +351,28 @@ public class Prose : IUtilityNamespacePlugin, IVariantPluginProvider
                 {
                     Css = new CssDeclarationList
                     {
-                        new(
+                        (
                             _var("prose-body"),
                             _cssVar("prose-invert-body")),
-                        new(
+                        (
                             _var("prose-links"),
                             _cssVar("prose-invert-links")),
-                        new(
+                        (
                             _var("prose-headings"),
                             _cssVar("prose-invert-headings")),
-                        new(
+                        (
                             _var("prose-code"),
                             _cssVar("prose-invert-code")),
-                        new(
+                        (
                             _var("prose-pre-code"),
                             _cssVar("prose-invert-pre-code")),
-                        new(
+                        (
                             _var("prose-pre-bg"),
                             _cssVar("prose-invert-pre-bg")),
-                        new(
+                        (
                             _var("prose-th-borders"),
                             _cssVar("prose-invert-th-borders")),
-                        new(
+                        (
                             _var("prose-td-borders"),
                             _cssVar("prose-invert-td-borders")),
                     },
@@ -384,7 +384,7 @@ public class Prose : IUtilityNamespacePlugin, IVariantPluginProvider
                 {
                     Css = new CssDeclarationList
                     {
-                        new(CssProperties.FontSize, Rem(14)), new(CssProperties.LineHeight, Rounds(24 / 14m)),
+                        (CssProperties.FontSize, Rem(14)), (CssProperties.LineHeight, Rounds(24 / 14m)),
                     },
                 }
             },
@@ -397,46 +397,46 @@ public class Prose : IUtilityNamespacePlugin, IVariantPluginProvider
                     {
                         Css = new CssDeclarationList
                         {
-                            new(
+                            (
                                 _var("prose-body"),
                                 _designSystem.Colors[scale][ColorLevels._700].AsRgb()),
-                            new(
+                            (
                                 _var("prose-headings"),
                                 _designSystem.Colors[scale][ColorLevels._900].AsRgb()),
-                            new(
+                            (
                                 _var("prose-links"),
                                 _designSystem.Colors[scale][ColorLevels._900].AsRgb()),
-                            new(
+                            (
                                 _var("prose-code"),
                                 _designSystem.Colors[scale][ColorLevels._900].AsRgb()),
-                            new(
+                            (
                                 _var("prose-pre-code"),
                                 _designSystem.Colors[scale][ColorLevels._200].AsRgb()),
-                            new(
+                            (
                                 _var("prose-pre-bg"),
                                 _designSystem.Colors[scale][ColorLevels._800].AsRgb()),
-                            new(
+                            (
                                 _var("prose-th-borders"),
                                 _designSystem.Colors[scale][ColorLevels._300].AsRgb()),
-                            new(
+                            (
                                 _var("prose-td-borders"),
                                 _designSystem.Colors[scale][ColorLevels._200].AsRgb()),
 
                             // inverts
-                            new(
+                            (
                                 _var("prose-invert-body"),
                                 _designSystem.Colors[scale][ColorLevels._300].AsRgb()),
-                            new(_var("prose-invert-headings"), "white"),
-                            new(_var("prose-invert-links"), "white"),
-                            new(_var("prose-invert-code"), "white"),
-                            new(
+                            (_var("prose-invert-headings"), "white"),
+                            (_var("prose-invert-links"), "white"),
+                            (_var("prose-invert-code"), "white"),
+                            (
                                 _var("prose-invert-pre-code"),
                                 _designSystem.Colors[scale][ColorLevels._300].AsRgb()),
-                            new(_var("prose-invert-pre-bg"), "rgb(0 0 0 / 50%)"),
-                            new(
+                            (_var("prose-invert-pre-bg"), "rgb(0 0 0 / 50%)"),
+                            (
                                 _var("prose-invert-th-borders"),
                                 _designSystem.Colors[scale][ColorLevels._600].AsRgb()),
-                            new(
+                            (
                                 _var("prose-invert-td-borders"),
                                 _designSystem.Colors[scale][ColorLevels._700].AsRgb()),
                         },

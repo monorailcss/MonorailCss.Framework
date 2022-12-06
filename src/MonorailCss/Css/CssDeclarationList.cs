@@ -6,15 +6,15 @@ namespace MonorailCss.Css;
 /// <summary>
 /// A list of CSS declarations.
 /// </summary>
-public class CssDeclarationList : IEnumerable<CssDeclaration>
+public class CssDeclarationList : IEnumerable<BaseCssDeclaration>
 {
-    private ImmutableDictionary<string, CssDeclaration> _declarations = ImmutableDictionary<string, CssDeclaration>.Empty;
+    private ImmutableDictionary<string, BaseCssDeclaration> _declarations = ImmutableDictionary<string, BaseCssDeclaration>.Empty;
 
     /// <summary>
     /// Adds a new item to the declaration list.
     /// </summary>
     /// <param name="declaration">The declaration to add.</param>
-    public void Add(CssDeclaration declaration)
+    public void Add(BaseCssDeclaration declaration)
     {
         _declarations = _declarations.SetItem(declaration.Property, declaration);
     }
@@ -44,7 +44,7 @@ public class CssDeclarationList : IEnumerable<CssDeclaration>
     }
 
     /// <inheritdoc />
-    public IEnumerator<CssDeclaration> GetEnumerator()
+    public IEnumerator<BaseCssDeclaration> GetEnumerator()
     {
         return _declarations.Values.GetEnumerator();
     }

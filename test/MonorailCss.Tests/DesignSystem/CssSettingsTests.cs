@@ -11,24 +11,31 @@ public class CssSettingsTests
     {
         var setting1 = new CssSettings
         {
-            Css = new CssDeclarationList { new(CssProperties.BorderWidth, "1"), new(CssProperties.Float, "left"), },
+            Css = new CssDeclarationList
+            {
+                (CssProperties.BorderWidth, "1"),
+                (CssProperties.Float, "left"),
+            },
             ChildRules = new CssRuleSetList
             {
-                new("a",
-                    new CssDeclarationList { new(CssProperties.Height, "4px"), new(CssProperties.Width, "2px") })
-            }
+                new("a", new CssDeclarationList
+                {
+                    (CssProperties.Height, "4px"),
+                    (CssProperties.Width, "2px")
+                }),
+            },
         };
 
         var setting2 = new CssSettings
         {
             Css = new CssDeclarationList
             {
-                new(CssProperties.BorderWidth, "4"), new(CssProperties.Display, "block"),
+                (CssProperties.BorderWidth, "4"), (CssProperties.Display, "block"),
             },
             ChildRules = new CssRuleSetList
             {
                 new("a",
-                    new CssDeclarationList { new(CssProperties.Height, "2px"), new(CssProperties.Margin, "2px") })
+                    new CssDeclarationList { (CssProperties.Height, "2px"), (CssProperties.Margin, "2px") })
             }
         };
 

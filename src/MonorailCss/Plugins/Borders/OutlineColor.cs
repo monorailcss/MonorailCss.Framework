@@ -51,7 +51,7 @@ public class OutlineColor : IUtilityNamespacePlugin
 
             declarations = new CssDeclarationList
             {
-                new(CssProperties.OutlineColor, additionalValues[suffix]),
+                (CssProperties.OutlineColor, additionalValues[suffix]),
             };
         }
         else if (opacityValue != default)
@@ -59,12 +59,12 @@ public class OutlineColor : IUtilityNamespacePlugin
             var opacity = _opacities.GetValueOrDefault(opacityValue, "1");
             declarations = new CssDeclarationList
             {
-                new(CssProperties.OutlineColor, color.AsRgbWithOpacity(opacity)),
+                (CssProperties.OutlineColor, color.AsRgbWithOpacity(opacity)),
             };
         }
         else
         {
-            declarations = new CssDeclarationList { new(CssProperties.OutlineColor, color.AsRgb()), };
+            declarations = new CssDeclarationList { (CssProperties.OutlineColor, color.AsRgb()), };
         }
 
         yield return new CssRuleSet(namespaceSyntax.OriginalSyntax, declarations);
@@ -75,7 +75,7 @@ public class OutlineColor : IUtilityNamespacePlugin
     {
         return _flattenedColors.Select(color => new CssRuleSet("outline-" + color.Key, new CssDeclarationList
         {
-            new("outline-color", color.Value.AsRgb()),
+            ("outline-color", color.Value.AsRgb()),
         }));
     }
 

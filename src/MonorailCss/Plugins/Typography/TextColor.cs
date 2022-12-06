@@ -49,7 +49,7 @@ internal class TextColor : IUtilityNamespacePlugin
         if (opacityValue != default)
         {
             var opacity = _opacities.GetValueOrDefault(opacityValue, "1");
-            declarations = new CssDeclarationList { new(CssProperties.Color, color.AsRgbWithOpacity(opacity)), };
+            declarations = new CssDeclarationList { (CssProperties.Color, color.AsRgbWithOpacity(opacity)), };
         }
         else
         {
@@ -58,7 +58,7 @@ internal class TextColor : IUtilityNamespacePlugin
             var varName = CssFramework.GetVariableNameWithPrefix("text-opacity");
             declarations = new CssDeclarationList
             {
-                new(varName, "1"), new(CssProperties.Color, color.AsRgbWithOpacity($"var({varName})")),
+                (varName, "1"), (CssProperties.Color, color.AsRgbWithOpacity($"var({varName})")),
             };
         }
 
@@ -69,7 +69,7 @@ internal class TextColor : IUtilityNamespacePlugin
     {
         return _flattenedColors.Select(color => new CssRuleSet("text-" + color.Key, new CssDeclarationList
         {
-            new("color", color.Value.AsRgb()),
+            ("color", color.Value.AsRgb()),
         }));
     }
 }
