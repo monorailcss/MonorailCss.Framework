@@ -14,8 +14,14 @@ public static class ShouldlyExtensions
     {
         var parser = new CssParser();
         var styleSheet = parser.ParseStyleSheet(value);
-        styleSheet.Rules.OfType<ICssStyleRule>().ShouldContain(i => i.SelectorText.Equals(element));
-        styleSheet.Rules.OfType<ICssStyleRule>()
+        var styleRules = styleSheet.Rules.OfType<ICssStyleRule>().ToArray();
+        if (styleRules.Length == 0)
+        {
+            return;
+        }
+
+        styleRules.ShouldContain(i => i.SelectorText.Equals(element));
+        styleRules
             .First(i => i.SelectorText == element)
             .Style.ShouldSatisfyAllConditions(
                 i => i.ShouldContain(prop => prop.Name == property),

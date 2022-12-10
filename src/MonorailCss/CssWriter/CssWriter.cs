@@ -67,4 +67,3 @@ internal static class CssWriter
         stringBuilder.AppendLine("}");
     }
 }
-

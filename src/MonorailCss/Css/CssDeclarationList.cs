@@ -11,6 +11,16 @@ public class CssDeclarationList : IEnumerable<BaseCssDeclaration>
     private ImmutableDictionary<string, BaseCssDeclaration> _declarations = ImmutableDictionary<string, BaseCssDeclaration>.Empty;
 
     /// <summary>
+    /// Sets CSS item by index.
+    /// </summary>
+    /// <param name="key">The CSS property.</param>
+    public string this[string key]
+    {
+        // The embedded array will throw out of range exceptions as appropriate.
+        set { _declarations = _declarations.SetItem(key, new CssDeclaration(key, value)); }
+    }
+
+    /// <summary>
     /// Adds a new item to the declaration list.
     /// </summary>
     /// <param name="declaration">The declaration to add.</param>

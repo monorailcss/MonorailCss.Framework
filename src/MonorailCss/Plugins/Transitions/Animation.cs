@@ -28,8 +28,8 @@ public class Animation : IUtilityPlugin
             {
                 new CssKeyframeDeclaration("75%, 100%", new()
                 {
-                    (CssProperties.Transform, "scale(2)"),
-                    (CssProperties.Opacity, "0"),
+                    [CssProperties.Transform] = "scale(2)",
+                    [CssProperties.Opacity] = "0",
                 }),
             });
             yield return new CssRuleSet(utilityPlugin.OriginalSyntax, AnimatePing);
@@ -65,7 +65,7 @@ public class Animation : IUtilityPlugin
     {
         ("animation", "ping 1s cubic-bezier(0, 0, 0.2, 1) infinite"),
     };
-    
+
     private static CssDeclarationList AnimateSpin => new()
     {
         ("animation", "spin 1s linear infinite"),

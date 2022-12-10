@@ -113,6 +113,24 @@ public class FrameworkTests
     }
 
     [Fact]
+    public void Can_do_arbitrary_value()
+    {
+        var framework = new CssFramework(new CssFrameworkSettings()
+        {
+            CssResetOverride = string.Empty
+        });
+        var r = framework.Process(new[]
+        {
+            "[mask-type:luminance]",
+        });
+        r.ShouldBeCss(@"
+.\[mask-type\:luminance\] {
+  mask-type: luminance;
+}
+");
+    }
+
+    [Fact]
     public void Transform_PropertyValue_With_Variables_Should_Be_Ok()
     {
         Transform.TransformValue.ShouldBe("translate(var(--monorail-translate-x), var(--monorail-translate-y)) rotate(var(--monorail-rotate)) skewX(var(--monorail-skew-x)) skewY(var(--monorail-skew-y)) scaleX(var(--monorail-scale-x)) scaleY(var(--monorail-scale-y))");

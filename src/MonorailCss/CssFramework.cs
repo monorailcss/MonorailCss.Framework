@@ -289,6 +289,11 @@ public class CssFramework
 
     private IEnumerable<IUtilityPlugin> GetPlugins(IParsedClassNameSyntax syntax)
     {
+        if (syntax is ArbitraryPropertySyntax)
+        {
+            return _allPlugins.OfType<ArbitraryPropertyPlugin>();
+        }
+
         if (syntax is not NamespaceSyntax namespaceSyntax)
         {
             return _allPlugins;
@@ -412,12 +417,16 @@ public class CssFramework
 
     internal static string GetSelectorSyntax(CssSelector original, IEnumerable<IVariant> variants)
     {
-        var selector = $"{original.Selector.Replace(":", "\\:").Replace("/", "\\/")}";
         if (original.Selector.StartsWith("@"))
         {
             // keyframe, so we don't want to mess with the name.
             return original.Selector;
         }
+
+        var spaceIndex = original.Selector.IndexOf(' ');
+        var selector = spaceIndex >= 0
+            ? EscapeFirstWord(original.Selector, spaceIndex)
+            : EscapeCssClassSelector(original.Selector);
 
         selector = $".{selector}";
 
@@ -440,6 +449,24 @@ public class CssFramework
         }
 
         return selector;
+    }
+
+    private static string EscapeFirstWord(string originalSelector, int spaceIndex)
+    {
+        var firstWord = originalSelector[..spaceIndex];
+
+        firstWord = EscapeCssClassSelector(firstWord);
+
+        return $"{firstWord}{originalSelector[spaceIndex..]}";
+    }
+
+    private static string EscapeCssClassSelector(string firstWord)
+    {
+        return firstWord
+            .Replace(":", "\\:")
+            .Replace("/", "\\/")
+            .Replace("[", "\\[")
+            .Replace("]", "\\]");
     }
 
     /// <summary>
