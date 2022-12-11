@@ -11,8 +11,8 @@ namespace MonorailCss.Plugins;
 public abstract class BaseColorNamespacePlugin : IUtilityNamespacePlugin
 {
     private readonly ImmutableDictionary<string, CssColor> _flattenedColors;
-    private ImmutableDictionary<string, CssColor>? _completeColors;
     private readonly ImmutableDictionary<string, string> _opacity;
+    private ImmutableDictionary<string, CssColor>? _completeColors;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="BaseColorNamespacePlugin"/> class.
@@ -113,9 +113,21 @@ public abstract class BaseColorNamespacePlugin : IUtilityNamespacePlugin
         else
         {
             // this plug-in doesn't support an opacity property so either it has an opacity or it doesn't.
-            declarations = opacityValue == null
-                ? new CssDeclarationList { (ColorPropertyName(), color.AsRgb()), }
-                : new CssDeclarationList { (ColorPropertyName(), color.AsRgbWithOpacity(opacityValue)) };
+            if (opacityValue == null)
+            {
+                declarations = new CssDeclarationList
+                {
+                    (ColorPropertyName(), color.AsRgb()),
+                };
+            }
+            else
+            {
+                var opacity = _opacity.GetValueOrDefault(opacityValue, "1");
+                declarations = new CssDeclarationList
+                {
+                    (ColorPropertyName(), color.AsRgbWithOpacity(opacity)),
+                };
+            }
         }
 
         return declarations;

@@ -67,7 +67,7 @@ public class FrameworkTests
             "hover:sm:bg-blue-300",
             "sm:bg-blue-400",
             "dark:sm:bg-blue-500",
-            "prose-h1:bg-blue-200"
+            "prose-h1:bg-blue-200",
         });
         r.ShouldBeCss(@"
 .bg-blue-100 {
