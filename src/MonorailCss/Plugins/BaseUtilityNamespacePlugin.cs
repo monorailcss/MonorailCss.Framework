@@ -37,6 +37,11 @@ public abstract class BaseUtilityNamespacePlugin : IUtilityNamespacePlugin
         {
             case ArbitraryValueSyntax arbitraryValueSyntax:
                 {
+                    if (!HandlesArbitraryNamespaceValue().Equals(arbitraryValueSyntax.Namespace, StringComparison.Ordinal))
+                    {
+                        yield break;
+                    }
+
                     var arbitraryMapping = namespacePropertyMapList[arbitraryValueSyntax.Namespace];
                     var arbitraryDeclarationList = CssDeclarationList(
                         arbitraryValueSyntax.ArbitraryValue,
@@ -127,6 +132,12 @@ public abstract class BaseUtilityNamespacePlugin : IUtilityNamespacePlugin
     {
         return null;
     }
+
+    /// <summary>
+    /// The namespace that this plugin handles for arbitrary values.
+    /// </summary>
+    /// <returns>The namespace.</returns>
+    protected virtual string HandlesArbitraryNamespaceValue() => string.Empty;
 
     /// <summary>
     /// Gets the property mapping lists.

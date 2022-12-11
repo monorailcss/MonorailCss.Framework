@@ -1,75 +1,31 @@
-﻿using System.Collections.Immutable;
-using MonorailCss.Css;
-using MonorailCss.Parser;
+﻿using MonorailCss.Css;
 
 namespace MonorailCss.Plugins.Typography;
 
 /// <summary>
 /// The text-color plugin.
 /// </summary>
-internal class TextColor : IUtilityNamespacePlugin
+public class TextColor : BaseColorNamespacePlugin
 {
-    private const string Namespace = "text";
-    private readonly ImmutableDictionary<string, CssColor> _flattenedColors;
-    private readonly ImmutableDictionary<string, string> _opacities;
-
     /// <summary>
     /// Initializes a new instance of the <see cref="TextColor"/> class.
     /// </summary>
     /// <param name="designSystem">The design system.</param>
-    /// <param name="cssFramework">The theme.</param>
-    public TextColor(DesignSystem designSystem, CssFramework cssFramework)
+    public TextColor(DesignSystem designSystem)
+        : base(designSystem)
     {
-        _flattenedColors = designSystem.GetFlattenColors();
-        _opacities = designSystem.Opacities;
     }
-
-    /// <inheritdoc/>
-    public ImmutableArray<string> Namespaces => new[] { Namespace, }.ToImmutableArray();
 
     /// <inheritdoc />
-    public IEnumerable<CssRuleSet> Process(IParsedClassNameSyntax syntax)
+    protected override string Namespace() => "text";
+
+    /// <inheritdoc />
+    protected override string ColorPropertyName() => CssProperties.Color;
+
+    /// <inheritdoc />
+    protected override bool ShouldSplitOpacityIntoOwnProperty(out string propertyName)
     {
-        if (syntax is not NamespaceSyntax namespaceSyntax || !namespaceSyntax.NamespaceEquals(Namespace) ||
-            namespaceSyntax.Suffix == default)
-        {
-            yield break;
-        }
-
-        var suffix = namespaceSyntax.Suffix;
-
-        var (colorValue, opacityValue) = ColorParser.SplitColor(suffix);
-
-        if (!_flattenedColors.TryGetValue(colorValue, out var color))
-        {
-            yield break;
-        }
-
-        CssDeclarationList declarations;
-        if (opacityValue != default)
-        {
-            var opacity = _opacities.GetValueOrDefault(opacityValue, "1");
-            declarations = new CssDeclarationList { (CssProperties.Color, color.AsRgbWithOpacity(opacity)), };
-        }
-        else
-        {
-            // include a variable here so that if the text-opacity add-on is used it gets applied
-            // it'll override this value and get applied properly.
-            var varName = CssFramework.GetVariableNameWithPrefix("text-opacity");
-            declarations = new CssDeclarationList
-            {
-                (varName, "1"), (CssProperties.Color, color.AsRgbWithOpacity($"var({varName})")),
-            };
-        }
-
-        yield return new CssRuleSet(namespaceSyntax.OriginalSyntax, declarations);
-    }
-
-    public IEnumerable<CssRuleSet> GetAllRules()
-    {
-        return _flattenedColors.Select(color => new CssRuleSet("text-" + color.Key, new CssDeclarationList
-        {
-            ("color", color.Value.AsRgb()),
-        }));
+        propertyName = "text-opacity";
+        return true;
     }
 }

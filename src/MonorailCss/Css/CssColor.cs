@@ -5,41 +5,64 @@
 /// </summary>
 public readonly struct CssColor
 {
-    private readonly int _r;
-    private readonly int _g;
-    private readonly int _b;
+    private readonly int? _r;
+    private readonly int? _g;
+    private readonly int? _b;
+    private readonly decimal? _a;
+    private readonly string _originalString;
+    private readonly bool _isValid;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="CssColor"/> struct.
     /// </summary>
-    /// <param name="hex">A three or six character hex color.</param>
-    public CssColor(string hex)
+    /// <param name="colorString">A three or six character hex color.</param>
+    public CssColor(string colorString)
     {
-        var offset = 0;
-        if (hex.StartsWith("#"))
+        _originalString = colorString.Trim();
+        _isValid = false;
+        _r = null;
+        _g = null;
+        _b = null;
+        _a = null;
+        try
         {
-            offset = 1;
-        }
+            if (_originalString.StartsWith("rgb(") && _originalString.EndsWith(")"))
+            {
+                var split = _originalString[4..^1].Split(',');
+                if (split.Length != 3)
+                {
+                    return;
+                }
 
-        if (hex.Length == 6 + offset)
-        {
-            _r = int.Parse(hex[offset..(offset + 2)], System.Globalization.NumberStyles.HexNumber);
-            _g = int.Parse(hex[(offset + 2)..(offset + 4)], System.Globalization.NumberStyles.HexNumber);
-            _b = int.Parse(hex[(offset + 4)..(offset + 6)], System.Globalization.NumberStyles.HexNumber);
-        }
-        else if (hex.Length == 3 + offset)
-        {
-            _r = HexToInt(hex[0 + offset]);
-            _g = HexToInt(hex[1 + offset]);
-            _b = HexToInt(hex[2 + offset]);
+                _r = int.Parse(split[0]);
+                _g = int.Parse(split[1]);
+                _b = int.Parse(split[2]);
+                _a = null;
+                _isValid = true;
+            }
+            else if (colorString.StartsWith("rgba"))
+            {
+                var split = _originalString[5..^1].Split(',');
+                if (split.Length != 4)
+                {
+                    return;
+                }
 
-            _r = (_r * 16) + _r;
-            _g = (_g * 16) + _g;
-            _b = (_b * 16) + _b;
+                _r = int.Parse(split[0]);
+                _g = int.Parse(split[1]);
+                _b = int.Parse(split[2]);
+                _a = decimal.Parse(split[3]);
+                _isValid = true;
+            }
+            else if (colorString.StartsWith("#") && colorString.Length is 4 or 7)
+            {
+                (_r, _g, _b) = HexToRgba(colorString[1..]);
+                _isValid = true;
+            }
         }
-        else
+        catch (Exception)
         {
-            throw new ArgumentOutOfRangeException(nameof(hex), "Length should be three or six hex characters.");
+            // ignored
         }
     }
 
@@ -47,10 +70,15 @@ public readonly struct CssColor
     /// Returns the color in the format of rgb(r g b).
     /// </summary>
     /// <returns>Color in the format of rgb( r g b).</returns>
-    public string AsRgb()
-    {
-        return $"rgba({_r}, {_g}, {_b}, 1)";
-    }
+    public string AsRgb() => _isValid
+            ? $"rgba({_r}, {_g}, {_b}, {_a ?? 1})"
+            : _originalString;
+
+    /// <summary>
+    /// Returns whether the color has an alpha channel value.
+    /// </summary>
+    /// <returns>True if so, false if not.</returns>
+    public bool HasAlpha() => _a != null;
 
     /// <summary>
     /// Returns the color in the format of rgb(r g b / opacity).
@@ -62,17 +90,24 @@ public readonly struct CssColor
         return $"rgba({_r}, {_g}, {_b}, {opacity})";
     }
 
-    private static int HexToInt(char hexChar)
+    private static (int R, int G, int B) HexToRgba(string hexColor)
     {
-        hexChar = char.ToUpper(hexChar);  // may not be necessary
+        // Check the length of the hex color
+        if (hexColor.Length == 3)
+        {
+            // If the length is 3, we need to expand it to 6 characters
+            // by repeating each character
+            var expandedHexColor = string.Empty + hexColor[0] + hexColor[0] + hexColor[1] + hexColor[1] + hexColor[2] + hexColor[2];
+            hexColor = expandedHexColor;
+        }
 
-        if (hexChar < 'A')
-        {
-            return hexChar - '0';
-        }
-        else
-        {
-            return 10 + (hexChar - 'A');
-        }
+        // Convert the hex color to r, g, and b values
+        var r = Convert.ToInt32(hexColor[..2], 16);
+        var g = Convert.ToInt32(hexColor.Substring(2, 2), 16);
+        var b = Convert.ToInt32(hexColor.Substring(4, 2), 16);
+
+        return (r, g, b);
     }
+
+    internal bool IsValid() => _isValid;
 }

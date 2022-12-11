@@ -113,7 +113,7 @@ public class FrameworkTests
     }
 
     [Fact]
-    public void Can_do_arbitrary_value()
+    public void Can_do_arbitrary_properties()
     {
         var framework = new CssFramework(new CssFrameworkSettings()
         {
@@ -129,6 +129,7 @@ public class FrameworkTests
 }
 ");
     }
+
 
     [Fact]
     public void Transform_PropertyValue_With_Variables_Should_Be_Ok()

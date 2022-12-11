@@ -24,4 +24,15 @@ public class BackgroundTests
 
 ");
     }
+
+    [Fact]
+    public void Can_do_current_color()
+    {
+        var framework = new CssFramework(new CssFrameworkSettings() { CssResetOverride = string.Empty });
+        var r = framework.Process(new[]
+        {
+            "bg-current",
+        });
+        r.ShouldBeCss(".bg-current { background-color:currentColor; }");
+    }
 }

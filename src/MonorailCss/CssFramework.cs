@@ -466,7 +466,12 @@ public class CssFramework
             .Replace(":", "\\:")
             .Replace("/", "\\/")
             .Replace("[", "\\[")
-            .Replace("]", "\\]");
+            .Replace("]", "\\]")
+            .Replace("#", "\\#")
+            .Replace("(", "\\(")
+            .Replace(")", "\\)")
+            .Replace(".", "\\.")
+            .Replace(",", "\\2c ");
     }
 
     /// <summary>

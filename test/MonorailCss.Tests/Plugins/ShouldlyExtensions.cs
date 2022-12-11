@@ -33,7 +33,10 @@ public static class ShouldlyExtensions
     {
         var parser = new CssParser();
         var originalSheet = parser.ParseStyleSheet(value);
+        originalSheet.ShouldNotBeNull("Could not parse original stylesheet.");
+
         var expectedSheet = parser.ParseStyleSheet(expected);
+        expectedSheet.ShouldNotBeNull("Could not parse expected stylesheet.");
 
         RulesShouldBeEqual(originalSheet.Rules, expectedSheet.Rules);
 
@@ -86,8 +89,8 @@ public static class ShouldlyExtensions
 
     private static void RulesShouldBeEqual(ICssStyleRule[] originalRules, ICssStyleRule[] expectedRules)
     {
-        var originalSelectors = originalRules.Select(i => i.SelectorText);
-        var expectedSelectors = expectedRules.Select(i => i.SelectorText);
+        var originalSelectors = originalRules.Select(i => i.SelectorText).ToArray();
+        var expectedSelectors = expectedRules.Select(i => i.SelectorText).ToArray();
 
         originalSelectors.ShouldBe(expectedSelectors, customMessage: "Missing selectors in style sheet",
             ignoreOrder: true);
