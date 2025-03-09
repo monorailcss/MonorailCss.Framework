@@ -10,7 +10,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
 
     steps:
     - name: Checkout
@@ -18,11 +18,10 @@ jobs:
       with:
         fetch-depth: 0
 
-    - name: Install .NET 6.0
-      uses: actions/setup-dotnet@v1
+    - name: Install .NET
+      uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: '6.0.x'
-
+        global-json-file: global.json
     - name: Build, Test (Debug & Release), Publish (main only)
       shell: bash
       run: |
