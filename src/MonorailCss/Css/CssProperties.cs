@@ -1,5 +1,4 @@
 ﻿using System.Diagnostics.CodeAnalysis;
-using CaseExtensions;
 #pragma warning disable CS1591
 #pragma warning disable SA1600
 

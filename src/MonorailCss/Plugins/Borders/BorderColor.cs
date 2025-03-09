@@ -13,7 +13,7 @@ public class BorderColor : BaseColorNamespacePlugin
     /// Initializes a new instance of the <see cref="BorderColor"/> class.
     /// </summary>
     /// <param name="designSystem">The design system.</param>
-    public BorderColor(DesignSystem designSystem) 
+    public BorderColor(DesignSystem designSystem)
         : base(designSystem)
     {
     }

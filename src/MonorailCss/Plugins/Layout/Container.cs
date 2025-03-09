@@ -87,9 +87,8 @@ public class Container : IUtilityNamespacePlugin
             declarationList.Add(new CssDeclaration(CssProperties.MarginRight, "auto"));
         }
 
-        if (_settings.Padding.ContainsKey(paddingKey))
+        if (_settings.Padding.TryGetValue(paddingKey, out var padding))
         {
-            var padding = _settings.Padding[paddingKey];
             declarationList.Add(new CssDeclaration(CssProperties.PaddingLeft, padding));
             declarationList.Add(new CssDeclaration(CssProperties.PaddingRight, padding));
         }

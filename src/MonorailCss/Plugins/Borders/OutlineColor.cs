@@ -19,5 +19,6 @@ public class OutlineColor : BaseColorNamespacePlugin
     /// <inheritdoc />
     protected override string Namespace() => "outline";
 
+    /// <inheritdoc />
     protected override string ColorPropertyName() => CssProperties.OutlineColor;
 }
