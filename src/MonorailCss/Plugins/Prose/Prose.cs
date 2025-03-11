@@ -399,46 +399,46 @@ public class Prose : IUtilityNamespacePlugin, IVariantPluginProvider
                         {
                             (
                                 _var("prose-body"),
-                                _designSystem.Colors[scale][ColorLevels._700].AsRgb()),
+                                _designSystem.Colors[scale][ColorLevels._700].AsString()),
                             (
                                 _var("prose-headings"),
-                                _designSystem.Colors[scale][ColorLevels._900].AsRgb()),
+                                _designSystem.Colors[scale][ColorLevels._900].AsString()),
                             (
                                 _var("prose-links"),
-                                _designSystem.Colors[scale][ColorLevels._900].AsRgb()),
+                                _designSystem.Colors[scale][ColorLevels._900].AsString()),
                             (
                                 _var("prose-code"),
-                                _designSystem.Colors[scale][ColorLevels._900].AsRgb()),
+                                _designSystem.Colors[scale][ColorLevels._900].AsString()),
                             (
                                 _var("prose-pre-code"),
-                                _designSystem.Colors[scale][ColorLevels._200].AsRgb()),
+                                _designSystem.Colors[scale][ColorLevels._200].AsString()),
                             (
                                 _var("prose-pre-bg"),
-                                _designSystem.Colors[scale][ColorLevels._800].AsRgb()),
+                                _designSystem.Colors[scale][ColorLevels._800].AsString()),
                             (
                                 _var("prose-th-borders"),
-                                _designSystem.Colors[scale][ColorLevels._300].AsRgb()),
+                                _designSystem.Colors[scale][ColorLevels._300].AsString()),
                             (
                                 _var("prose-td-borders"),
-                                _designSystem.Colors[scale][ColorLevels._200].AsRgb()),
+                                _designSystem.Colors[scale][ColorLevels._200].AsString()),
 
                             // inverts
                             (
                                 _var("prose-invert-body"),
-                                _designSystem.Colors[scale][ColorLevels._300].AsRgb()),
+                                _designSystem.Colors[scale][ColorLevels._300].AsString()),
                             (_var("prose-invert-headings"), "white"),
                             (_var("prose-invert-links"), "white"),
                             (_var("prose-invert-code"), "white"),
                             (
                                 _var("prose-invert-pre-code"),
-                                _designSystem.Colors[scale][ColorLevels._300].AsRgb()),
+                                _designSystem.Colors[scale][ColorLevels._300].AsString()),
                             (_var("prose-invert-pre-bg"), "rgb(0 0 0 / 50%)"),
                             (
                                 _var("prose-invert-th-borders"),
-                                _designSystem.Colors[scale][ColorLevels._600].AsRgb()),
+                                _designSystem.Colors[scale][ColorLevels._600].AsString()),
                             (
                                 _var("prose-invert-td-borders"),
-                                _designSystem.Colors[scale][ColorLevels._700].AsRgb()),
+                                _designSystem.Colors[scale][ColorLevels._700].AsString()),
                         },
                     }
                 },

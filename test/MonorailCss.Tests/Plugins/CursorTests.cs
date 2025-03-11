@@ -7,11 +7,13 @@ public class CursorTests
     public void Cursor_works()
     {
         var framework = new CssFramework(new CssFrameworkSettings {CssResetOverride = string.Empty});
-        var result = framework.Process(new[] { "cursor-help" });
-        result.ShouldBeCss(@"
-.cursor-help {
-  cursor:help;
-}
-");
+        var result = framework.Process(["cursor-help"]);
+        result.ShouldBeCss("""
+
+                           .cursor-help {
+                             cursor:help;
+                           }
+
+                           """);
     }
 }

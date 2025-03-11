@@ -55,7 +55,7 @@ public class Container : IUtilityNamespacePlugin
 
         var paddingKey = namespaceSyntax.Suffix ?? "DEFAULT";
 
-        if (namespaceSyntax.Suffix == default)
+        if (namespaceSyntax.Suffix == null)
         {
             declarations = GetDeclarations("width", "100%", paddingKey);
         }

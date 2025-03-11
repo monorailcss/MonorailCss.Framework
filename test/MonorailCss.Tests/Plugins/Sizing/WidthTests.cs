@@ -8,12 +8,14 @@ public class WidthTests
     {
         var framework = new CssFramework(new CssFrameworkSettings { CssResetOverride = string.Empty } );
 
-        var result = framework.Process(new[] { "w-3/4" });
-        result.ShouldBeCss(@"
-.w-3\/4 {
-  width:75%;
-}
+        var result = framework.Process(["w-3/4"]);
+        result.ShouldBeCss("""
 
-");
+                           .w-3\/4 {
+                             width:75%;
+                           }
+
+
+                           """);
     }
 }

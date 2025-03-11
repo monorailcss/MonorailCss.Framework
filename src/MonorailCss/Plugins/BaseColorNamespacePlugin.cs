@@ -43,7 +43,7 @@ public abstract class BaseColorNamespacePlugin : IUtilityNamespacePlugin
     /// <returns>True if it should split, false if not.</returns>
     protected virtual bool ShouldSplitOpacityIntoOwnProperty([NotNullWhen(true)] out string? propertyName)
     {
-        propertyName = default;
+        propertyName = null;
         return false;
     }
 
@@ -96,7 +96,7 @@ public abstract class BaseColorNamespacePlugin : IUtilityNamespacePlugin
                 var opacity = _opacity.GetValueOrDefault(opacityValue, "1");
                 declarations = new CssDeclarationList
                 {
-                    (ColorPropertyName(), color.AsRgbWithOpacity(opacity)),
+                    (ColorPropertyName(), color.AsStringWithOpacity(opacity)),
                 };
             }
             else
@@ -106,7 +106,7 @@ public abstract class BaseColorNamespacePlugin : IUtilityNamespacePlugin
                 var varName = CssFramework.GetVariableNameWithPrefix(opacityPropertyName);
                 declarations = new CssDeclarationList
                 {
-                    (varName, "1"), (ColorPropertyName(), color.AsRgbWithOpacity($"var({varName})")),
+                    (varName, "1"), (ColorPropertyName(), color.AsStringWithOpacity($"var({varName})")),
                 };
             }
         }
@@ -117,7 +117,7 @@ public abstract class BaseColorNamespacePlugin : IUtilityNamespacePlugin
             {
                 declarations = new CssDeclarationList
                 {
-                    (ColorPropertyName(), color.AsRgb()),
+                    (ColorPropertyName(), color.AsString()),
                 };
             }
             else
@@ -125,7 +125,7 @@ public abstract class BaseColorNamespacePlugin : IUtilityNamespacePlugin
                 var opacity = _opacity.GetValueOrDefault(opacityValue, "1");
                 declarations = new CssDeclarationList
                 {
-                    (ColorPropertyName(), color.AsRgbWithOpacity(opacity)),
+                    (ColorPropertyName(), color.AsStringWithOpacity(opacity)),
                 };
             }
         }
@@ -153,7 +153,7 @@ public abstract class BaseColorNamespacePlugin : IUtilityNamespacePlugin
         foreach (var flattenedColor in AllColors())
         {
             var colorName = $"{ns}-{flattenedColor.Key}";
-            yield return new CssRuleSet(colorName, GetDeclarations(flattenedColor.Value, default));
+            yield return new CssRuleSet(colorName, GetDeclarations(flattenedColor.Value, null));
         }
     }
 

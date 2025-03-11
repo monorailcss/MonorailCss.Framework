@@ -10,25 +10,26 @@ public class SkewTests
             CssResetOverride = string.Empty,
         });
 
-        var r = framework.Process(new[]
-        {
+        var r = framework.Process([
             "skew-x-12",
-        });
-        r.ShouldBeCss(@"
-body, ::before, ::after {
-  --monorail-rotate:0;
-  --monorail-scale-x:1;
-  --monorail-scale-y:1;
-  --monorail-skew-x:0;
-  --monorail-skew-y:0;
-  --monorail-translate-x:0;
-  --monorail-translate-y:0;
-}
-.skew-x-12 {
-  --monorail-skew-x:12deg;
-  transform:translate(var(--monorail-translate-x), var(--monorail-translate-y)) rotate(var(--monorail-rotate)) skewX(var(--monorail-skew-x)) skewY(var(--monorail-skew-y)) scaleX(var(--monorail-scale-x)) scaleY(var(--monorail-scale-y));
-}
-");
+        ]);
+        r.ShouldBeCss("""
+
+                      body, ::before, ::after {
+                        --monorail-rotate:0;
+                        --monorail-scale-x:1;
+                        --monorail-scale-y:1;
+                        --monorail-skew-x:0;
+                        --monorail-skew-y:0;
+                        --monorail-translate-x:0;
+                        --monorail-translate-y:0;
+                      }
+                      .skew-x-12 {
+                        --monorail-skew-x:12deg;
+                        transform:translate(var(--monorail-translate-x), var(--monorail-translate-y)) rotate(var(--monorail-rotate)) skewX(var(--monorail-skew-x)) skewY(var(--monorail-skew-y)) scaleX(var(--monorail-scale-x)) scaleY(var(--monorail-scale-y));
+                      }
+
+                      """);
     }
 
     [Fact]
@@ -39,24 +40,25 @@ body, ::before, ::after {
             CssResetOverride = string.Empty,
         });
 
-        var r = framework.Process(new[]
-        {
+        var r = framework.Process([
             "-skew-x-12",
-        });
-        r.ShouldBeCss(@"
-body, ::before, ::after {
-  --monorail-rotate:0;
-  --monorail-scale-x:1;
-  --monorail-scale-y:1;
-  --monorail-skew-x:0;
-  --monorail-skew-y:0;
-  --monorail-translate-x:0;
-  --monorail-translate-y:0;
-}
-.-skew-x-12 {
-  --monorail-skew-x:-12deg;
-  transform:translate(var(--monorail-translate-x), var(--monorail-translate-y)) rotate(var(--monorail-rotate)) skewX(var(--monorail-skew-x)) skewY(var(--monorail-skew-y)) scaleX(var(--monorail-scale-x)) scaleY(var(--monorail-scale-y));
-}
-");
+        ]);
+        r.ShouldBeCss("""
+
+                      body, ::before, ::after {
+                        --monorail-rotate:0;
+                        --monorail-scale-x:1;
+                        --monorail-scale-y:1;
+                        --monorail-skew-x:0;
+                        --monorail-skew-y:0;
+                        --monorail-translate-x:0;
+                        --monorail-translate-y:0;
+                      }
+                      .-skew-x-12 {
+                        --monorail-skew-x:-12deg;
+                        transform:translate(var(--monorail-translate-x), var(--monorail-translate-y)) rotate(var(--monorail-rotate)) skewX(var(--monorail-skew-x)) skewY(var(--monorail-skew-y)) scaleX(var(--monorail-scale-x)) scaleY(var(--monorail-scale-y));
+                      }
+
+                      """);
     }
 }

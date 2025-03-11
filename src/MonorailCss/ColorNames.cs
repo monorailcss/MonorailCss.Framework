@@ -60,6 +60,11 @@ public static class ColorLevels
     /// The color at level 900.
     /// </summary>
     public const string _900 = "900";
+
+    /// <summary>
+    /// The color at level 950.
+    /// </summary>
+    public const string _950 = "950";
 }
 
 /// <summary>

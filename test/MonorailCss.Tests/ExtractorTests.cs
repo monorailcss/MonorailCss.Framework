@@ -8,12 +8,12 @@ public class VariantNameTests
 {
     public static IEnumerable<object[]> Data()
     {
-        yield return new object[]
-        {
+        yield return
+        [
             "dark:hover:bg-blue-100",
             new IVariant[] { new SelectorVariant(".dark"), new PseudoClassVariant(":hover") },
-            ".dark .dark\\:hover\\:bg-blue-100:hover"
-        };
+            ".dark .dark\\:hover\\:bg-blue-100:hover",
+        ];
     }
 
     [Theory]
@@ -36,7 +36,7 @@ public class ExtractorTests
     public void Can_extract_utilities(string className, string[] variants, string utility, string prefix,
         char separator)
     {
-        var classParser = new ClassParser(new []{ "bg", "flex" }, prefix, separator);
+        var classParser = new ClassParser(["bg", "flex"], prefix, separator);
         var r = classParser.Extract(className) as UtilitySyntax;
         r.ShouldNotBeNull();
         r.ShouldSatisfyAllConditions(
@@ -95,7 +95,7 @@ public class ExtractorTests
     [InlineData("mono-bg-[#ccc]", new string[0], "bg", "#ccc", "mono-", '_')]
     public void Can_extract_arbitrary_utilities(string className, string[]? variants, string ns, string arbitraryValue, string prefix, char separator)
     {
-        var classParser = new ClassParser(new[] { "bg", "w" }, prefix, separator);
+        var classParser = new ClassParser(["bg", "w"], prefix, separator);
         var r = classParser.Extract(className) as ArbitraryValueSyntax;
         r.ShouldNotBeNull();
         r.ShouldSatisfyAllConditions(
@@ -113,7 +113,7 @@ public class ExtractorTests
     [InlineData("dark:md:mono-[my-item:12px]", new [] {"dark", "md"}, "my-item", "12px", "mono-", ':')]
     public void Can_extract_arbitrary_values(string className, string[]? variants, string property, string value, string prefix, char separator)
     {
-        var classParser = new ClassParser(new[] { "bg" }, prefix, separator);
+        var classParser = new ClassParser(["bg"], prefix, separator);
         var r = classParser.Extract(className) as ArbitraryPropertySyntax;
         r.ShouldNotBeNull();
         r.ShouldSatisfyAllConditions(
@@ -132,7 +132,7 @@ public class ExtractorTests
     [InlineData("[:value]")]
     public void Return_null_for_invalid_classnames(string className)
     {
-        var classParser = new ClassParser(new[] { "bg" }, string.Empty, ':');
+        var classParser = new ClassParser(["bg"], string.Empty, ':');
         var r = classParser.Extract(className);
         r.ShouldBeNull();
     }

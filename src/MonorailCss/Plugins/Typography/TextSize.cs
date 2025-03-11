@@ -25,7 +25,7 @@ public class TextSize : IUtilityNamespacePlugin
     /// <inheritdoc />
     public IEnumerable<CssRuleSet> Process(IParsedClassNameSyntax syntax)
     {
-        if (syntax is not NamespaceSyntax namespaceSyntax || !namespaceSyntax.NamespaceEquals(Namespace) || namespaceSyntax.Suffix == default)
+        if (syntax is not NamespaceSyntax namespaceSyntax || !namespaceSyntax.NamespaceEquals(Namespace) || namespaceSyntax.Suffix == null)
         {
             yield break;
         }

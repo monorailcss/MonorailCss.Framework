@@ -6,13 +6,15 @@ public class TextColorTests
     public void Can_do_white()
     {
         var framework = new CssFramework(new CssFrameworkSettings { CssResetOverride = string.Empty } );
-        var result = framework.Process(new[] {"text-white"});
-        result.ShouldBeCss(@"
-.text-white {
-  --monorail-text-opacity:1;
-  color:rgba(255, 255, 255, var(--monorail-text-opacity));
-}
-");
+        var result = framework.Process(["text-white"]);
+        result.ShouldBeCss("""
+
+                           .text-white {
+                             --monorail-text-opacity:1;
+                             color:rgba(255, 255, 255, var(--monorail-text-opacity));
+                           }
+
+                           """);
 
     }
 
@@ -20,13 +22,15 @@ public class TextColorTests
     public void Can_do_opacities()
     {
         var framework =  new CssFramework(new CssFrameworkSettings { CssResetOverride = string.Empty } );
-        var result = framework.Process(new[] {"text-blue-400/50"});
-        result.ShouldBeCss(@"
-.text-blue-400\/50 {
-  color:rgba(96, 165, 250, 0.5);
-}
+        var result = framework.Process(["text-blue-400/50"]);
+        result.ShouldBeCss("""
 
-");
+                           .text-blue-400\/50 {
+                             color:oklch(0.707 0.165 254.624 / 0.5);
+                           }
+
+
+                           """);
 
     }
 }

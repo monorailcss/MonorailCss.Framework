@@ -21,10 +21,10 @@ public class ScreenReaders : IUtilityPlugin
         {
             "sr-only" => SrOnly,
             "not-sr-only" => NotSrOnly,
-            _ => default,
+            _ => null,
         };
 
-        if (declarations == default)
+        if (declarations == null)
         {
             yield break;
         }

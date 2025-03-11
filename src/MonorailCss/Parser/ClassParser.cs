@@ -68,7 +68,7 @@ internal class ClassParser
             // css function and value e.g. sm:[perspective: length]
             var arbitraryPropertyUtility = ParseArbitraryProperty(value);
             return arbitraryPropertyUtility == null
-                ? default(IParsedClassNameSyntax?)
+                ? null
                 : new ArbitraryPropertySyntax(
                     className,
                     modifiers,
@@ -88,16 +88,16 @@ internal class ClassParser
         var firstDashIndex = value.IndexOf("-", dashSearchStartPos, StringComparison.Ordinal);
         if (firstDashIndex < 0)
         {
-            if (ns != default)
+            if (ns != null)
             {
-                return new NamespaceSyntax(className, modifiers, ns, default);
+                return new NamespaceSyntax(className, modifiers, ns, null);
             }
 
             // no dash. so either the root of a namespace or a regular utility.
             return new UtilitySyntax(className, modifiers, value);
         }
 
-        if (ns == default)
+        if (ns == null)
         {
             return !string.IsNullOrWhiteSpace(value)
                 ? new UtilitySyntax(className, modifiers, value)

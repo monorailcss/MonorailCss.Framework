@@ -31,7 +31,7 @@ public class BoxShadow : IUtilityNamespacePlugin, IRegisterDefaults
 
         var suffix = namespaceSyntax.Suffix ?? "DEFAULT";
         var declarations = GetDeclarations(suffix);
-        if (declarations == default)
+        if (declarations == null)
         {
             yield break;
         }
@@ -43,7 +43,7 @@ public class BoxShadow : IUtilityNamespacePlugin, IRegisterDefaults
     {
         if (!_utilities.TryGetValue(suffix, out var shadow))
         {
-            return default;
+            return null;
         }
 
         var color = shadow.Shadow.Replace("COLOR_PLACE_HOLDER", shadow.Color);
@@ -65,7 +65,7 @@ public class BoxShadow : IUtilityNamespacePlugin, IRegisterDefaults
         foreach (var utility in _utilities)
         {
             var declarations = GetDeclarations(utility.Key);
-            if (declarations == default)
+            if (declarations == null)
             {
                 continue;
             }

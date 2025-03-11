@@ -25,7 +25,7 @@ public class Fill : BaseUtilityNamespacePlugin
 
     /// <inheritdoc />
     protected override CssSuffixToValueMap GetValues() =>
-        _flattenedColors.ToImmutableDictionary(k => k.Key, v => v.Value.AsRgb()).AddRange(
+        _flattenedColors.ToImmutableDictionary(k => k.Key, v => v.Value.AsString()).AddRange(
             new Dictionary<string, string>
             {
                 { "inherit", "inherit" },

@@ -12,7 +12,12 @@ public static class ShouldlyExtensions
     public static void ShouldContainElementWithCssProperty(this string value, string element, string property,
         string propertyValue)
     {
-        var parser = new CssParser();
+        var parser = new CssParser(new CssParserOptions()
+        {
+            IsIncludingUnknownDeclarations =  true,
+            IsToleratingInvalidSelectors = true,
+            IsIncludingUnknownRules = true,
+        });
         var styleSheet = parser.ParseStyleSheet(value);
         var styleRules = styleSheet.Rules.OfType<ICssStyleRule>().ToArray();
         if (styleRules.Length == 0)

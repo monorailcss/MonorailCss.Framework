@@ -133,7 +133,7 @@ public record CssSuffixToValueMap : IEnumerable<(string Suffix, string Value)>
         /// Initializes a new instance of the <see cref="CssSuffixToValueMap"/> class.
         /// </summary>
         /// <param name="initialValues">Initial values, if available.</param>
-        public CssSuffixToValueMap(ImmutableDictionary<string, string>? initialValues = default)
+        public CssSuffixToValueMap(ImmutableDictionary<string, string>? initialValues = null)
         {
             _items = initialValues ?? ImmutableDictionary<string, string>.Empty;
         }

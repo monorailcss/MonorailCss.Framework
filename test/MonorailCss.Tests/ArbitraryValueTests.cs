@@ -11,16 +11,17 @@ public class ArbitraryValueTests
         {
             CssResetOverride = string.Empty
         });
-        var r = framework.Process(new[]
-        {
+        var r = framework.Process([
             "bg-[#123]",
-        });
-        r.ShouldBeCss(@"
-.bg-\[\#123\] {
-  --monorail-bg-opacity:1;
-  background-color:rgba(17, 34, 51, var(--monorail-bg-opacity));
-}
-");
+        ]);
+        r.ShouldBeCss("""
+
+                      .bg-\[\#123\] {
+                        --monorail-bg-opacity:1;
+                        background-color:rgba(17, 34, 51, var(--monorail-bg-opacity));
+                      }
+
+                      """);
     }
 
     [Fact]
@@ -30,16 +31,17 @@ public class ArbitraryValueTests
         {
             CssResetOverride = string.Empty
         });
-        var r = framework.Process(new[]
-        {
+        var r = framework.Process([
             "bg-[#010203]",
-        });
-        r.ShouldBeCss(@"
-.bg-\[\#010203\] {
-  --monorail-bg-opacity:1;
-  background-color:rgba(1, 2, 3, var(--monorail-bg-opacity));
-}
-");
+        ]);
+        r.ShouldBeCss("""
+
+                      .bg-\[\#010203\] {
+                        --monorail-bg-opacity:1;
+                        background-color:rgba(1, 2, 3, var(--monorail-bg-opacity));
+                      }
+
+                      """);
     }
 
     [Fact]
@@ -49,16 +51,17 @@ public class ArbitraryValueTests
         {
             CssResetOverride = string.Empty
         });
-        var r = framework.Process(new[]
-        {
+        var r = framework.Process([
             "bg-[rgb(17,34,51)]",
-        });
-        r.ShouldBeCss(@"
-.bg-\[rgb\(17\2c 34\2c 51\)\] {
-  --monorail-bg-opacity:1;
-  background-color:rgba(17, 34, 51, var(--monorail-bg-opacity));
-}
-");
+        ]);
+        r.ShouldBeCss("""
+
+                      .bg-\[rgb\(17\2c 34\2c 51\)\] {
+                        --monorail-bg-opacity:1;
+                        background-color:rgba(17, 34, 51, var(--monorail-bg-opacity));
+                      }
+
+                      """);
     }
 
     [Fact]
@@ -68,15 +71,16 @@ public class ArbitraryValueTests
         {
             CssResetOverride = string.Empty
         });
-        var r = framework.Process(new[]
-        {
+        var r = framework.Process([
             "bg-[rgba(17,34,51,.75)]",
-        });
-        r.ShouldBeCss(@"
-.bg-\[rgba\(17\2c 34\2c 51\2c \.75\)\] {
-  background-color:rgba(17, 34, 51, .75);
-}
-");
+        ]);
+        r.ShouldBeCss("""
+
+                      .bg-\[rgba\(17\2c 34\2c 51\2c \.75\)\] {
+                        background-color:rgba(17, 34, 51, .75);
+                      }
+
+                      """);
     }
 
 
@@ -87,14 +91,15 @@ public class ArbitraryValueTests
         {
             CssResetOverride = string.Empty
         });
-        var r = framework.Process(new[]
-        {
+        var r = framework.Process([
             "bg-[orange]",
-        });
-        r.ShouldBeCss(@"
-.bg-\[orange\] {
-  background-color:orange;
-}
-");
+        ]);
+        r.ShouldBeCss("""
+
+                      .bg-\[orange\] {
+                        background-color:orange;
+                      }
+
+                      """);
     }
 }

@@ -28,7 +28,7 @@ public class Space : IUtilityNamespacePlugin
             yield break;
         }
 
-        if (namespaceSyntax.Suffix == default)
+        if (namespaceSyntax.Suffix == null)
         {
             yield break;
         }

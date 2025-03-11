@@ -53,7 +53,7 @@ public class GradientFromPlugin : IUtilityNamespacePlugin
     /// <inheritdoc />
     public IEnumerable<CssRuleSet> Process(IParsedClassNameSyntax syntax)
     {
-        if (syntax is not NamespaceSyntax namespaceSyntax || !namespaceSyntax.NamespaceEquals("from") || namespaceSyntax.Suffix == default)
+        if (syntax is not NamespaceSyntax namespaceSyntax || !namespaceSyntax.NamespaceEquals("from") || namespaceSyntax.Suffix == null)
         {
             yield break;
         }
@@ -76,7 +76,7 @@ public class GradientFromPlugin : IUtilityNamespacePlugin
 
     private static CssDeclarationList GetDeclaration(CssColor color, string opacity)
     {
-        var colorValue = color.AsRgbWithOpacity(opacity);
+        var colorValue = color.AsStringWithOpacity(opacity);
 
         var fromVar = CssFramework.GetVariableNameWithPrefix("gradient-from");
         var toVar = CssFramework.GetVariableNameWithPrefix("gradient-to");
@@ -123,7 +123,7 @@ public class GradientToPlugin : IUtilityNamespacePlugin
     /// <inheritdoc />
     public IEnumerable<CssRuleSet> Process(IParsedClassNameSyntax syntax)
     {
-        if (syntax is not NamespaceSyntax namespaceSyntax || !namespaceSyntax.NamespaceEquals("to") || namespaceSyntax.Suffix == default)
+        if (syntax is not NamespaceSyntax namespaceSyntax || !namespaceSyntax.NamespaceEquals("to") || namespaceSyntax.Suffix == null)
         {
             yield break;
         }
@@ -146,7 +146,7 @@ public class GradientToPlugin : IUtilityNamespacePlugin
 
     private static CssDeclarationList GetDeclaration(CssColor color, string opacity)
     {
-        var colorValue = color.AsRgbWithOpacity(opacity);
+        var colorValue = color.AsStringWithOpacity(opacity);
 
         var toVar = CssFramework.GetVariableNameWithPrefix("gradient-to");
 
@@ -191,7 +191,7 @@ public class GradientViaPlugin : IUtilityNamespacePlugin
     /// <inheritdoc />
     public IEnumerable<CssRuleSet> Process(IParsedClassNameSyntax syntax)
     {
-        if (syntax is not NamespaceSyntax namespaceSyntax || !namespaceSyntax.NamespaceEquals("via") || namespaceSyntax.Suffix == default)
+        if (syntax is not NamespaceSyntax namespaceSyntax || !namespaceSyntax.NamespaceEquals("via") || namespaceSyntax.Suffix == null)
         {
             yield break;
         }
@@ -214,7 +214,7 @@ public class GradientViaPlugin : IUtilityNamespacePlugin
 
     private static CssDeclarationList GetDeclaration(CssColor color, string opacity)
     {
-        var colorValue = color.AsRgbWithOpacity(opacity);
+        var colorValue = color.AsStringWithOpacity(opacity);
 
         var fromVar = CssFramework.GetVariableNameWithPrefix("gradient-from");
         var toVar = CssFramework.GetVariableNameWithPrefix("gradient-to");

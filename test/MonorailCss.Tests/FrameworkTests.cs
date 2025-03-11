@@ -11,12 +11,11 @@ public class FrameworkTests
     {
         var framework = new CssFramework(new CssFrameworkSettings
             { CssResetOverride = string.Empty});
-        var r = framework.ProcessSplitWithWarnings(new[]
-        {
+        var r = framework.ProcessSplitWithWarnings([
             "missing", "block", "missing", "another-missing", "bg-red-101",
-        });
+        ]);
 
-        r.Warnings.ShouldBe(new[] {"missing", "another-missing", "bg-red-101" }, ignoreOrder: true);
+        r.Warnings.ShouldBe(["missing", "another-missing", "bg-red-101"], ignoreOrder: true);
     }
 
     [Fact]
@@ -26,41 +25,43 @@ public class FrameworkTests
         {
             CssResetOverride = string.Empty
         });
-        var r = framework.Process(new[]
-        {
+        var r = framework.Process([
             "-my-4",
-        });
-        r.ShouldBeCss(@"
-.-my-4 {
-  margin-bottom:-1rem;
-  margin-top:-1rem;
-}
-    ");
+        ]);
+        r.ShouldBeCss("""
+
+                      .-my-4 {
+                        margin-bottom:-1rem;
+                        margin-top:-1rem;
+                      }
+
+                      """);
     }
 
     [Fact]
     public void Can_do_pseudo_variants()
     {
         var framework = new CssFramework(new CssFrameworkSettings { CssResetOverride = string.Empty });
-        var r = framework.Process(new[]
-        {
+        var r = framework.Process([
             "first:text-red-100",
-        });
+        ]);
 
-        r.ShouldBeCss(@"
-.first\:text-red-100:first-child {
-  --monorail-text-opacity:1;
-  color:rgba(254, 226, 226, var(--monorail-text-opacity));
-}
-");
+        r.ShouldBeCss("""
+
+
+                      .first\:text-red-100:first-child {
+                        --monorail-text-opacity:1;
+                        color:oklch(0.936 0.032 17.717 / var(--monorail-text-opacity));
+                      }
+
+                      """);
     }
 
     [Fact]
     public void Smoke_Test()
     {
         var framework = new CssFramework(new CssFrameworkSettings { CssResetOverride = string.Empty });
-        var r = framework.Process(new[]
-        {
+        var r = framework.Process([
             "bg-blue-100",
             "dark:bg-blue-50",
             "hover:bg-blue-200",
@@ -68,40 +69,42 @@ public class FrameworkTests
             "sm:bg-blue-400",
             "dark:sm:bg-blue-500",
             "prose-h1:bg-blue-200",
-        });
-        r.ShouldBeCss(@"
-.bg-blue-100 {
-  --monorail-bg-opacity:1;
-  background-color:rgba(219, 234, 254, var(--monorail-bg-opacity));
-}
-.dark .dark\:bg-blue-50 {
-  --monorail-bg-opacity:1;
-  background-color:rgba(239, 246, 255, var(--monorail-bg-opacity));
-}
-.hover\:bg-blue-200:hover {
-  --monorail-bg-opacity:1;
-  background-color:rgba(191, 219, 254, var(--monorail-bg-opacity));
-}
-.prose h1 .prose-h1\:bg-blue-200 {
-  --monorail-bg-opacity:1;
-  background-color:rgba(191, 219, 254, var(--monorail-bg-opacity));
-}
-@media (min-width:640px) {
-  .dark .dark\:sm\:bg-blue-500 {
-    --monorail-bg-opacity:1;
-    background-color:rgba(59, 130, 246, var(--monorail-bg-opacity));
-  }
-  .hover\:sm\:bg-blue-300:hover {
-    --monorail-bg-opacity:1;
-    background-color:rgba(147, 197, 253, var(--monorail-bg-opacity));
-  }
-  .sm\:bg-blue-400 {
-    --monorail-bg-opacity:1;
-    background-color:rgba(96, 165, 250, var(--monorail-bg-opacity));
-  }
-}
+        ]);
+        r.ShouldBeCss("""
+                      .bg-blue-100 {
+                        --monorail-bg-opacity:1;
+                        background-color:oklch(0.932 0.032 255.585 / var(--monorail-bg-opacity));
+                      }
+                      .dark .dark\:bg-blue-50 {
+                        --monorail-bg-opacity:1;
+                        background-color:oklch(0.97 0.014 254.604 / var(--monorail-bg-opacity));
+                      }
+                      .hover\:bg-blue-200:hover {
+                        --monorail-bg-opacity:1;
+                        background-color:oklch(0.882 0.059 254.128 / var(--monorail-bg-opacity));
+                      }
+                      .prose h1 .prose-h1\:bg-blue-200 {
+                        --monorail-bg-opacity:1;
+                        background-color:oklch(0.882 0.059 254.128 / var(--monorail-bg-opacity));
+                      }
+                      @media (min-width:640px) {
+                        .hover\:sm\:bg-blue-300:hover {
+                          --monorail-bg-opacity:1;
+                          background-color:oklch(0.809 0.105 251.813 / var(--monorail-bg-opacity));
+                        }
+                        .sm\:bg-blue-400 {
+                          --monorail-bg-opacity:1;
+                          background-color:oklch(0.707 0.165 254.624 / var(--monorail-bg-opacity));
+                        }
+                        .dark .dark\:sm\:bg-blue-500 {
+                          --monorail-bg-opacity:1;
+                          background-color:oklch(0.623 0.214 259.815 / var(--monorail-bg-opacity));
+                        }
+                      }
 
-");
+
+
+                      """);
     }
 
     [Fact]
@@ -119,15 +122,16 @@ public class FrameworkTests
         {
             CssResetOverride = string.Empty
         });
-        var r = framework.Process(new[]
-        {
+        var r = framework.Process([
             "[mask-type:luminance]",
-        });
-        r.ShouldBeCss(@"
-.\[mask-type\:luminance\] {
-  mask-type: luminance;
-}
-");
+        ]);
+        r.ShouldBeCss("""
+
+                      .\[mask-type\:luminance\] {
+                        mask-type: luminance;
+                      }
+
+                      """);
     }
 
 
@@ -145,12 +149,14 @@ public class FrameworkTests
                 {"body", "font-sans mb-2"},
             }});
         var r = framework.Process(Array.Empty<string>());
-        r.ShouldBeCss(@"
-body {
-  font-family:-apple-system, BlinkMacSystemFont, avenir next, avenir, segoe ui, helvetica neue, helvetica, Ubuntu, roboto, noto, arial, sans-serif;
-  margin-bottom:0.5rem;
-}
-");
+        r.ShouldBeCss("""
+
+                      body {
+                        font-family:-apple-system, BlinkMacSystemFont, avenir next, avenir, segoe ui, helvetica neue, helvetica, Ubuntu, roboto, noto, arial, sans-serif;
+                        margin-bottom:0.5rem;
+                      }
+
+                      """);
     }
 
     [Fact]
@@ -158,9 +164,11 @@ body {
     {
         var framework = new CssFramework(new CssFrameworkSettings { CssResetOverride = string.Empty } );
 
-        var r = framework.Process(new[] { "group-hover:font-xl", "test" });
-        r.ShouldBeCss(@"
-        ");
+        var r = framework.Process(["group-hover:font-xl", "test"]);
+        r.ShouldBeCss("""
+
+
+                      """);
     }
 
     [Fact]
@@ -168,79 +176,90 @@ body {
     {
         var framework = new CssFramework(new CssFrameworkSettings { CssResetOverride = string.Empty } );
 
-        var r = framework.Process(new[] { "m-4", "my-3", "mb-2" });
-        r.Trim().ReplaceLineEndings().ShouldBe(@"
-.m-4 {
-  margin:1rem;
-}
-.my-3 {
-  margin-bottom:0.75rem;
-  margin-top:0.75rem;
-}
-.mb-2 {
-  margin-bottom:0.5rem;
-}
-".Trim().ReplaceLineEndings());
+        var r = framework.Process(["m-4", "my-3", "mb-2"]);
+        r.Trim().ReplaceLineEndings().ShouldBe("""
+
+                                               .m-4 {
+                                                 margin:1rem;
+                                               }
+                                               .my-3 {
+                                                 margin-bottom:0.75rem;
+                                                 margin-top:0.75rem;
+                                               }
+                                               .mb-2 {
+                                                 margin-bottom:0.5rem;
+                                               }
+
+                                               """.Trim().ReplaceLineEndings());
 
         // now check if we send them in the opposite way. output ordering should remain equal.
-        var r2 = framework.Process(new[] { "mb-2", "my-3", "m-4" });
-        r2.Trim().ReplaceLineEndings().ShouldBe(@"
-.m-4 {
-  margin:1rem;
-}
-.my-3 {
-  margin-bottom:0.75rem;
-  margin-top:0.75rem;
-}
-.mb-2 {
-  margin-bottom:0.5rem;
-}
-".Trim().ReplaceLineEndings());
+        var r2 = framework.Process(["mb-2", "my-3", "m-4"]);
+        r2.Trim().ReplaceLineEndings().ShouldBe("""
 
-        var r3 = framework.Process(new[] { "lg:rounded-none", "lg:rounded-l-lg" });
-        r3.Trim().ReplaceLineEndings().ShouldBe(@"
-@media (min-width:1024px) {
-  .lg\:rounded-none {
-    border-radius:0px;
-  }
-  .lg\:rounded-l-lg {
-    border-bottom-left-radius:0.5rem;
-    border-top-left-radius:0.5rem;
-  }
-}
-".Trim().ReplaceLineEndings());
+                                                .m-4 {
+                                                  margin:1rem;
+                                                }
+                                                .my-3 {
+                                                  margin-bottom:0.75rem;
+                                                  margin-top:0.75rem;
+                                                }
+                                                .mb-2 {
+                                                  margin-bottom:0.5rem;
+                                                }
 
-        var r4 = framework.Process(new[] { "lg:rounded-l-lg", "lg:rounded-none" });
-        r4.Trim().ReplaceLineEndings().ShouldBe(@"
-@media (min-width:1024px) {
-  .lg\:rounded-none {
-    border-radius:0px;
-  }
-  .lg\:rounded-l-lg {
-    border-bottom-left-radius:0.5rem;
-    border-top-left-radius:0.5rem;
-  }
-}
-".Trim().ReplaceLineEndings());
+                                                """.Trim().ReplaceLineEndings());
+
+        var r3 = framework.Process(["lg:rounded-none", "lg:rounded-l-lg"]);
+        r3.Trim().ReplaceLineEndings().ShouldBe("""
+
+                                                @media (min-width:1024px) {
+                                                  .lg\:rounded-none {
+                                                    border-radius:0px;
+                                                  }
+                                                  .lg\:rounded-l-lg {
+                                                    border-bottom-left-radius:0.5rem;
+                                                    border-top-left-radius:0.5rem;
+                                                  }
+                                                }
+
+                                                """.Trim().ReplaceLineEndings());
+
+        var r4 = framework.Process(["lg:rounded-l-lg", "lg:rounded-none"]);
+        r4.Trim().ReplaceLineEndings().ShouldBe("""
+
+                                                @media (min-width:1024px) {
+                                                  .lg\:rounded-none {
+                                                    border-radius:0px;
+                                                  }
+                                                  .lg\:rounded-l-lg {
+                                                    border-bottom-left-radius:0.5rem;
+                                                    border-top-left-radius:0.5rem;
+                                                  }
+                                                }
+
+                                                """.Trim().ReplaceLineEndings());
     }
 
     [Fact]
     public void Placeholder_variant_works()
     {
         var framework = new CssFramework(new CssFrameworkSettings { CssResetOverride = string.Empty } );
-        var r = framework.Process(new[] { "placeholder:text-gray-200", "md:hover:placeholder:text-gray-400" });
-        r.ShouldBeCss(@"
-.placeholder\:text-gray-200::placeholder {
-  --monorail-text-opacity:1;
-  color:rgba(229, 231, 235, var(--monorail-text-opacity));
-}
-@media (min-width:768px) {
-  .md\:hover\:placeholder\:text-gray-200:hover::placeholder {
-    --monorail-text-opacity:1;
-    color:rgba(156, 163, 175, var(--monorail-text-opacity));
-  }
-}
-");
+        var r = framework.Process(["placeholder:text-gray-200", "md:hover:placeholder:text-gray-400"]);
+        r.ShouldBeCss("""
+
+                      .placeholder\:text-gray-200::placeholder {
+                        --monorail-text-opacity:1;
+                        color:oklch(0.928 0.006 264.531 / var(--monorail-text-opacity));
+                      }
+                      @media (min-width:768px) {
+                        .md\:hover\:placeholder\:text-gray-400:hover::placeholder {
+                          --monorail-text-opacity:1;
+                          color:oklch(0.707 0.022 261.325 / var(--monorail-text-opacity));
+                        }
+                      }
+
+
+                      """);
     }
 
     [Fact]

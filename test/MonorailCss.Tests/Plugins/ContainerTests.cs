@@ -10,12 +10,14 @@ public class ContainerTests
     public void Container_works()
     {
         var framework = new CssFramework(new CssFrameworkSettings { CssResetOverride = string.Empty });
-        var result = framework.Process(new[] { "container" });
-        result.ShouldBeCss(@"
-.container {
-  width:100%;
-}
-");
+        var result = framework.Process(["container"]);
+        result.ShouldBeCss("""
+
+                           .container {
+                             width:100%;
+                           }
+
+                           """);
     }
 
     [Fact]
@@ -27,15 +29,17 @@ public class ContainerTests
             PluginSettings = new List<ISettings> { new Container.Settings { Center = true }, }
         });
 
-        var result = framework.Process(new[] { "container" });
-        result.ShouldBeCss(@"
-.container {
-  width:100%;
+        var result = framework.Process(["container"]);
+        result.ShouldBeCss("""
 
-  margin-left: auto;
-  margin-right: auto;
-}
-");
+                           .container {
+                             width:100%;
+                           
+                             margin-left: auto;
+                             margin-right: auto;
+                           }
+
+                           """);
     }
 
     [Fact]
@@ -51,16 +55,18 @@ public class ContainerTests
             }, }
         });
 
-        var result = framework.Process(new[] { "container" });
-        result.ShouldBeCss(@"
-.container {
-  width:100%;
-  margin-left: auto;
-  margin-right: auto;
-  padding-left: 4px;
-  padding-right: 4px;
-}
-");
+        var result = framework.Process(["container"]);
+        result.ShouldBeCss("""
+
+                           .container {
+                             width:100%;
+                             margin-left: auto;
+                             margin-right: auto;
+                             padding-left: 4px;
+                             padding-right: 4px;
+                           }
+
+                           """);
     }
 
     [Fact]
@@ -77,24 +83,26 @@ public class ContainerTests
             }, }
         });
 
-        var result = framework.Process(new[] { "container", "xl:container-xl" });
-        result.ShouldBeCss(@"
-.container {
-  margin-left:auto;
-  margin-right:auto;
-  padding-left:4px;
-  padding-right:4px;
-  width:100%;
-}
-@media (min-width:1280px) {
-  .xl\:container-xl {
-    margin-left:auto;
-    margin-right:auto;
-    max-width:1280px;
-    padding-left:8px;
-    padding-right:8px;
-  }
-}
-");
+        var result = framework.Process(["container", "xl:container-xl"]);
+        result.ShouldBeCss("""
+
+                           .container {
+                             margin-left:auto;
+                             margin-right:auto;
+                             padding-left:4px;
+                             padding-right:4px;
+                             width:100%;
+                           }
+                           @media (min-width:1280px) {
+                             .xl\:container-xl {
+                               margin-left:auto;
+                               margin-right:auto;
+                               max-width:1280px;
+                               padding-left:8px;
+                               padding-right:8px;
+                             }
+                           }
+
+                           """);
     }
 }

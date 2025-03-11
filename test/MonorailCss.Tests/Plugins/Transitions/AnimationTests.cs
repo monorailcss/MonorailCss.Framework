@@ -11,21 +11,22 @@ public class AnimationTests
         {
             CssResetOverride = string.Empty
         });
-        var r = framework.Process(new[]
-        {
-            "animate-spin"
-        });
-        r.ShouldBeCss(@"
+        var r = framework.Process([
+            "animate-spin",
+        ]);
+        r.ShouldBeCss("""
 
-@keyframes spin {
-  to {
-    transform:rotate(360deg);
-  }
-}
-.animate-spin {
-  animation:spin 1s linear infinite;
-}
-");
+
+                      @keyframes spin {
+                        to {
+                          transform:rotate(360deg);
+                        }
+                      }
+                      .animate-spin {
+                        animation:spin 1s linear infinite;
+                      }
+
+                      """);
     }
 
 
@@ -36,21 +37,22 @@ public class AnimationTests
         {
             CssResetOverride = string.Empty
         });
-        var r = framework.Process(new[]
-        {
-            "animate-ping"
-        });
-        r.ShouldBeCss(@"
-@keyframes ping {
-  75%, 100% {
-    transform:scale(2);
-    opacity:0;
-  }
-}
-.animate-ping {
-  animation:ping 1s cubic-bezier(0, 0, 0.2, 1) infinite;
-}
-");
+        var r = framework.Process([
+            "animate-ping",
+        ]);
+        r.ShouldBeCss("""
+
+                      @keyframes ping {
+                        75%, 100% {
+                          transform:scale(2);
+                          opacity:0;
+                        }
+                      }
+                      .animate-ping {
+                        animation:ping 1s cubic-bezier(0, 0, 0.2, 1) infinite;
+                      }
+
+                      """);
     }
 
     [Fact]
@@ -60,21 +62,22 @@ public class AnimationTests
         {
             CssResetOverride = string.Empty
         });
-        var r = framework.Process(new[]
-        {
-            "hover:animate-ping"
-        });
-        r.ShouldBeCss(@"
-@keyframes ping {
-  75%, 100% {
-    transform:scale(2);
-    opacity:0;
-  }
-}
-.hover\:animate-ping:hover {
-  animation:ping 1s cubic-bezier(0, 0, 0.2, 1) infinite;
-}
-");
+        var r = framework.Process([
+            "hover:animate-ping",
+        ]);
+        r.ShouldBeCss("""
+
+                      @keyframes ping {
+                        75%, 100% {
+                          transform:scale(2);
+                          opacity:0;
+                        }
+                      }
+                      .hover\:animate-ping:hover {
+                        animation:ping 1s cubic-bezier(0, 0, 0.2, 1) infinite;
+                      }
+
+                      """);
     }
 
 
@@ -85,22 +88,23 @@ public class AnimationTests
         {
             CssResetOverride = string.Empty
         });
-        var r = framework.Process(new[]
-        {
-            "md:hover:animate-ping"
-        });
-        r.ShouldBeCss(@"
-@media (min-width:768px) {
-  @keyframes ping {
-    75%, 100% {
-      transform:scale(2);
-      opacity:0;
-    }
-  }
-  .md\:hover\:animate-ping:hover {
-    animation:ping 1s cubic-bezier(0, 0, 0.2, 1) infinite;
-  }
-}
-");
+        var r = framework.Process([
+            "md:hover:animate-ping",
+        ]);
+        r.ShouldBeCss("""
+
+                      @media (min-width:768px) {
+                        @keyframes ping {
+                          75%, 100% {
+                            transform:scale(2);
+                            opacity:0;
+                          }
+                        }
+                        .md\:hover\:animate-ping:hover {
+                          animation:ping 1s cubic-bezier(0, 0, 0.2, 1) infinite;
+                        }
+                      }
+
+                      """);
     }
 }

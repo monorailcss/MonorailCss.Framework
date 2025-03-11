@@ -11,32 +11,29 @@ public class CssSettingsTests
     {
         var setting1 = new CssSettings
         {
-            Css = new CssDeclarationList
-            {
+            Css =
+            [
                 (CssProperties.BorderWidth, "1"),
                 (CssProperties.Float, "left"),
-            },
-            ChildRules = new CssRuleSetList
-            {
-                new("a", new CssDeclarationList
-                {
-                    (CssProperties.Height, "4px"),
-                    (CssProperties.Width, "2px")
-                }),
-            },
+            ],
+            ChildRules =
+            [
+                new("a", [(CssProperties.Height, "4px"), (CssProperties.Width, "2px")]),
+
+            ],
         };
 
         var setting2 = new CssSettings
         {
-            Css = new CssDeclarationList
-            {
+            Css =
+            [
                 (CssProperties.BorderWidth, "4"), (CssProperties.Display, "block"),
-            },
-            ChildRules = new CssRuleSetList
-            {
+            ],
+            ChildRules =
+            [
                 new("a",
-                    new CssDeclarationList { (CssProperties.Height, "2px"), (CssProperties.Margin, "2px") })
-            }
+                    [(CssProperties.Height, "2px"), (CssProperties.Margin, "2px")]),
+            ]
         };
 
         var newSettings = setting1 + setting2;

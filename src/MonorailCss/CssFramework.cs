@@ -66,14 +66,13 @@ public class CssFramework
     /// Initializes a new instance of the <see cref="CssFramework"/> class.
     /// </summary>
     /// <param name="frameworkSettings">The framework settings.</param>
-    public CssFramework(CssFrameworkSettings? frameworkSettings = default)
+    public CssFramework(CssFrameworkSettings? frameworkSettings = null)
     {
         _frameworkSettings = frameworkSettings ?? new CssFrameworkSettings();
         var pluginTypes = typeof(IUtilityPlugin)
             .Assembly
             .GetTypes()
-            .Where(type => type.IsClass
-                           && !type.IsAbstract
+            .Where(type => type is { IsClass: true, IsAbstract: false }
                            && type.IsAssignableTo(typeof(IUtilityPlugin))
                            && type.GetCustomAttributes(typeof(PluginNotIncludedAutomaticallyAttribute), true).Length ==
                            0)
@@ -221,8 +220,8 @@ public class CssFramework
                     else
                     {
                         var modifiers = syntax.Modifiers
-                            .Select(i => !_variantSystem.Variants.ContainsKey(i) ? default : _variantSystem.Variants[i])
-                            .Where(i => i != default).OfType<IVariant>();
+                            .Select(i => CollectionExtensions.GetValueOrDefault(_variantSystem.Variants, i))
+                            .Where(i => i != null).OfType<IVariant>();
 
                         selectorSyntax = GetSelectorSyntax(
                             ruleSet.Selector,
@@ -335,7 +334,7 @@ public class CssFramework
 
     private string[] GetMediaModifiers(IEnumerable<string> modifiers, ImmutableDictionary<string, IVariant> variants)
     {
-        List<string> mediaModifiers = new();
+        List<string> mediaModifiers = [];
         foreach (var modifier in modifiers)
         {
             if (!variants.TryGetValue(modifier, out var variant))
@@ -364,7 +363,7 @@ public class CssFramework
         {
             foreach (var constructorInfo in constructorInfos)
             {
-                List<object> parameters = new();
+                List<object> parameters = [];
                 foreach (var parameterInfo in constructorInfo.GetParameters())
                 {
                     if (parameterInfo.ParameterType == typeof(DesignSystem))
@@ -380,9 +379,9 @@ public class CssFramework
                         var settingsGenericType = typeof(ISettings<>).MakeGenericType(type);
                         if (parameterInfo.ParameterType.IsAssignableTo(settingsGenericType))
                         {
-                            if (_pluginSettingsMap.ContainsKey(settingsGenericType))
+                            if (_pluginSettingsMap.TryGetValue(settingsGenericType, out var value))
                             {
-                                parameters.Add(_pluginSettingsMap[settingsGenericType]);
+                                parameters.Add(value);
                             }
                             else
                             {
@@ -417,7 +416,7 @@ public class CssFramework
 
     internal static string GetSelectorSyntax(CssSelector original, IEnumerable<IVariant> variants)
     {
-        if (original.Selector.StartsWith("@"))
+        if (original.Selector.StartsWith('@'))
         {
             // keyframe, so we don't want to mess with the name.
             return original.Selector;
@@ -430,7 +429,7 @@ public class CssFramework
 
         selector = $".{selector}";
 
-        if (original.PseudoClass != default)
+        if (original.PseudoClass != null)
         {
             selector = $"{selector}{original.PseudoClass}";
         }
@@ -443,7 +442,7 @@ public class CssFramework
             _ => current,
         });
 
-        if (original.PseudoElement != default)
+        if (original.PseudoElement != null)
         {
             selector = $"{selector}{original.PseudoElement}";
         }

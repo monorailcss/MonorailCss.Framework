@@ -10,11 +10,13 @@ public class BorderColorTests
             CssResetOverride = string.Empty
         });
 
-        var r = framework.Process(new[] {"border-slate-700/20"});
-        r.ShouldBeCss(@"
-.border-slate-700\/20 {
-  border-color:rgba(51, 65, 85, .2);
-}
-");
+        var r = framework.Process(["border-slate-700/20"]);
+        r.ShouldBeCss("""
+
+                      .border-slate-700\/20 {
+                        border-color:oklch(0.372 0.044 257.287 / 0.2);
+                      }
+
+                      """);
     }
 }

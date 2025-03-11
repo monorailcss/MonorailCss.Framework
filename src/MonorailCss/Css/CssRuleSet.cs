@@ -46,18 +46,18 @@ public record CssRuleSet(CssSelector Selector, CssDeclarationList DeclarationLis
 /// <param name="Selector">The selector.</param>
 /// <param name="PseudoClass">The pseudo class, if it exists.</param>
 /// <param name="PseudoElement">The pseudo element, if it exists.</param>
-public record CssSelector(string Selector, string? PseudoClass = default, string? PseudoElement = default)
+public record CssSelector(string Selector, string? PseudoClass = null, string? PseudoElement = null)
 {
     /// <inheritdoc />
     public override string ToString()
     {
         var sb = new StringBuilder(Selector);
-        if (PseudoClass != default)
+        if (PseudoClass != null)
         {
             sb.Append(PseudoClass);
         }
 
-        if (PseudoElement != default)
+        if (PseudoElement != null)
         {
             sb.Append(PseudoElement);
         }

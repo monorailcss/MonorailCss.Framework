@@ -27,7 +27,7 @@ public class Outline : IUtilityNamespacePlugin
 
         var suffix = namespaceSyntax.Suffix ?? "DEFAULT";
         var declarations = GetDeclarations(suffix);
-        if (declarations == default)
+        if (declarations == null)
         {
             yield break;
         }
@@ -47,7 +47,7 @@ public class Outline : IUtilityNamespacePlugin
 
         if (!_utilities.TryGetValue(suffix, out var outline))
         {
-            return default;
+            return null;
         }
 
         var declarations = new CssDeclarationList
@@ -63,7 +63,7 @@ public class Outline : IUtilityNamespacePlugin
         foreach (var utility in _utilities)
         {
             var declarations = GetDeclarations(utility.Key);
-            if (declarations == default)
+            if (declarations == null)
             {
                 continue;
             }
