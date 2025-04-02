@@ -388,6 +388,36 @@ public class Prose : IUtilityNamespacePlugin, IVariantPluginProvider
                     },
                 }
             },
+            {
+                "lg",
+                new CssSettings
+                {
+                    Css = new CssDeclarationList
+                    {
+                        (CssProperties.FontSize, Rem(18)), (CssProperties.LineHeight, Rounds(32 / 18m)),
+                    },
+                }
+            },
+            {
+                "xl",
+                new CssSettings
+                {
+                    Css = new CssDeclarationList
+                    {
+                        (CssProperties.FontSize, Rem(20)), (CssProperties.LineHeight, Rounds(36 / 20m)),
+                    },
+                }
+            },
+            {
+                "2xl",
+                new CssSettings
+                {
+                    Css = new CssDeclarationList
+                    {
+                        (CssProperties.FontSize, Rem(24)), (CssProperties.LineHeight, Rounds(40 / 24m)),
+                    },
+                }
+            },
         }.ToImmutableDictionary();
 
         return _settings.GrayScales.Aggregate(baseSettings, (current, scale) => new Dictionary<string, CssSettings>
