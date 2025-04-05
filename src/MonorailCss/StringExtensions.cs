@@ -4,33 +4,46 @@ namespace MonorailCss;
 
 internal static class StringExtensions
 {
+
     public static string ToKebabCase(this string str)
     {
-        if (string.IsNullOrEmpty(str))
-        {
-            return str;
-        }
 
-        var sb = new StringBuilder(str.Length + 2);
+            if (string.IsNullOrEmpty(str))
+            {
+                return str;
+            }
 
-        foreach (var c in str)
-        {
-            if (char.IsUpper(c))
-            {
-                sb.Append('-');
-                sb.Append(char.ToLower(c));
-            }
-            else if (char.IsWhiteSpace(c) || c == '_')
-            {
-                sb.Append('-');
-            }
-            else
-            {
-                sb.Append(c);
-            }
-        }
+            var stringBuilder = new StringBuilder();
 
-        // Remove the potentially leading '-' character
-        return sb.Length > 0 && sb[0] == '-' ? sb.ToString(1, sb.Length - 1) : sb.ToString();
+            // Estimate capacity to avoid resizing
+            if (stringBuilder.Capacity < str.Length + 8)
+            {
+                stringBuilder.Capacity = str.Length + 8;
+            }
+
+            // Process first character - never need a dash before it
+            stringBuilder.Append(char.ToLowerInvariant(str[0]));
+
+            // Process remaining char
+            for (var i = 1; i < str.Length; i++)
+            {
+                var c = str[i];
+
+                if (char.IsUpper(c))
+                {
+                    stringBuilder.Append('-');
+                    stringBuilder.Append(char.ToLowerInvariant(c));
+                }
+                else if (char.IsWhiteSpace(c) || c == '_')
+                {
+                    stringBuilder.Append('-');
+                }
+                else
+                {
+                    stringBuilder.Append(c);
+                }
+            }
+
+            return stringBuilder.ToString();
     }
 }
