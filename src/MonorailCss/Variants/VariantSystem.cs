@@ -43,6 +43,17 @@ public class VariantSystem
         AddPseudoClass("last-of-type");
         AddPseudoClass("only-of-type");
 
+        // ARIA states
+        AddPseudoClass("aria-busy", "[aria-busy=\"true\"]");
+        AddPseudoClass("aria-checked", "[aria-checked=\"true\"]");
+        AddPseudoClass("aria-disabled", "[aria-disabled=\"true\"]");
+        AddPseudoClass("aria-expanded", "[aria-expanded=\"true\"]");
+        AddPseudoClass("aria-hidden", "[aria-hidden=\"true\"]");
+        AddPseudoClass("aria-pressed", "[aria-pressed=\"true\"]");
+        AddPseudoClass("aria-readonly", "[aria-readonly=\"true\"]");
+        AddPseudoClass("aria-required", "[aria-required=\"true\"]");
+        AddPseudoClass("aria-selected", "[aria-selected=\"true\"]");
+
         // State
         AddPseudoClass("target");
         AddPseudoClass("open", "[open]");
