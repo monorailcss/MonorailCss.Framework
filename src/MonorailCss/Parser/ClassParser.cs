@@ -54,7 +54,7 @@ internal class ClassParser
         else
         {
             // only one item, no modifiers and set the value to parse to the only item.
-            modifiers = Array.Empty<string>();
+            modifiers = [];
             value = sections[0];
         }
 

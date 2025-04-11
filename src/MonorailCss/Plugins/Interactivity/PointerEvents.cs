@@ -15,7 +15,8 @@ public class PointerEvents : BaseUtilityPlugin
     {
         return new Dictionary<string, string>
         {
-            { "pointer-events-none", "none" }, { "pointer-events-auto", "auto" },
+            { "pointer-events-none", "none" },
+            { "pointer-events-auto", "auto" },
         }.ToImmutableDictionary();
     }
 }
