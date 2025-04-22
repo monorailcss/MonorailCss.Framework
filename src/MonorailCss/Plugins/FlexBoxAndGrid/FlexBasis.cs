@@ -26,6 +26,8 @@ public class FlexBasis : BaseUtilityNamespacePlugin
     /// <inheritdoc />
     protected override CssSuffixToValueMap GetValues()
     {
-        return _designSystem.Spacing.AddRange(SizeHelpers.Percentages).Add("auto", "auto");
+        return _designSystem.Spacing.AddRange(SizeHelpers.Percentages)
+        .Add("auto", "auto")
+        .Add("full", "100%");
     }
 }
