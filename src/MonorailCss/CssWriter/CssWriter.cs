@@ -1,5 +1,6 @@
 ﻿using System.Text;
 using MonorailCss.Css;
+using MonorailCss.Variants;
 
 namespace MonorailCss.CssWriter;
 
@@ -26,22 +27,53 @@ internal static class CssWriter
             {
                 var selectorIndent = new string(' ', indent);
                 var propIndent = new string(' ', indent + 2);
+                var nestedIndent = new string(' ', indent + 4);
 
-                stringBuilder.AppendLine($"{selectorIndent}{groupedRuleSet.Key} {{");
-
-                foreach (var grouping in groupedRuleSet)
+                // Check if this is a conditional selector (contains a nested condition)
+                if (groupedRuleSet.Key.Contains(" &:is("))
                 {
-                    foreach (var declaration in grouping.DeclarationList.OrderBy(i => i.Property))
+                    // Extract the main selector and the condition
+                    var parts = groupedRuleSet.Key.Split(new[] { " &:is(" }, StringSplitOptions.None);
+                    var mainSelector = parts[0];
+                    var condition = "&:is(" + parts[1];
+
+                    stringBuilder.AppendLine($"{selectorIndent}{mainSelector} {{");
+                    stringBuilder.AppendLine($"{propIndent}{condition} {{");
+
+                    foreach (var grouping in groupedRuleSet)
                     {
-                        var declarationLines = declaration.ToCssString().Split(Environment.NewLine);
-                        foreach (var line in declarationLines)
+                        foreach (var declaration in grouping.DeclarationList.OrderBy(i => i.Property))
                         {
-                            stringBuilder.AppendLine($"{propIndent}{line}");
+                            var declarationLines = declaration.ToCssString().Split(Environment.NewLine);
+                            foreach (var line in declarationLines)
+                            {
+                                stringBuilder.AppendLine($"{nestedIndent}{line}");
+                            }
                         }
                     }
-                }
 
-                stringBuilder.AppendLine($"{selectorIndent}}}");
+                    stringBuilder.AppendLine($"{propIndent}}}");
+                    stringBuilder.AppendLine($"{selectorIndent}}}");
+                }
+                else
+                {
+                    // Normal non-conditional selector
+                    stringBuilder.AppendLine($"{selectorIndent}{groupedRuleSet.Key} {{");
+
+                    foreach (var grouping in groupedRuleSet)
+                    {
+                        foreach (var declaration in grouping.DeclarationList.OrderBy(i => i.Property))
+                        {
+                            var declarationLines = declaration.ToCssString().Split(Environment.NewLine);
+                            foreach (var line in declarationLines)
+                            {
+                                stringBuilder.AppendLine($"{propIndent}{line}");
+                            }
+                        }
+                    }
+
+                    stringBuilder.AppendLine($"{selectorIndent}}}");
+                }
             }
 
             if (hasModifiers)

@@ -30,9 +30,6 @@ public class VariantSystem
     {
         var variants = new Dictionary<string, IVariant>();
 
-        void AddPseudoClass(string name, string? css = null) =>
-            variants.Add(name, new PseudoClassVariant(css ?? $":{name}"));
-
         // Positional
         AddPseudoClass("first", ":first-child");
         AddPseudoClass("last", ":last-child");
@@ -42,6 +39,14 @@ public class VariantSystem
         AddPseudoClass("first-of-type");
         AddPseudoClass("last-of-type");
         AddPseudoClass("only-of-type");
+        AddPseudoClass("nth-1", ":nth-child(1)");
+        AddPseudoClass("nth-2", ":nth-child(2)");
+        AddPseudoClass("nth-3", ":nth-child(3)");
+        AddPseudoClass("nth-4", ":nth-child(4)");
+        AddPseudoClass("nth-5", ":nth-child(5)");
+        AddPseudoClass("nth-last-1", ":nth-last-child(1)");
+        AddPseudoClass("nth-last-2", ":nth-last-child(2)");
+        AddPseudoClass("nth-last-3", ":nth-last-child(3)");
 
         // ARIA states
         AddPseudoClass("aria-busy", "[aria-busy=\"true\"]");
@@ -57,6 +62,8 @@ public class VariantSystem
         // State
         AddPseudoClass("target");
         AddPseudoClass("open", "[open]");
+        AddPseudoClass("visited");
+        AddPseudoClass("current", ":is(:current)");
 
         // Forms
         AddPseudoClass("default");
@@ -82,9 +89,22 @@ public class VariantSystem
         AddPseudoClass("active");
         AddPseudoClass("disabled");
 
+        // Theme variants
         variants.Add("dark", new SelectorVariant(".dark"));
         variants.Add("print", new MediaQueryVariant("print"));
 
+        variants.Add("rtl", new SelectorVariant("[dir='rtl']"));
+        variants.Add("ltr", new SelectorVariant("[dir='ltr']"));
+
+        variants.Add("forced-colors", new MediaQueryVariant("(forced-colors: active)"));
+        variants.Add("not-forced-colors", new MediaQueryVariant("(forced-colors: none)"));
+        variants.Add("inverted-colors", new MediaQueryVariant("(inverted-colors: inverted)"));
+        variants.Add("pointer-fine", new MediaQueryVariant("(pointer: fine)"));
+        variants.Add("pointer-coarse", new MediaQueryVariant("(pointer: coarse)"));
+        variants.Add("any-pointer-fine", new MediaQueryVariant("(any-pointer: fine)"));
+        variants.Add("any-pointer-coarse", new MediaQueryVariant("(any-pointer: coarse)"));
+
+        // Screen size variants
         foreach (var (key, size) in designSystem.Screens)
         {
             // try and extract the size and use this as a priority. we want the screens
@@ -99,7 +119,35 @@ public class VariantSystem
             variants.Add(key, variant);
         }
 
+        foreach (var (key, size) in designSystem.Screens)
+        {
+            // Min-width container queries
+            var minContainerVariant = int.TryParse(size.Replace("px", string.Empty), out var sizeValue)
+                ? new MediaQueryVariant($"(container: min-width {size})", sizeValue)
+                : new MediaQueryVariant($"(container: min-width {size})");
+
+            variants.Add($"@min-{key}", minContainerVariant);
+
+            // Max-width container queries
+            var maxContainerVariant = int.TryParse(size.Replace("px", string.Empty), out var maxSizeValue)
+                ? new MediaQueryVariant($"(container: max-width {size})", maxSizeValue)
+                : new MediaQueryVariant($"(container: max-width {size})");
+
+            variants.Add($"@max-{key}", maxContainerVariant);
+        }
+
+        // Pseudo-elements
         variants.Add("placeholder", new PseudoElementVariant("::placeholder"));
+        variants.Add("before", new PseudoElementVariant("::before"));
+        variants.Add("after", new PseudoElementVariant("::after"));
+        variants.Add("selection", new PseudoElementVariant("::selection"));
+        variants.Add("file", new PseudoElementVariant("::file-selector-button"));
+        variants.Add("marker", new PseudoElementVariant("::marker"));
+        variants.Add("has-checked", new SelectorVariant(":has(:checked)"));
+        variants.Add("has-hover", new SelectorVariant(":has(:hover)"));
+        variants.Add("has-focus", new SelectorVariant(":has(:focus)"));
+        variants.Add("has-active", new SelectorVariant(":has(:active)"));
+        variants.Add("has-invalid", new SelectorVariant(":has(:invalid)"));
 
         foreach (var plugin in _plugins)
         {
@@ -110,5 +158,13 @@ public class VariantSystem
         }
 
         return variants.ToImmutableDictionary();
+
+        void AddPseudoClass(string name, string? css = null)
+        {
+            var pseudoClass = css ?? $":{name}";
+            variants.Add(name, new PseudoClassVariant(pseudoClass));
+            variants.Add($"peer-{name}", new ConditionalVariant(name, $"&:is(:where(.peer){pseudoClass} ~ *)"));
+            variants.Add($"group-{name}", new ConditionalVariant(name, $"&:is(:where(.group){pseudoClass} *)"));
+        }
     }
 }

@@ -30,7 +30,7 @@ public class CssFrameworkSettings
     public string? CssResetOverride { get; init; }
 
     /// <summary>
-    /// Gets the root element for all selectors..
+    /// Gets the root element for all selectors.
     /// </summary>
     public string RootElement { get; init; } = string.Empty;
 
@@ -221,7 +221,8 @@ public class CssFramework
                     {
                         var modifiers = syntax.Modifiers
                             .Select(i => CollectionExtensions.GetValueOrDefault(_variantSystem.Variants, i))
-                            .Where(i => i != null).OfType<IVariant>();
+                            .Where(i => i != null).OfType<IVariant>()
+                            .ToList();
 
                         selectorSyntax = GetSelectorSyntax(
                             ruleSet.Selector,
@@ -414,7 +415,7 @@ public class CssFramework
         return plugin;
     }
 
-    internal static string GetSelectorSyntax(CssSelector original, IEnumerable<IVariant> variants)
+    internal static string GetSelectorSyntax(CssSelector original, IList<IVariant> variants)
     {
         if (original.Selector.StartsWith('@'))
         {
@@ -434,7 +435,11 @@ public class CssFramework
             selector = $"{selector}{original.PseudoClass}";
         }
 
-        selector = variants.OrderBy(v => typeof(PseudoElementVariant) == v.GetType() ? 1 : 0).Aggregate(selector, (current, variant) => variant switch
+        // Process non-conditional variants first
+        var conditionalVariant = variants.OfType<ConditionalVariant>().FirstOrDefault();
+        var nonConditionalVariants = variants.Where(v => v is not ConditionalVariant);
+
+        selector = nonConditionalVariants.OrderBy(v => typeof(PseudoElementVariant) == v.GetType() ? 1 : 0).Aggregate(selector, (current, variant) => variant switch
         {
             SelectorVariant selectorVariant => $"{selectorVariant.Selector} {current}",
             PseudoClassVariant pseudoClassVariant => $"{current}{pseudoClassVariant.PseudoClass}",
@@ -445,6 +450,12 @@ public class CssFramework
         if (original.PseudoElement != null)
         {
             selector = $"{selector}{original.PseudoElement}";
+        }
+
+        // Add conditional variant if present
+        if (conditionalVariant != null)
+        {
+            selector = $"{selector} {conditionalVariant.Condition}";
         }
 
         return selector;
