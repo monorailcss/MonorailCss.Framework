@@ -5,4 +5,4 @@ namespace MonorailCss.Variants;
 /// </summary>
 /// <param name="Selector">The selector to prefix.</param>
 /// <param name="Condition">The condition.</param>
-public record ConditionalVariant(string Selector, string Condition) : IVariant;
+public record NameConditionalVariant(string Selector, Func<string, string> Condition) : IVariant;

@@ -178,11 +178,13 @@ public class CssFramework
         var selectorWithClassListItems = applyItems
             .Select(i => new
             {
-                Selector = $"{root}{i.Root}", i.CssClass,
+                Selector = $"{root}{i.Root}",
+                i.CssClass,
             })
             .Concat(distinctCss.Select(i => new
             {
-                Selector = string.Empty, CssClass = i,
+                Selector = string.Empty,
+                CssClass = i,
             }));
 
         var classParser = new ClassParser(_namespacesOrderedByLength, _frameworkSettings.ElementPrefix, _frameworkSettings.Separator);
@@ -190,7 +192,8 @@ public class CssFramework
         var selectorWithSyntaxItems = selectorWithClassListItems
             .Select(i => new
             {
-                i.Selector, Syntax = classParser.Extract(i.CssClass),
+                i.Selector,
+                Syntax = classParser.Extract(i.CssClass),
             })
             .Where(i => i.Syntax != null);
 
@@ -220,7 +223,7 @@ public class CssFramework
                     else
                     {
                         var modifiers = syntax.Modifiers
-                            .Select(i => CollectionExtensions.GetValueOrDefault(_variantSystem.Variants, i))
+                            .Select(i => _variantSystem.Variants.GetValueOrDefault(StripNamedVariant(i)))
                             .Where(i => i != null).OfType<IVariant>()
                             .ToList();
 
@@ -436,8 +439,8 @@ public class CssFramework
         }
 
         // Process non-conditional variants first
-        var conditionalVariant = variants.OfType<ConditionalVariant>().FirstOrDefault();
-        var nonConditionalVariants = variants.Where(v => v is not ConditionalVariant);
+        var conditionalVariant = variants.OfType<NameConditionalVariant>().FirstOrDefault();
+        var nonConditionalVariants = variants.Where(v => v is not NameConditionalVariant);
 
         selector = nonConditionalVariants.OrderBy(v => typeof(PseudoElementVariant) == v.GetType() ? 1 : 0).Aggregate(selector, (current, variant) => variant switch
         {
@@ -455,7 +458,22 @@ public class CssFramework
         // Add conditional variant if present
         if (conditionalVariant != null)
         {
-            selector = $"{selector} {conditionalVariant.Condition}";
+            var name = string.Empty;
+
+            if (original.Selector.Contains('/'))
+            {
+                // Find the position of slash and colon
+                var slashIndex = original.Selector.IndexOf('/');
+                var colonIndex = original.Selector.IndexOf(':');
+
+                // If there's no colon after the slash, return the original string
+                if (colonIndex > slashIndex)
+                {
+                    name = $@"\/{original.Selector.Substring(slashIndex + 1, colonIndex - slashIndex - 1)}";
+                }
+            }
+
+            selector = $"{selector} {conditionalVariant.Condition(name)}";
         }
 
         return selector;
@@ -468,6 +486,17 @@ public class CssFramework
         firstWord = EscapeCssClassSelector(firstWord);
 
         return $"{firstWord}{originalSelector[spaceIndex..]}";
+    }
+
+    private static string StripNamedVariant(string original)
+    {
+        var colonIndex = original.IndexOf('/');
+        if (colonIndex < 0)
+        {
+            return original;
+        }
+
+        return original[..colonIndex];
     }
 
     private static string EscapeCssClassSelector(string firstWord)

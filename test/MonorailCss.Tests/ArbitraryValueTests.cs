@@ -1,6 +1,52 @@
 ﻿using MonorailCss.Tests.Plugins;
+using Shouldly;
 
 namespace MonorailCss.Tests;
+
+public class PeerTests
+{
+    [Fact]
+    public void Can_do_named_peers()
+    {
+        var framework = new CssFramework(new CssFrameworkSettings()
+        {
+            CssResetOverride = string.Empty
+        });
+        var r = framework.Process([
+            "peer-checked/tab2:block",
+        ]);
+
+        r.Trim().ShouldBe("""
+                      .peer-checked\/tab2\:block {
+                        &:is(:where(.peer\/tab2):checked ~ *) {
+                          display:block;
+                        }
+                      }
+                      """.Trim(), StringCompareShould.IgnoreLineEndings);
+    }
+
+    [Fact]
+    public void Can_do_regular_peers()
+    {
+        var framework = new CssFramework(new CssFrameworkSettings()
+        {
+            CssResetOverride = string.Empty
+        });
+        var r = framework.Process([
+            "peer-checked:block",
+        ]);
+
+        r.ShouldBeCss("""
+
+                      .peer-checked\:block {
+                        &:is(:where(.peer):checked ~ *) {
+                          display:block;
+                        }
+                      }
+
+                      """);
+    }
+}
 
 public class ArbitraryValueTests
 {

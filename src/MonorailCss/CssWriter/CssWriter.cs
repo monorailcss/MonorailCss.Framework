@@ -1,6 +1,5 @@
 ﻿using System.Text;
 using MonorailCss.Css;
-using MonorailCss.Variants;
 
 namespace MonorailCss.CssWriter;
 

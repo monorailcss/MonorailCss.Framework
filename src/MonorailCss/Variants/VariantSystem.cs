@@ -163,8 +163,8 @@ public class VariantSystem
         {
             var pseudoClass = css ?? $":{name}";
             variants.Add(name, new PseudoClassVariant(pseudoClass));
-            variants.Add($"peer-{name}", new ConditionalVariant(name, $"&:is(:where(.peer){pseudoClass} ~ *)"));
-            variants.Add($"group-{name}", new ConditionalVariant(name, $"&:is(:where(.group){pseudoClass} *)"));
+            variants.Add($"peer-{name}", new NameConditionalVariant(name, s => $"&:is(:where(.peer{s}){pseudoClass} ~ *)"));
+            variants.Add($"group-{name}", new NameConditionalVariant(name, s => $"&:is(:where(.group{s}){pseudoClass} *)"));
         }
     }
 }

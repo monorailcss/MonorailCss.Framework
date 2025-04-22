@@ -33,6 +33,7 @@ public class ExtractorTests
     [InlineData("dark:sm:line-through", new[] { "dark", "sm" }, "line-through", "", ':')]
     [InlineData("dark_sm_mono-line-through", new[] { "dark", "sm" }, "line-through", "mono-", '_')]
     [InlineData("prose-headings:underline", new[] { "prose-headings"}, "underline", "", ':')]
+    [InlineData("peer-checked/tab2:block", new[] { "peer-checked/tab2"}, "block", "", ':')]
     public void Can_extract_utilities(string className, string[] variants, string utility, string prefix,
         char separator)
     {
