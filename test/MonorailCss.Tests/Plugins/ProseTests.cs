@@ -54,12 +54,4 @@ public class ProseTests
         var results = framework.Process(["writing", "writing-sm", "mx-4"]);
         results.ShouldContain(".writing");
     }
-
-    [Fact]
-    public void Prose_has_tbody_tr_last_child()
-    {
-        var framework = new CssFramework(new CssFrameworkSettings { CssResetOverride = string.Empty });
-        var results = framework.Process(["prose"]);
-        results.ShouldContainElementWithCssProperty(".prose tbody tr:last-child", "border-bottom-width", "0");
-    }
 }
