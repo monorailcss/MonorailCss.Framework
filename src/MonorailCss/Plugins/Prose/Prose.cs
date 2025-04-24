@@ -161,18 +161,18 @@ public partial class Prose : IUtilityNamespacePlugin, IVariantPluginProvider
             Css =
             {
                 [CssProperties.MaxWidth] = _settings.MaxWidth,
-                [CssProperties.Color] = _cssVar(CssFramework.GetVariableNameWithPrefix("prose-body")),
+                [CssProperties.Color] = _cssVar("prose-body"),
                 [CssProperties.LineHeight] = Rounds(28 / 16m),
             },
             ChildRules =
             [
                 GetProseCssRuleSet("a", [
-                    (CssProperties.Color, _cssVar(_var("prose-links"))),
+                    (CssProperties.Color, _cssVar("prose-links")),
                     (CssProperties.TextDecoration, "underline"),
                     (CssProperties.FontWeight, "500"),
                 ]),
                 GetProseCssRuleSet("strong", [
-                    (CssProperties.Color, _cssVar(_var("prose-bold"))),
+                    (CssProperties.Color, _cssVar("prose-bold")),
                     (CssProperties.FontWeight, "600"),
                 ]),
                 GetProseCssRuleSet("ol[type=\"A\"]", [
@@ -192,21 +192,21 @@ public partial class Prose : IUtilityNamespacePlugin, IVariantPluginProvider
                 ]),
                 GetProseCssRuleSet("ol > li::marker", [
                     (CssProperties.FontWeight, "400"),
-                    (CssProperties.Color, _cssVar(_var("prose-counters"))),
+                    (CssProperties.Color, _cssVar("prose-counters")),
                 ]),
                 GetProseCssRuleSet("ul > li::marker", [
-                    (CssProperties.Color, _cssVar(_var("prose-bullets"))),
+                    (CssProperties.Color, _cssVar("prose-bullets")),
                 ]),
                 GetProseCssRuleSet("hr", [
-                    (CssProperties.BorderColor, _cssVar(_var("prose-hr"))),
+                    (CssProperties.BorderColor, _cssVar("prose-hr")),
                     (CssProperties.BorderTopWidth, "1px"),
                 ]),
                 GetProseCssRuleSet("blockquote", [
                     (CssProperties.FontWeight, "500"),
                     (CssProperties.FontStyle, "italic"),
-                    (CssProperties.Color, _cssVar(_var("prose-quotes"))),
+                    (CssProperties.Color, _cssVar("prose-quotes")),
                     (CssProperties.BorderLeftWidth, "0.25rem"),
-                    (CssProperties.BorderLeftColor, _cssVar(_var("prose-quote-borders"))),
+                    (CssProperties.BorderLeftColor, _cssVar("prose-quote-borders")),
                     (CssProperties.Quotes, "\"\\201C\"\"\\201D\"\"\\2018\"\"\\2019\""),
                 ]),
                 GetProseCssRuleSet("blockquote p:first-of-type::before", [
@@ -216,19 +216,19 @@ public partial class Prose : IUtilityNamespacePlugin, IVariantPluginProvider
                     (CssProperties.Content, "close-quote"),
                 ]),
                 GetProseCssRuleSet("h1", [
-                    (CssProperties.Color, _cssVar(_var("prose-headings"))),
+                    (CssProperties.Color, _cssVar("prose-headings")),
                     (CssProperties.FontWeight, "800"),
                 ]),
                 GetProseCssRuleSet("h2", [
-                    (CssProperties.Color, _cssVar(_var("prose-headings"))),
+                    (CssProperties.Color, _cssVar("prose-headings")),
                     (CssProperties.FontWeight, "700"),
                 ]),
                 GetProseCssRuleSet("h3", [
-                    (CssProperties.Color, _cssVar(_var("prose-headings"))),
+                    (CssProperties.Color, _cssVar("prose-headings")),
                     (CssProperties.FontWeight, "600"),
                 ]),
                 GetProseCssRuleSet("h4", [
-                    (CssProperties.Color, _cssVar(_var("prose-headings"))),
+                    (CssProperties.Color, _cssVar("prose-headings")),
                     (CssProperties.FontWeight, "600"),
                 ]),
                 GetProseCssRuleSet("figure > *", [
@@ -236,16 +236,16 @@ public partial class Prose : IUtilityNamespacePlugin, IVariantPluginProvider
                     (CssProperties.MarginBottom, "0"),
                 ]),
                 GetProseCssRuleSet("figcaption", [
-                    (CssProperties.Color, _cssVar(_var("prose-captions"))),
+                    (CssProperties.Color, _cssVar("prose-captions")),
                 ]),
                 GetProseCssRuleSet("kbd", [
                     (CssProperties.FontWeight, "500"),
                     (CssProperties.FontFamily, "inherit"),
-                    (CssProperties.Color, _cssVar(_var("prose-kbd"))),
-                    (CssProperties.BoxShadow, _cssVar(_var("prose-kbd-shadows"))),
+                    (CssProperties.Color, _cssVar("prose-kbd")),
+                    (CssProperties.BoxShadow, _cssVar("prose-kbd-shadows")),
                 ]),
                 GetProseCssRuleSet("code", [
-                    (CssProperties.Color, _cssVar(_var("prose-code"))),
+                    (CssProperties.Color, _cssVar("prose-code")),
                     (CssProperties.FontWeight, "600"),
                 ]),
                 GetProseCssRuleSet("code::before", [
@@ -255,11 +255,11 @@ public partial class Prose : IUtilityNamespacePlugin, IVariantPluginProvider
                     (CssProperties.Content, "`"),
                 ]),
                 GetProseCssRuleSet("a code", [
-                    (CssProperties.Color, _cssVar(_var("prose-links"))),
+                    (CssProperties.Color, _cssVar("prose-links")),
                 ]),
                 GetProseCssRuleSet("pre", [
-                    (CssProperties.Color, _cssVar(_var("prose-pre-code"))),
-                    (CssProperties.BackgroundColor, _cssVar(_var("prose-pre-bg"))),
+                    (CssProperties.Color, _cssVar("prose-pre-code")),
+                    (CssProperties.BackgroundColor, _cssVar("prose-pre-bg")),
                     (CssProperties.OverflowX, "auto"),
                     (CssProperties.FontWeight, "400"),
                 ]),
@@ -289,16 +289,16 @@ public partial class Prose : IUtilityNamespacePlugin, IVariantPluginProvider
                 ]),
                 GetProseCssRuleSet("thead", [
                     (CssProperties.BorderBottomWidth, "1px"),
-                    (CssProperties.BorderBottomColor, _cssVar(_var("prose-th-borders"))),
+                    (CssProperties.BorderBottomColor, _cssVar("prose-th-borders")),
                 ]),
                 GetProseCssRuleSet("thead th", [
-                    (CssProperties.Color, _cssVar(_var("prose-headings"))),
+                    (CssProperties.Color, _cssVar("prose-headings")),
                     (CssProperties.FontWeight, "600"),
                     (CssProperties.VerticalAlign, "bottom"),
                 ]),
                 GetProseCssRuleSet("tbody tr", [
                     (CssProperties.BorderBottomWidth, "1px"),
-                    (CssProperties.BorderBottomColor, _cssVar(_var("prose-td-borders"))),
+                    (CssProperties.BorderBottomColor, _cssVar("prose-td-borders")),
                 ]),
                 GetProseCssRuleSet("tbody tr:last-child", [
                     (CssProperties.BorderBottomWidth, "0"),
@@ -308,7 +308,7 @@ public partial class Prose : IUtilityNamespacePlugin, IVariantPluginProvider
                 ]),
                 GetProseCssRuleSet("tfoot", [
                     (CssProperties.BorderTopWidth, "1px"),
-                    (CssProperties.BorderTopColor, _cssVar(_var("prose-th-borders"))),
+                    (CssProperties.BorderTopColor, _cssVar("prose-th-borders")),
                 ]),
                 GetProseCssRuleSet("tfoot td", [
                     (CssProperties.VerticalAlign, "top"),
@@ -425,5 +425,4 @@ public partial class Prose : IUtilityNamespacePlugin, IVariantPluginProvider
             }.ToImmutableDictionary()
             .AddRange(current));
     }
-
 }
