@@ -18,56 +18,56 @@ public partial class Prose
             ],
             ChildRules =
             [
-                GetProseCssRuleSet("p", [
+                new CssRuleSet("p", [
                     (CssProperties.MarginTop, ModifierSettings.Em(24, 20)), (CssProperties.MarginBottom, ModifierSettings.Em(24, 20)),
                 ]),
-                GetProseCssRuleSet("[class~=\"lead\"]", [
+                new CssRuleSet("[class~=\"lead\"]", [
                     (CssProperties.FontSize, ModifierSettings.Em(24, 20)),
                     (CssProperties.LineHeight, ModifierSettings.Rounds(36 / 24m)),
                     (CssProperties.MarginTop, ModifierSettings.Em(24, 24)),
                     (CssProperties.MarginBottom, ModifierSettings.Em(24, 24)),
                 ]),
-                GetProseCssRuleSet("blockquote", [
+                new CssRuleSet("blockquote", [
                     (CssProperties.MarginTop, ModifierSettings.Em(48, 30)),
                     (CssProperties.MarginBottom, ModifierSettings.Em(48, 30)),
                     (CssProperties.PaddingLeft, ModifierSettings.Em(32, 30)),
                 ]),
-                GetProseCssRuleSet("h1", [
+                new CssRuleSet("h1", [
                     (CssProperties.FontSize, ModifierSettings.Em(56, 20)),
                     (CssProperties.MarginTop, "0"),
                     (CssProperties.MarginBottom, ModifierSettings.Em(48, 56)),
                     (CssProperties.LineHeight, ModifierSettings.Rounds(56 / 56m)),
                 ]),
-                GetProseCssRuleSet("h2", [
+                new CssRuleSet("h2", [
                     (CssProperties.FontSize, ModifierSettings.Em(36, 20)),
                     (CssProperties.MarginTop, ModifierSettings.Em(56, 36)),
                     (CssProperties.MarginBottom, ModifierSettings.Em(32, 36)),
                     (CssProperties.LineHeight, ModifierSettings.Rounds(40 / 36m)),
                 ]),
-                GetProseCssRuleSet("h3", [
+                new CssRuleSet("h3", [
                     (CssProperties.FontSize, ModifierSettings.Em(30, 20)),
                     (CssProperties.MarginTop, ModifierSettings.Em(48, 30)),
                     (CssProperties.MarginBottom, ModifierSettings.Em(20, 30)),
                     (CssProperties.LineHeight, ModifierSettings.Rounds(40 / 30m)),
                 ]),
-                GetProseCssRuleSet("h4", [
+                new CssRuleSet("h4", [
                     (CssProperties.MarginTop, ModifierSettings.Em(36, 20)),
                     (CssProperties.MarginBottom, ModifierSettings.Em(12, 20)),
                     (CssProperties.LineHeight, ModifierSettings.Rounds(32 / 20m)),
                 ]),
-                GetProseCssRuleSet("img", [
+                new CssRuleSet("img", [
                     (CssProperties.MarginTop, ModifierSettings.Em(40, 20)), (CssProperties.MarginBottom, ModifierSettings.Em(40, 20)),
                 ]),
-                GetProseCssRuleSet("picture", [
+                new CssRuleSet("picture", [
                     (CssProperties.MarginTop, ModifierSettings.Em(40, 20)), (CssProperties.MarginBottom, ModifierSettings.Em(40, 20)),
                 ]),
-                GetProseCssRuleSet("picture > img", [
+                new CssRuleSet("picture > img", [
                     (CssProperties.MarginTop, "0"), (CssProperties.MarginBottom, "0"),
                 ]),
-                GetProseCssRuleSet("video", [
+                new CssRuleSet("video", [
                     (CssProperties.MarginTop, ModifierSettings.Em(40, 20)), (CssProperties.MarginBottom, ModifierSettings.Em(40, 20)),
                 ]),
-                GetProseCssRuleSet("kbd", [
+                new CssRuleSet("kbd", [
                     (CssProperties.FontSize, ModifierSettings.Em(18, 20)),
                     (CssProperties.BorderRadius, ModifierSettings.Rem(5)),
                     (CssProperties.PaddingTop, ModifierSettings.Em(5, 20)),
@@ -75,16 +75,16 @@ public partial class Prose
                     (CssProperties.PaddingBottom, ModifierSettings.Em(5, 20)),
                     (CssProperties.PaddingLeft, ModifierSettings.Em(8, 20)),
                 ]),
-                GetProseCssRuleSet("code", [
+                new CssRuleSet("code", [
                     (CssProperties.FontSize, ModifierSettings.Em(18, 20)),
                 ]),
-                GetProseCssRuleSet("h2 code", [
+                new CssRuleSet("h2 code", [
                     (CssProperties.FontSize, ModifierSettings.Em(31, 36)),
                 ]),
-                GetProseCssRuleSet("h3 code", [
+                new CssRuleSet("h3 code", [
                     (CssProperties.FontSize, ModifierSettings.Em(27, 30)),
                 ]),
-                GetProseCssRuleSet("pre", [
+                new CssRuleSet("pre", [
                     (CssProperties.FontSize, ModifierSettings.Em(18, 20)),
                     (CssProperties.LineHeight, ModifierSettings.Rounds(32 / 18m)),
                     (CssProperties.MarginTop, ModifierSettings.Em(36, 18)),
@@ -95,108 +95,108 @@ public partial class Prose
                     (CssProperties.PaddingBottom, ModifierSettings.Em(20, 18)),
                     (CssProperties.PaddingLeft, ModifierSettings.Em(24, 18)),
                 ]),
-                GetProseCssRuleSet("ol", [
+                new CssRuleSet("ol", [
                     (CssProperties.MarginTop, ModifierSettings.Em(24, 20)),
                     (CssProperties.MarginBottom, ModifierSettings.Em(24, 20)),
                     (CssProperties.PaddingLeft, ModifierSettings.Em(32, 20)),
                 ]),
-                GetProseCssRuleSet("ul", [
+                new CssRuleSet("ul", [
                     (CssProperties.MarginTop, ModifierSettings.Em(24, 20)),
                     (CssProperties.MarginBottom, ModifierSettings.Em(24, 20)),
                     (CssProperties.PaddingLeft, ModifierSettings.Em(32, 20)),
                 ]),
-                GetProseCssRuleSet("li", [
+                new CssRuleSet("li", [
                     (CssProperties.MarginTop, ModifierSettings.Em(12, 20)), (CssProperties.MarginBottom, ModifierSettings.Em(12, 20)),
                 ]),
-                GetProseCssRuleSet("ol > li", [
+                new CssRuleSet("ol > li", [
                     (CssProperties.PaddingLeft, ModifierSettings.Em(8, 20)),
                 ]),
-                GetProseCssRuleSet("ul > li", [
+                new CssRuleSet("ul > li", [
                     (CssProperties.PaddingLeft, ModifierSettings.Em(8, 20)),
                 ]),
-                GetProseCssRuleSet("> ul > li p", [
+                new CssRuleSet("> ul > li p", [
                     (CssProperties.MarginTop, ModifierSettings.Em(16, 20)), (CssProperties.MarginBottom, ModifierSettings.Em(16, 20)),
                 ]),
-                GetProseCssRuleSet("> ul > li > *:first-child", [
+                new CssRuleSet("> ul > li > *:first-child", [
                     (CssProperties.MarginTop, ModifierSettings.Em(24, 20)),
                 ]),
-                GetProseCssRuleSet("> ul > li > *:last-child", [
+                new CssRuleSet("> ul > li > *:last-child", [
                     (CssProperties.MarginBottom, ModifierSettings.Em(24, 20)),
                 ]),
-                GetProseCssRuleSet("> ol > li > *:first-child", [
+                new CssRuleSet("> ol > li > *:first-child", [
                     (CssProperties.MarginTop, ModifierSettings.Em(24, 20)),
                 ]),
-                GetProseCssRuleSet("> ol > li > *:last-child", [
+                new CssRuleSet("> ol > li > *:last-child", [
                     (CssProperties.MarginBottom, ModifierSettings.Em(24, 20)),
                 ]),
-                GetProseCssRuleSet("ul ul, ul ol, ol ul, ol ol", [
+                new CssRuleSet("ul ul, ul ol, ol ul, ol ol", [
                     (CssProperties.MarginTop, ModifierSettings.Em(16, 20)), (CssProperties.MarginBottom, ModifierSettings.Em(16, 20)),
                 ]),
-                GetProseCssRuleSet("dl", [
+                new CssRuleSet("dl", [
                     (CssProperties.MarginTop, ModifierSettings.Em(24, 20)), (CssProperties.MarginBottom, ModifierSettings.Em(24, 20)),
                 ]),
-                GetProseCssRuleSet("dt", [
+                new CssRuleSet("dt", [
                     (CssProperties.MarginTop, ModifierSettings.Em(24, 20)),
                 ]),
-                GetProseCssRuleSet("dd", [
+                new CssRuleSet("dd", [
                     (CssProperties.MarginTop, ModifierSettings.Em(12, 20)), (CssProperties.PaddingLeft, ModifierSettings.Em(32, 20)),
                 ]),
-                GetProseCssRuleSet("hr", [
+                new CssRuleSet("hr", [
                     (CssProperties.MarginTop, ModifierSettings.Em(56, 20)), (CssProperties.MarginBottom, ModifierSettings.Em(56, 20)),
                 ]),
-                GetProseCssRuleSet("hr + *", [
+                new CssRuleSet("hr + *", [
                     (CssProperties.MarginTop, "0"),
                 ]),
-                GetProseCssRuleSet("h2 + *", [
+                new CssRuleSet("h2 + *", [
                     (CssProperties.MarginTop, "0"),
                 ]),
-                GetProseCssRuleSet("h3 + *", [
+                new CssRuleSet("h3 + *", [
                     (CssProperties.MarginTop, "0"),
                 ]),
-                GetProseCssRuleSet("h4 + *", [
+                new CssRuleSet("h4 + *", [
                     (CssProperties.MarginTop, "0"),
                 ]),
-                GetProseCssRuleSet("table", [
+                new CssRuleSet("table", [
                     (CssProperties.FontSize, ModifierSettings.Em(18, 20)), (CssProperties.LineHeight, ModifierSettings.Rounds(28 / 18m)),
                 ]),
-                GetProseCssRuleSet("thead th", [
+                new CssRuleSet("thead th", [
                     (CssProperties.PaddingRight, ModifierSettings.Em(12, 18)),
                     (CssProperties.PaddingBottom, ModifierSettings.Em(16, 18)),
                     (CssProperties.PaddingLeft, ModifierSettings.Em(12, 18)),
                 ]),
-                GetProseCssRuleSet("thead th:first-child", [
+                new CssRuleSet("thead th:first-child", [
                     (CssProperties.PaddingLeft, "0"),
                 ]),
-                GetProseCssRuleSet("thead th:last-child", [
+                new CssRuleSet("thead th:last-child", [
                     (CssProperties.PaddingRight, "0"),
                 ]),
-                GetProseCssRuleSet("tbody td, tfoot td", [
+                new CssRuleSet("tbody td, tfoot td", [
                     (CssProperties.PaddingTop, ModifierSettings.Em(16, 18)),
                     (CssProperties.PaddingRight, ModifierSettings.Em(12, 18)),
                     (CssProperties.PaddingBottom, ModifierSettings.Em(16, 18)),
                     (CssProperties.PaddingLeft, ModifierSettings.Em(12, 18)),
                 ]),
-                GetProseCssRuleSet("tbody td:first-child, tfoot td:first-child", [
+                new CssRuleSet("tbody td:first-child, tfoot td:first-child", [
                     (CssProperties.PaddingLeft, "0"),
                 ]),
-                GetProseCssRuleSet("tbody td:last-child, tfoot td:last-child", [
+                new CssRuleSet("tbody td:last-child, tfoot td:last-child", [
                     (CssProperties.PaddingRight, "0"),
                 ]),
-                GetProseCssRuleSet("figure", [
+                new CssRuleSet("figure", [
                     (CssProperties.MarginTop, ModifierSettings.Em(40, 20)), (CssProperties.MarginBottom, ModifierSettings.Em(40, 20)),
                 ]),
-                GetProseCssRuleSet("figure > *", [
+                new CssRuleSet("figure > *", [
                     (CssProperties.MarginTop, "0"), (CssProperties.MarginBottom, "0"),
                 ]),
-                GetProseCssRuleSet("figcaption", [
+                new CssRuleSet("figcaption", [
                     (CssProperties.FontSize, ModifierSettings.Em(18, 20)),
                     (CssProperties.LineHeight, ModifierSettings.Rounds(28 / 18m)),
                     (CssProperties.MarginTop, ModifierSettings.Em(18, 18)),
                 ]),
-                GetProseCssRuleSet("> :first-child", [
+                new CssRuleSet("> :first-child", [
                     (CssProperties.MarginTop, "0"),
                 ]),
-                GetProseCssRuleSet("> :last-child", [
+                new CssRuleSet("> :last-child", [
                     (CssProperties.MarginBottom, "0"),
                 ]),
             ],

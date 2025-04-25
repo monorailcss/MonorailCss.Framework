@@ -42,7 +42,7 @@ public static class ShouldlyExtensions
             IsToleratingInvalidSelectors = true,
             IsIncludingUnknownRules = true
         });
-        
+
         var originalSheet = parser.ParseStyleSheet(value);
         originalSheet.ShouldNotBeNull("Could not parse original stylesheet.");
 
@@ -81,15 +81,15 @@ public static class ShouldlyExtensions
         // Process different rule types separately
         RulesShouldBeEqual(originalRuleList.OfType<ICssStyleRule>().ToArray(), expectedRuleList.OfType<ICssStyleRule>().ToArray());
         RulesShouldBeEqual(originalRuleList.OfType<ICssKeyframesRule>().ToArray(), expectedRuleList.OfType<ICssKeyframesRule>().ToArray());
-        
+
         // Add support for other rule types as needed...
         var otherOriginalRules = originalRuleList.Where(r => !(r is ICssStyleRule || r is ICssKeyframesRule || r is ICssMediaRule)).ToArray();
         var otherExpectedRules = expectedRuleList.Where(r => !(r is ICssStyleRule || r is ICssKeyframesRule || r is ICssMediaRule)).ToArray();
-        
+
         if (otherOriginalRules.Length > 0 || otherExpectedRules.Length > 0)
         {
             // If we have any other rule types, just check that the counts match
-            otherOriginalRules.Length.ShouldBe(otherExpectedRules.Length, 
+            otherOriginalRules.Length.ShouldBe(otherExpectedRules.Length,
                 "Different number of unsupported rule types between original and expected CSS");
         }
     }
@@ -99,7 +99,7 @@ public static class ShouldlyExtensions
         var originalSelectors = originalRules.Select(i => i.Name).ToArray();
         var expectedSelectors = expectedRules.Select(i => i.Name).ToArray();
 
-        originalSelectors.ShouldBe(expectedSelectors, 
+        originalSelectors.ShouldBe(expectedSelectors,
             customMessage: "Missing keyframe in style sheet",
             ignoreOrder: true);
 
@@ -117,22 +117,22 @@ public static class ShouldlyExtensions
         // Verify keyframe rules match by key text (e.g., "from", "to", "50%")
         var originalKeyTexts = originalRules.Select(i => i.KeyText).OrderBy(t => t).ToArray();
         var expectedKeyTexts = expectedRules.Select(i => i.KeyText).OrderBy(t => t).ToArray();
-        
-        originalKeyTexts.ShouldBe(expectedKeyTexts, 
+
+        originalKeyTexts.ShouldBe(expectedKeyTexts,
             customMessage: "Keyframe rule entry points don't match",
             ignoreOrder: false); // Order is important for keyframes
-        
+
         // Compare properties for each keyframe point
         foreach (var originalRule in originalRules)
         {
             var expectedRule = expectedRules.FirstOrDefault(i => i.KeyText == originalRule.KeyText);
             expectedRule.ShouldNotBeNull($"Expected keyframe point '{originalRule.KeyText}' not found");
-            
+
             var originalPropertiesAndValues = GetNormalizedProperties(originalRule.Style);
             var expectedPropertiesAndValues = GetNormalizedProperties(expectedRule.Style);
-            
-            originalPropertiesAndValues.ShouldBe(expectedPropertiesAndValues, 
-                customMessage: $"Keyframe '{originalRule.KeyText}' properties don't match", 
+
+            originalPropertiesAndValues.ShouldBe(expectedPropertiesAndValues,
+                customMessage: $"Keyframe '{originalRule.KeyText}' properties don't match",
                 ignoreOrder: true);
         }
     }
@@ -142,9 +142,9 @@ public static class ShouldlyExtensions
         var originalSelectors = originalRules.Select(NormalizeSelector).ToArray();
         var expectedSelectors = expectedRules.Select(NormalizeSelector).ToArray();
 
-        try 
+        try
         {
-            originalSelectors.ShouldBe(expectedSelectors, 
+            originalSelectors.ShouldBe(expectedSelectors,
                 customMessage: "Missing selectors in style sheet",
                 ignoreOrder: true);
         }
@@ -153,12 +153,12 @@ public static class ShouldlyExtensions
             // More detailed error message for selector mismatch
             var missingInExpected = originalSelectors.Except(expectedSelectors).ToArray();
             var missingInActual = expectedSelectors.Except(originalSelectors).ToArray();
-            
+
             if (missingInExpected.Any())
                 throw new ShouldAssertException($"Selectors in actual but missing from expected: {string.Join(", ", missingInExpected)}");
             if (missingInActual.Any())
                 throw new ShouldAssertException($"Selectors in expected but missing from actual: {string.Join(", ", missingInActual)}");
-            
+
             throw; // If we can't determine a more specific error, rethrow the original
         }
 
@@ -167,18 +167,18 @@ public static class ShouldlyExtensions
             // Find the matching rule with the same normalized selector
             string normalizedOriginalSelector = NormalizeSelector(originalRule);
             var matchingRules = expectedRules.Where(r => NormalizeSelector(r) == normalizedOriginalSelector).ToArray();
-            
-            matchingRules.Length.ShouldNotBe(0, 
+
+            matchingRules.Length.ShouldNotBe(0,
                 $"No matching rule found for selector '{originalRule.SelectorText}' (normalized: '{normalizedOriginalSelector}')");
-            
+
             // Only compare to the first matching rule for simplicity
             var expectedRule = matchingRules[0];
-            
+
             try
             {
                 var originalPropertiesAndValues = GetNormalizedProperties(originalRule.Style);
                 var expectedPropertiesAndValues = GetNormalizedProperties(expectedRule.Style);
-                
+
                 originalPropertiesAndValues.ShouldBe(expectedPropertiesAndValues,
                     customMessage: $"{originalRule.Friendly()} rules don't match.",
                     ignoreOrder: true);
@@ -188,18 +188,18 @@ public static class ShouldlyExtensions
                 // Provide more detailed error for property mismatches
                 var originalProps = GetNormalizedProperties(originalRule.Style);
                 var expectedProps = GetNormalizedProperties(expectedRule.Style);
-                
+
                 var missingInExpected = originalProps.Except(expectedProps).ToArray();
                 var missingInActual = expectedProps.Except(originalProps).ToArray();
-                
+
                 var errorMsg = $"CSS property mismatch for selector '{originalRule.SelectorText}':\n";
-                
+
                 if (missingInExpected.Any())
                     errorMsg += $"Properties in actual but missing from expected: {string.Join(", ", missingInExpected.Select(p => $"{p.Name}: {p.Value}"))}\n";
                 if (missingInActual.Any())
                     errorMsg += $"Properties in expected but missing from actual: {string.Join(", ", missingInActual.Select(p => $"{p.Name}: {p.Value}"))}\n";
-                
-                throw new ShouldAssertException(errorMsg);
+
+                throw new ShouldAssertException(errorMsg, ex);
             }
         }
     }

@@ -38,9 +38,11 @@ public class ProseTests
         });
 
         var cssSheet = framework.Process(["prose"]);
-        // this code should be working, but AngleSharp.Css translates the colors behind the scenes
-        // cssSheet.ShouldContainElementWithCssProperty(".prose a", CssProperties.Color, "oklch(0.623 0.214 259.815)");
-        cssSheet.ShouldContainElementWithCssProperty(".prose a", CssProperties.Color, "rgba(14, 0, 55, 1)");
+        cssSheet.ShouldContain("""
+                               .prose :where(h2 code):not(:where([class~="not-prose"],[class~="not-prose"] *)) {
+                                 font-size:0.875em;
+                               }
+                               """);
     }
 
     [Fact]

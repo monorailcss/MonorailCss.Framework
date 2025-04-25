@@ -108,7 +108,10 @@ public partial class Prose : IUtilityNamespacePlugin, IVariantPluginProvider
 
         foreach (var childRule in settings.ChildRules)
         {
-            yield return childRule with { Selector = $"{syntax.OriginalSyntax} {childRule.Selector}", };
+            yield return childRule with
+            {
+                Selector = $"{syntax.OriginalSyntax} {WithNotProse(childRule.Selector.ToString())}",
+            };
         }
     }
 
@@ -149,11 +152,6 @@ public partial class Prose : IUtilityNamespacePlugin, IVariantPluginProvider
         return ($"{ns}-{modifer}", new SelectorVariant(selector));
     }
 
-    private CssRuleSet GetProseCssRuleSet(string selector, CssDeclarationList declarations)
-    {
-        return new CssRuleSet(WithNotProse(selector), declarations);
-    }
-
     private CssSettings GetDefaultSettings()
     {
         return new CssSettings
@@ -166,42 +164,42 @@ public partial class Prose : IUtilityNamespacePlugin, IVariantPluginProvider
             },
             ChildRules =
             [
-                GetProseCssRuleSet("a", [
+                new CssRuleSet("a", [
                     (CssProperties.Color, _cssVar("prose-links")),
                     (CssProperties.TextDecoration, "underline"),
                     (CssProperties.FontWeight, "500"),
                 ]),
-                GetProseCssRuleSet("strong", [
+                new CssRuleSet("strong", [
                     (CssProperties.Color, _cssVar("prose-bold")),
                     (CssProperties.FontWeight, "600"),
                 ]),
-                GetProseCssRuleSet("ol[type=\"A\"]", [
+                new CssRuleSet("ol[type=\"A\"]", [
                     (CssProperties.ListStyleType, "upper-alpha"),
                 ]),
-                GetProseCssRuleSet("ol[type=\"a\"]", [
+                new CssRuleSet("ol[type=\"a\"]", [
                     (CssProperties.ListStyleType, "lower-alpha"),
                 ]),
-                GetProseCssRuleSet("ol[type=\"I\"]", [
+                new CssRuleSet("ol[type=\"I\"]", [
                     (CssProperties.ListStyleType, "upper-roman"),
                 ]),
-                GetProseCssRuleSet("ol[type=\"i\"]", [
+                new CssRuleSet("ol[type=\"i\"]", [
                     (CssProperties.ListStyleType, "lower-roman"),
                 ]),
-                GetProseCssRuleSet("ol[type=\"1\"]", [
+                new CssRuleSet("ol[type=\"1\"]", [
                     (CssProperties.ListStyleType, "decimal"),
                 ]),
-                GetProseCssRuleSet("ol > li::marker", [
+                new CssRuleSet("ol > li::marker", [
                     (CssProperties.FontWeight, "400"),
                     (CssProperties.Color, _cssVar("prose-counters")),
                 ]),
-                GetProseCssRuleSet("ul > li::marker", [
+                new CssRuleSet("ul > li::marker", [
                     (CssProperties.Color, _cssVar("prose-bullets")),
                 ]),
-                GetProseCssRuleSet("hr", [
+                new CssRuleSet("hr", [
                     (CssProperties.BorderColor, _cssVar("prose-hr")),
                     (CssProperties.BorderTopWidth, "1px"),
                 ]),
-                GetProseCssRuleSet("blockquote", [
+                new CssRuleSet("blockquote", [
                     (CssProperties.FontWeight, "500"),
                     (CssProperties.FontStyle, "italic"),
                     (CssProperties.Color, _cssVar("prose-quotes")),
@@ -209,61 +207,61 @@ public partial class Prose : IUtilityNamespacePlugin, IVariantPluginProvider
                     (CssProperties.BorderLeftColor, _cssVar("prose-quote-borders")),
                     (CssProperties.Quotes, "\"\\201C\"\"\\201D\"\"\\2018\"\"\\2019\""),
                 ]),
-                GetProseCssRuleSet("blockquote p:first-of-type::before", [
+                new CssRuleSet("blockquote p:first-of-type::before", [
                     (CssProperties.Content, "open-quote"),
                 ]),
-                GetProseCssRuleSet("blockquote p:last-of-type::after", [
+                new CssRuleSet("blockquote p:last-of-type::after", [
                     (CssProperties.Content, "close-quote"),
                 ]),
-                GetProseCssRuleSet("h1", [
+                new CssRuleSet("h1", [
                     (CssProperties.Color, _cssVar("prose-headings")),
                     (CssProperties.FontWeight, "800"),
                 ]),
-                GetProseCssRuleSet("h2", [
+                new CssRuleSet("h2", [
                     (CssProperties.Color, _cssVar("prose-headings")),
                     (CssProperties.FontWeight, "700"),
                 ]),
-                GetProseCssRuleSet("h3", [
+                new CssRuleSet("h3", [
                     (CssProperties.Color, _cssVar("prose-headings")),
                     (CssProperties.FontWeight, "600"),
                 ]),
-                GetProseCssRuleSet("h4", [
+                new CssRuleSet("h4", [
                     (CssProperties.Color, _cssVar("prose-headings")),
                     (CssProperties.FontWeight, "600"),
                 ]),
-                GetProseCssRuleSet("figure > *", [
+                new CssRuleSet("figure > *", [
                     (CssProperties.MarginTop, "0"),
                     (CssProperties.MarginBottom, "0"),
                 ]),
-                GetProseCssRuleSet("figcaption", [
+                new CssRuleSet("figcaption", [
                     (CssProperties.Color, _cssVar("prose-captions")),
                 ]),
-                GetProseCssRuleSet("kbd", [
+                new CssRuleSet("kbd", [
                     (CssProperties.FontWeight, "500"),
                     (CssProperties.FontFamily, "inherit"),
                     (CssProperties.Color, _cssVar("prose-kbd")),
                     (CssProperties.BoxShadow, _cssVar("prose-kbd-shadows")),
                 ]),
-                GetProseCssRuleSet("code", [
+                new CssRuleSet("code", [
                     (CssProperties.Color, _cssVar("prose-code")),
                     (CssProperties.FontWeight, "600"),
                 ]),
-                GetProseCssRuleSet("code::before", [
+                new CssRuleSet("code::before", [
                     (CssProperties.Content, "`"),
                 ]),
-                GetProseCssRuleSet("code::after", [
+                new CssRuleSet("code::after", [
                     (CssProperties.Content, "`"),
                 ]),
-                GetProseCssRuleSet("a code", [
+                new CssRuleSet("a code", [
                     (CssProperties.Color, _cssVar("prose-links")),
                 ]),
-                GetProseCssRuleSet("pre", [
+                new CssRuleSet("pre", [
                     (CssProperties.Color, _cssVar("prose-pre-code")),
                     (CssProperties.BackgroundColor, _cssVar("prose-pre-bg")),
                     (CssProperties.OverflowX, "auto"),
                     (CssProperties.FontWeight, "400"),
                 ]),
-                GetProseCssRuleSet("pre code", [
+                new CssRuleSet("pre code", [
                     (CssProperties.BackgroundColor, "transparent"),
                     (CssProperties.BorderWidth, "0"),
                     (CssProperties.BorderRadius, "0"),
@@ -274,62 +272,62 @@ public partial class Prose : IUtilityNamespacePlugin, IVariantPluginProvider
                     (CssProperties.FontFamily, "inherit"),
                     (CssProperties.LineHeight, "inherit"),
                 ]),
-                GetProseCssRuleSet("pre code::before", [
+                new CssRuleSet("pre code::before", [
                     (CssProperties.Content, "none"),
                 ]),
-                GetProseCssRuleSet("pre code::after", [
+                new CssRuleSet("pre code::after", [
                     (CssProperties.Content, "none"),
                 ]),
-                GetProseCssRuleSet("table", [
+                new CssRuleSet("table", [
                     (CssProperties.Width, "100%"),
                     (CssProperties.TableLayout, "auto"),
                     (CssProperties.TextAlign, "left"),
                     (CssProperties.MarginTop, Em(32, 16)),
                     (CssProperties.MarginBottom, Em(32, 16)),
                 ]),
-                GetProseCssRuleSet("thead", [
+                new CssRuleSet("thead", [
                     (CssProperties.BorderBottomWidth, "1px"),
                     (CssProperties.BorderBottomColor, _cssVar("prose-th-borders")),
                 ]),
-                GetProseCssRuleSet("thead th", [
+                new CssRuleSet("thead th", [
                     (CssProperties.Color, _cssVar("prose-headings")),
                     (CssProperties.FontWeight, "600"),
                     (CssProperties.VerticalAlign, "bottom"),
                 ]),
-                GetProseCssRuleSet("tbody tr", [
+                new CssRuleSet("tbody tr", [
                     (CssProperties.BorderBottomWidth, "1px"),
                     (CssProperties.BorderBottomColor, _cssVar("prose-td-borders")),
                 ]),
-                GetProseCssRuleSet("tbody tr:last-child", [
+                new CssRuleSet("tbody tr:last-child", [
                     (CssProperties.BorderBottomWidth, "0"),
                 ]),
-                GetProseCssRuleSet("tbody td", [
+                new CssRuleSet("tbody td", [
                     (CssProperties.VerticalAlign, "baseline"),
                 ]),
-                GetProseCssRuleSet("tfoot", [
+                new CssRuleSet("tfoot", [
                     (CssProperties.BorderTopWidth, "1px"),
                     (CssProperties.BorderTopColor, _cssVar("prose-th-borders")),
                 ]),
-                GetProseCssRuleSet("tfoot td", [
+                new CssRuleSet("tfoot td", [
                     (CssProperties.VerticalAlign, "top"),
                 ]),
-                GetProseCssRuleSet("img, video, figure", [
+                new CssRuleSet("img, video, figure", [
                     (CssProperties.MaxWidth, "100%"),
                     (CssProperties.Height, "auto"),
                 ]),
-                GetProseCssRuleSet("img", [
+                new CssRuleSet("img", [
                     (CssProperties.MarginTop, Em(32, 16)),
                     (CssProperties.MarginBottom, Em(32, 16)),
                 ]),
-                GetProseCssRuleSet("picture", [
+                new CssRuleSet("picture", [
                     (CssProperties.MarginTop, Em(32, 16)),
                     (CssProperties.MarginBottom, Em(32, 16)),
                 ]),
-                GetProseCssRuleSet("picture > img", [
+                new CssRuleSet("picture > img", [
                     (CssProperties.MarginTop, "0"),
                     (CssProperties.MarginBottom, "0"),
                 ]),
-                GetProseCssRuleSet("video", [
+                new CssRuleSet("video", [
                     (CssProperties.MarginTop, Em(32, 16)),
                     (CssProperties.MarginBottom, Em(32, 16)),
                 ]),
