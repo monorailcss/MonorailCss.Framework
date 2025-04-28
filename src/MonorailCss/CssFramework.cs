@@ -502,6 +502,7 @@ public class CssFramework
     private static string EscapeCssClassSelector(string firstWord)
     {
         return firstWord
+            .Replace("*", "\\*")
             .Replace(":", "\\:")
             .Replace("/", "\\/")
             .Replace("[", "\\[")

@@ -30,6 +30,8 @@ public class VariantSystem
     {
         var variants = new Dictionary<string, IVariant>();
 
+        AddPseudoClass("*", " > *");
+
         // Positional
         AddPseudoClass("first", ":first-child");
         AddPseudoClass("last", ":last-child");
