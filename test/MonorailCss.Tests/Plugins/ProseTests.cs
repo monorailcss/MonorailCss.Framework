@@ -40,6 +40,7 @@ public class ProseTests
         var cssSheet = framework.Process(["prose"]);
         cssSheet.ShouldContain("""
                                .prose :where(h2 code):not(:where([class~="not-prose"],[class~="not-prose"] *)) {
+                                 color:inherit;
                                  font-size:0.875em;
                                }
                                """);

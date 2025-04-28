@@ -123,7 +123,10 @@ public partial class Prose : IUtilityNamespacePlugin, IVariantPluginProvider
     }
 
     /// <inheritdoc />
-    public ImmutableArray<string> Namespaces => [.. new[] { _settings.Namespace }];
+    public ImmutableArray<string> Namespaces =>
+    [
+        _settings.Namespace,
+    ];
 
     /// <inheritdoc />
     public IEnumerable<(string Modifier, IVariant Variant)> GetVariants()
@@ -164,19 +167,50 @@ public partial class Prose : IUtilityNamespacePlugin, IVariantPluginProvider
             },
             ChildRules =
             [
+
+                // Empty paragraph rule to maintain correct merging order
+                new CssRuleSet("p", []),
+
+                // Lead text
+                new CssRuleSet("[class~=\"lead\"]", [
+                    (CssProperties.Color, _cssVar("prose-lead")),
+                ]),
+
+                // Links
                 new CssRuleSet("a", [
                     (CssProperties.Color, _cssVar("prose-links")),
                     (CssProperties.TextDecoration, "underline"),
                     (CssProperties.FontWeight, "500"),
                 ]),
+
+                // Strong text
                 new CssRuleSet("strong", [
                     (CssProperties.Color, _cssVar("prose-bold")),
                     (CssProperties.FontWeight, "600"),
                 ]),
+
+                // Inherit strong color in specific contexts
+                new CssRuleSet("a strong", [
+                    (CssProperties.Color, "inherit"),
+                ]),
+                new CssRuleSet("blockquote strong", [
+                    (CssProperties.Color, "inherit"),
+                ]),
+                new CssRuleSet("thead th strong", [
+                    (CssProperties.Color, "inherit"),
+                ]),
+
+                // Lists
                 new CssRuleSet("ol[type=\"A\"]", [
                     (CssProperties.ListStyleType, "upper-alpha"),
                 ]),
                 new CssRuleSet("ol[type=\"a\"]", [
+                    (CssProperties.ListStyleType, "lower-alpha"),
+                ]),
+                new CssRuleSet("ol[type=\"A\" s]", [
+                    (CssProperties.ListStyleType, "upper-alpha"),
+                ]),
+                new CssRuleSet("ol[type=\"a\" s]", [
                     (CssProperties.ListStyleType, "lower-alpha"),
                 ]),
                 new CssRuleSet("ol[type=\"I\"]", [
@@ -185,9 +219,20 @@ public partial class Prose : IUtilityNamespacePlugin, IVariantPluginProvider
                 new CssRuleSet("ol[type=\"i\"]", [
                     (CssProperties.ListStyleType, "lower-roman"),
                 ]),
+                new CssRuleSet("ol[type=\"I\" s]", [
+                    (CssProperties.ListStyleType, "upper-roman"),
+                ]),
+                new CssRuleSet("ol[type=\"i\" s]", [
+                    (CssProperties.ListStyleType, "lower-roman"),
+                ]),
                 new CssRuleSet("ol[type=\"1\"]", [
                     (CssProperties.ListStyleType, "decimal"),
                 ]),
+                new CssRuleSet("ul", [
+                    (CssProperties.ListStyleType, "disc"),
+                ]),
+
+                // List markers
                 new CssRuleSet("ol > li::marker", [
                     (CssProperties.FontWeight, "400"),
                     (CssProperties.Color, _cssVar("prose-counters")),
@@ -195,10 +240,20 @@ public partial class Prose : IUtilityNamespacePlugin, IVariantPluginProvider
                 new CssRuleSet("ul > li::marker", [
                     (CssProperties.Color, _cssVar("prose-bullets")),
                 ]),
+
+                // Definition lists
+                new CssRuleSet("dt", [
+                    (CssProperties.Color, _cssVar("prose-headings")),
+                    (CssProperties.FontWeight, "600"),
+                ]),
+
+                // Horizontal rule
                 new CssRuleSet("hr", [
                     (CssProperties.BorderColor, _cssVar("prose-hr")),
                     (CssProperties.BorderTopWidth, "1px"),
                 ]),
+
+                // Blockquotes
                 new CssRuleSet("blockquote", [
                     (CssProperties.FontWeight, "500"),
                     (CssProperties.FontStyle, "italic"),
@@ -213,22 +268,47 @@ public partial class Prose : IUtilityNamespacePlugin, IVariantPluginProvider
                 new CssRuleSet("blockquote p:last-of-type::after", [
                     (CssProperties.Content, "close-quote"),
                 ]),
+
+                // Headings
                 new CssRuleSet("h1", [
                     (CssProperties.Color, _cssVar("prose-headings")),
                     (CssProperties.FontWeight, "800"),
+                ]),
+                new CssRuleSet("h1 strong", [
+                    (CssProperties.FontWeight, "900"),
+                    (CssProperties.Color, "inherit"),
                 ]),
                 new CssRuleSet("h2", [
                     (CssProperties.Color, _cssVar("prose-headings")),
                     (CssProperties.FontWeight, "700"),
                 ]),
+                new CssRuleSet("h2 strong", [
+                    (CssProperties.FontWeight, "800"),
+                    (CssProperties.Color, "inherit"),
+                ]),
                 new CssRuleSet("h3", [
                     (CssProperties.Color, _cssVar("prose-headings")),
                     (CssProperties.FontWeight, "600"),
+                ]),
+                new CssRuleSet("h3 strong", [
+                    (CssProperties.FontWeight, "700"),
+                    (CssProperties.Color, "inherit"),
                 ]),
                 new CssRuleSet("h4", [
                     (CssProperties.Color, _cssVar("prose-headings")),
                     (CssProperties.FontWeight, "600"),
                 ]),
+                new CssRuleSet("h4 strong", [
+                    (CssProperties.FontWeight, "700"),
+                    (CssProperties.Color, "inherit"),
+                ]),
+
+                // Images and media
+                new CssRuleSet("img", []),
+                new CssRuleSet("picture", [
+                    (CssProperties.Display, "block"),
+                ]),
+                new CssRuleSet("video", []),
                 new CssRuleSet("figure > *", [
                     (CssProperties.MarginTop, "0"),
                     (CssProperties.MarginBottom, "0"),
@@ -236,12 +316,16 @@ public partial class Prose : IUtilityNamespacePlugin, IVariantPluginProvider
                 new CssRuleSet("figcaption", [
                     (CssProperties.Color, _cssVar("prose-captions")),
                 ]),
+
+                // Inline elements
                 new CssRuleSet("kbd", [
                     (CssProperties.FontWeight, "500"),
                     (CssProperties.FontFamily, "inherit"),
                     (CssProperties.Color, _cssVar("prose-kbd")),
-                    (CssProperties.BoxShadow, _cssVar("prose-kbd-shadows")),
+                    (CssProperties.BoxShadow, "0 0 0 1px rgb(var(--tw-prose-kbd-shadows) / 10%), 0 3px 0 rgb(var(--tw-prose-kbd-shadows) / 10%)"),
                 ]),
+
+                // Code
                 new CssRuleSet("code", [
                     (CssProperties.Color, _cssVar("prose-code")),
                     (CssProperties.FontWeight, "600"),
@@ -252,9 +336,31 @@ public partial class Prose : IUtilityNamespacePlugin, IVariantPluginProvider
                 new CssRuleSet("code::after", [
                     (CssProperties.Content, "`"),
                 ]),
+
+                // Code in specific contexts
                 new CssRuleSet("a code", [
-                    (CssProperties.Color, _cssVar("prose-links")),
+                    (CssProperties.Color, "inherit"),
                 ]),
+                new CssRuleSet("h1 code", [
+                    (CssProperties.Color, "inherit"),
+                ]),
+                new CssRuleSet("h2 code", [
+                    (CssProperties.Color, "inherit"),
+                ]),
+                new CssRuleSet("h3 code", [
+                    (CssProperties.Color, "inherit"),
+                ]),
+                new CssRuleSet("h4 code", [
+                    (CssProperties.Color, "inherit"),
+                ]),
+                new CssRuleSet("blockquote code", [
+                    (CssProperties.Color, "inherit"),
+                ]),
+                new CssRuleSet("thead th code", [
+                    (CssProperties.Color, "inherit"),
+                ]),
+
+                // Pre blocks
                 new CssRuleSet("pre", [
                     (CssProperties.Color, _cssVar("prose-pre-code")),
                     (CssProperties.BackgroundColor, _cssVar("prose-pre-bg")),
@@ -278,10 +384,11 @@ public partial class Prose : IUtilityNamespacePlugin, IVariantPluginProvider
                 new CssRuleSet("pre code::after", [
                     (CssProperties.Content, "none"),
                 ]),
+
+                // Tables
                 new CssRuleSet("table", [
                     (CssProperties.Width, "100%"),
                     (CssProperties.TableLayout, "auto"),
-                    (CssProperties.TextAlign, "left"),
                     (CssProperties.MarginTop, Em(32, 16)),
                     (CssProperties.MarginBottom, Em(32, 16)),
                 ]),
@@ -311,6 +418,11 @@ public partial class Prose : IUtilityNamespacePlugin, IVariantPluginProvider
                 new CssRuleSet("tfoot td", [
                     (CssProperties.VerticalAlign, "top"),
                 ]),
+                new CssRuleSet("th, td", [
+                    (CssProperties.TextAlign, "start"),
+                ]),
+
+                // Images, videos, and figures
                 new CssRuleSet("img, video, figure", [
                     (CssProperties.MaxWidth, "100%"),
                     (CssProperties.Height, "auto"),
@@ -339,11 +451,21 @@ public partial class Prose : IUtilityNamespacePlugin, IVariantPluginProvider
     {
         var baseSettings = new Dictionary<string, CssSettings>
         {
-            { "base", GetBaseCssSettings() },
-            { "sm", GetSmCssSettings() },
-            { "lg", GetLgCssSettings() },
-            { "xl", GetXlCssSettings() },
-            { "2xl", Get2XlCssSettings() },
+            {
+                "base", GetBaseCssSettings()
+            },
+            {
+                "sm", GetSmCssSettings()
+            },
+            {
+                "lg", GetLgCssSettings()
+            },
+            {
+                "xl", GetXlCssSettings()
+            },
+            {
+                "2xl", Get2XlCssSettings()
+            },
             {
                 "invert", new CssSettings
                 {
