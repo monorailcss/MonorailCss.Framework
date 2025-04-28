@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+    <title>Try MonorailCss</title>
+    <link href="_content/BlazorMonaco/lib/monaco-editor/min/vs/editor/editor.main.css" rel="stylesheet"/>
+
+    <style>
+        html {
+            --blazor-load-percentage: 0%;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: rgba(17, 24, 39, 1);
+            overflow-y: hidden;
+        }
+
+        .monaco-editor-container {
+            height: 100%;
+            width: 100%;
+            zoom: 0.9;
+        }
+
+        @media (min-width: 1500px) {
+            .monaco-editor-container {
+                zoom: 1;
+            }
+        }
+
+        #app #loading {
+            font-family: sans-serif;
+            color: white;
+            justify-content: center;
+            align-items: center;
+            display: flex;
+            height: 100vh;
+            font-size: 2rem;
+            font-weight: 500;
+            flex-direction: column;
+        }
+
+        @keyframes clearToFull {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        #main-app {
+            /* This section calls the slideInFromLeft animation we defined above */
+            animation: 0.25s ease-out 0s 1 clearToFull;
+        }
+
+        #loading .loading-message {
+            font-family:-apple-system, BlinkMacSystemFont, avenir next, avenir, segoe ui, helvetica neue, helvetica, Ubuntu, roboto, noto, arial, sans-serif;
+            font-size:1rem;
+            color:rgba(255,255,255,.4);
+            font-weight:300;
+            width:300px;
+            height: 2rem;
+            overflow:hidden;
+            position: relative;
+        }
+
+        #loading .loading-message .msg:after {
+            content: var(--blazor-load-percentage);
+        }
+
+        #loading .loading-message .msg {
+            --load-text-offset: calc(clamp(0%, var(--blazor-load-percentage), 100%));
+            position: absolute;
+            width:100%;
+            text-align: center;
+        }
+
+        #loading .loading-message .m1{
+            margin-left: calc((max(var(--load-text-offset), 20%) - 20%) * 100);
+        }
+
+        #loading .loading-message .m2{
+            margin-left: calc((min(var(--load-text-offset), 21%) - 21% + max(var(--load-text-offset), 40%) - 40%) * 100);
+        }
+
+        #loading .loading-message .m3{
+            margin-left: calc((min(var(--load-text-offset), 41%) - 41% + max(var(--load-text-offset), 60%) - 60%) * 100);
+        }
+
+        #loading .loading-message .m4{
+            margin-left: calc((min(var(--load-text-offset), 61%) - 61% + max(var(--load-text-offset), 80%) - 80%) * 100);
+        }
+
+        #loading .loading-message .m5{
+            margin-left: calc((min(var(--load-text-offset), 81%) - 81% + max(var(--load-text-offset), 100%) - 100%) * 100);
+        }
+
+
+        .lds-ellipsis {
+            display: inline-block;
+            position: relative;
+            width: 80px;
+            height: 60px;
+        }
+
+        .lds-ellipsis div {
+            position: absolute;
+            top: 33px;
+            width: 13px;
+            height: 13px;
+            border-radius: 50%;
+            background: #fff;
+            animation-timing-function: cubic-bezier(0, 1, 1, 0);
+        }
+
+        .lds-ellipsis div:nth-child(1) {
+            left: 8px;
+            animation: lds-ellipsis1 0.6s infinite;
+        }
+
+        .lds-ellipsis div:nth-child(2) {
+            left: 8px;
+            animation: lds-ellipsis2 0.6s infinite;
+        }
+
+        .lds-ellipsis div:nth-child(3) {
+            left: 32px;
+            animation: lds-ellipsis2 0.6s infinite;
+        }
+
+        .lds-ellipsis div:nth-child(4) {
+            left: 56px;
+            animation: lds-ellipsis3 0.6s infinite;
+        }
+
+        @keyframes lds-ellipsis1 {
+            0% {
+                transform: scale(0);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        @keyframes lds-ellipsis3 {
+            0% {
+                transform: scale(1);
+            }
+            100% {
+                transform: scale(0);
+            }
+        }
+
+        @keyframes lds-ellipsis2 {
+            0% {
+                transform: translate(0, 0);
+            }
+            100% {
+                transform: translate(24px, 0);
+            }
+        }
+
+        .monaco-hover {
+            border-radius: 4px;
+            backdrop-filter: blur(4px);
+            min-width: 40ch;
+            max-width: 80ch;
+            width: fit-content;
+            font-weight:300;
+        }
+
+        .monaco-hover-content {
+            max-width: 80ch !important;
+        }
+
+
+    </style>
+    <script src="https://unpkg.com/split-grid/dist/split-grid.js"></script>
+
+    <base href="/"/>
+</head>
+
+<body>
+<div id="app">
+    <div id="loading">
+        <div class="lds-ellipsis">
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+        </div>
+        <div class="loading-message">
+            <div class="msg m1">Reticulating Splines</div>
+            <div class="msg m2">Reconfiguring User Mental Processes</div>
+            <div class="msg m3">Inserting Sublimated Messages</div>
+            <div class="msg m4">Decomposing Singular Values</div>
+            <div class="msg m5">Almost there...</div>
+        </div>
+    </div>
+</div>
+
+<div id="blazor-error-ui">
+</div>
+
+<script src="_content/BlazorMonaco/lib/monaco-editor/min/vs/loader.js"></script>
+<script>require.config({paths: {'vs': '_content/BlazorMonaco/lib/monaco-editor/min/vs'}});</script>
+<script src="_content/BlazorMonaco/lib/monaco-editor/min/vs/editor/editor.main.js"></script>
+<script src="_content/BlazorMonaco/jsInterop.js"></script>
+<script src="_framework/blazor.webassembly.js"></script>
+
+
+<script>
+    window.postPreviewMessage = (element, data) => {
+        if (element !== undefined) {
+            element.contentWindow.postMessage(data, '*')
+        }
+    };
+
+    window.initSplit = (element, data) => {
+        window.Split({
+            columnGutters: [{
+                track: 1,
+                element: document.querySelector('.gutter-col-1'),
+            }],
+        })
+    };
+</script>
+
+</body>
+
+</html>
