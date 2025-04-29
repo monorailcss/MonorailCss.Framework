@@ -201,6 +201,9 @@ public partial class Prose : IUtilityNamespacePlugin, IVariantPluginProvider
                 ]),
 
                 // Lists
+                new CssRuleSet("ol", [
+                    (CssProperties.ListStyleType, "decimal"),
+                ]),
                 new CssRuleSet("ol[type=\"A\"]", [
                     (CssProperties.ListStyleType, "upper-alpha"),
                 ]),
