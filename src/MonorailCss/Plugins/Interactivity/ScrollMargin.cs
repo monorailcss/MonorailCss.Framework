@@ -1,3 +1,5 @@
+using System.Collections.Immutable;
+
 namespace MonorailCss.Plugins.Interactivity;
 
 /// <summary>
@@ -13,10 +15,8 @@ public class ScrollMargin : BaseUtilityNamespacePlugin
     /// <param name="designSystem">The design system.</param>
     public ScrollMargin(DesignSystem designSystem)
     {
-        _values = designSystem
-            .Spacing
-            .Add("auto", "auto")
-            .AddRange(designSystem.Spacing.Select(i => new KeyValuePair<string, string>($"{i.Key}-", $"-{i.Value}")));
+        _values = ImmutableDictionary.Create<string, string>()
+            .Add("auto", "auto");
     }
 
     /// <inheritdoc />

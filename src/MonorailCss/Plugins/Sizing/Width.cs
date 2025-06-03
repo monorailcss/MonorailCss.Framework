@@ -24,7 +24,6 @@ public class Width : BaseUtilityNamespacePlugin
     protected override CssSuffixToValueMap GetValues()
     {
         return SizeHelpers.Percentages
-            .AddRange(_designSystem.Spacing)
             .AddRange(new Dictionary<string, string>
             {
                 { "3xs", "16rem" },
@@ -54,5 +53,13 @@ public class Width : BaseUtilityNamespacePlugin
                 { "max", "max-content" },
                 { "fit", "fit-content" },
             });
+    }
+
+    /// <inheritdoc />
+    protected override bool SupportsDynamicValues(out string cssVariableName, out string calculationPattern)
+    {
+        cssVariableName = "spacing";
+        calculationPattern = "calc(var({0}) * {1})";
+        return true;
     }
 }

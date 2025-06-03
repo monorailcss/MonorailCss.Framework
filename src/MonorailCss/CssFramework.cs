@@ -178,13 +178,11 @@ public class CssFramework
         var selectorWithClassListItems = applyItems
             .Select(i => new
             {
-                Selector = $"{root}{i.Root}",
-                i.CssClass,
+                Selector = $"{root}{i.Root}", i.CssClass,
             })
             .Concat(distinctCss.Select(i => new
             {
-                Selector = string.Empty,
-                CssClass = i,
+                Selector = string.Empty, CssClass = i,
             }));
 
         var classParser = new ClassParser(_namespacesOrderedByLength, _frameworkSettings.ElementPrefix, _frameworkSettings.Separator);
@@ -192,8 +190,7 @@ public class CssFramework
         var selectorWithSyntaxItems = selectorWithClassListItems
             .Select(i => new
             {
-                i.Selector,
-                Syntax = classParser.Extract(i.CssClass),
+                i.Selector, Syntax = classParser.Extract(i.CssClass),
             })
             .Where(i => i.Syntax != null);
 
@@ -277,6 +274,12 @@ public class CssFramework
         foreach (var defaultPlugin in pluginsWithDefaultsCalled)
         {
             defaultVariableDeclarationList += defaultPlugin.GetDefaults();
+        }
+
+        foreach (var defaultVariable in _frameworkSettings.DesignSystem.Variables)
+        {
+            var variableName = GetVariableNameWithPrefix(defaultVariable.Key);
+            defaultVariableDeclarationList.Add(new CssDeclaration(variableName, defaultVariable.Value));
         }
 
         var styleSheet = new CssStylesheet(mediaRules);

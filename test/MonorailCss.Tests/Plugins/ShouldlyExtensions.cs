@@ -79,7 +79,7 @@ public static class ShouldlyExtensions
     private static void RulesShouldBeEqual(ICssRuleList originalRuleList, ICssRuleList expectedRuleList)
     {
         // Process different rule types separately
-        RulesShouldBeEqual(originalRuleList.OfType<ICssStyleRule>().ToArray(), expectedRuleList.OfType<ICssStyleRule>().ToArray());
+        RulesShouldBeEqual(originalRuleList.OfType<ICssStyleRule>().Where( i=> i.Selector.Text != ":root").ToArray(), expectedRuleList.OfType<ICssStyleRule>().Where( i=> i.Selector.Text != ":root").ToArray());
         RulesShouldBeEqual(originalRuleList.OfType<ICssKeyframesRule>().ToArray(), expectedRuleList.OfType<ICssKeyframesRule>().ToArray());
 
         // Add support for other rule types as needed...
@@ -139,8 +139,8 @@ public static class ShouldlyExtensions
 
     private static void RulesShouldBeEqual(ICssStyleRule[] originalRules, ICssStyleRule[] expectedRules)
     {
-        var originalSelectors = originalRules.Select(NormalizeSelector).ToArray();
-        var expectedSelectors = expectedRules.Select(NormalizeSelector).ToArray();
+        var originalSelectors = originalRules.Select(NormalizeSelector).Where(i=>i != ":root").ToArray();
+        var expectedSelectors = expectedRules.Select(NormalizeSelector).Where(i => i != ":root").ToArray();
 
         try
         {

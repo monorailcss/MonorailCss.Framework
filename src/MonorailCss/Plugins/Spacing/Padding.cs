@@ -1,4 +1,6 @@
-﻿namespace MonorailCss.Plugins.Spacing;
+﻿using System.Collections.Immutable;
+
+namespace MonorailCss.Plugins.Spacing;
 
 /// <summary>
 /// Margin plugin.
@@ -32,8 +34,14 @@ public class Padding : BaseUtilityNamespacePlugin
     /// <inheritdoc />
     protected override CssSuffixToValueMap GetValues()
     {
-        return _designSystem
-            .Spacing
-            .AddRange(_designSystem.Spacing.Select(i => new KeyValuePair<string, string>($"{i.Key}-", $"-{i.Value}")));
+        return CssSuffixToValueMap.Empty;
+    }
+
+    /// <inheritdoc />
+    protected override bool SupportsDynamicValues(out string cssVariableName, out string calculationPattern)
+    {
+        cssVariableName = "spacing";
+        calculationPattern = "calc(var({0}) * {1})";
+        return true;
     }
 }

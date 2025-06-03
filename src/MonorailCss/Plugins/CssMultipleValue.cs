@@ -86,7 +86,9 @@ public record CssNamespaceToPropertyMap : IEnumerable<CssNamespaceToPropertyMap.
         /// </summary>
         /// <param name="value">The value.</param>
         /// <returns>A new <see cref="CssMultipleValue"/>.</returns>
-        public static implicit operator CssMultipleValue(string value) => new(new[] { value });
+        public static implicit operator CssMultipleValue(string value) => new([
+            value,
+        ]);
 
         /// <summary>
         /// Converts a string array to a property value list.
@@ -101,7 +103,9 @@ public record CssNamespaceToPropertyMap : IEnumerable<CssNamespaceToPropertyMap.
         /// <param name="value">The value.</param>
         /// <returns>A new <see cref="CssMultipleValue"/>.</returns>
         public static implicit operator CssMultipleValue((string Value1, string Value2) value) =>
-            new(new[] { value.Value1, value.Value2 });
+            new([
+                value.Value1, value.Value2,
+            ]);
 
         /// <summary>
         /// Converts a tuple to a property value list.
@@ -109,7 +113,9 @@ public record CssNamespaceToPropertyMap : IEnumerable<CssNamespaceToPropertyMap.
         /// <param name="value">The value.</param>
         /// <returns>A new <see cref="CssMultipleValue"/>.</returns>
         public static implicit operator CssMultipleValue((string Value1, string Value2, string Value3) value) =>
-            new(new[] { value.Value1, value.Value2, value.Value3 });
+            new([
+                value.Value1, value.Value2, value.Value3,
+            ]);
 
         /// <summary>
         /// Converts a tuple to a property value list.
@@ -118,71 +124,80 @@ public record CssNamespaceToPropertyMap : IEnumerable<CssNamespaceToPropertyMap.
         /// <returns>A new <see cref="CssMultipleValue"/>.</returns>
         public static implicit operator CssMultipleValue(
             (string Value1, string Value2, string Value3, string Value4) value) =>
-            new(new[] { value.Value1, value.Value2, value.Value3, value.Value4 });
+            new([
+                value.Value1, value.Value2, value.Value3, value.Value4,
+            ]);
     }
 }
 
-    /// <summary>
-    /// Represents a collection of suffixes to values for namespace mapping.
-    /// </summary>
+/// <summary>
+/// Represents a collection of suffixes to values for namespace mapping.
+/// </summary>
 public record CssSuffixToValueMap : IEnumerable<(string Suffix, string Value)>
+{
+    private static readonly ImmutableDictionary<string, string> EmptyDictionary = ImmutableDictionary<string, string>.Empty;
+
+    /// <summary>
+    /// Gets an empty instance of <see cref="CssSuffixToValueMap"/>.
+    /// </summary>
+    public static CssSuffixToValueMap Empty { get; } = EmptyDictionary;
+
+    private ImmutableDictionary<string, string> _items;
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="CssSuffixToValueMap"/> class.
+    /// </summary>
+    /// <param name="initialValues">Initial values, if available.</param>
+    public CssSuffixToValueMap(ImmutableDictionary<string, string>? initialValues = null)
     {
-        private ImmutableDictionary<string, string> _items;
+        _items = initialValues ?? ImmutableDictionary<string, string>.Empty;
+    }
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="CssSuffixToValueMap"/> class.
-        /// </summary>
-        /// <param name="initialValues">Initial values, if available.</param>
-        public CssSuffixToValueMap(ImmutableDictionary<string, string>? initialValues = null)
-        {
-            _items = initialValues ?? ImmutableDictionary<string, string>.Empty;
-        }
-
-        /// <summary>
-        /// Adds a new suffix and value pair to the map.
-        /// </summary>
-        /// <param name="suffix">The suffix.</param>
-        /// <param name="value">The value.</param>
-        public void Add(string suffix, string value)
-        {
-            _items = _items.Add(suffix, value);
-        }
+    /// <summary>
+    /// Adds a new suffix and value pair to the map.
+    /// </summary>
+    /// <param name="suffix">The suffix.</param>
+    /// <param name="value">The value.</param>
+    public void Add(string suffix, string value)
+    {
+        _items = _items.Add(suffix, value);
+    }
 
     /// <inheritdoc/>
-        IEnumerator<(string Suffix, string Value)> IEnumerable<(string Suffix, string Value)>.GetEnumerator()
-        {
-            return _items.Select(i => (i.Key, i.Value)).GetEnumerator();
-        }
-
-        /// <inheritdoc />
-        public IEnumerator GetEnumerator()
-        {
-            return _items.Select(i => (i.Key, i.Value)).GetEnumerator();
-        }
-
-        /// <summary>
-        /// Determines whether the map contains the suffix.
-        /// </summary>
-        /// <param name="suffix">The suffix.</param>
-        /// <returns>True if the mapping contains the suffix, otherwise false.</returns>
-        public bool ContainsSuffix(string suffix)
-        {
-            return _items.ContainsKey(suffix);
-        }
-
-        /// <summary>
-        /// Gets the mapping for a suffix.
-        /// </summary>
-        /// <param name="suffix">The suffix.</param>
-        public string this[string suffix]
-        {
-            get => _items[suffix];
-        }
-
-        /// <summary>
-        /// Converts an <see cref="ImmutableDictionary{TKey,TValue}"/> to a <see cref="CssSuffixToValueMap"/>.
-        /// </summary>
-        /// <param name="values">The values.</param>
-        /// <returns>A new instance of <see cref="CssSuffixToValueMap"/>.</returns>
-        public static implicit operator CssSuffixToValueMap(ImmutableDictionary<string, string> values) => new(values);
+    IEnumerator<(string Suffix, string Value)> IEnumerable<(string Suffix, string Value)>.GetEnumerator()
+    {
+        return _items.Select(i => (i.Key, i.Value)).GetEnumerator();
     }
+
+    /// <inheritdoc />
+    public IEnumerator GetEnumerator()
+    {
+        return _items.Select(i => (i.Key, i.Value)).GetEnumerator();
+    }
+
+    /// <summary>
+    /// Determines whether the map contains the suffix.
+    /// </summary>
+    /// <param name="suffix">The suffix.</param>
+    /// <returns>True if the mapping contains the suffix, otherwise false.</returns>
+    public bool ContainsSuffix(string suffix)
+    {
+        return _items.ContainsKey(suffix);
+    }
+
+    /// <summary>
+    /// Gets the mapping for a suffix.
+    /// </summary>
+    /// <param name="suffix">The suffix.</param>
+    public string this[string suffix]
+    {
+        get => _items[suffix];
+    }
+
+    /// <summary>
+    /// Converts an <see cref="ImmutableDictionary{TKey,TValue}"/> to a <see cref="CssSuffixToValueMap"/>.
+    /// </summary>
+    /// <param name="values">The values.</param>
+    /// <returns>A new instance of <see cref="CssSuffixToValueMap"/>.</returns>
+    public static implicit operator CssSuffixToValueMap(ImmutableDictionary<string, string> values) => new(values);
+}

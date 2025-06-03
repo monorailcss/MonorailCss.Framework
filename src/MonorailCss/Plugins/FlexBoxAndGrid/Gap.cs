@@ -1,3 +1,5 @@
+using System.Collections.Immutable;
+
 namespace MonorailCss.Plugins.FlexBoxAndGrid;
 
 /// <summary>
@@ -5,15 +7,12 @@ namespace MonorailCss.Plugins.FlexBoxAndGrid;
 /// </summary>
 public class Gap : BaseUtilityNamespacePlugin
 {
-    private readonly CssSuffixToValueMap _values;
-
     /// <summary>
     /// Initializes a new instance of the <see cref="Gap"/> class.
     /// </summary>
     /// <param name="designSystem">The design system.</param>
     public Gap(DesignSystem designSystem)
     {
-        _values = designSystem.Spacing;
     }
 
     /// <inheritdoc />
@@ -28,6 +27,14 @@ public class Gap : BaseUtilityNamespacePlugin
     /// <inheritdoc />
     protected override CssSuffixToValueMap GetValues()
     {
-        return _values;
+        return CssSuffixToValueMap.Empty;
+    }
+
+    /// <inheritdoc />
+    protected override bool SupportsDynamicValues(out string cssVariableName, out string calculationPattern)
+    {
+        cssVariableName = "spacing";
+        calculationPattern = "calc(var({0}) * {1})";
+        return true;
     }
 }

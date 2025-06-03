@@ -15,7 +15,7 @@ public class RotateTests
         ]);
         r.ShouldBeCss("""
 
-                      body, ::before, ::after {
+                      :root {
                         --monorail-rotate:0;
                         --monorail-scale-x:1;
                         --monorail-scale-y:1;
@@ -45,7 +45,7 @@ public class RotateTests
         ]);
         r.ShouldBeCss("""
 
-                      body, ::before, ::after {
+                      :root {
                         --monorail-rotate:0;
                         --monorail-scale-x:1;
                         --monorail-scale-y:1;

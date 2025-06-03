@@ -10,15 +10,14 @@ public class GapTests
 result.ShouldBeCss("""
 
                    .gap-2 {
-                     gap:0.5rem;
+                     gap:calc(var(--monorail-spacing) * 2);
                    }
                    .gap-x-4 {
-                     column-gap:1rem;
+                     column-gap:calc(var(--monorail-spacing) * 4);
                    }
                    .gap-y-8 {
-                     row-gap:2rem;
+                     row-gap:calc(var(--monorail-spacing) * 8);
                    }
-
 
                    """);
     }

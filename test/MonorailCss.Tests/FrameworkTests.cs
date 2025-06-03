@@ -29,12 +29,10 @@ public class FrameworkTests
             "-my-4",
         ]);
         r.ShouldBeCss("""
-
                       .-my-4 {
-                        margin-bottom:-1rem;
-                        margin-top:-1rem;
+                        margin-bottom:calc(var(--monorail-spacing) * -4);
+                        margin-top:calc(var(--monorail-spacing) * -4);
                       }
-
                       """);
     }
 
@@ -153,7 +151,7 @@ public class FrameworkTests
 
                       body {
                         font-family:-apple-system, BlinkMacSystemFont, avenir next, avenir, segoe ui, helvetica neue, helvetica, Ubuntu, roboto, noto, arial, sans-serif;
-                        margin-bottom:0.5rem;
+                        margin-bottom:calc(var(--monorail-spacing) * 2);
                       }
 
                       """);
@@ -178,33 +176,37 @@ public class FrameworkTests
 
         var r = framework.Process(["m-4", "my-3", "mb-2"]);
         r.Trim().ReplaceLineEndings().ShouldBe("""
-
+                                               :root {
+                                                 --monorail-spacing:0.25rem;
+                                               }
                                                .m-4 {
-                                                 margin:1rem;
+                                                 margin:calc(var(--monorail-spacing) * 4);
                                                }
                                                .my-3 {
-                                                 margin-bottom:0.75rem;
-                                                 margin-top:0.75rem;
+                                                 margin-bottom:calc(var(--monorail-spacing) * 3);
+                                                 margin-top:calc(var(--monorail-spacing) * 3);
                                                }
                                                .mb-2 {
-                                                 margin-bottom:0.5rem;
+                                                 margin-bottom:calc(var(--monorail-spacing) * 2);
                                                }
-
                                                """.Trim().ReplaceLineEndings());
 
         // now check if we send them in the opposite way. output ordering should remain equal.
         var r2 = framework.Process(["mb-2", "my-3", "m-4"]);
         r2.Trim().ReplaceLineEndings().ShouldBe("""
 
+                                                :root {
+                                                  --monorail-spacing:0.25rem;
+                                                }
                                                 .m-4 {
-                                                  margin:1rem;
+                                                  margin:calc(var(--monorail-spacing) * 4);
                                                 }
                                                 .my-3 {
-                                                  margin-bottom:0.75rem;
-                                                  margin-top:0.75rem;
+                                                  margin-bottom:calc(var(--monorail-spacing) * 3);
+                                                  margin-top:calc(var(--monorail-spacing) * 3);
                                                 }
                                                 .mb-2 {
-                                                  margin-bottom:0.5rem;
+                                                  margin-bottom:calc(var(--monorail-spacing) * 2);
                                                 }
 
                                                 """.Trim().ReplaceLineEndings());
@@ -212,6 +214,9 @@ public class FrameworkTests
         var r3 = framework.Process(["lg:rounded-none", "lg:rounded-l-lg"]);
         r3.Trim().ReplaceLineEndings().ShouldBe("""
 
+                                                :root {
+                                                  --monorail-spacing:0.25rem;
+                                                }
                                                 @media (min-width:1024px) {
                                                   .lg\:rounded-none {
                                                     border-radius:0px;
@@ -221,12 +226,14 @@ public class FrameworkTests
                                                     border-top-left-radius:0.5rem;
                                                   }
                                                 }
-
                                                 """.Trim().ReplaceLineEndings());
 
         var r4 = framework.Process(["lg:rounded-l-lg", "lg:rounded-none"]);
         r4.Trim().ReplaceLineEndings().ShouldBe("""
 
+                                                :root {
+                                                  --monorail-spacing:0.25rem;
+                                                }
                                                 @media (min-width:1024px) {
                                                   .lg\:rounded-none {
                                                     border-radius:0px;

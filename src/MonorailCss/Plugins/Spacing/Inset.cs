@@ -32,10 +32,16 @@ public class Inset : BaseUtilityNamespacePlugin
     /// <inheritdoc />
     protected override CssSuffixToValueMap GetValues()
     {
-        return _designSystem
-            .Spacing
+        return SizeHelpers.Percentages
             .Add("auto", "auto")
-            .AddRange(SizeHelpers.Percentages)
-            .AddRange(_designSystem.Spacing.Select(i => new KeyValuePair<string, string>($"{i.Key}-", $"-{i.Value}")));
+            .AddRange(SizeHelpers.Percentages);
+    }
+
+    /// <inheritdoc />
+    protected override bool SupportsDynamicValues(out string cssVariableName, out string calculationPattern)
+    {
+        cssVariableName = "spacing";
+        calculationPattern = "calc(var({0}) * {1})";
+        return true;
     }
 }

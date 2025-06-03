@@ -77,13 +77,31 @@ public abstract class BaseUtilityNamespacePlugin : IUtilityNamespacePlugin
     {
         var suffix = namespaceSyntax.Suffix ?? "DEFAULT";
 
-        // gotta have a suffix that's defined.
-        if (!cssSuffixToValuesMap.ContainsSuffix(namespaceSyntax.Suffix ?? "DEFAULT"))
+        string value;
+
+        // if we don't have a matching suffix, we need to check if we support dynamic values.
+        if (!cssSuffixToValuesMap.ContainsSuffix(suffix))
         {
-            yield break;
+            if (SupportsDynamicValues(out var variableName, out var pattern))
+            {
+                if (suffix.EndsWith('-'))
+                {
+                    suffix = '-' + suffix[..^1]; // swap the negation to before the number.
+                }
+
+                var fullVariableName = CssFramework.GetVariableNameWithPrefix(variableName);
+                value = string.Format(pattern, fullVariableName, suffix);
+            }
+            else
+            {
+                yield break;
+            }
+        }
+        else
+        {
+            value = cssSuffixToValuesMap[suffix];
         }
 
-        var value = cssSuffixToValuesMap[suffix];
         var mapping = namespacePropertyMapList[namespaceSyntax.Namespace];
         var declarationList = CssDeclarationList(value, mapping.Values.Values);
         declarationList += AdditionalDeclarations();
@@ -150,4 +168,20 @@ public abstract class BaseUtilityNamespacePlugin : IUtilityNamespacePlugin
     /// </summary>
     /// <returns>The mapped values.</returns>
     protected abstract CssSuffixToValueMap GetValues();
+
+    /// <summary>
+    /// Indicates whether this plugin supports dynamic values (e.g., CSS variables).
+    /// </summary>
+    /// <param name="cssVariableName">The variable name to use.</param>
+    /// <param name="calculationPattern">
+    /// The CSS variable name to use as a dynamic value, e.g. `calc(var({0}) * {1})`, where `{0}` is the CSS variable and
+    /// `{1}` is the dynamic value placeholder pulled from the suffix of the namespaced CSS type.
+    /// </param>
+    /// <returns>True if supported, false if not.</returns>
+    protected virtual bool SupportsDynamicValues(out string cssVariableName, out string calculationPattern)
+    {
+        cssVariableName = string.Empty;
+        calculationPattern = string.Empty;
+        return false;
+    }
 }

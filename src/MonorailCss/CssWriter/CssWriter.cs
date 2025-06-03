@@ -32,7 +32,10 @@ internal static class CssWriter
                 if (groupedRuleSet.Key.Contains(" &:is("))
                 {
                     // Extract the main selector and the condition
-                    var parts = groupedRuleSet.Key.Split(new[] { " &:is(" }, StringSplitOptions.None);
+                    var parts = groupedRuleSet.Key.Split(
+                    [
+                        " &:is(",
+                    ], StringSplitOptions.None);
                     var mainSelector = parts[0];
                     var condition = "&:is(" + parts[1];
 
@@ -89,7 +92,7 @@ internal static class CssWriter
             return;
         }
 
-        stringBuilder.AppendLine("body, ::before, ::after {");
+        stringBuilder.AppendLine(":root {");
         foreach (var declaration in defaultVariableDeclarationList.OrderBy(i => i.Property))
         {
             stringBuilder.AppendLine($"  {declaration.ToCssString()}");

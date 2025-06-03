@@ -41,7 +41,14 @@ public class MaxHeight : BaseUtilityNamespacePlugin
                 { "max", "max-content" },
                 { "fit", "fit-content" },
                 { "lh", "1lh" },
-            }.ToImmutableDictionary()
-            .AddRange(_designSystem.Spacing);
+            }.ToImmutableDictionary();
+    }
+
+    /// <inheritdoc />
+    protected override bool SupportsDynamicValues(out string cssVariableName, out string calculationPattern)
+    {
+        cssVariableName = "spacing";
+        calculationPattern = "calc(var({0}) * {1})";
+        return true;
     }
 }

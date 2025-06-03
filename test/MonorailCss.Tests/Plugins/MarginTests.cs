@@ -10,12 +10,12 @@ public class MarginTests
         result.ShouldBeCss("""
 
                            .my-4- {
-                             margin-bottom:-1rem;
-                             margin-top:-1rem;
+                             margin-bottom:calc(var(--monorail-spacing) * -4);
+                             margin-top:calc(var(--monorail-spacing) * -4);
                            }
                            .mx-4 {
-                             margin-left:1rem;
-                             margin-right:1rem;
+                             margin-left:calc(var(--monorail-spacing) * 4);
+                             margin-right:calc(var(--monorail-spacing) * 4);
                            }
 
                            """);

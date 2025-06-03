@@ -1,3 +1,5 @@
+using System.Collections.Immutable;
+
 namespace MonorailCss.Plugins.Interactivity;
 
 /// <summary>
@@ -13,10 +15,8 @@ public class ScrollPadding : BaseUtilityNamespacePlugin
     /// <param name="designSystem">The design system.</param>
     public ScrollPadding(DesignSystem designSystem)
     {
-        _values = designSystem
-            .Spacing
-            .Add("auto", "auto")
-            .AddRange(designSystem.Spacing.Select(i => new KeyValuePair<string, string>($"{i.Key}-", $"-{i.Value}")));
+        _values = ImmutableDictionary.Create<string, string>()
+            .Add("auto", "auto");
     }
 
     /// <inheritdoc />
@@ -31,5 +31,13 @@ public class ScrollPadding : BaseUtilityNamespacePlugin
     protected override CssSuffixToValueMap GetValues()
     {
         return _values;
+    }
+
+    /// <inheritdoc />
+    protected override bool SupportsDynamicValues(out string cssVariableName, out string calculationPattern)
+    {
+        cssVariableName = "spacing";
+        calculationPattern = "calc(var({0}) * {1})";
+        return true;
     }
 }

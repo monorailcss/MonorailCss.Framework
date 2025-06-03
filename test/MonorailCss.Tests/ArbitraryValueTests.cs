@@ -17,6 +17,9 @@ public class PeerTests
         ]);
 
         r.Trim().ShouldBe("""
+                      :root {
+                        --monorail-spacing:0.25rem;
+                      }
                       .peer-checked\/tab2\:block {
                         &:is(:where(.peer\/tab2):checked ~ *) {
                           display:block;

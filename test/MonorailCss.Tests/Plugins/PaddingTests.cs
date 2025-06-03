@@ -10,12 +10,12 @@ public class PaddingTests
         result.ShouldBeCss("""
 
                            .py-4- {
-                             padding-bottom:-1rem;
-                             padding-top:-1rem;
+                             padding-bottom:calc(var(--monorail-spacing) * -4);
+                             padding-top:calc(var(--monorail-spacing) * -4);
                            }
                            .px-4 {
-                             padding-left:1rem;
-                             padding-right:1rem;
+                             padding-left:calc(var(--monorail-spacing) * 4);
+                             padding-right:calc(var(--monorail-spacing) * 4);
                            }
 
                            """);

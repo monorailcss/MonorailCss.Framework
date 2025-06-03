@@ -24,7 +24,6 @@ public class Height : BaseUtilityNamespacePlugin
     protected override CssSuffixToValueMap GetValues()
     {
         return SizeHelpers.Percentages
-            .AddRange(_designSystem.Spacing)
             .AddRange(new Dictionary<string, string>
             {
                 { "auto", "auto" },
@@ -42,5 +41,13 @@ public class Height : BaseUtilityNamespacePlugin
                 { "fit", "fit-content" },
                 { "lh", "1lh" },
             });
+    }
+
+    /// <inheritdoc />
+    protected override bool SupportsDynamicValues(out string cssVariableName, out string calculationPattern)
+    {
+        cssVariableName = "spacing";
+        calculationPattern = "calc(var({0}) * {1})";
+        return true;
     }
 }

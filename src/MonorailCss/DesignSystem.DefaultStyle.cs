@@ -18,14 +18,20 @@ public partial record DesignSystem
     {
         return new DesignSystem
         {
+            Variables = DefaultVariables,
             Screens = DefaultScreens,
             Colors = DefaultColors,
-            Spacing = DefaultSpacing,
             Typography = DefaultTypographies,
             FontWeights = DefaultFontWeights,
             Opacities = DefaultOpacities,
         };
     }
+
+    private static ImmutableDictionary<string, string> DefaultVariables => new Dictionary<string, string>()
+            {
+                { "spacing", "0.25rem" },
+            }
+        .ToImmutableDictionary();
 
     private static ImmutableDictionary<string, string> DefaultOpacities => new Dictionary<string, string>
     {

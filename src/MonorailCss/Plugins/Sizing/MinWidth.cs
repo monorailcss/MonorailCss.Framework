@@ -43,7 +43,7 @@ public class MinWidth : BaseUtilityNamespacePlugin
             { "svh", "100svh" },
             { "min", "min-content" },
             { "max", "max-content" },
-            { "fit", "fit-content" }
+            { "fit", "fit-content" },
         }.ToImmutableDictionary();
     }
 }

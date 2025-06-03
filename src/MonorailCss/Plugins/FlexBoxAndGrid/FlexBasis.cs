@@ -1,4 +1,6 @@
-﻿namespace MonorailCss.Plugins.FlexBoxAndGrid;
+﻿using System.Collections.Immutable;
+
+namespace MonorailCss.Plugins.FlexBoxAndGrid;
 
 /// <summary>
 /// The flex-basis plugin.
@@ -26,8 +28,17 @@ public class FlexBasis : BaseUtilityNamespacePlugin
     /// <inheritdoc />
     protected override CssSuffixToValueMap GetValues()
     {
-        return _designSystem.Spacing.AddRange(SizeHelpers.Percentages)
-        .Add("auto", "auto")
-        .Add("full", "100%");
+        return ImmutableDictionary.Create<string, string>()
+            .AddRange(SizeHelpers.Percentages)
+            .Add("auto", "auto")
+            .Add("full", "100%");
+    }
+
+    /// <inheritdoc />
+    protected override bool SupportsDynamicValues(out string cssVariableName, out string calculationPattern)
+    {
+        cssVariableName = "spacing";
+        calculationPattern = "calc(var({0}) * {1})";
+        return true;
     }
 }

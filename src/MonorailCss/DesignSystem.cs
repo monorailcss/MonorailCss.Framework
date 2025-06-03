@@ -33,14 +33,14 @@ public partial record DesignSystem
         ImmutableDictionary<string, ImmutableDictionary<string, CssColor>>.Empty;
 
     /// <summary>
-    /// Gets the spacing design system.
-    /// </summary>
-    public ImmutableDictionary<string, string> Spacing { get; init; } = ImmutableDictionary<string, string>.Empty;
-
-    /// <summary>
     /// Gets the opacity design system.
     /// </summary>
     public ImmutableDictionary<string, string> Opacities { get; init; } = ImmutableDictionary<string, string>.Empty;
+
+    /// <summary>
+    /// Gets the variables of the design system.
+    /// </summary>
+    public ImmutableDictionary<string, string> Variables { get; init; } = ImmutableDictionary<string, string>.Empty;
 
     /// <summary>
     /// Gets a cached list of flattened colors.

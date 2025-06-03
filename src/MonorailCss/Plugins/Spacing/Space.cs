@@ -17,7 +17,7 @@ public class Space : IUtilityNamespacePlugin
     /// <param name="designSystem">The design system.</param>
     public Space(DesignSystem designSystem)
     {
-        _spacing = designSystem.Spacing;
+        _spacing = ImmutableDictionary.Create<string, string>();
     }
 
     /// <inheritdoc />
@@ -41,10 +41,8 @@ public class Space : IUtilityNamespacePlugin
             yield break;
         }
 
-        if (!_spacing.TryGetValue(namespaceSyntax.Suffix, out var value))
-        {
-            yield break;
-        }
+
+        var value = $"calc(var(spacing) * {namespaceSyntax.Suffix})";
 
         var names = namespaceSyntax.NamespaceEquals("space-x")
             ? ("space-x-reverse", "margin-left", "margin-right")

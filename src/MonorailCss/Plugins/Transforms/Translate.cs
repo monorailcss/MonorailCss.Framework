@@ -16,8 +16,6 @@ public class Translate : BaseUtilityNamespacePlugin, IRegisterDefaults
     public Translate(DesignSystem designSystem)
     {
         _values = SizeHelpers.Percentages
-            .AddRange(designSystem.Spacing)
-            .AddRange(designSystem.Spacing.Select(i => new KeyValuePair<string, string>($"{i.Key}-", $"-{i.Value}")))
             .AddRange(SizeHelpers.Percentages.Select(i => new KeyValuePair<string, string>($"{i.Key}-", $"-{i.Value}")))
             .AddRange(new Dictionary<string, string>
             {

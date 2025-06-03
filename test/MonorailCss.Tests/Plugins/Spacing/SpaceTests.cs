@@ -9,10 +9,13 @@ public class SpaceTests
         var result = framework.Process(["space-y-4"]);
         result.ShouldBeCss("""
 
-                           .space-y-4 > :not([hidden]) ~ :not([hidden]) {
+                           :root {
+                             --monorail-spacing:0.25rem;
+                           }
+                           .space-y-4 > :not([hidden])~:not([hidden]) {
                              --monorail-space-y-reverse:0;
-                             margin-top:calc(1rem * calc(1 - var(--monorail-space-y-reverse)));
-                             margin-bottom:calc(1rem * var(--monorail-space-y-reverse));
+                             margin-bottom:calc(calc(var(spacing) * 4) * var(--monorail-space-y-reverse));
+                             margin-top:calc(calc(var(spacing) * 4) * calc(1 - var(--monorail-space-y-reverse)));
                            }
 
                            """);
