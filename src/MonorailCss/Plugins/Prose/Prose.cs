@@ -133,6 +133,8 @@ public partial class Prose : IUtilityNamespacePlugin, IVariantPluginProvider
     {
         return
         [
+
+            // Existing variants
             GetProseVariant("headings", "h1", "h2", "h3", "h4", "th"),
             GetProseVariant("lead", "[class~=\"lead\"]"),
             GetProseVariant("h1"),
@@ -140,6 +142,28 @@ public partial class Prose : IUtilityNamespacePlugin, IVariantPluginProvider
             GetProseVariant("h3"),
             GetProseVariant("h4"),
             GetProseVariant("p"),
+
+            // Additional variants
+            GetProseVariant("a"),
+            GetProseVariant("blockquote"),
+            GetProseVariant("figure"),
+            GetProseVariant("figcaption"),
+            GetProseVariant("strong"),
+            GetProseVariant("em"),
+            GetProseVariant("kbd"),
+            GetProseVariant("code"),
+            GetProseVariant("pre"),
+            GetProseVariant("ol"),
+            GetProseVariant("ul"),
+            GetProseVariant("li"),
+            GetProseVariant("table"),
+            GetProseVariant("thead"),
+            GetProseVariant("tr"),
+            GetProseVariant("th"),
+            GetProseVariant("td"),
+            GetProseVariant("img"),
+            GetProseVariant("video"),
+            GetProseVariant("hr"),
         ];
     }
 
@@ -151,8 +175,9 @@ public partial class Prose : IUtilityNamespacePlugin, IVariantPluginProvider
         }
 
         var ns = Namespaces[0];
-        var selector = string.Join(", ", targets.Select(target => $".{ns} {target}"));
-        return ($"{ns}-{modifer}", new SelectorVariant(selector));
+        var targetsStr = string.Join(", ", targets);
+        var selector = $":is(:where({targetsStr}):not(:where([class~=\"{_settings.NotProseClassName}\"],[class~=\"{_settings.NotProseClassName}\"] *)))";
+        return ($"{ns}-{modifer}", new ProseElementVariant(selector));
     }
 
     private CssSettings GetDefaultSettings()

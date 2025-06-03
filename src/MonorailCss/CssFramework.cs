@@ -448,6 +448,7 @@ public class CssFramework
         selector = nonConditionalVariants.OrderBy(v => typeof(PseudoElementVariant) == v.GetType() ? 1 : 0).Aggregate(selector, (current, variant) => variant switch
         {
             SelectorVariant selectorVariant => $"{selectorVariant.Selector} {current}",
+            ProseElementVariant proseElementVariant => $"{current} {proseElementVariant.Selector}",
             PseudoClassVariant pseudoClassVariant => $"{current}{pseudoClassVariant.PseudoClass}",
             PseudoElementVariant pseudoElementVariant => $"{current}{pseudoElementVariant.PseudoElement}",
             _ => current,

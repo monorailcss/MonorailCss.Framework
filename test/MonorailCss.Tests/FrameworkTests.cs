@@ -69,6 +69,9 @@ public class FrameworkTests
             "prose-h1:bg-blue-200",
         ]);
         r.ShouldBeCss("""
+                      :root {
+                        --monorail-spacing:0.25rem;
+                      }
                       .bg-blue-100 {
                         --monorail-bg-opacity:1;
                         background-color:oklch(0.932 0.032 255.585 / var(--monorail-bg-opacity));
@@ -81,7 +84,7 @@ public class FrameworkTests
                         --monorail-bg-opacity:1;
                         background-color:oklch(0.882 0.059 254.128 / var(--monorail-bg-opacity));
                       }
-                      .prose h1 .prose-h1\:bg-blue-200 {
+                      .prose-h1\:bg-blue-200 :is(:where(h1):not(:where([class~="not-prose"],[class~="not-prose"] *))) {
                         --monorail-bg-opacity:1;
                         background-color:oklch(0.882 0.059 254.128 / var(--monorail-bg-opacity));
                       }
