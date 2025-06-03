@@ -24,6 +24,7 @@ public partial record DesignSystem
             Typography = DefaultTypographies,
             FontWeights = DefaultFontWeights,
             Opacities = DefaultOpacities,
+            FontFamilies = DefaultFontFamilies,
         };
     }
 
@@ -476,5 +477,12 @@ public partial record DesignSystem
                 { _950, new CssColor("oklch(0.271 0.105 12.094)") },
             }.ToImmutableDictionary()
         },
+    }.ToImmutableDictionary();
+
+    private static ImmutableDictionary<string, FontFamilyDefinition> DefaultFontFamilies => new Dictionary<string, FontFamilyDefinition>
+    {
+        { "sans", new FontFamilyDefinition("-apple-system, BlinkMacSystemFont, avenir next, avenir, segoe ui, helvetica neue, helvetica, Ubuntu, roboto, noto, arial, sans-serif") },
+        { "serif", new FontFamilyDefinition("Iowan Old Style, Apple Garamond, Baskerville, Times New Roman, Droid Serif, Times, Source Serif Pro, serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol") },
+        { "mono", new FontFamilyDefinition("Cascadia Code, Menlo, Consolas, Monaco, Liberation Mono, Lucida Console, monospace") },
     }.ToImmutableDictionary();
 }

@@ -13,11 +13,14 @@ public class WordBreak : BaseLookupPlugin
     {
         return new Dictionary<string, CssDeclarationList>
         {
-            { "break-normal", [("overflow-wrap", "normal"), ("break-words", "normal")]
+            {
+                "break-normal", [("overflow-wrap", "normal"), ("break-words", "normal")]
             },
-            { "break-words", [("overflow-wrap", "break-word")]
+            {
+                "break-words", [("overflow-wrap", "break-word")]
             },
-            { "break-all", [("word-break", "break-all")]
+            {
+                "break-all", [("word-break", "break-all")]
             },
         }.ToImmutableDictionary();
     }

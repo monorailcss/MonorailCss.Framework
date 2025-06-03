@@ -24,11 +24,11 @@ public class Padding : BaseUtilityNamespacePlugin
         new("p", "padding", 0),
         new("px", new[]
         {
-            "padding-left", "padding-right"
+            "padding-left", "padding-right",
         }, 100),
         new("py", new[]
         {
-            "padding-top", "padding-bottom"
+            "padding-top", "padding-bottom",
         }, 100),
         new("pl", "padding-left", 999),
         new("pr", "padding-right", 999),

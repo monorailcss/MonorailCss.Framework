@@ -43,6 +43,11 @@ public partial record DesignSystem
     public ImmutableDictionary<string, string> Variables { get; init; } = ImmutableDictionary<string, string>.Empty;
 
     /// <summary>
+    /// Gets the font family design system.
+    /// </summary>
+    public ImmutableDictionary<string, FontFamilyDefinition> FontFamilies { get; init; } = ImmutableDictionary<string, FontFamilyDefinition>.Empty;
+
+    /// <summary>
     /// Gets a cached list of flattened colors.
     /// </summary>
     /// <returns>The flattened colors.</returns>
@@ -77,4 +82,38 @@ public record Typography
     /// Gets the line height.
     /// </summary>
     public string LineHeight { get; init; }
+}
+
+/// <summary>
+/// Represents a font family design system entry.
+/// </summary>
+public record FontFamilyDefinition
+{
+    /// <summary>
+    /// Initializes a new instance of the <see cref="FontFamilyDefinition"/> class.
+    /// </summary>
+    /// <param name="fontFamily">The font-family value.</param>
+    /// <param name="fontFeatureSettings">The font-feature-settings value.</param>
+    /// <param name="fontVariationSettings">The font-variation-settings value.</param>
+    public FontFamilyDefinition(string fontFamily, string? fontFeatureSettings = null, string? fontVariationSettings = null)
+    {
+        FontFamily = fontFamily;
+        FontFeatureSettings = fontFeatureSettings;
+        FontVariationSettings = fontVariationSettings;
+    }
+
+    /// <summary>
+    /// Gets the font-family value.
+    /// </summary>
+    public string FontFamily { get; init; }
+
+    /// <summary>
+    /// Gets the font-feature-settings value.
+    /// </summary>
+    public string? FontFeatureSettings { get; init; }
+
+    /// <summary>
+    /// Gets the font-variation-settings value.
+    /// </summary>
+    public string? FontVariationSettings { get; init; }
 }

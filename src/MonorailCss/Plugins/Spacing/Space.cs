@@ -36,23 +36,26 @@ public class Space : IUtilityNamespacePlugin
         if (namespaceSyntax.Suffix == "reverse")
         {
             var variable = CssFramework.GetVariableNameWithPrefix("{ns}-reverse");
-            yield return new CssRuleSet(GetSelector(namespaceSyntax), new CssDeclarationList { (variable, "1"), });
+            yield return new CssRuleSet(GetSelector(namespaceSyntax), new CssDeclarationList
+            {
+                (variable, "1"),
+            });
 
             yield break;
         }
-
-
-        var value = $"calc({CssFramework.GetCssVariableWithPrefix("spacing")} * {namespaceSyntax.Suffix})";
 
         var names = namespaceSyntax.NamespaceEquals("space-x")
             ? ("space-x-reverse", "margin-inline-start", "margin-inline-end")
             : ("space-y-reverse", "margin-block-start", "margin-block-end");
 
+        var variableName = CssFramework.GetCssVariableWithPrefix("spacing");
+        var reverse = CssFramework.GetCssVariableWithPrefix(names.Item1);
+
         var declarations = new CssDeclarationList
         {
             (CssFramework.GetVariableNameWithPrefix(names.Item1), "0"),
-            (names.Item2, $"calc({CssFramework.GetCssVariableWithPrefix("spacing")} * {namespaceSyntax.Suffix} * {CssFramework.GetCssVariableWithPrefix(names.Item1)})"),
-            (names.Item3, $"calc({CssFramework.GetCssVariableWithPrefix("spacing")} * {namespaceSyntax.Suffix} * (1 - {CssFramework.GetCssVariableWithPrefix(names.Item1)}))"),
+            (names.Item2, $"calc({variableName} * {namespaceSyntax.Suffix} * {reverse})"),
+            (names.Item3, $"calc({variableName} * {namespaceSyntax.Suffix} * (1 - {reverse}))"),
         };
         yield return new CssRuleSet(GetSelector(syntax), declarations);
     }

@@ -1,27 +1,71 @@
-﻿using System.Collections.Immutable;
+﻿using MonorailCss.Css;
+using MonorailCss.Parser;
 
 namespace MonorailCss.Plugins.Typography;
 
 /// <summary>
-/// The font-family plugin.
+/// The font-family plugin supporting font-feature-settings and font-variation-settings.
 /// </summary>
-public class FontFamily : BaseUtilityPlugin
+public class FontFamily : IUtilityPlugin
 {
-    /// <inheritdoc />
-    protected override string Property => "font-family";
+    private readonly DesignSystem _designSystem;
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="FontFamily"/> class.
+    /// </summary>
+    /// <param name="designSystem">The design system to use, or null for default.</param>
+    public FontFamily(DesignSystem? designSystem = null)
+    {
+        _designSystem = designSystem ?? DesignSystem.Default;
+    }
 
     /// <inheritdoc />
-    protected override ImmutableDictionary<string, string> GetUtilities() =>
-        new Dictionary<string, string>
+    public IEnumerable<CssRuleSet> Process(IParsedClassNameSyntax syntax)
+    {
+        if (syntax is not UtilitySyntax utilitySyntax)
         {
+            yield break;
+        }
+
+        var key = utilitySyntax.Name.Replace("font-", string.Empty);
+        if (!_designSystem.FontFamilies.TryGetValue(key, out var fontDef))
+        {
+            yield break;
+        }
+
+        var declarations = new CssDeclarationList();
+        declarations.Add(("font-family", fontDef.FontFamily));
+        if (!string.IsNullOrWhiteSpace(fontDef.FontFeatureSettings))
+        {
+            declarations.Add(("font-feature-settings", fontDef.FontFeatureSettings));
+        }
+
+        if (!string.IsNullOrWhiteSpace(fontDef.FontVariationSettings))
+        {
+            declarations.Add(("font-variation-settings", fontDef.FontVariationSettings));
+        }
+
+        yield return new CssRuleSet(utilitySyntax.OriginalSyntax, declarations);
+    }
+
+    /// <inheritdoc />
+    public IEnumerable<CssRuleSet> GetAllRules()
+    {
+        foreach (var (key, fontDef) in _designSystem.FontFamilies)
+        {
+            var declarations = new CssDeclarationList();
+            declarations.Add(("font-family", fontDef.FontFamily));
+            if (!string.IsNullOrWhiteSpace(fontDef.FontFeatureSettings))
             {
-                "font-sans",
-                "-apple-system, BlinkMacSystemFont, avenir next, avenir, segoe ui, helvetica neue, helvetica, Ubuntu, roboto, noto, arial, sans-serif"
-            },
+                declarations.Add(("font-feature-settings", fontDef.FontFeatureSettings));
+            }
+
+            if (!string.IsNullOrWhiteSpace(fontDef.FontVariationSettings))
             {
-                "font-serif",
-                "Iowan Old Style, Apple Garamond, Baskerville, Times New Roman, Droid Serif, Times, Source Serif Pro, serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol"
-            },
-            { "font-mono", "Cascadia Code, Menlo, Consolas, Monaco, Liberation Mono, Lucida Console, monospace" },
-        }.ToImmutableDictionary();
+                declarations.Add(("font-variation-settings", fontDef.FontVariationSettings));
+            }
+
+            yield return new CssRuleSet($"font-{key}", declarations);
+        }
+    }
 }
