@@ -24,25 +24,23 @@ public class Animation : IUtilityPlugin
         }
         else if (utilityPlugin.Name == "animate-ping")
         {
-            yield return new CssRuleSet("@keyframes ping", new CssDeclarationList()
-            {
+            yield return new CssRuleSet("@keyframes ping", [
                 new CssKeyframeDeclaration("75%, 100%", new()
                 {
-                    [CssProperties.Transform] = "scale(2)",
-                    [CssProperties.Opacity] = "0",
+                    [CssProperties.Transform] = "scale(2)", [CssProperties.Opacity] = "0",
                 }),
-            });
+
+            ]);
             yield return new CssRuleSet(utilityPlugin.OriginalSyntax, AnimatePing);
         }
         else if (utilityPlugin.Name == "animate-spin")
         {
-            yield return new CssRuleSet("@keyframes spin", new CssDeclarationList()
-            {
-                new CssKeyframeDeclaration("to", new()
-                {
+            yield return new CssRuleSet("@keyframes spin", [
+                new CssKeyframeDeclaration("to", [
                     (CssProperties.Transform, "rotate(360deg)"),
-                }),
-            });
+                ]),
+
+            ]);
 
             yield return new CssRuleSet(utilityPlugin.OriginalSyntax, AnimateSpin);
         }
@@ -56,18 +54,18 @@ public class Animation : IUtilityPlugin
         yield return new CssRuleSet("animate-spin", AnimateSpin);
     }
 
-    private static CssDeclarationList AnimateNone => new()
-    {
+    private static CssDeclarationList AnimateNone =>
+    [
         ("animation", "none"),
-    };
+    ];
 
-    private static CssDeclarationList AnimatePing => new()
-    {
+    private static CssDeclarationList AnimatePing =>
+    [
         ("animation", "ping 1s cubic-bezier(0, 0, 0.2, 1) infinite"),
-    };
+    ];
 
-    private static CssDeclarationList AnimateSpin => new()
-    {
+    private static CssDeclarationList AnimateSpin =>
+    [
         ("animation", "spin 1s linear infinite"),
-    };
+    ];
 }

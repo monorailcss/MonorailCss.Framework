@@ -39,10 +39,10 @@ public class Outline : IUtilityNamespacePlugin
     {
         if (suffix.Equals("none", StringComparison.Ordinal))
         {
-            return new CssDeclarationList()
-            {
+            return
+            [
                 (CssProperties.Outline, "2px solid transparent"), (CssProperties.OutlineOffset, "2px"),
-            };
+            ];
         }
 
         if (!_utilities.TryGetValue(suffix, out var outline))
@@ -79,5 +79,5 @@ public class Outline : IUtilityNamespacePlugin
     }
 
     /// <inheritdoc />
-    public ImmutableArray<string> Namespaces => new[] { "outline" }.ToImmutableArray();
+    public ImmutableArray<string> Namespaces => [..new[] { "outline" }];
 }

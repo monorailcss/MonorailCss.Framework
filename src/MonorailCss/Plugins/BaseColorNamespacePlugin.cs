@@ -94,20 +94,20 @@ public abstract class BaseColorNamespacePlugin : IUtilityNamespacePlugin
                 // if this utility splits and it is specified then we will still write the property
                 // with one value with the opacity defined.
                 var opacity = _opacity.GetValueOrDefault(opacityValue, "1");
-                declarations = new CssDeclarationList
-                {
+                declarations =
+                [
                     (ColorPropertyName(), color.AsStringWithOpacity(opacity)),
-                };
+                ];
             }
             else
             {
                 // include a variable here so that if the text-opacity add-on is used it gets applied
                 // it'll override this value and get applied properly.
                 var varName = CssFramework.GetVariableNameWithPrefix(opacityPropertyName);
-                declarations = new CssDeclarationList
-                {
+                declarations =
+                [
                     (varName, "1"), (ColorPropertyName(), color.AsStringWithOpacity($"var({varName})")),
-                };
+                ];
             }
         }
         else
@@ -115,18 +115,18 @@ public abstract class BaseColorNamespacePlugin : IUtilityNamespacePlugin
             // this plug-in doesn't support an opacity property so either it has an opacity or it doesn't.
             if (opacityValue == null)
             {
-                declarations = new CssDeclarationList
-                {
+                declarations =
+                [
                     (ColorPropertyName(), color.AsString()),
-                };
+                ];
             }
             else
             {
                 var opacity = _opacity.GetValueOrDefault(opacityValue, "1");
-                declarations = new CssDeclarationList
-                {
+                declarations =
+                [
                     (ColorPropertyName(), color.AsStringWithOpacity(opacity)),
-                };
+                ];
             }
         }
 
@@ -158,7 +158,7 @@ public abstract class BaseColorNamespacePlugin : IUtilityNamespacePlugin
     }
 
     /// <inheritdoc />
-    public ImmutableArray<string> Namespaces => ImmutableArray.Create(Namespace());
+    public ImmutableArray<string> Namespaces => [Namespace()];
 
     /// <summary>
     /// Additional colors to add to the design system.

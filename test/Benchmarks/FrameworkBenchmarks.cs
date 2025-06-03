@@ -13,8 +13,8 @@ public class FrameworkBenchmarks
     [GlobalSetup]
     public void Setup()
     {
-        _classes = new[]
-        {
+        _classes =
+        [
             "dark:text-gray-300",
             "text-blue-700",
             "badge-light",
@@ -296,7 +296,7 @@ public class FrameworkBenchmarks
             "inline-block",
             "right-0",
             "dark:bg-sky-900/75",
-        };
+        ];
 
         _framework = new CssFramework(new CssFrameworkSettings { CssResetOverride = string.Empty } );
     }

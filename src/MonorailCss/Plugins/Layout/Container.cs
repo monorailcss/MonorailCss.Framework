@@ -42,7 +42,7 @@ public class Container : IUtilityNamespacePlugin
     }
 
     /// <inheritdoc />
-    public ImmutableArray<string> Namespaces => new[] { Ns }.ToImmutableArray();
+    public ImmutableArray<string> Namespaces => [..new[] { Ns }];
 
     /// <inheritdoc />
     public IEnumerable<CssRuleSet> Process(IParsedClassNameSyntax syntax)

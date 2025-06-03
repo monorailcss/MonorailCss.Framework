@@ -81,17 +81,17 @@ public class BoxShadow : IUtilityNamespacePlugin, IRegisterDefaults
     }
 
     /// <inheritdoc />
-    public ImmutableArray<string> Namespaces => new[] { "shadow" }.ToImmutableArray();
+    public ImmutableArray<string> Namespaces => [..new[] { "shadow" }];
 
     /// <inheritdoc />
     public CssDeclarationList GetDefaults()
     {
-        return new CssDeclarationList
-        {
+        return
+        [
             (CssFramework.GetVariableNameWithPrefix("ring-offset-shadow"), "0 0 #0000"),
             (CssFramework.GetVariableNameWithPrefix("ring-shadow"), "0 0 #0000"),
             (CssFramework.GetVariableNameWithPrefix("shadow"), "0 0 #0000"),
             (CssFramework.GetVariableNameWithPrefix("shadow-colored"), "0 0 #0000"),
-        };
+        ];
     }
 }

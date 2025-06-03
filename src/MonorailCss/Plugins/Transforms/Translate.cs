@@ -25,11 +25,10 @@ public class Translate : BaseUtilityNamespacePlugin, IRegisterDefaults
 
     /// <inheritdoc />
     protected override CssNamespaceToPropertyMap GetNamespacePropertyMapList() =>
-        new()
-        {
-            new("translate-x", CssFramework.GetVariableNameWithPrefix("translate-x")),
-            new("translate-y", CssFramework.GetVariableNameWithPrefix("translate-y")),
-        };
+    [
+        new("translate-x", CssFramework.GetVariableNameWithPrefix("translate-x")),
+        new("translate-y", CssFramework.GetVariableNameWithPrefix("translate-y")),
+    ];
 
     /// <inheritdoc />
     protected override CssSuffixToValueMap GetValues()
@@ -40,14 +39,14 @@ public class Translate : BaseUtilityNamespacePlugin, IRegisterDefaults
     /// <inheritdoc />
     protected override CssDeclarationList AdditionalDeclarations()
     {
-        return new CssDeclarationList { ("transform", Transform.TransformValue) };
+        return [("transform", Transform.TransformValue)];
     }
 
     /// <inheritdoc />
     public CssDeclarationList GetDefaults()
     {
-        return new CssDeclarationList
-        {
+        return
+        [
             (CssFramework.GetVariableNameWithPrefix("scale-x"), "1"),
             (CssFramework.GetVariableNameWithPrefix("scale-y"), "1"),
             (CssFramework.GetVariableNameWithPrefix("skew-x"), "0"),
@@ -55,6 +54,6 @@ public class Translate : BaseUtilityNamespacePlugin, IRegisterDefaults
             (CssFramework.GetVariableNameWithPrefix("rotate"), "0"),
             (CssFramework.GetVariableNameWithPrefix("translate-x"), "0"),
             (CssFramework.GetVariableNameWithPrefix("translate-y"), "0"),
-        };
+        ];
     }
 }

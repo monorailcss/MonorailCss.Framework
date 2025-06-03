@@ -11,7 +11,7 @@ public class BackgroundImage : BaseUtilityNamespacePlugin
 {
     /// <inheritdoc />
     protected override CssNamespaceToPropertyMap GetNamespacePropertyMapList() =>
-        new() { new("bg", CssProperties.BackgroundImage), };
+        [new("bg", CssProperties.BackgroundImage)];
 
     /// <inheritdoc />
     protected override CssSuffixToValueMap GetValues()
@@ -99,7 +99,7 @@ public class GradientFromPlugin : IUtilityNamespacePlugin
     }
 
     /// <inheritdoc />
-    public ImmutableArray<string> Namespaces => new[] { "from" }.ToImmutableArray();
+    public ImmutableArray<string> Namespaces => [..new[] { "from" }];
 }
 
 /// <summary>
@@ -167,7 +167,7 @@ public class GradientToPlugin : IUtilityNamespacePlugin
     }
 
     /// <inheritdoc />
-    public ImmutableArray<string> Namespaces => new[] { "to" }.ToImmutableArray();
+    public ImmutableArray<string> Namespaces => [..new[] { "to" }];
 }
 
 /// <summary>
@@ -237,5 +237,5 @@ public class GradientViaPlugin : IUtilityNamespacePlugin
     }
 
     /// <inheritdoc />
-    public ImmutableArray<string> Namespaces => new[] { "via" }.ToImmutableArray();
+    public ImmutableArray<string> Namespaces => [..new[] { "via" }];
 }

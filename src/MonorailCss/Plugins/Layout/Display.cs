@@ -47,7 +47,7 @@ public class Display : IUtilityPlugin
 
             yield return new CssRuleSet(
                 utilitySyntax.OriginalSyntax,
-                new CssDeclarationList { ("display", value), });
+                [("display", value)]);
         }
         else if (syntax is NamespaceSyntax namespaceSyntax)
         {
@@ -58,7 +58,7 @@ public class Display : IUtilityPlugin
 
             yield return new CssRuleSet(
                 namespaceSyntax.OriginalSyntax,
-                new CssDeclarationList { ("display", value), });
+                [("display", value)]);
         }
     }
 
@@ -68,6 +68,6 @@ public class Display : IUtilityPlugin
         return _utilities
             .Select(utility => new CssRuleSet(
                 utility.Key,
-                new CssDeclarationList { ("display", utility.Value) }));
+                [("display", utility.Value)]));
     }
 }

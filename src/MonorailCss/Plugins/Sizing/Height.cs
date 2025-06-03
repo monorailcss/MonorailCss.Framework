@@ -18,7 +18,7 @@ public class Height : BaseUtilityNamespacePlugin
     }
 
     /// <inheritdoc />
-    protected override CssNamespaceToPropertyMap GetNamespacePropertyMapList() => new() { new(Namespace, "height"), };
+    protected override CssNamespaceToPropertyMap GetNamespacePropertyMapList() => [new(Namespace, "height")];
 
     /// <inheritdoc />
     protected override CssSuffixToValueMap GetValues()

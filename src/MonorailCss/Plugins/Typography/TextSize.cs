@@ -42,10 +42,10 @@ public class TextSize : IUtilityNamespacePlugin
 
     private static CssDeclarationList DeclarationList(MonorailCss.Typography value)
     {
-        return new CssDeclarationList
-        {
+        return
+        [
             (CssProperties.FontSize, value.FontSize), (CssProperties.LineHeight, value.LineHeight),
-        };
+        ];
     }
 
     /// <inheritdoc />
@@ -57,5 +57,5 @@ public class TextSize : IUtilityNamespacePlugin
     }
 
     /// <inheritdoc />
-    public ImmutableArray<string> Namespaces => new[] { "text" }.ToImmutableArray();
+    public ImmutableArray<string> Namespaces => [..new[] { "text" }];
 }

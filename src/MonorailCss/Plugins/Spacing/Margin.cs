@@ -21,16 +21,15 @@ public class Margin : BaseUtilityNamespacePlugin
 
     /// <inheritdoc />
     protected override CssNamespaceToPropertyMap GetNamespacePropertyMapList() =>
-        new()
-        {
-            new("m", "margin", 0),
-            new("mx", ("margin-left", "margin-right"), 100),
-            new("my", ("margin-top", "margin-bottom"), 100),
-            new("ml", "margin-left", 999),
-            new("mr", "margin-right", 999),
-            new("mt", "margin-top", 999),
-            new("mb", "margin-bottom", 999),
-        };
+    [
+        new("m", "margin", 0),
+        new("mx", ("margin-left", "margin-right"), 100),
+        new("my", ("margin-top", "margin-bottom"), 100),
+        new("ml", "margin-left", 999),
+        new("mr", "margin-right", 999),
+        new("mt", "margin-top", 999),
+        new("mb", "margin-bottom", 999),
+    ];
 
     /// <inheritdoc />
     protected override CssSuffixToValueMap GetValues()

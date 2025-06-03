@@ -6,10 +6,10 @@ namespace MonorailCss.Plugins.Borders;
 public class OutlineWidth : BaseUtilityNamespacePlugin
 {
     /// <inheritdoc />
-    protected override CssNamespaceToPropertyMap GetNamespacePropertyMapList() => new()
-    {
+    protected override CssNamespaceToPropertyMap GetNamespacePropertyMapList() =>
+    [
         new("outline-width", "outline-width"),
-    };
+    ];
 
     /// <inheritdoc />
     protected override CssSuffixToValueMap GetValues() => new()

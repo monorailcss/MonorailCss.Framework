@@ -14,16 +14,14 @@ public class FontSmoothing : BaseLookupPlugin
         return new Dictionary<string, CssDeclarationList>
         {
             {
-                "antialiased", new CssDeclarationList
-                {
+                "antialiased", [
                     ("-webkit-font-smoothing", "antialiased"), ("-moz-osx-font-smoothing", "grayscale"),
-                }
+                ]
             },
             {
-                "subpixel-antialiased", new CssDeclarationList
-                {
+                "subpixel-antialiased", [
                     ("-webkit-font-smoothing", "auto"), ("-moz-osx-font-smoothing", "auto"),
-                }
+                ]
             },
         }.ToImmutableDictionary();
     }

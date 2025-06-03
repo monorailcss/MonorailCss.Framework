@@ -22,7 +22,7 @@ public abstract class BaseUtilityNamespacePlugin : IUtilityNamespacePlugin
     protected BaseUtilityNamespacePlugin()
     {
         _namespaces =
-            new Lazy<ImmutableArray<string>>(() => GetNamespacePropertyMapList().Namespaces.ToImmutableArray());
+            new Lazy<ImmutableArray<string>>(() => [..GetNamespacePropertyMapList().Namespaces]);
         _suffixToValueMap = new Lazy<CssSuffixToValueMap>(GetValues);
         _namespacePropertyMapList = new Lazy<CssNamespaceToPropertyMap>(GetNamespacePropertyMapList);
     }

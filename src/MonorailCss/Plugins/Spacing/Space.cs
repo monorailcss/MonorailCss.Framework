@@ -42,19 +42,18 @@ public class Space : IUtilityNamespacePlugin
         }
 
 
-        var value = $"calc(var(spacing) * {namespaceSyntax.Suffix})";
+        var value = $"calc({CssFramework.GetCssVariableWithPrefix("spacing")} * {namespaceSyntax.Suffix})";
 
         var names = namespaceSyntax.NamespaceEquals("space-x")
-            ? ("space-x-reverse", "margin-left", "margin-right")
-            : ("space-y-reverse", "margin-top", "margin-bottom");
+            ? ("space-x-reverse", "margin-inline-start", "margin-inline-end")
+            : ("space-y-reverse", "margin-block-start", "margin-block-end");
 
         var declarations = new CssDeclarationList
         {
             (CssFramework.GetVariableNameWithPrefix(names.Item1), "0"),
-            (names.Item2, $"calc({value} * calc(1 - {CssFramework.GetCssVariableWithPrefix(names.Item1)}))"),
-            (names.Item3, $"calc({value} * {CssFramework.GetCssVariableWithPrefix(names.Item1)})"),
+            (names.Item2, $"calc({CssFramework.GetCssVariableWithPrefix("spacing")} * {namespaceSyntax.Suffix} * {CssFramework.GetCssVariableWithPrefix(names.Item1)})"),
+            (names.Item3, $"calc({CssFramework.GetCssVariableWithPrefix("spacing")} * {namespaceSyntax.Suffix} * (1 - {CssFramework.GetCssVariableWithPrefix(names.Item1)}))"),
         };
-
         yield return new CssRuleSet(GetSelector(syntax), declarations);
     }
 
@@ -66,9 +65,9 @@ public class Space : IUtilityNamespacePlugin
 
     private static CssSelector GetSelector(IParsedClassNameSyntax syntax)
     {
-        return new CssSelector(syntax.OriginalSyntax + " > ", ":not([hidden])~:not([hidden])");
+        return new CssSelector(syntax.OriginalSyntax + " > ", ":not(:last-child)");
     }
 
     /// <inheritdoc />
-    public ImmutableArray<string> Namespaces => new[] { "space-x", "space-y" }.ToImmutableArray();
+    public ImmutableArray<string> Namespaces => ["space-x", "space-y"];
 }

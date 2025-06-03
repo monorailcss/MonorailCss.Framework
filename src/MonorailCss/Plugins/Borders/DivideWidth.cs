@@ -91,5 +91,5 @@ public class DivideWidth : IUtilityNamespacePlugin
     }
 
     /// <inheritdoc />
-    public ImmutableArray<string> Namespaces => new[] { "divide-x", "divide-y" }.ToImmutableArray();
+    public ImmutableArray<string> Namespaces => [..new[] { "divide-x", "divide-y" }];
 }

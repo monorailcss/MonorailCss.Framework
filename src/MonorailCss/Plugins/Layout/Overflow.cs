@@ -7,12 +7,11 @@ public class Overflow : BaseUtilityNamespacePlugin
 {
     /// <inheritdoc />
     protected override CssNamespaceToPropertyMap GetNamespacePropertyMapList() =>
-        new()
-        {
-            new("overflow", "overflow"),
-            new("overflow-x", "overflow-x "),
-            new("overflow-y", "overflow-y "),
-        };
+    [
+        new("overflow", "overflow"),
+        new("overflow-x", "overflow-x "),
+        new("overflow-y", "overflow-y "),
+    ];
 
     /// <inheritdoc />
     protected override CssSuffixToValueMap GetValues() =>

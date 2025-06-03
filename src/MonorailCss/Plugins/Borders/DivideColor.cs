@@ -49,24 +49,24 @@ public class DivideColor : IUtilityNamespacePlugin
                 yield break;
             }
 
-            declarations = new CssDeclarationList
-            {
+            declarations =
+            [
                 (CssProperties.BorderColor, additionalValues[suffix]),
-            };
+            ];
         }
         else if (opacityValue != null)
         {
             var opacity = _opacities.GetValueOrDefault(opacityValue, "1");
-            declarations = new CssDeclarationList
-            {
+            declarations =
+            [
                 (CssProperties.BorderColor, color.AsStringWithOpacity(opacity)),
-            };
+            ];
         }
         else
         {
             // include a variable here so that if the text-opacity add-on is used it gets applied
             // it'll override this value and get applied properly.
-            declarations = new CssDeclarationList { (CssProperties.BorderColor, color.AsString()), };
+            declarations = [(CssProperties.BorderColor, color.AsString())];
         }
 
         yield return new CssRuleSet(new CssSelector(namespaceSyntax.OriginalSyntax, " > :not([hidden]) ~ :not([hidden])"), declarations);
@@ -75,12 +75,11 @@ public class DivideColor : IUtilityNamespacePlugin
     /// <inheritdoc />
     public IEnumerable<CssRuleSet> GetAllRules()
     {
-        return _flattenedColors.Select(color => new CssRuleSet("divide-" + color.Key, new CssDeclarationList
-        {
+        return _flattenedColors.Select(color => new CssRuleSet("divide-" + color.Key, [
             ("border-color", color.Value.AsString()),
-        }));
+        ]));
     }
 
     /// <inheritdoc />
-    public ImmutableArray<string> Namespaces => ImmutableArray.Create<string>(Namespace);
+    public ImmutableArray<string> Namespaces => [Namespace];
 }

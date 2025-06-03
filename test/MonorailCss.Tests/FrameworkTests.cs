@@ -146,7 +146,7 @@ public class FrameworkTests
             {
                 {"body", "font-sans mb-2"},
             }});
-        var r = framework.Process(Array.Empty<string>());
+        var r = framework.Process([]);
         r.ShouldBeCss("""
 
                       body {

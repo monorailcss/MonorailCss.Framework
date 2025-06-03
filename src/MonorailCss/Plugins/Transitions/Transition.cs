@@ -78,5 +78,5 @@ public class Transition : IUtilityNamespacePlugin
     }
 
     /// <inheritdoc />
-    public ImmutableArray<string> Namespaces => new[] { Namespace }.ToImmutableArray();
+    public ImmutableArray<string> Namespaces => [..new[] { Namespace }];
 }

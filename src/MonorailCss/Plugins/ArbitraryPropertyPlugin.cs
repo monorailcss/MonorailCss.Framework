@@ -16,10 +16,9 @@ public class ArbitraryPropertyPlugin : IUtilityPlugin
             yield break;
         }
 
-        yield return new CssRuleSet(arbitraryPropertySyntax.OriginalSyntax, new CssDeclarationList()
-        {
+        yield return new CssRuleSet(arbitraryPropertySyntax.OriginalSyntax, [
             (arbitraryPropertySyntax.PropertyName, arbitraryPropertySyntax.ArbitraryValue),
-        });
+        ]);
     }
 
     /// <inheritdoc />

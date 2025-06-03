@@ -39,8 +39,8 @@ public class ScreenReaders : IUtilityPlugin
         yield return new CssRuleSet("not-sr-only", NotSrOnly);
     }
 
-    private static CssDeclarationList NotSrOnly => new()
-    {
+    private static CssDeclarationList NotSrOnly =>
+    [
         new CssDeclaration(CSS.Position, "static"),
         new CssDeclaration(CSS.Width, "auto"),
         new CssDeclaration(CSS.Height, "auto"),
@@ -49,10 +49,10 @@ public class ScreenReaders : IUtilityPlugin
         new CssDeclaration(CSS.Overflow, "visible"),
         new CssDeclaration(CSS.Clip, "auto"),
         new CssDeclaration(CSS.WhiteSpace, "normal"),
-    };
+    ];
 
-    private static CssDeclarationList SrOnly => new()
-    {
+    private static CssDeclarationList SrOnly =>
+    [
         new CssDeclaration(CSS.Position, "absolute"),
         new CssDeclaration(CSS.Width, "1px"),
         new CssDeclaration(CSS.Height, "1px"),
@@ -62,5 +62,5 @@ public class ScreenReaders : IUtilityPlugin
         new CssDeclaration(CSS.Clip, "rect(0, 0, 0, 0)"),
         new CssDeclaration(CSS.WhiteSpace, "nowrap"),
         new CssDeclaration(CSS.BorderWidth, "0"),
-    };
+    ];
 }

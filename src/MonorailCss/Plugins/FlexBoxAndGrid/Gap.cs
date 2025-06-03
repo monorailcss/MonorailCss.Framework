@@ -17,12 +17,11 @@ public class Gap : BaseUtilityNamespacePlugin
 
     /// <inheritdoc />
     protected override CssNamespaceToPropertyMap GetNamespacePropertyMapList() =>
-        new()
-        {
-            new("gap", "gap"),
-            new("gap-x", "column-gap"),
-            new("gap-y", "row-gap"),
-        };
+    [
+        new("gap", "gap"),
+        new("gap-x", "column-gap"),
+        new("gap-y", "row-gap"),
+    ];
 
     /// <inheritdoc />
     protected override CssSuffixToValueMap GetValues()

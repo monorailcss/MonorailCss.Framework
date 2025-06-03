@@ -39,7 +39,7 @@ public abstract class BaseUtilityPlugin : IUtilityPlugin
             yield break;
         }
 
-        yield return new CssRuleSet(utilitySyntax.OriginalSyntax, new CssDeclarationList { (Property, _utilityValues[utility]), });
+        yield return new CssRuleSet(utilitySyntax.OriginalSyntax, [(Property, _utilityValues[utility])]);
     }
 
     /// <inheritdoc />
@@ -48,6 +48,6 @@ public abstract class BaseUtilityPlugin : IUtilityPlugin
         _utilityValues ??= GetUtilities();
         return _utilityValues.ToArray().Select(i => new CssRuleSet(
             i.Key,
-            new CssDeclarationList { (Property, i.Value), }));
+            [(Property, i.Value)]));
     }
 }

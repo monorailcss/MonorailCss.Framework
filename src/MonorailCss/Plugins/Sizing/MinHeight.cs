@@ -10,10 +10,10 @@ public class MinHeight : BaseUtilityNamespacePlugin
     private const string Namespace = "min-h";
 
     /// <inheritdoc />
-    protected override CssNamespaceToPropertyMap GetNamespacePropertyMapList() => new()
-    {
+    protected override CssNamespaceToPropertyMap GetNamespacePropertyMapList() =>
+    [
         new(Namespace, "min-height"),
-    };
+    ];
 
     /// <inheritdoc />
     protected override CssSuffixToValueMap GetValues()

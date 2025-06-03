@@ -8,8 +8,8 @@ public class BorderRadius : BaseUtilityNamespacePlugin
     /// <inheritdoc />
     protected override CssNamespaceToPropertyMap GetNamespacePropertyMapList()
     {
-        return new CssNamespaceToPropertyMap
-        {
+        return
+        [
             new("rounded", "border-radius", 0),
             new("rounded-t", ("border-top-left-radius", "border-top-right-radius"), 10),
             new("rounded-r", ("border-top-right-radius", "border-bottom-right-radius"), 10),
@@ -19,7 +19,7 @@ public class BorderRadius : BaseUtilityNamespacePlugin
             new("rounded-tr", "border-top-right-radius", 1000),
             new("rounded-br", "border-bottom-right-radius", 1000),
             new("rounded-bl", "border-bottom-left-radius", 1000),
-        };
+        ];
     }
 
     /// <inheritdoc />

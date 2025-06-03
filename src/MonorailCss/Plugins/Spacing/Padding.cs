@@ -20,16 +20,21 @@ public class Padding : BaseUtilityNamespacePlugin
 
     /// <inheritdoc />
     protected override CssNamespaceToPropertyMap GetNamespacePropertyMapList() =>
-        new()
+    [
+        new("p", "padding", 0),
+        new("px", new[]
         {
-            new("p", "padding", 0),
-            new("px", new[] { "padding-left", "padding-right" }, 100),
-            new("py", new[] { "padding-top", "padding-bottom" }, 100),
-            new("pl", "padding-left", 999),
-            new("pr", "padding-right", 999),
-            new("pt", "padding-top", 999),
-            new("pb", "padding-bottom", 999),
-        };
+            "padding-left", "padding-right"
+        }, 100),
+        new("py", new[]
+        {
+            "padding-top", "padding-bottom"
+        }, 100),
+        new("pl", "padding-left", 999),
+        new("pr", "padding-right", 999),
+        new("pt", "padding-top", 999),
+        new("pb", "padding-bottom", 999),
+    ];
 
     /// <inheritdoc />
     protected override CssSuffixToValueMap GetValues()

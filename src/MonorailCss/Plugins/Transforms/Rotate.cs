@@ -10,10 +10,9 @@ public class Rotate : BaseUtilityNamespacePlugin, IRegisterDefaults
 {
     /// <inheritdoc />
     protected override CssNamespaceToPropertyMap GetNamespacePropertyMapList() =>
-        new()
-        {
-            new("rotate", CssFramework.GetVariableNameWithPrefix("rotate")),
-        };
+    [
+        new("rotate", CssFramework.GetVariableNameWithPrefix("rotate")),
+    ];
 
     /// <inheritdoc />
     protected override CssSuffixToValueMap GetValues()
@@ -39,14 +38,14 @@ public class Rotate : BaseUtilityNamespacePlugin, IRegisterDefaults
     /// <inheritdoc />
     protected override CssDeclarationList AdditionalDeclarations()
     {
-        return new CssDeclarationList { ("transform", Transform.TransformValue) };
+        return [("transform", Transform.TransformValue)];
     }
 
     /// <inheritdoc />
     public CssDeclarationList GetDefaults()
     {
-        return new CssDeclarationList
-        {
+        return
+        [
             (CssFramework.GetVariableNameWithPrefix("scale-x"), "1"),
             (CssFramework.GetVariableNameWithPrefix("scale-y"), "1"),
             (CssFramework.GetVariableNameWithPrefix("skew-x"), "0"),
@@ -54,6 +53,6 @@ public class Rotate : BaseUtilityNamespacePlugin, IRegisterDefaults
             (CssFramework.GetVariableNameWithPrefix("rotate"), "0"),
             (CssFramework.GetVariableNameWithPrefix("translate-x"), "0"),
             (CssFramework.GetVariableNameWithPrefix("translate-y"), "0"),
-        };
+        ];
     }
 }

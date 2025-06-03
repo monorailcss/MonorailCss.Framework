@@ -6,10 +6,10 @@ namespace MonorailCss.Plugins.Borders;
 public class OutlineOffset : BaseUtilityNamespacePlugin
 {
     /// <inheritdoc />
-    protected override CssNamespaceToPropertyMap GetNamespacePropertyMapList() => new()
-    {
+    protected override CssNamespaceToPropertyMap GetNamespacePropertyMapList() =>
+    [
         new("outline-offset", "outline-offset"),
-    };
+    ];
 
     /// <inheritdoc />
     protected override CssSuffixToValueMap GetValues() => new()

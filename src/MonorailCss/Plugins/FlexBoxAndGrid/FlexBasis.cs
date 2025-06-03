@@ -20,10 +20,9 @@ public class FlexBasis : BaseUtilityNamespacePlugin
 
     /// <inheritdoc />
     protected override CssNamespaceToPropertyMap GetNamespacePropertyMapList() =>
-        new()
-        {
-            new("basis", "flex-basis"),
-        };
+    [
+        new("basis", "flex-basis"),
+    ];
 
     /// <inheritdoc />
     protected override CssSuffixToValueMap GetValues()

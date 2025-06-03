@@ -20,7 +20,7 @@ public class MaxHeight : BaseUtilityNamespacePlugin
     }
 
     /// <inheritdoc />
-    protected override CssNamespaceToPropertyMap GetNamespacePropertyMapList() => new() { new(Namespace, "max-height"), };
+    protected override CssNamespaceToPropertyMap GetNamespacePropertyMapList() => [new(Namespace, "max-height")];
 
     /// <inheritdoc />
     protected override CssSuffixToValueMap GetValues()

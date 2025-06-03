@@ -10,11 +10,10 @@ public class Skew : BaseUtilityNamespacePlugin, IRegisterDefaults
 {
     /// <inheritdoc />
     protected override CssNamespaceToPropertyMap GetNamespacePropertyMapList() =>
-        new()
-        {
-            new("skew-x", CssFramework.GetVariableNameWithPrefix("skew-x")),
-            new("skew-y", CssFramework.GetVariableNameWithPrefix("skew-y")),
-        };
+    [
+        new("skew-x", CssFramework.GetVariableNameWithPrefix("skew-x")),
+        new("skew-y", CssFramework.GetVariableNameWithPrefix("skew-y")),
+    ];
 
     /// <inheritdoc />
     protected override CssSuffixToValueMap GetValues()
@@ -37,14 +36,14 @@ public class Skew : BaseUtilityNamespacePlugin, IRegisterDefaults
     /// <inheritdoc />
     protected override CssDeclarationList AdditionalDeclarations()
     {
-        return new CssDeclarationList { ("transform", Transform.TransformValue) };
+        return [("transform", Transform.TransformValue)];
     }
 
     /// <inheritdoc />
     public CssDeclarationList GetDefaults()
     {
-        return new CssDeclarationList
-        {
+        return
+        [
             (CssFramework.GetVariableNameWithPrefix("scale-x"), "1"),
             (CssFramework.GetVariableNameWithPrefix("scale-y"), "1"),
             (CssFramework.GetVariableNameWithPrefix("skew-x"), "0"),
@@ -52,6 +51,6 @@ public class Skew : BaseUtilityNamespacePlugin, IRegisterDefaults
             (CssFramework.GetVariableNameWithPrefix("rotate"), "0"),
             (CssFramework.GetVariableNameWithPrefix("translate-x"), "0"),
             (CssFramework.GetVariableNameWithPrefix("translate-y"), "0"),
-        };
+        ];
     }
 }
