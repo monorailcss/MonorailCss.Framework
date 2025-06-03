@@ -20,12 +20,21 @@ public class MinHeight : BaseUtilityNamespacePlugin
     {
         return new Dictionary<string, string>
         {
-            { "0", "0px" },
+            { "auto", "auto" },
+            { "px", "1px" },
             { "full", "100%" },
             { "screen", "100vh" },
+            { "dvh", "100dvh" },
+            { "dvw", "100dvw" },
+            { "lvh", "100lvh" },
+            { "lvw", "100lvw" },
+            { "svh", "100svh" },
+            { "svw", "100svw" },
             { "min", "min-content" },
             { "max", "max-content" },
             { "fit", "fit-content" },
+            { "lh", "1lh" },
+            { "0", "0px" },
         }.ToImmutableDictionary();
     }
 }

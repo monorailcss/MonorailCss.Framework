@@ -27,11 +27,20 @@ public class MaxHeight : BaseUtilityNamespacePlugin
     {
         return new Dictionary<string, string>
             {
+                { "none", "none" },
+                { "px", "1px" },
                 { "full", "100%" },
                 { "screen", "100vh" },
+                { "dvh", "100dvh" },
+                { "dvw", "100dvw" },
+                { "lvh", "100lvh" },
+                { "lvw", "100lvw" },
+                { "svh", "100svh" },
+                { "svw", "100svw" },
                 { "min", "min-content" },
                 { "max", "max-content" },
                 { "fit", "fit-content" },
+                { "lh", "1lh" },
             }.ToImmutableDictionary()
             .AddRange(_designSystem.Spacing);
     }

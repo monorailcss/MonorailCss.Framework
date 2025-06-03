@@ -29,6 +29,18 @@ public class MaxWidth : BaseUtilityNamespacePlugin
         return new Dictionary<string, string>
             {
                 { "none", "none" },
+                { "px", "1px" },
+                { "full", "100%" },
+                { "dvw", "100dvw" },
+                { "dvh", "100dvh" },
+                { "lvw", "100lvw" },
+                { "lvh", "100lvh" },
+                { "svw", "100svw" },
+                { "svh", "100svh" },
+                { "screen", "100vw" },
+                { "min", "min-content" },
+                { "max", "max-content" },
+                { "fit", "fit-content" },
                 { "0", "0rem" },
                 { "xs", "20rem" },
                 { "sm", "24rem" },
@@ -43,10 +55,6 @@ public class MaxWidth : BaseUtilityNamespacePlugin
                 { "7xl", "80rem" },
                 { "8xl", "88rem" },
                 { "9xl", "100rem" },
-                { "full", "100%" },
-                { "min", "min-content" },
-                { "max", "max-content" },
-                { "fit", "fit-content" },
                 { "prose", "65ch" },
             }.ToImmutableDictionary()
             .AddRange(_designSystem.Screens.ToImmutableDictionary(i => $"screen-{i.Key}", i => i.Value));
