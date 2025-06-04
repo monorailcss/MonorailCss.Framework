@@ -83,6 +83,7 @@ public class ArbitraryValueTests
         var r = framework.Process([
             "h-[calc(100vh-4.75rem)]",
         ]);
+        r.ShouldContain("100vh - 4.75rem");
         r.ShouldBeCss("""
 
                       :root {

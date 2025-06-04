@@ -44,8 +44,8 @@ public abstract class BaseUtilityNamespacePlugin : IUtilityNamespacePlugin
 
                     var arbitraryMapping = namespacePropertyMapList[arbitraryValueSyntax.Namespace];
                     var arbitraryDeclarationList = CssDeclarationList(
-                        arbitraryValueSyntax.ArbitraryValue,
-                        arbitraryMapping.Values.Values.Select(FixCalcSpacing).ToArray());
+                        FixCalcSpacing(arbitraryValueSyntax.ArbitraryValue),
+                        arbitraryMapping.Values.Values.ToArray());
                     yield return new CssRuleSet(GetSelector(arbitraryValueSyntax), arbitraryDeclarationList,
                         arbitraryMapping.Importance);
 
