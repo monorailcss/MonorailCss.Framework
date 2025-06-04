@@ -12,7 +12,7 @@ namespace MonorailCss;
 /// <summary>
 /// Settings for the CSS Framework.
 /// </summary>
-public class CssFrameworkSettings
+public record CssFrameworkSettings
 {
     /// <summary>
     /// Gets the design system.
