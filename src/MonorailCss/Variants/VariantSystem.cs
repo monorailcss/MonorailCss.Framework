@@ -60,6 +60,7 @@ public class VariantSystem
         AddPseudoClass("aria-readonly", "[aria-readonly=\"true\"]");
         AddPseudoClass("aria-required", "[aria-required=\"true\"]");
         AddPseudoClass("aria-selected", "[aria-selected=\"true\"]");
+        AddPseudoClass("aria-current", "[aria-current=\"true\"]");
 
         // State
         AddPseudoClass("target");
