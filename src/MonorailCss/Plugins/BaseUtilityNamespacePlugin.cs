@@ -37,7 +37,7 @@ public abstract class BaseUtilityNamespacePlugin : IUtilityNamespacePlugin
         {
             case ArbitraryValueSyntax arbitraryValueSyntax:
                 {
-                    if (!HandlesArbitraryNamespaceValue().Equals(arbitraryValueSyntax.Namespace, StringComparison.Ordinal))
+                    if (!namespacePropertyMapList.ContainsNamespace(arbitraryValueSyntax.Namespace))
                     {
                         yield break;
                     }
@@ -45,7 +45,7 @@ public abstract class BaseUtilityNamespacePlugin : IUtilityNamespacePlugin
                     var arbitraryMapping = namespacePropertyMapList[arbitraryValueSyntax.Namespace];
                     var arbitraryDeclarationList = CssDeclarationList(
                         arbitraryValueSyntax.ArbitraryValue,
-                        arbitraryMapping.Values.Values);
+                        arbitraryMapping.Values.Values.Select(FixCalcSpacing).ToArray());
                     yield return new CssRuleSet(GetSelector(arbitraryValueSyntax), arbitraryDeclarationList,
                         arbitraryMapping.Importance);
 
@@ -68,6 +68,19 @@ public abstract class BaseUtilityNamespacePlugin : IUtilityNamespacePlugin
             default:
                 yield break;
         }
+    }
+
+    private static string FixCalcSpacing(string s)
+    {
+        if (s.Contains("calc", StringComparison.OrdinalIgnoreCase))
+        {
+            return s.Replace("+", " + ")
+                    .Replace("-", " - ")
+                    .Replace("*", " * ")
+                    .Replace("/", " / ");
+        }
+
+        return s;
     }
 
     private IEnumerable<CssRuleSet> GetNamespaceCssRuleSets(
@@ -150,12 +163,6 @@ public abstract class BaseUtilityNamespacePlugin : IUtilityNamespacePlugin
     {
         return null;
     }
-
-    /// <summary>
-    /// The namespace that this plugin handles for arbitrary values.
-    /// </summary>
-    /// <returns>The namespace.</returns>
-    protected virtual string HandlesArbitraryNamespaceValue() => string.Empty;
 
     /// <summary>
     /// Gets the property mapping lists.

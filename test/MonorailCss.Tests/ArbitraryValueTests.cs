@@ -74,6 +74,28 @@ public class ArbitraryValueTests
     }
 
     [Fact]
+    public void Can_do_arbitrary_value_with_calc()
+    {
+        var framework = new CssFramework(new CssFrameworkSettings()
+        {
+            CssResetOverride = string.Empty
+        });
+        var r = framework.Process([
+            "h-[calc(100vh-4.75rem)]",
+        ]);
+        r.ShouldBeCss("""
+
+                      :root {
+                        --monorail-spacing:0.25rem;
+                      }
+                      .h-\[calc\(100vh-4\.75rem\)\] {
+                        height:calc(100vh - 4.75rem);
+                      }
+
+                      """);
+    }
+
+    [Fact]
     public void Can_do_arbitrary_value_in_long_hex()
     {
         var framework = new CssFramework(new CssFrameworkSettings()
