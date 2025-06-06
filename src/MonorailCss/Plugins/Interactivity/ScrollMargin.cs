@@ -32,4 +32,12 @@ public class ScrollMargin : BaseUtilityNamespacePlugin
     {
         return _values;
     }
+
+    /// <inheritdoc />
+    protected override bool SupportsDynamicValues(out string cssVariableName, out string calculationPattern)
+    {
+        cssVariableName = "spacing";
+        calculationPattern = "calc(var({0}) * {1})";
+        return true;
+    }
 }
