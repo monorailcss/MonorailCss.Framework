@@ -48,6 +48,11 @@ public record CssFrameworkSettings
     /// Gets an additional set of elements to include.
     /// </summary>
     public IDictionary<string, string> Applies { get; init; } = ImmutableDictionary<string, string>.Empty;
+
+    /// <summary>
+    /// Gets a value indicating whether to output colors as CSS variables in the :root element.
+    /// </summary>
+    public bool OutputColorsAsVariables { get; init; } = false;
 }
 
 /// <summary>
@@ -280,6 +285,16 @@ public class CssFramework
         {
             var variableName = GetVariableNameWithPrefix(defaultVariable.Key);
             defaultVariableDeclarationList.Add(new CssDeclaration(variableName, defaultVariable.Value));
+        }
+
+        if (_frameworkSettings.OutputColorsAsVariables)
+        {
+            var flattenedColors = _frameworkSettings.DesignSystem.GetFlattenColors();
+            foreach (var color in flattenedColors)
+            {
+                var variableName = GetVariableNameWithPrefix($"color-{color.Key}");
+                defaultVariableDeclarationList.Add(new CssDeclaration(variableName, color.Value.AsString()));
+            }
         }
 
         var styleSheet = new CssStylesheet(mediaRules);
