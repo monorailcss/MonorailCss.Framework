@@ -3,7 +3,13 @@
     "allow": [
       "Bash(dotnet test:*)",
       "Bash(dotnet clean:*)",
-      "Bash(dotnet build:*)"
+      "Bash(dotnet build:*)",
+      "WebFetch(domain:tailwindcss.com)",
+      "Bash(dotnet run:*)",
+      "Bash(csc:*)",
+      "Bash(rm:*)",
+      "Bash(grep:*)",
+      "Bash(find:*)"
     ],
     "deny": []
   }

@@ -7,27 +7,110 @@ namespace MonorailCss.Plugins.Backgrounds;
 /// <summary>
 /// The background-image plugin.
 /// </summary>
-public class BackgroundImage : BaseUtilityNamespacePlugin
+public class BackgroundImage : IUtilityNamespacePlugin
 {
     /// <inheritdoc />
-    protected override CssNamespaceToPropertyMap GetNamespacePropertyMapList() =>
-        [new("bg", CssProperties.BackgroundImage)];
+    public IEnumerable<CssRuleSet> Process(IParsedClassNameSyntax syntax)
+    {
+        switch (syntax)
+        {
+            case ArbitraryValueSyntax arbitraryValueSyntax when arbitraryValueSyntax.Namespace.Equals("bg"):
+                {
+                    // Only handle non-color arbitrary values for background-image
+                    var value = arbitraryValueSyntax.ArbitraryValue;
+
+                    // Check if it's a background-image value (url, gradient, etc.)
+                    if (IsBackgroundImageValue(value))
+                    {
+                        var declarations = new CssDeclarationList
+                        {
+                            (CssProperties.BackgroundImage, value),
+                        };
+                        yield return new CssRuleSet(arbitraryValueSyntax.OriginalSyntax, declarations);
+                    }
+
+                    break;
+                }
+
+            case NamespaceSyntax namespaceSyntax when namespaceSyntax.NamespaceEquals("bg") && namespaceSyntax.Suffix != null:
+                {
+                    // Handle predefined gradient values
+                    var suffix = namespaceSyntax.Suffix;
+                    var value = GetGradientValue(suffix);
+                    if (value != null)
+                    {
+                        var declarations = new CssDeclarationList
+                        {
+                            (CssProperties.BackgroundImage, value),
+                        };
+                        yield return new CssRuleSet(namespaceSyntax.OriginalSyntax, declarations);
+                    }
+
+                    break;
+                }
+
+            default:
+                yield break;
+        }
+    }
 
     /// <inheritdoc />
-    protected override CssSuffixToValueMap GetValues()
+    public IEnumerable<CssRuleSet> GetAllRules()
     {
         var stopsVar = CssFramework.GetVariableNameWithPrefix("gradient-stops");
-        return new CssSuffixToValueMap
+        var gradients = new Dictionary<string, string>
         {
-            { "none", "none" },
-            { "gradient-to-t", $"linear-gradient(to top, var({stopsVar}))" },
-            { "gradient-to-tr", $"linear-gradient(to top right, var({stopsVar}))" },
-            { "gradient-to-r", $"linear-gradient(to right, var({stopsVar}))" },
-            { "gradient-to-br", $"linear-gradient(to bottom right, var({stopsVar}))" },
-            { "gradient-to-b", $"linear-gradient(to bottom, var({stopsVar}))" },
-            { "gradient-to-bl", $"linear-gradient(to bottom left, var({stopsVar}))" },
-            { "gradient-to-l", $"linear-gradient(to left, var({stopsVar}))" },
-            { "gradient-to-tl", $"linear-gradient(to top left, var({stopsVar}))" },
+            { "bg-none", "none" },
+            { "bg-gradient-to-t", $"linear-gradient(to top, var({stopsVar}))" },
+            { "bg-gradient-to-tr", $"linear-gradient(to top right, var({stopsVar}))" },
+            { "bg-gradient-to-r", $"linear-gradient(to right, var({stopsVar}))" },
+            { "bg-gradient-to-br", $"linear-gradient(to bottom right, var({stopsVar}))" },
+            { "bg-gradient-to-b", $"linear-gradient(to bottom, var({stopsVar}))" },
+            { "bg-gradient-to-bl", $"linear-gradient(to bottom left, var({stopsVar}))" },
+            { "bg-gradient-to-l", $"linear-gradient(to left, var({stopsVar}))" },
+            { "bg-gradient-to-tl", $"linear-gradient(to top left, var({stopsVar}))" },
+        };
+
+        foreach (var gradient in gradients)
+        {
+            var declarations = new CssDeclarationList
+            {
+                (CssProperties.BackgroundImage, gradient.Value),
+            };
+            yield return new CssRuleSet(gradient.Key, declarations);
+        }
+    }
+
+    /// <inheritdoc />
+    public ImmutableArray<string> Namespaces => [..new[] { "bg" }];
+
+    private static bool IsBackgroundImageValue(string value)
+    {
+        // Check if the value is a background-image specific value
+        return value.StartsWith("url(") ||
+               value.StartsWith("linear-gradient(") ||
+               value.StartsWith("radial-gradient(") ||
+               value.StartsWith("conic-gradient(") ||
+               value.StartsWith("repeating-linear-gradient(") ||
+               value.StartsWith("repeating-radial-gradient(") ||
+               value.Equals("none", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static string? GetGradientValue(string suffix)
+    {
+        var stopsVar = CssFramework.GetVariableNameWithPrefix("gradient-stops");
+        return suffix switch
+        {
+            "none" => "none",
+            "gradient-to-t" => $"linear-gradient(to top, var({stopsVar}))",
+            "gradient-to-tr" => $"linear-gradient(to top right, var({stopsVar}))",
+            "gradient-to-r" => $"linear-gradient(to right, var({stopsVar}))",
+            "gradient-to-br" => $"linear-gradient(to bottom right, var({stopsVar}))",
+            "gradient-to-b" => $"linear-gradient(to bottom, var({stopsVar}))",
+            "gradient-to-bl" => $"linear-gradient(to bottom left, var({stopsVar}))",
+            "gradient-to-l" => $"linear-gradient(to left, var({stopsVar}))",
+            "gradient-to-tl" => $"linear-gradient(to top left, var({stopsVar}))",
+            _ => null,
         };
     }
 }
@@ -222,7 +305,7 @@ public class GradientViaPlugin : IUtilityNamespacePlugin
 
         var declarations = new CssDeclarationList
         {
-            (stopsVar, $"var({fromVar}), {colorValue}, var({toVar}, {colorValue});"),
+            (stopsVar, $"var({fromVar}), {colorValue}, var({toVar}, {colorValue})"),
         };
         return declarations;
     }

@@ -174,4 +174,26 @@ public class ArbitraryValueTests
 
                       """);
     }
+
+    [Fact]
+    public void CSS_selector_escapes_question_mark_and_equals()
+    {
+        var framework = new CssFramework(new CssFrameworkSettings()
+        {
+            CssResetOverride = string.Empty
+        });
+        var r = framework.Process([
+            "bg-[url('/path/to/image.jpg?v=1&size=large')]",
+        ]);
+        
+        // Verify that ?, =, and & characters are properly escaped in the CSS selector
+        r.ShouldContain(".bg-\\[url\\('\\/path\\/to\\/image\\.jpg\\?v\\=1\\&size\\=large'\\)\\]");
+        r.ShouldBeCss("""
+
+                      .bg-\[url\('\/path\/to\/image\.jpg\?v\=1\&size\=large'\)\] {
+                        background-image:url('/path/to/image.jpg?v=1&size=large');
+                      }
+
+                      """);
+    }
 }

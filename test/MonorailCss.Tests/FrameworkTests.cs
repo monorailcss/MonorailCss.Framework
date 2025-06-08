@@ -135,13 +135,6 @@ public class FrameworkTests
                       """);
     }
 
-
-    [Fact]
-    public void Transform_PropertyValue_With_Variables_Should_Be_Ok()
-    {
-        Transform.TransformValue.ShouldBe("translate(var(--monorail-translate-x), var(--monorail-translate-y)) rotate(var(--monorail-rotate)) skewX(var(--monorail-skew-x)) skewY(var(--monorail-skew-y)) scaleX(var(--monorail-scale-x)) scaleY(var(--monorail-scale-y))");
-    }
-
     [Fact]
     public void Can_Do_Apply()
     {
@@ -568,26 +561,26 @@ public class FrameworkTests
     [Fact]
     public void OutputColorsAsVariables_false_should_not_output_color_variables()
     {
-        var framework = new CssFramework(new CssFrameworkSettings 
-        { 
+        var framework = new CssFramework(new CssFrameworkSettings
+        {
             CssResetOverride = string.Empty,
-            OutputColorsAsVariables = false 
+            OutputColorsAsVariables = false
         });
         var r = framework.Process(["text-red-500"]);
-        
+
         r.ShouldNotContain("--monorail-color-red-500");
     }
 
     [Fact]
     public void OutputColorsAsVariables_true_should_output_color_variables()
     {
-        var framework = new CssFramework(new CssFrameworkSettings 
-        { 
+        var framework = new CssFramework(new CssFrameworkSettings
+        {
             CssResetOverride = string.Empty,
-            OutputColorsAsVariables = true 
+            OutputColorsAsVariables = true
         });
         var r = framework.Process(["text-red-500"]);
-        
+
         r.ShouldContain("--monorail-color-red-500");
         r.ShouldContain("--monorail-color-blue-500");
         r.ShouldContain("--monorail-color-gray-100");

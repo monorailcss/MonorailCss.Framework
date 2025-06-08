@@ -530,7 +530,10 @@ public class CssFramework
             .Replace("(", "\\(")
             .Replace(")", "\\)")
             .Replace(".", "\\.")
-            .Replace(",", "\\2c ");
+            .Replace(",", "\\2c ")
+            .Replace("?", "\\?")
+            .Replace("=", "\\=")
+            .Replace("&", "\\&");
     }
 
     /// <summary>
