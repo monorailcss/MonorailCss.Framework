@@ -42,6 +42,12 @@ public abstract class BaseUtilityNamespacePlugin : IUtilityNamespacePlugin
                         yield break;
                     }
 
+                    var isNumeric = int.TryParse(arbitraryValueSyntax.ArbitraryValue, out _);
+                    if (arbitraryValueSyntax.ArbitraryValue.Contains("calc") == false && !isNumeric && !cssSuffixToValuesMap.ContainsSuffix(arbitraryValueSyntax.ArbitraryValue))
+                    {
+                        yield break; // we don't have a valid value for this arbitrary value.
+                    }
+
                     var arbitraryMapping = namespacePropertyMapList[arbitraryValueSyntax.Namespace];
                     var arbitraryDeclarationList = CssDeclarationList(
                         FixCalcSpacing(arbitraryValueSyntax.ArbitraryValue),
