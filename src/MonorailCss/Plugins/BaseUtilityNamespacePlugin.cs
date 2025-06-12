@@ -42,15 +42,14 @@ public abstract class BaseUtilityNamespacePlugin : IUtilityNamespacePlugin
                         yield break;
                     }
 
-                    var isNumeric = int.TryParse(arbitraryValueSyntax.ArbitraryValue, out _);
-                    if (arbitraryValueSyntax.ArbitraryValue.Contains("calc") == false && !isNumeric && !cssSuffixToValuesMap.ContainsSuffix(arbitraryValueSyntax.ArbitraryValue))
+                    if (!IsValidArbitraryValue(arbitraryValueSyntax.ArbitraryValue, cssSuffixToValuesMap))
                     {
                         yield break; // we don't have a valid value for this arbitrary value.
                     }
 
                     var arbitraryMapping = namespacePropertyMapList[arbitraryValueSyntax.Namespace];
                     var arbitraryDeclarationList = CssDeclarationList(
-                        FixCalcSpacing(arbitraryValueSyntax.ArbitraryValue),
+                        ProcessArbitraryValue(arbitraryValueSyntax.ArbitraryValue),
                         arbitraryMapping.Values.Values.ToArray());
                     yield return new CssRuleSet(GetSelector(arbitraryValueSyntax), arbitraryDeclarationList,
                         arbitraryMapping.Importance);
@@ -87,6 +86,23 @@ public abstract class BaseUtilityNamespacePlugin : IUtilityNamespacePlugin
         }
 
         return s;
+    }
+
+    /// <summary>
+    /// Processes an arbitrary value by applying transformations like calc spacing and underscore-to-space conversion.
+    /// </summary>
+    /// <param name="arbitraryValue">The arbitrary value to process.</param>
+    /// <returns>The processed arbitrary value.</returns>
+    protected virtual string ProcessArbitraryValue(string arbitraryValue)
+    {
+        // First apply calc spacing if needed
+        var processed = FixCalcSpacing(arbitraryValue);
+
+        // Convert underscores to spaces for grid templates and other space-separated values
+        // This is the standard Tailwind behavior for arbitrary values
+        processed = processed.Replace("_", " ");
+
+        return processed;
     }
 
     private IEnumerable<CssRuleSet> GetNamespaceCssRuleSets(
@@ -196,5 +212,17 @@ public abstract class BaseUtilityNamespacePlugin : IUtilityNamespacePlugin
         cssVariableName = string.Empty;
         calculationPattern = string.Empty;
         return false;
+    }
+
+    /// <summary>
+    /// Validates whether an arbitrary value is valid for this plugin.
+    /// </summary>
+    /// <param name="arbitraryValue">The arbitrary value to validate.</param>
+    /// <param name="cssSuffixToValuesMap">The suffix to values map for predefined values.</param>
+    /// <returns>True if the arbitrary value is valid, false otherwise.</returns>
+    protected virtual bool IsValidArbitraryValue(string arbitraryValue, CssSuffixToValueMap cssSuffixToValuesMap)
+    {
+        var isNumeric = int.TryParse(arbitraryValue, out _);
+        return arbitraryValue.Contains("calc") || isNumeric || cssSuffixToValuesMap.ContainsSuffix(arbitraryValue);
     }
 }

@@ -9,7 +9,8 @@
       "Bash(csc:*)",
       "Bash(rm:*)",
       "Bash(grep:*)",
-      "Bash(find:*)"
+      "Bash(find:*)",
+      "Bash(~/.dotnet/dotnet test test/MonorailCss.Tests/MonorailCss.Tests.csproj --filter \"FullyQualifiedName~GridTests\" --verbosity normal)"
     ],
     "deny": []
   }
