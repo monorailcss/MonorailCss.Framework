@@ -73,6 +73,30 @@ public class ArbitraryValueTests
                       """);
     }
 
+
+    [Fact]
+    public void Arbitrary_values_respect_built_in_suffixes()
+    {
+        var framework = new CssFramework(new CssFrameworkSettings()
+        {
+            CssResetOverride = string.Empty
+        });
+        var r = framework.Process([
+            "h-screen",
+        ]);
+
+        r.ShouldBeCss("""
+
+                      :root {
+                        --monorail-spacing:0.25rem;
+                      }
+                      .h-screen {
+                        height:100vh;
+                      }
+
+                      """);
+    }
+
     [Fact]
     public void Can_do_arbitrary_value_with_calc()
     {
@@ -185,7 +209,7 @@ public class ArbitraryValueTests
         var r = framework.Process([
             "bg-[url('/path/to/image.jpg?v=1&size=large')]",
         ]);
-        
+
         // Verify that ?, =, and & characters are properly escaped in the CSS selector
         r.ShouldContain(".bg-\\[url\\('\\/path\\/to\\/image\\.jpg\\?v\\=1\\&size\\=large'\\)\\]");
         r.ShouldBeCss("""

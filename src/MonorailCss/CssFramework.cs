@@ -225,7 +225,7 @@ public class CssFramework
                     else
                     {
                         var modifiers = syntax.Modifiers
-                            .Select(i => _variantSystem.Variants.GetValueOrDefault(StripNamedVariant(i)))
+                            .Select(i => _variantSystem.TryGetVariant(StripNamedVariant(i)))
                             .Where(i => i != null).OfType<IVariant>()
                             .ToList();
 
@@ -339,7 +339,7 @@ public class CssFramework
     private ImmutableList<MediaQueryVariant> GetFeatureList(
         string[] mediaModifiers,
         ImmutableDictionary<string, IVariant> variants) =>
-        mediaModifiers.Select(m => variants[m])
+        mediaModifiers.Select(m => _variantSystem.TryGetVariant(m))
             .OfType<MediaQueryVariant>()
             .Select(i => i).ToImmutableList();
 
@@ -359,7 +359,8 @@ public class CssFramework
         List<string> mediaModifiers = [];
         foreach (var modifier in modifiers)
         {
-            if (!variants.TryGetValue(modifier, out var variant))
+            var variant = _variantSystem.TryGetVariant(modifier);
+            if (variant == null)
             {
                 continue;
             }
@@ -463,6 +464,7 @@ public class CssFramework
         selector = nonConditionalVariants.OrderBy(v => typeof(PseudoElementVariant) == v.GetType() ? 1 : 0).Aggregate(selector, (current, variant) => variant switch
         {
             SelectorVariant selectorVariant => $"{selectorVariant.Selector} {current}",
+            AttributeVariant attributeVariant => $"{current}{attributeVariant.AttributeSelector}",
             ProseElementVariant proseElementVariant => $"{current} {proseElementVariant.Selector}",
             PseudoClassVariant pseudoClassVariant => $"{current}{pseudoClassVariant.PseudoClass}",
             PseudoElementVariant pseudoElementVariant => $"{current}{pseudoElementVariant.PseudoElement}",

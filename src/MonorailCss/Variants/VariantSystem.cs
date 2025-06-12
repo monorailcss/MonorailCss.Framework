@@ -16,6 +16,66 @@ public class VariantSystem
     public ImmutableDictionary<string, IVariant> Variants { get; init; }
 
     /// <summary>
+    /// Tries to get a variant for the given modifier, including support for arbitrary data and aria attributes.
+    /// </summary>
+    /// <param name="modifier">The modifier to look up.</param>
+    /// <returns>The variant if found, otherwise null.</returns>
+    public IVariant? TryGetVariant(string modifier)
+    {
+        // First try exact match
+        if (Variants.TryGetValue(modifier, out var variant))
+        {
+            return variant;
+        }
+
+        // Handle data-[...] arbitrary values
+        if (modifier.StartsWith("data-[") && modifier.EndsWith("]"))
+        {
+            var arbitraryValue = modifier[6..^1]; // Remove "data-[" and "]"
+            return CreateDataAttributeVariant(arbitraryValue);
+        }
+
+        // Handle aria-[...] arbitrary values
+        if (modifier.StartsWith("aria-[") && modifier.EndsWith("]"))
+        {
+            var arbitraryValue = modifier[6..^1]; // Remove "aria-[" and "]"
+            return CreateAriaAttributeVariant(arbitraryValue);
+        }
+
+        return null;
+    }
+
+    private static IVariant CreateDataAttributeVariant(string arbitraryValue)
+    {
+        // Parse key=value format
+        var parts = arbitraryValue.Split('=', 2);
+        if (parts.Length == 2)
+        {
+            var attributeName = parts[0];
+            var attributeValue = parts[1];
+            return new AttributeVariant($"[data-{attributeName}=\"{attributeValue}\"]");
+        }
+
+        // Just attribute name without value
+        return new AttributeVariant($"[data-{arbitraryValue}]");
+    }
+
+    private static IVariant CreateAriaAttributeVariant(string arbitraryValue)
+    {
+        // Parse key=value format
+        var parts = arbitraryValue.Split('=', 2);
+        if (parts.Length == 2)
+        {
+            var attributeName = parts[0];
+            var attributeValue = parts[1];
+            return new AttributeVariant($"[aria-{attributeName}=\"{attributeValue}\"]");
+        }
+
+        // Just attribute name without value
+        return new AttributeVariant($"[aria-{arbitraryValue}]");
+    }
+
+    /// <summary>
     /// Initializes a new instance of the <see cref="VariantSystem"/> class.
     /// </summary>
     /// <param name="designSystem">The design system.</param>
