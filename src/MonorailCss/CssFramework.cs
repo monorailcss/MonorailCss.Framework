@@ -1,8 +1,7 @@
 ﻿using System.Collections.Immutable;
-using System.Diagnostics;
-using System.Reflection;
 using System.Text;
 using MonorailCss.Css;
+using MonorailCss.Framework.Processing;
 using MonorailCss.Parser;
 using MonorailCss.Plugins;
 using MonorailCss.Variants;
@@ -40,7 +39,7 @@ public record CssFrameworkSettings
     public string ElementPrefix { get; init; } = string.Empty;
 
     /// <summary>
-    /// Gets the seperator between variants and selectors. Cannot be a colon.
+    /// Gets the separator between variants and selectors. Cannot be a colon.
     /// </summary>
     public char Separator { get; init; } = ':';
 
@@ -52,7 +51,7 @@ public record CssFrameworkSettings
     /// <summary>
     /// Gets a value indicating whether to output colors as CSS variables in the :root element.
     /// </summary>
-    public bool OutputColorsAsVariables { get; init; } = false;
+    public bool OutputColorsAsVariables { get; init; }
 }
 
 /// <summary>
@@ -61,11 +60,9 @@ public record CssFrameworkSettings
 public class CssFramework
 {
     private readonly CssFrameworkSettings _frameworkSettings;
-    private readonly IUtilityPlugin[] _allPlugins;
+    private readonly PluginManager _pluginManager;
     private readonly VariantSystem _variantSystem;
-    private readonly string[] _namespacesOrderedByLength;
-    private readonly ImmutableDictionary<Type, ISettings> _pluginSettingsMap = ImmutableDictionary<Type, ISettings>.Empty;
-    private ImmutableDictionary<string, IUtilityPlugin[]> _namespacePluginsMap = ImmutableDictionary<string, IUtilityPlugin[]>.Empty;
+    private readonly VariantProcessor _variantProcessor;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="CssFramework"/> class.
@@ -74,39 +71,9 @@ public class CssFramework
     public CssFramework(CssFrameworkSettings? frameworkSettings = null)
     {
         _frameworkSettings = frameworkSettings ?? new CssFrameworkSettings();
-        var pluginTypes = typeof(IUtilityPlugin)
-            .Assembly
-            .GetTypes()
-            .Where(type => type is { IsClass: true, IsAbstract: false }
-                           && type.IsAssignableTo(typeof(IUtilityPlugin))
-                           && type.GetCustomAttributes(typeof(PluginNotIncludedAutomaticallyAttribute), true).Length ==
-                           0)
-            .ToImmutableList();
-
-        foreach (var pluginSetting in _frameworkSettings.PluginSettings)
-        {
-            var genericSettingsType = pluginSetting
-                .GetType()
-                .GetInterfaces()
-                .First(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(ISettings<>));
-            _pluginSettingsMap = _pluginSettingsMap.Add(genericSettingsType, pluginSetting);
-        }
-
-        // we need all the namespaces up front so that the CSS parser can do its thing.
-        _allPlugins = pluginTypes
-            .Select(GetPluginInstance)
-            .OfType<IUtilityPlugin>().ToArray();
-
-        _variantSystem = new VariantSystem(_frameworkSettings.DesignSystem, _allPlugins.OfType<IVariantPluginProvider>().ToArray());
-
-        // it's important to order these by length. we traverse the list sequentially
-        // looking for matching namespaces and we want the longer ones to match before shorter ones
-        // e.g. if rounded-l is registered as well as rounded then we want to ensure the later comes first.
-        _namespacesOrderedByLength = _allPlugins
-            .OfType<IUtilityNamespacePlugin>()
-            .SelectMany(i => i.Namespaces)
-            .OrderByDescending(i => i.Length)
-            .ToArray();
+        _pluginManager = new PluginManager(_frameworkSettings, this);
+        _variantSystem = new VariantSystem(_frameworkSettings.DesignSystem, _pluginManager.AllPlugins.OfType<IVariantPluginProvider>().ToArray());
+        _variantProcessor = new VariantProcessor(_variantSystem);
     }
 
     /// <summary>
@@ -116,7 +83,7 @@ public class CssFramework
     /// <returns>A string in the format of --{prefix}-{name}.</returns>
     public static string GetVariableNameWithPrefix(string name)
     {
-        return $"--monorail-{name}";
+        return SelectorGenerator.GetVariableNameWithPrefix(name);
     }
 
     /// <summary>
@@ -126,8 +93,7 @@ public class CssFramework
     /// <returns>A string in the format of var(--{prefix}-{name}.</returns>
     public static string GetCssVariableWithPrefix(string name)
     {
-        var cssVariableWithPrefix = $"var(--monorail-{name})";
-        return cssVariableWithPrefix;
+        return SelectorGenerator.GetCssVariableWithPrefix(name);
     }
 
     /// <summary>
@@ -190,7 +156,7 @@ public class CssFramework
                 Selector = string.Empty, CssClass = i, IsAppliesItem = false,
             }));
 
-        var classParser = new ClassParser(_namespacesOrderedByLength, _frameworkSettings.ElementPrefix, _frameworkSettings.Separator);
+        var classParser = new ClassParser(_pluginManager.NamespacesOrderedByLength, _frameworkSettings.ElementPrefix, _frameworkSettings.Separator);
 
         var selectorWithSyntaxItems = selectorWithClassListItems
             .Select(i => new
@@ -207,9 +173,9 @@ public class CssFramework
         {
             var elementSelector = item.Selector;
             var syntax = item.Syntax!; // filtered with the where above.
-            var mediaModifiers = GetMediaModifiers(syntax.Modifiers, _variantSystem.Variants);
+            var mediaModifiers = _variantProcessor.GetMediaModifiers(syntax.Modifiers, _variantSystem.Variants);
             var declarations = new List<CssRuleSet>();
-            var getPluginsForSyntax = GetPlugins(syntax);
+            var getPluginsForSyntax = _pluginManager.GetPlugins(syntax);
             foreach (var plugin in getPluginsForSyntax)
             {
                 var elements = plugin.Process(syntax);
@@ -220,15 +186,12 @@ public class CssFramework
                     if (item.IsAppliesItem && !string.IsNullOrWhiteSpace(elementSelector))
                     {
                         // For applies items with variants, we need to generate the selector with variants
-                        if (syntax.Modifiers.Any())
+                        if (syntax.Modifiers.Length != 0)
                         {
                             var modifiers = syntax.Modifiers
-                                .Select(i => _variantSystem.TryGetVariant(StripNamedVariant(i)))
+                                .Select(i => _variantSystem.TryGetVariant(SelectorGenerator.StripNamedVariant(i)))
                                 .Where(i => i != null).OfType<IVariant>()
                                 .ToList();
-
-                            // Generate the class selector part with variants
-                            var classSelectorSyntax = GetSelectorSyntax(ruleSet.Selector, modifiers);
 
                             // For applies items, we need to combine the element selector with the variant selector
                             // The elementSelector already contains the base selector (e.g., ".tab-list")
@@ -240,7 +203,7 @@ public class CssFramework
                             }
 
                             // Apply variants to the base element selector
-                            selectorSyntax = ApplyVariantsToElementSelector(baseElementSelector, modifiers);
+                            selectorSyntax = SelectorGenerator.ApplyVariantsToElementSelector(baseElementSelector, modifiers);
                         }
                         else
                         {
@@ -254,11 +217,11 @@ public class CssFramework
                     else
                     {
                         var modifiers = syntax.Modifiers
-                            .Select(i => _variantSystem.TryGetVariant(StripNamedVariant(i)))
+                            .Select(i => _variantSystem.TryGetVariant(SelectorGenerator.StripNamedVariant(i)))
                             .Where(i => i != null).OfType<IVariant>()
                             .ToList();
 
-                        selectorSyntax = GetSelectorSyntax(
+                        selectorSyntax = SelectorGenerator.GetSelectorSyntax(
                             ruleSet.Selector,
                             modifiers);
                     }
@@ -301,7 +264,7 @@ public class CssFramework
             }
         }
 
-        var mediaRules = mediaGrouping.Select(i => new CssMediaRule(GetFeatureList(i.Key, _variantSystem.Variants), i.Value))
+        var mediaRules = mediaGrouping.Select(i => new CssMediaRule(_variantProcessor.GetFeatureList(i.Key, _variantSystem.Variants), i.Value))
             .ToImmutableList();
 
         var defaultVariableDeclarationList = new CssDeclarationList();
@@ -328,277 +291,13 @@ public class CssFramework
 
         var styleSheet = new CssStylesheet(mediaRules);
 
-        var cssReset = _frameworkSettings.CssResetOverride ?? GetDefaultCssReset();
+        var cssReset = _frameworkSettings.CssResetOverride ?? CssResetProvider.GetDefaultCssReset();
 
         var sb = new StringBuilder();
         CssWriter.CssWriter.AppendDefaultCssRules(defaultVariableDeclarationList, sb);
         CssWriter.CssWriter.AppendCssRules(styleSheet, sb);
 
         return (cssReset, sb.ToString(), missingSelectors.ToArray());
-    }
-
-    private IEnumerable<IUtilityPlugin> GetPlugins(IParsedClassNameSyntax syntax)
-    {
-        if (syntax is ArbitraryPropertySyntax)
-        {
-            return _allPlugins.OfType<ArbitraryPropertyPlugin>();
-        }
-
-        if (syntax is not NamespaceSyntax namespaceSyntax)
-        {
-            return _allPlugins;
-        }
-
-        if (_namespacePluginsMap.TryGetValue(namespaceSyntax.Namespace, out var existValue))
-        {
-            return existValue;
-        }
-
-        var plugins = _allPlugins
-            .OfType<IUtilityNamespacePlugin>()
-            .Where(i => i.Namespaces.Contains(namespaceSyntax.Namespace))
-            .Cast<IUtilityPlugin>()
-            .ToArray();
-
-        _namespacePluginsMap = _namespacePluginsMap.Add(namespaceSyntax.Namespace, plugins);
-
-        return _allPlugins;
-    }
-
-    private ImmutableList<MediaQueryVariant> GetFeatureList(
-        string[] mediaModifiers,
-        ImmutableDictionary<string, IVariant> variants) =>
-        mediaModifiers.Select(m => _variantSystem.TryGetVariant(m))
-            .OfType<MediaQueryVariant>()
-            .Select(i => i).ToImmutableList();
-
-    private static string GetDefaultCssReset()
-    {
-        const string ResourceName = "MonorailCss.reset.css";
-        var assembly = Assembly.GetExecutingAssembly();
-        using var stream = assembly.GetManifestResourceStream(ResourceName);
-
-        Debug.Assert(stream != null, "stream should never be null");
-        using var reader = new StreamReader(stream);
-        return reader.ReadToEnd();
-    }
-
-    private string[] GetMediaModifiers(IEnumerable<string> modifiers, ImmutableDictionary<string, IVariant> variants)
-    {
-        List<string> mediaModifiers = [];
-        foreach (var modifier in modifiers)
-        {
-            var variant = _variantSystem.TryGetVariant(modifier);
-            if (variant == null)
-            {
-                continue;
-            }
-
-            if (variant is MediaQueryVariant)
-            {
-                mediaModifiers.Add(modifier);
-            }
-        }
-
-        return mediaModifiers.ToArray();
-    }
-
-    private IUtilityPlugin? GetPluginInstance(Type type)
-    {
-        IUtilityPlugin? plugin = null;
-        var constructorInfos = type.GetConstructors();
-        if (constructorInfos.Length == 0)
-        {
-            plugin = Activator.CreateInstance(type) as IUtilityPlugin;
-        }
-        else
-        {
-            foreach (var constructorInfo in constructorInfos)
-            {
-                List<object> parameters = [];
-                foreach (var parameterInfo in constructorInfo.GetParameters())
-                {
-                    if (parameterInfo.ParameterType == typeof(DesignSystem))
-                    {
-                        parameters.Add(_frameworkSettings.DesignSystem);
-                    }
-                    else if (parameterInfo.ParameterType == typeof(CssFramework))
-                    {
-                        parameters.Add(this);
-                    }
-                    else
-                    {
-                        var settingsGenericType = typeof(ISettings<>).MakeGenericType(type);
-                        if (parameterInfo.ParameterType.IsAssignableTo(settingsGenericType))
-                        {
-                            if (_pluginSettingsMap.TryGetValue(settingsGenericType, out var value))
-                            {
-                                parameters.Add(value);
-                            }
-                            else
-                            {
-                                var instance = Activator.CreateInstance(parameterInfo.ParameterType);
-                                if (instance == null)
-                                {
-                                    throw new InvalidOperationException(
-                                        $"Could not create instance of {parameterInfo.ParameterType} for plug-in {type}.");
-                                }
-
-                                parameters.Add(instance);
-                            }
-                        }
-                        else
-                        {
-                            throw new InvalidOperationException(
-                                $"Constructor for {type} found with invalid parameter - {parameterInfo}.");
-                        }
-                    }
-                }
-
-                plugin = constructorInfo.Invoke(parameters.ToArray()) as IUtilityPlugin;
-                if (plugin != null)
-                {
-                    break;
-                }
-            }
-        }
-
-        return plugin;
-    }
-
-    internal static string GetSelectorSyntax(CssSelector original, IList<IVariant> variants)
-    {
-        if (original.Selector.StartsWith('@'))
-        {
-            // keyframe, so we don't want to mess with the name.
-            return original.Selector;
-        }
-
-        var spaceIndex = original.Selector.IndexOf(' ');
-        var selector = spaceIndex >= 0
-            ? EscapeFirstWord(original.Selector, spaceIndex)
-            : EscapeCssClassSelector(original.Selector);
-
-        selector = $".{selector}";
-
-        if (original.PseudoClass != null)
-        {
-            selector = $"{selector}{original.PseudoClass}";
-        }
-
-        // Process non-conditional variants first
-        var conditionalVariant = variants.OfType<NameConditionalVariant>().FirstOrDefault();
-        var nonConditionalVariants = variants.Where(v => v is not NameConditionalVariant);
-
-        selector = nonConditionalVariants.OrderBy(v => typeof(PseudoElementVariant) == v.GetType() ? 1 : 0).Aggregate(selector, (current, variant) => variant switch
-        {
-            SelectorVariant selectorVariant => $"{selectorVariant.Selector} {current}",
-            AttributeVariant attributeVariant => $"{current}{attributeVariant.AttributeSelector}",
-            ProseElementVariant proseElementVariant => $"{current} {proseElementVariant.Selector}",
-            PseudoClassVariant pseudoClassVariant => $"{current}{pseudoClassVariant.PseudoClass}",
-            PseudoElementVariant pseudoElementVariant => $"{current}{pseudoElementVariant.PseudoElement}",
-            _ => current,
-        });
-
-        if (original.PseudoElement != null)
-        {
-            selector = $"{selector}{original.PseudoElement}";
-        }
-
-        // Add conditional variant if present
-        if (conditionalVariant != null)
-        {
-            var name = string.Empty;
-
-            if (original.Selector.Contains('/'))
-            {
-                // Find the position of slash and colon
-                var slashIndex = original.Selector.IndexOf('/');
-                var colonIndex = original.Selector.IndexOf(':');
-
-                // If there's no colon after the slash, return the original string
-                if (colonIndex > slashIndex)
-                {
-                    name = $@"\/{original.Selector.Substring(slashIndex + 1, colonIndex - slashIndex - 1)}";
-                }
-            }
-
-            selector = $"{selector} {conditionalVariant.Condition(name)}";
-        }
-
-        return selector;
-    }
-
-    private static string EscapeFirstWord(string originalSelector, int spaceIndex)
-    {
-        var firstWord = originalSelector[..spaceIndex];
-
-        firstWord = EscapeCssClassSelector(firstWord);
-
-        return $"{firstWord}{originalSelector[spaceIndex..]}";
-    }
-
-    private static string StripNamedVariant(string original)
-    {
-        var colonIndex = original.IndexOf('/');
-        if (colonIndex < 0)
-        {
-            return original;
-        }
-
-        return original[..colonIndex];
-    }
-
-    private static string ApplyVariantsToElementSelector(string elementSelector, IList<IVariant> variants)
-    {
-        if (!variants.Any())
-        {
-            return elementSelector;
-        }
-
-        // Process non-conditional variants first
-        var conditionalVariant = variants.OfType<NameConditionalVariant>().FirstOrDefault();
-        var nonConditionalVariants = variants.Where(v => v is not NameConditionalVariant);
-
-        var selector = elementSelector;
-
-        // Apply variants in the correct order (similar to GetSelectorSyntax)
-        selector = nonConditionalVariants.OrderBy(v => typeof(PseudoElementVariant) == v.GetType() ? 1 : 0).Aggregate(selector, (current, variant) => variant switch
-        {
-            SelectorVariant selectorVariant => $"{selectorVariant.Selector} {current}",
-            AttributeVariant attributeVariant => $"{current}{attributeVariant.AttributeSelector}",
-            ProseElementVariant proseElementVariant => $"{current} {proseElementVariant.Selector}",
-            PseudoClassVariant pseudoClassVariant => $"{current}{pseudoClassVariant.PseudoClass}",
-            PseudoElementVariant pseudoElementVariant => $"{current}{pseudoElementVariant.PseudoElement}",
-            _ => current,
-        });
-
-        // Add conditional variant if present
-        if (conditionalVariant != null)
-        {
-            var name = string.Empty;
-            selector = $"{selector} {conditionalVariant.Condition(name)}";
-        }
-
-        return selector;
-    }
-
-    private static string EscapeCssClassSelector(string firstWord)
-    {
-        return firstWord
-            .Replace("*", "\\*")
-            .Replace(":", "\\:")
-            .Replace("/", "\\/")
-            .Replace("[", "\\[")
-            .Replace("]", "\\]")
-            .Replace("#", "\\#")
-            .Replace("(", "\\(")
-            .Replace(")", "\\)")
-            .Replace(".", "\\.")
-            .Replace(",", "\\2c ")
-            .Replace("?", "\\?")
-            .Replace("=", "\\=")
-            .Replace("&", "\\&");
     }
 
     /// <summary>
@@ -634,7 +333,7 @@ public class CssFramework
     public ImmutableDictionary<string, string> GetAllRules()
     {
         var dictBuilder = ImmutableDictionary.CreateBuilder<string, string>();
-        var rules = _allPlugins.SelectMany(plugin => plugin.GetAllRules());
+        var rules = _pluginManager.AllPlugins.SelectMany(plugin => plugin.GetAllRules());
         var sb = new StringBuilder();
         foreach (var cssRuleSet in rules)
         {

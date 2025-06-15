@@ -1,6 +1,4 @@
-﻿using System.Collections.Immutable;
-
-namespace MonorailCss.Plugins.Spacing;
+﻿namespace MonorailCss.Plugins.Spacing;
 
 /// <summary>
 /// Margin plugin.
