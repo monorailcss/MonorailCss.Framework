@@ -183,11 +183,11 @@ public class CssFramework
         var selectorWithClassListItems = applyItems
             .Select(i => new
             {
-                Selector = $"{root}{i.Root}", i.CssClass,
+                Selector = $"{root}{i.Root}", i.CssClass, IsAppliesItem = true,
             })
             .Concat(distinctCss.Select(i => new
             {
-                Selector = string.Empty, CssClass = i,
+                Selector = string.Empty, CssClass = i, IsAppliesItem = false,
             }));
 
         var classParser = new ClassParser(_namespacesOrderedByLength, _frameworkSettings.ElementPrefix, _frameworkSettings.Separator);
@@ -195,7 +195,7 @@ public class CssFramework
         var selectorWithSyntaxItems = selectorWithClassListItems
             .Select(i => new
             {
-                i.Selector, Syntax = classParser.Extract(i.CssClass),
+                i.Selector, Syntax = classParser.Extract(i.CssClass), i.IsAppliesItem,
             })
             .Where(i => i.Syntax != null);
 
@@ -215,10 +215,39 @@ public class CssFramework
                 var elements = plugin.Process(syntax);
                 foreach (var ruleSet in elements)
                 {
-                    // typically we won't have an elementSelector. This only comes up when applies is being used.
-                    // we'll generate it based on the selector syntax.
+                    // Handle selector generation for both applies items and regular classes
                     string selectorSyntax;
-                    if (!string.IsNullOrWhiteSpace(elementSelector))
+                    if (item.IsAppliesItem && !string.IsNullOrWhiteSpace(elementSelector))
+                    {
+                        // For applies items with variants, we need to generate the selector with variants
+                        if (syntax.Modifiers.Any())
+                        {
+                            var modifiers = syntax.Modifiers
+                                .Select(i => _variantSystem.TryGetVariant(StripNamedVariant(i)))
+                                .Where(i => i != null).OfType<IVariant>()
+                                .ToList();
+
+                            // Generate the class selector part with variants
+                            var classSelectorSyntax = GetSelectorSyntax(ruleSet.Selector, modifiers);
+
+                            // For applies items, we need to combine the element selector with the variant selector
+                            // The elementSelector already contains the base selector (e.g., ".tab-list")
+                            // We need to extract the class name and apply variants to it
+                            var baseElementSelector = elementSelector.Trim();
+                            if (baseElementSelector.StartsWith(root))
+                            {
+                                baseElementSelector = baseElementSelector.Substring(root.Length);
+                            }
+
+                            // Apply variants to the base element selector
+                            selectorSyntax = ApplyVariantsToElementSelector(baseElementSelector, modifiers);
+                        }
+                        else
+                        {
+                            selectorSyntax = elementSelector;
+                        }
+                    }
+                    else if (!string.IsNullOrWhiteSpace(elementSelector))
                     {
                         selectorSyntax = elementSelector;
                     }
@@ -518,6 +547,40 @@ public class CssFramework
         }
 
         return original[..colonIndex];
+    }
+
+    private static string ApplyVariantsToElementSelector(string elementSelector, IList<IVariant> variants)
+    {
+        if (!variants.Any())
+        {
+            return elementSelector;
+        }
+
+        // Process non-conditional variants first
+        var conditionalVariant = variants.OfType<NameConditionalVariant>().FirstOrDefault();
+        var nonConditionalVariants = variants.Where(v => v is not NameConditionalVariant);
+
+        var selector = elementSelector;
+
+        // Apply variants in the correct order (similar to GetSelectorSyntax)
+        selector = nonConditionalVariants.OrderBy(v => typeof(PseudoElementVariant) == v.GetType() ? 1 : 0).Aggregate(selector, (current, variant) => variant switch
+        {
+            SelectorVariant selectorVariant => $"{selectorVariant.Selector} {current}",
+            AttributeVariant attributeVariant => $"{current}{attributeVariant.AttributeSelector}",
+            ProseElementVariant proseElementVariant => $"{current} {proseElementVariant.Selector}",
+            PseudoClassVariant pseudoClassVariant => $"{current}{pseudoClassVariant.PseudoClass}",
+            PseudoElementVariant pseudoElementVariant => $"{current}{pseudoElementVariant.PseudoElement}",
+            _ => current,
+        });
+
+        // Add conditional variant if present
+        if (conditionalVariant != null)
+        {
+            var name = string.Empty;
+            selector = $"{selector} {conditionalVariant.Condition(name)}";
+        }
+
+        return selector;
     }
 
     private static string EscapeCssClassSelector(string firstWord)

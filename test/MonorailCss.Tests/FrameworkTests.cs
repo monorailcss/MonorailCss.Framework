@@ -585,4 +585,108 @@ public class FrameworkTests
         r.ShouldContain("--monorail-color-blue-500");
         r.ShouldContain("--monorail-color-gray-100");
     }
+
+    [Fact]
+    public void Can_Do_Apply_With_Variants()
+    {
+        var framework = new CssFramework(new CssFrameworkSettings 
+        { 
+            CssResetOverride = string.Empty, 
+            Applies = new Dictionary<string, string>()
+            {
+                {".tab-list", "hover:bg-red-200 hover:font-serif bg-blue-200"},
+            }
+        });
+        var r = framework.Process([]);
+        r.ShouldBeCss("""
+
+                      .tab-list:hover {
+                        --monorail-bg-opacity:1;
+                        background-color:oklch(0.885 0.062 18.334 / var(--monorail-bg-opacity));
+                        font-family:Iowan Old Style, Apple Garamond, Baskerville, Times New Roman, Droid Serif, Times, Source Serif Pro, serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol;
+                      }
+                      .tab-list {
+                        --monorail-bg-opacity:1;
+                        background-color:oklch(0.882 0.059 254.128 / var(--monorail-bg-opacity));
+                      }
+
+                      """);
+    }
+
+    [Fact]
+    public void Can_Do_Apply_With_Multiple_Variants()
+    {
+        var framework = new CssFramework(new CssFrameworkSettings 
+        { 
+            CssResetOverride = string.Empty, 
+            Applies = new Dictionary<string, string>()
+            {
+                {"body", "dark:hover:bg-blue-500 text-gray-900"},
+            }
+        });
+        var r = framework.Process([]);
+        r.ShouldBeCss("""
+
+                      .dark body:hover {
+                        --monorail-bg-opacity:1;
+                        background-color:oklch(0.623 0.214 259.815 / var(--monorail-bg-opacity));
+                      }
+                      body {
+                        --monorail-text-opacity:1;
+                        color:oklch(0.21 0.034 264.665 / var(--monorail-text-opacity));
+                      }
+
+                      """);
+    }
+
+    [Fact]
+    public void Can_Do_Apply_With_Media_Queries()
+    {
+        var framework = new CssFramework(new CssFrameworkSettings 
+        { 
+            CssResetOverride = string.Empty, 
+            Applies = new Dictionary<string, string>()
+            {
+                {".button", "md:bg-blue-500 bg-red-500"},
+            }
+        });
+        var r = framework.Process([]);
+        r.ShouldBeCss("""
+
+                      .button {
+                        --monorail-bg-opacity:1;
+                        background-color:oklch(0.637 0.237 25.331 / var(--monorail-bg-opacity));
+                      }
+                      @media (min-width:768px) {
+                        .button {
+                          --monorail-bg-opacity:1;
+                          background-color:oklch(0.623 0.214 259.815 / var(--monorail-bg-opacity));
+                        }
+                      }
+
+                      """);
+    }
+
+    [Fact]
+    public void User_Example_Works()
+    {
+        var cssFrameworkSettings = new CssFrameworkSettings
+        {
+            CssResetOverride = string.Empty,
+            Applies = new Dictionary<string, string> /* these are for a custom highlight.js theme using tailwind colors */
+            {
+                { ".tab-list", "hover:bg-red-200 hover:font-serif bg-blue-200" }
+            }
+        };
+
+        var framework = new CssFramework(cssFrameworkSettings);
+        var result = framework.Process([]);
+        
+        // Verify it contains the expected selectors and properties
+        result.ShouldContain(".tab-list:hover");
+        result.ShouldContain(".tab-list");
+        result.ShouldContain("background-color:oklch(0.885");
+        result.ShouldContain("font-family:Iowan Old Style");
+        result.ShouldContain("background-color:oklch(0.882");
+    }
 }
