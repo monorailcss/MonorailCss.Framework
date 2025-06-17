@@ -17,8 +17,10 @@ public class Inset : BaseUtilityNamespacePlugin
     protected override CssNamespaceToPropertyMap GetNamespacePropertyMapList() =>
     [
         new("inset", ("top", "right", "bottom", "left")),
-        new("inset-x", ("left", "right"), 100),
-        new("inset-y", ("top", "bottom"), 100),
+        new("inset-x", "inset-inline", 100),
+        new("inset-y", "inset-block", 100),
+        new("start", "inset-inline-start", 999),
+        new("end", "inset-inline-end", 999),
         new("top", "top", 999),
         new("right", "right", 999),
         new("bottom", "bottom", 999),
