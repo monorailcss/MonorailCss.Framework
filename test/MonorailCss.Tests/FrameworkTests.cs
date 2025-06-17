@@ -30,8 +30,7 @@ public class FrameworkTests
         ]);
         r.ShouldBeCss("""
                       .-my-4 {
-                        margin-bottom:calc(var(--monorail-spacing) * -4);
-                        margin-top:calc(var(--monorail-spacing) * -4);
+                        margin-block:calc(var(--monorail-spacing) * -4);
                       }
                       """);
     }
@@ -179,8 +178,7 @@ public class FrameworkTests
                                                  margin:calc(var(--monorail-spacing) * 4);
                                                }
                                                .my-3 {
-                                                 margin-bottom:calc(var(--monorail-spacing) * 3);
-                                                 margin-top:calc(var(--monorail-spacing) * 3);
+                                                 margin-block:calc(var(--monorail-spacing) * 3);
                                                }
                                                .mb-2 {
                                                  margin-bottom:calc(var(--monorail-spacing) * 2);
@@ -190,7 +188,6 @@ public class FrameworkTests
         // now check if we send them in the opposite way. output ordering should remain equal.
         var r2 = framework.Process(["mb-2", "my-3", "m-4"]);
         r2.Trim().ReplaceLineEndings().ShouldBe("""
-
                                                 :root {
                                                   --monorail-spacing:0.25rem;
                                                 }
@@ -198,13 +195,11 @@ public class FrameworkTests
                                                   margin:calc(var(--monorail-spacing) * 4);
                                                 }
                                                 .my-3 {
-                                                  margin-bottom:calc(var(--monorail-spacing) * 3);
-                                                  margin-top:calc(var(--monorail-spacing) * 3);
+                                                  margin-block:calc(var(--monorail-spacing) * 3);
                                                 }
                                                 .mb-2 {
                                                   margin-bottom:calc(var(--monorail-spacing) * 2);
                                                 }
-
                                                 """.Trim().ReplaceLineEndings());
 
         var r3 = framework.Process(["lg:rounded-none", "lg:rounded-l-lg"]);
@@ -589,9 +584,9 @@ public class FrameworkTests
     [Fact]
     public void Can_Do_Apply_With_Variants()
     {
-        var framework = new CssFramework(new CssFrameworkSettings 
-        { 
-            CssResetOverride = string.Empty, 
+        var framework = new CssFramework(new CssFrameworkSettings
+        {
+            CssResetOverride = string.Empty,
             Applies = new Dictionary<string, string>()
             {
                 {".tab-list", "hover:bg-red-200 hover:font-serif bg-blue-200"},
@@ -616,9 +611,9 @@ public class FrameworkTests
     [Fact]
     public void Can_Do_Apply_With_Multiple_Variants()
     {
-        var framework = new CssFramework(new CssFrameworkSettings 
-        { 
-            CssResetOverride = string.Empty, 
+        var framework = new CssFramework(new CssFrameworkSettings
+        {
+            CssResetOverride = string.Empty,
             Applies = new Dictionary<string, string>()
             {
                 {"body", "dark:hover:bg-blue-500 text-gray-900"},
@@ -642,9 +637,9 @@ public class FrameworkTests
     [Fact]
     public void Can_Do_Apply_With_Media_Queries()
     {
-        var framework = new CssFramework(new CssFrameworkSettings 
-        { 
-            CssResetOverride = string.Empty, 
+        var framework = new CssFramework(new CssFrameworkSettings
+        {
+            CssResetOverride = string.Empty,
             Applies = new Dictionary<string, string>()
             {
                 {".button", "md:bg-blue-500 bg-red-500"},
@@ -681,7 +676,7 @@ public class FrameworkTests
 
         var framework = new CssFramework(cssFrameworkSettings);
         var result = framework.Process([]);
-        
+
         // Verify it contains the expected selectors and properties
         result.ShouldContain(".tab-list:hover");
         result.ShouldContain(".tab-list");
