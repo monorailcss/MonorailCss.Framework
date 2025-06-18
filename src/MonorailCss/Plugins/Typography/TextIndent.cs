@@ -1,7 +1,4 @@
-﻿using System.Collections.Immutable;
-
-namespace MonorailCss.Plugins.Typography;
-
+﻿namespace MonorailCss.Plugins.Typography;
 
 /// <summary>
 /// Text Indent plugin.

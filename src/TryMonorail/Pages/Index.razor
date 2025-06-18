@@ -1,4 +1,5 @@
 ﻿@page "/"
+@using System.Collections.Immutable
 @using BlazorMonaco.Editor
 @using BlazorMonaco.Languages
 @using global::MonorailCss
@@ -40,7 +41,7 @@
         Applies = new Dictionary<string, string>
         {
             { "body", "font-sans" }
-        }
+        }.ToImmutableDictionary()
     });
 
     private readonly RenderFragment<string> _headerMessage = message =>

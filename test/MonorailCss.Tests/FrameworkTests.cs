@@ -1,4 +1,5 @@
-﻿using MonorailCss.Plugins.Transforms;
+﻿using System.Collections.Immutable;
+using MonorailCss.Plugins.Transforms;
 using MonorailCss.Tests.Plugins;
 using Shouldly;
 
@@ -140,7 +141,7 @@ public class FrameworkTests
         var framework = new CssFramework(new CssFrameworkSettings { CssResetOverride = string.Empty, Applies = new Dictionary<string, string>()
             {
                 {"body", "font-sans mb-2"},
-            }});
+            }.ToImmutableDictionary()});
         var r = framework.Process([]);
         r.ShouldBeCss("""
 
@@ -590,7 +591,7 @@ public class FrameworkTests
             Applies = new Dictionary<string, string>()
             {
                 {".tab-list", "hover:bg-red-200 hover:font-serif bg-blue-200"},
-            }
+            }.ToImmutableDictionary()
         });
         var r = framework.Process([]);
         r.ShouldBeCss("""
@@ -617,7 +618,7 @@ public class FrameworkTests
             Applies = new Dictionary<string, string>()
             {
                 {"body", "dark:hover:bg-blue-500 text-gray-900"},
-            }
+            }.ToImmutableDictionary()
         });
         var r = framework.Process([]);
         r.ShouldBeCss("""
@@ -643,7 +644,7 @@ public class FrameworkTests
             Applies = new Dictionary<string, string>()
             {
                 {".button", "md:bg-blue-500 bg-red-500"},
-            }
+            }.ToImmutableDictionary()
         });
         var r = framework.Process([]);
         r.ShouldBeCss("""
@@ -671,7 +672,7 @@ public class FrameworkTests
             Applies = new Dictionary<string, string> /* these are for a custom highlight.js theme using tailwind colors */
             {
                 { ".tab-list", "hover:bg-red-200 hover:font-serif bg-blue-200" }
-            }
+            }.ToImmutableDictionary()
         };
 
         var framework = new CssFramework(cssFrameworkSettings);

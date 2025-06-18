@@ -46,7 +46,7 @@ public record CssFrameworkSettings
     /// <summary>
     /// Gets an additional set of elements to include.
     /// </summary>
-    public IDictionary<string, string> Applies { get; init; } = ImmutableDictionary<string, string>.Empty;
+    public ImmutableDictionary<string, string> Applies { get; init; } = ImmutableDictionary<string, string>.Empty;
 
     /// <summary>
     /// Gets a value indicating whether to output colors as CSS variables in the :root element.
