@@ -26,7 +26,7 @@ public class ContainerTests
         var framework = new CssFramework(new CssFrameworkSettings
         {
             CssResetOverride = string.Empty,
-            PluginSettings = new List<ISettings> { new Container.Settings { Center = true }, }
+            PluginSettings =  ImmutableList.Create<ISettings>( new Container.Settings { Center = true }),
         });
 
         var result = framework.Process(["container"]);
@@ -34,7 +34,7 @@ public class ContainerTests
 
                            .container {
                              width:100%;
-                           
+
                              margin-left: auto;
                              margin-right: auto;
                            }
@@ -48,11 +48,11 @@ public class ContainerTests
         var framework = new CssFramework(new CssFrameworkSettings
         {
             CssResetOverride = string.Empty,
-            PluginSettings = new List<ISettings> { new Container.Settings
+            PluginSettings = ImmutableList.Create<ISettings>(new Container.Settings
             {
                 Center = true,
-                Padding = new Dictionary<string, string> { { "DEFAULT", "4px" } }.ToImmutableDictionary()
-            }, }
+                Padding = new Dictionary<string, string> { { "DEFAULT", "4px" } }.ToImmutableDictionary(),
+            }),
         });
 
         var result = framework.Process(["container"]);
@@ -75,12 +75,12 @@ public class ContainerTests
         var framework = new CssFramework(new CssFrameworkSettings
         {
             CssResetOverride = string.Empty,
-            PluginSettings = new List<ISettings> { new Container.Settings
+            PluginSettings = ImmutableList.Create<ISettings>(new Container.Settings
             {
                 Center = true,
                 Padding = new Dictionary<string, string> { { "DEFAULT", "4px" }, { "xl", "8px" }, }
                     .ToImmutableDictionary()
-            }, }
+            }),
         });
 
         var result = framework.Process(["container", "xl:container-xl"]);

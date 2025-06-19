@@ -21,7 +21,7 @@ public record CssFrameworkSettings
     /// <summary>
     /// Gets the plugin-settings.
     /// </summary>
-    public IList<ISettings> PluginSettings { get; init; } = ImmutableList<ISettings>.Empty;
+    public ImmutableList<ISettings> PluginSettings { get; init; } = ImmutableList<ISettings>.Empty;
 
     /// <summary>
     /// Gets the override the default CSS Reset.

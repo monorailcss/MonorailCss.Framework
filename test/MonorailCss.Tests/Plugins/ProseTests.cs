@@ -34,7 +34,7 @@ public class ProseTests
         };
         var framework = new CssFramework(new CssFrameworkSettings
         {
-            CssResetOverride = string.Empty, PluginSettings = new List<ISettings> { proseSettings }
+            CssResetOverride = string.Empty, PluginSettings = ImmutableList.Create<ISettings>(proseSettings),
         });
 
         var cssSheet = framework.Process(["prose"]);
@@ -52,7 +52,7 @@ public class ProseTests
         var framework = new CssFramework(new CssFrameworkSettings
         {
             CssResetOverride = string.Empty,
-            PluginSettings = new List<ISettings> { new Prose.Settings { Namespace = "writing" } },
+            PluginSettings = ImmutableList.Create<ISettings>(new Prose.Settings { Namespace = "writing" }),
         });
         var results = framework.Process(["writing", "writing-sm", "mx-4"]);
         results.ShouldContain(".writing");
