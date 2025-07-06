@@ -223,6 +223,52 @@ public abstract class BaseUtilityNamespacePlugin : IUtilityNamespacePlugin
     protected virtual bool IsValidArbitraryValue(string arbitraryValue, CssSuffixToValueMap cssSuffixToValuesMap)
     {
         var isNumeric = int.TryParse(arbitraryValue, out _);
-        return arbitraryValue.Contains("calc") || isNumeric || cssSuffixToValuesMap.ContainsSuffix(arbitraryValue);
+        var hasCalc = arbitraryValue.Contains("calc");
+        var hasCssUnit = HasValidCssUnit(arbitraryValue);
+
+        return hasCalc || isNumeric || hasCssUnit || cssSuffixToValuesMap.ContainsSuffix(arbitraryValue);
+    }
+
+    /// <summary>
+    /// Checks if the arbitrary value contains a valid CSS unit.
+    /// </summary>
+    /// <param name="arbitraryValue">The arbitrary value to check.</param>
+    /// <returns>True if the value contains a valid CSS unit, false otherwise.</returns>
+    protected virtual bool HasValidCssUnit(string arbitraryValue)
+    {
+        // Common CSS units for sizing and spacing
+        var cssUnits = new[]
+        {
+            "px", "em", "rem", "ex", "ch", "lh", "rlh", // Absolute and relative length units
+            "vw", "vh", "vmin", "vmax", "vi", "vb", "dvw", "dvh", "lvw", "lvh", "svw", "svh", // Viewport units
+            "%", // Percentage unit
+            "fr", // Grid fractional unit
+            "cm", "mm", "in", "pt", "pc", // Physical units
+            "deg", "rad", "turn", "grad", // Angle units
+            "s", "ms", // Time units
+            "Hz", "kHz", // Frequency units
+            "dpi", "dpcm", "dppx", // Resolution units
+        };
+
+        // Check if the value ends with any of the valid CSS units
+        // Also handle negative values (starting with -)
+        var valueToCheck = arbitraryValue.StartsWith('-') ? arbitraryValue[1..] : arbitraryValue;
+
+        foreach (var unit in cssUnits)
+        {
+            if (valueToCheck.EndsWith(unit, StringComparison.OrdinalIgnoreCase))
+            {
+                // Extract the numeric part before the unit
+                var numericPart = valueToCheck[..^unit.Length];
+
+                // Check if the numeric part is valid (can be integer or decimal)
+                if (double.TryParse(numericPart, out _) || numericPart == "0")
+                {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 }

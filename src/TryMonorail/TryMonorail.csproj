@@ -18,4 +18,21 @@
     <ItemGroup>
       <ProjectReference Include="..\MonorailCss\MonorailCss.csproj" />
     </ItemGroup>
+    <ItemGroup>
+      <_ContentIncludedByDefault Remove="obj\linux\project.assets.json" />
+      <_ContentIncludedByDefault Remove="obj\linux\TryMonorail.csproj.nuget.dgspec.json" />
+      <_ContentIncludedByDefault Remove="obj\linux\Debug\net9.0\blazor.boot.json" />
+      <_ContentIncludedByDefault Remove="obj\linux\Debug\net9.0\blazor.build.boot-extension.json" />
+      <_ContentIncludedByDefault Remove="obj\linux\Debug\net9.0\staticwebassets.build.endpoints.json" />
+      <_ContentIncludedByDefault Remove="obj\linux\Debug\net9.0\staticwebassets.build.json" />
+      <_ContentIncludedByDefault Remove="obj\linux\Debug\net9.0\staticwebassets.development.json" />
+      <_ContentIncludedByDefault Remove="obj\linux\Debug\net9.0\staticwebassets.pack.json" />
+      <_ContentIncludedByDefault Remove="obj\linux\Debug\net9.0\TryMonorail.sourcelink.json" />
+      <_ContentIncludedByDefault Remove="bin\linux\Debug\net9.0\bin\windows\Debug\net9.0\TryMonorail.staticwebassets.endpoints.json" />
+      <_ContentIncludedByDefault Remove="bin\linux\Debug\net9.0\bin\windows\Debug\net9.0\TryMonorail.staticwebassets.runtime.json" />
+      <_ContentIncludedByDefault Remove="bin\linux\Debug\net9.0\bin\windows\Debug\net9.0\wwwroot\_framework\blazor.boot.json" />
+      <_ContentIncludedByDefault Remove="bin\linux\Debug\net9.0\TryMonorail.staticwebassets.endpoints.json" />
+      <_ContentIncludedByDefault Remove="bin\linux\Debug\net9.0\TryMonorail.staticwebassets.runtime.json" />
+      <_ContentIncludedByDefault Remove="bin\linux\Debug\net9.0\wwwroot\_framework\blazor.boot.json" />
+    </ItemGroup>
 </Project>

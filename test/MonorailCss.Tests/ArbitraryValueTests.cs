@@ -220,4 +220,165 @@ public class ArbitraryValueTests
 
                       """);
     }
+
+    [Fact]
+    public void Can_do_arbitrary_value_with_px_unit()
+    {
+        var framework = new CssFramework(new CssFrameworkSettings()
+        {
+            CssResetOverride = string.Empty
+        });
+        var r = framework.Process([
+            "p-[10px]",
+        ]);
+
+        r.ShouldBeCss("""
+
+                      :root {
+                        --monorail-spacing:0.25rem;
+                      }
+                      .p-\[10px\] {
+                        padding:10px;
+                      }
+
+                      """);
+    }
+
+    [Fact]
+    public void Can_do_arbitrary_value_with_vh_unit()
+    {
+        var framework = new CssFramework(new CssFrameworkSettings()
+        {
+            CssResetOverride = string.Empty
+        });
+        var r = framework.Process([
+            "p-[10vh]",
+        ]);
+
+        r.ShouldBeCss("""
+
+                      :root {
+                        --monorail-spacing:0.25rem;
+                      }
+                      .p-\[10vh\] {
+                        padding:10vh;
+                      }
+
+                      """);
+    }
+
+    [Fact]
+    public void Can_do_arbitrary_value_with_em_unit()
+    {
+        var framework = new CssFramework(new CssFrameworkSettings()
+        {
+            CssResetOverride = string.Empty
+        });
+        var r = framework.Process([
+            "w-[2.5em]",
+        ]);
+
+        r.ShouldBeCss("""
+
+                      :root {
+                        --monorail-spacing:0.25rem;
+                      }
+                      .w-\[2\.5em\] {
+                        width:2.5em;
+                      }
+
+                      """);
+    }
+
+    [Fact]
+    public void Can_do_arbitrary_value_with_rem_unit()
+    {
+        var framework = new CssFramework(new CssFrameworkSettings()
+        {
+            CssResetOverride = string.Empty
+        });
+        var r = framework.Process([
+            "h-[1.5rem]",
+        ]);
+
+        r.ShouldBeCss("""
+
+                      :root {
+                        --monorail-spacing:0.25rem;
+                      }
+                      .h-\[1\.5rem\] {
+                        height:1.5rem;
+                      }
+
+                      """);
+    }
+
+    [Fact]
+    public void Can_do_arbitrary_value_with_percentage_unit()
+    {
+        var framework = new CssFramework(new CssFrameworkSettings()
+        {
+            CssResetOverride = string.Empty
+        });
+        var r = framework.Process([
+            "w-[50%]",
+        ]);
+
+        r.ShouldBeCss("""
+
+                      :root {
+                        --monorail-spacing:0.25rem;
+                      }
+                      .w-\[50%\] {
+                        width:50%;
+                      }
+
+                      """);
+    }
+
+    [Fact]
+    public void Can_do_arbitrary_value_with_vw_unit()
+    {
+        var framework = new CssFramework(new CssFrameworkSettings()
+        {
+            CssResetOverride = string.Empty
+        });
+        var r = framework.Process([
+            "w-[100vw]",
+        ]);
+
+        r.ShouldBeCss("""
+
+                      :root {
+                        --monorail-spacing:0.25rem;
+                      }
+                      .w-\[100vw\] {
+                        width:100vw;
+                      }
+
+                      """);
+    }
+
+    [Fact]
+    public void Can_do_arbitrary_value_with_negative_px_unit()
+    {
+        var framework = new CssFramework(new CssFrameworkSettings()
+        {
+            CssResetOverride = string.Empty
+        });
+        var r = framework.Process([
+            "m-[-10px]",
+        ]);
+
+        r.ShouldBeCss("""
+
+                      :root {
+                        --monorail-spacing:0.25rem;
+                      }
+                      .m-\[-10px\] {
+                        margin:-10px;
+                      }
+
+                      """);
+    }
 }

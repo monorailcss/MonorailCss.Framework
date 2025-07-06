@@ -520,12 +520,16 @@ public partial class Prose : IUtilityNamespacePlugin, IVariantPluginProvider
                     ],
                 }
             },
-        }.ToImmutableDictionary();
+        };
 
-        return _settings.GrayScales.Aggregate(baseSettings, (current, scale) => new Dictionary<string, CssSettings>
-            {
-                {
-                    scale, new CssSettings
+        // Add fluid prose settings with CSS variables
+        var fluidSettings = GetFluidSettings();
+        foreach (var fluidSetting in fluidSettings)
+        {
+            baseSettings[fluidSetting.Key] = fluidSetting.Value;
+        }
+
+        var result = _settings.GrayScales.Aggregate(baseSettings.ToImmutableDictionary(), (current, scale) => current.Add(scale, new CssSettings
                     {
                         Css =
                         [
@@ -568,9 +572,174 @@ public partial class Prose : IUtilityNamespacePlugin, IVariantPluginProvider
                             (_var("prose-invert-th-borders"), _designSystem.Colors[scale][ColorLevels._600].AsString()),
                             (_var("prose-invert-td-borders"), _designSystem.Colors[scale][ColorLevels._700].AsString()),
                         ],
-                    }
-                },
-            }.ToImmutableDictionary()
-            .AddRange(current));
+                    }));
+
+        return result;
+    }
+
+    private Dictionary<string, CssSettings> GetFluidSettings()
+    {
+        var fluidSettings = new Dictionary<string, CssSettings>();
+
+        // Base prose-fluid class with CSS variable-based clamp calculations
+        fluidSettings["fluid"] = CreateFluidBaseSettings();
+
+        // Breakpoint settings - prose-fluid-starting-* and prose-fluid-ending-*
+        var breakpoints = new Dictionary<string, int>
+        {
+            { "xs", 320 },
+            { "sm", 640 },
+            { "md", 768 },
+            { "lg", 1024 },
+            { "xl", 1280 },
+            { "2xl", 1536 },
+        };
+
+        foreach (var bp in breakpoints)
+        {
+            fluidSettings[$"fluid-starting-{bp.Key}"] = CreateBreakpointSettings("--prose-fluid-bp-min", bp.Value);
+            fluidSettings[$"fluid-ending-{bp.Key}"] = CreateBreakpointSettings("--prose-fluid-bp-max", bp.Value);
+        }
+
+        // Size settings - prose-fluid-from-* and prose-fluid-to-*
+        var sizes = new Dictionary<string, CssSettings>
+        {
+            { "sm", GetSmCssSettings() },
+            { "base", GetBaseCssSettings() },
+            { "lg", GetLgCssSettings() },
+            { "xl", GetXlCssSettings() },
+            { "2xl", Get2XlCssSettings() },
+        };
+
+        foreach (var size in sizes)
+        {
+            fluidSettings[$"fluid-from-{size.Key}"] = CreateSizeVariableSettings("min", size.Value);
+            fluidSettings[$"fluid-to-{size.Key}"] = CreateSizeVariableSettings("max", size.Value);
+        }
+
+        return fluidSettings;
+    }
+
+    private CssSettings CreateFluidBaseSettings()
+    {
+        return new CssSettings
+        {
+            Css =
+            [
+                // Default breakpoint range (375px to 1200px)
+                ("--prose-fluid-bp-min", "375"),
+                ("--prose-fluid-bp-max", "1200"),
+                
+                // Default size range (1rem to 1.125rem)
+                ("--prose-fluid-font-size-min", "1rem"),
+                ("--prose-fluid-font-size-max", "1.125rem"),
+                ("--prose-fluid-line-height-min", "1.5"),
+                ("--prose-fluid-line-height-max", "1.7"),
+                
+                // Use CSS calc() for fluid scaling with clamp() - no fallbacks so variables can be overridden
+                (CssProperties.FontSize, "clamp(var(--prose-fluid-font-size-min), calc(var(--prose-fluid-font-size-min) + (var(--prose-fluid-font-size-max) - var(--prose-fluid-font-size-min)) * ((100vw - var(--prose-fluid-bp-min) * 1px) / (var(--prose-fluid-bp-max) - var(--prose-fluid-bp-min)))), var(--prose-fluid-font-size-max))"),
+                (CssProperties.LineHeight, "clamp(var(--prose-fluid-line-height-min), calc(var(--prose-fluid-line-height-min) + (var(--prose-fluid-line-height-max) - var(--prose-fluid-line-height-min)) * ((100vw - var(--prose-fluid-bp-min) * 1px) / (var(--prose-fluid-bp-max) - var(--prose-fluid-bp-min)))), var(--prose-fluid-line-height-max))"),
+            ],
+            ChildRules = CreateFluidChildRules(),
+        };
+    }
+
+    private CssSettings CreateBreakpointSettings(string variableName, int pixelValue)
+    {
+        return new CssSettings
+        {
+            Css = [(variableName, pixelValue.ToString())],
+        };
+    }
+
+    private CssSettings CreateSizeVariableSettings(string prefix, CssSettings sizeSettings)
+    {
+        var variables = new CssDeclarationList();
+
+        // Extract font-size and line-height from the size settings
+        foreach (var declaration in sizeSettings.Css)
+        {
+            if (declaration is CssDeclaration cssDecl)
+            {
+                if (cssDecl.Property == CssProperties.FontSize)
+                {
+                    variables[$"--prose-fluid-font-size-{prefix}"] = cssDecl.Value;
+                }
+                else if (cssDecl.Property == CssProperties.LineHeight)
+                {
+                    variables[$"--prose-fluid-line-height-{prefix}"] = cssDecl.Value;
+                }
+            }
+        }
+
+        // Extract common properties from child rules for fluid scaling
+        foreach (var rule in sizeSettings.ChildRules)
+        {
+            var selector = rule.Selector.ToString();
+            var selectorKey = NormalizeSelector(selector);
+
+            foreach (var decl in rule.DeclarationList)
+            {
+                if (decl is CssDeclaration cssDecl && IsFluidProperty(cssDecl.Property))
+                {
+                    var propName = cssDecl.Property.Replace("-", "");
+                    variables[$"--prose-fluid-{selectorKey}-{propName}-{prefix}"] = cssDecl.Value;
+                }
+            }
+        }
+
+        return new CssSettings { Css = variables };
+    }
+
+    private string NormalizeSelector(string selector)
+    {
+        return selector.Replace(" ", "-")
+                      .Replace(":", "")
+                      .Replace("[", "")
+                      .Replace("]", "")
+                      .Replace("\"", "")
+                      .Replace("~", "")
+                      .Replace("=", "")
+                      .Replace("(", "")
+                      .Replace(")", "")
+                      .Replace(">", "")
+                      .Replace("+", "")
+                      .Replace(".", "")
+                      .Replace(",", "");
+    }
+
+    private bool IsFluidProperty(string property)
+    {
+        return property.Contains("margin") || property.Contains("padding") || 
+               property.Contains("font-size") || property.Contains("line-height");
+    }
+
+    private CssRuleSetList CreateFluidChildRules()
+    {
+        var rules = new CssRuleSetList();
+
+        // Add common selectors with fluid scaling
+        var commonSelectors = new[]
+        {
+            "p", "h1", "h2", "h3", "h4", "[class~=\"lead\"]", "blockquote", 
+            "ol", "ul", "li", "pre", "code", "img", "figure"
+        };
+
+        foreach (var selector in commonSelectors)
+        {
+            var selectorKey = NormalizeSelector(selector);
+            
+            var declarations = new CssDeclarationList();
+            
+            // Add margin-top fluid scaling - use variables without fallbacks
+            declarations["margin-top"] = $"clamp(var(--prose-fluid-{selectorKey}-margintop-min), calc(var(--prose-fluid-{selectorKey}-margintop-min) + (var(--prose-fluid-{selectorKey}-margintop-max) - var(--prose-fluid-{selectorKey}-margintop-min)) * ((100vw - var(--prose-fluid-bp-min) * 1px) / (var(--prose-fluid-bp-max) - var(--prose-fluid-bp-min)))), var(--prose-fluid-{selectorKey}-margintop-max))";
+            
+            // Add margin-bottom fluid scaling - use variables without fallbacks
+            declarations["margin-bottom"] = $"clamp(var(--prose-fluid-{selectorKey}-marginbottom-min), calc(var(--prose-fluid-{selectorKey}-marginbottom-min) + (var(--prose-fluid-{selectorKey}-marginbottom-max) - var(--prose-fluid-{selectorKey}-marginbottom-min)) * ((100vw - var(--prose-fluid-bp-min) * 1px) / (var(--prose-fluid-bp-max) - var(--prose-fluid-bp-min)))), var(--prose-fluid-{selectorKey}-marginbottom-max))";
+
+            rules.Add(new CssRuleSet(WithNotProse(selector), declarations));
+        }
+
+        return rules;
     }
 }
