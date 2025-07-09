@@ -12,11 +12,26 @@ public class ArbitraryVariantTests
         var r = framework.Process([
             "data-[mobile-menu-open=true]:bg-red-500",
         ]);
-        
+
         r.ShouldBeCss("""
                       .data-\[mobile-menu-open\=true\]\:bg-red-500[data-mobile-menu-open="true"] {
                         --monorail-bg-opacity:1;
                         background-color:oklch(0.637 0.237 25.331 / var(--monorail-bg-opacity));
+                      }
+                      """);
+    }
+
+    [Fact]
+    public void Overflow_hidden()
+    {
+        var framework = new CssFramework(new CssFrameworkSettings { CssResetOverride = string.Empty });
+        var r = framework.Process([
+            "data-[mobile-menu-open=true]:overflow-hidden",
+        ]);
+
+        r.ShouldBeCss("""
+                      .data-\[mobile-menu-open\=true\]\:overflow-hidden[data-mobile-menu-open="true"] {
+                        overflow:hidden
                       }
                       """);
     }
@@ -28,7 +43,7 @@ public class ArbitraryVariantTests
         var r = framework.Process([
             "data-[loading]:opacity-50",
         ]);
-        
+
         r.ShouldBeCss("""
                       .data-\[loading\]\:opacity-50[data-loading] {
                         opacity:0.5;
@@ -43,7 +58,7 @@ public class ArbitraryVariantTests
         var r = framework.Process([
             "aria-[expanded=true]:rotate-180",
         ]);
-        
+
         r.ShouldBeCss("""
                       :root {
                         --monorail-rotate:0;
@@ -69,7 +84,7 @@ public class ArbitraryVariantTests
         var r = framework.Process([
             "aria-[disabled]:text-gray-400",
         ]);
-        
+
         r.ShouldBeCss("""
                       .aria-\[disabled\]\:text-gray-400[aria-disabled] {
                         --monorail-text-opacity:1;
@@ -87,7 +102,7 @@ public class ArbitraryVariantTests
             "aria-[selected=true]:bg-blue-100",
             "data-[loading]:animate-spin",
         ]);
-        
+
         r.ShouldBeCss("""
                       .data-\[state\=open\]\:block[data-state="open"] {
                         display:block;
@@ -115,7 +130,7 @@ public class ArbitraryVariantTests
             "md:data-[state=closed]:hidden",
             "lg:aria-[expanded=false]:text-sm",
         ]);
-        
+
         r.ShouldBeCss("""
                       @media (min-width:768px) {
                         .md\:data-\[state\=closed\]\:hidden[data-state="closed"] {
@@ -139,7 +154,7 @@ public class ArbitraryVariantTests
             "hover:data-[state=active]:bg-green-500",
             "focus:aria-[invalid=true]:border-red-500",
         ]);
-        
+
         r.ShouldBeCss("""
                       .hover\:data-\[state\=active\]\:bg-green-500:hover[data-state="active"] {
                         --monorail-bg-opacity:1;
