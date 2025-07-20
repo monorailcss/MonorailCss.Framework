@@ -1,3 +1,4 @@
+using System.Text;
 using MonorailCss.Css;
 using MonorailCss.Variants;
 
@@ -169,26 +170,64 @@ public static class SelectorGenerator
         return $"{firstWord}{originalSelector[spaceIndex..]}";
     }
 
-    /// <summary>
-    /// Escapes special characters in CSS class selectors.
-    /// </summary>
-    /// <param name="firstWord">The CSS class name to escape.</param>
-    /// <returns>Escaped CSS class name.</returns>
     private static string EscapeCssClassSelector(string firstWord)
     {
-        return firstWord
-            .Replace("*", "\\*")
-            .Replace(":", "\\:")
-            .Replace("/", "\\/")
-            .Replace("[", "\\[")
-            .Replace("]", "\\]")
-            .Replace("#", "\\#")
-            .Replace("(", "\\(")
-            .Replace(")", "\\)")
-            .Replace(".", "\\.")
-            .Replace(",", "\\2c ")
-            .Replace("?", "\\?")
-            .Replace("=", "\\=")
-            .Replace("&", "\\&");
+        if (string.IsNullOrWhiteSpace(firstWord))
+        {
+            return firstWord;
+        }
+
+        var result = new StringBuilder();
+
+        // Handle the first character specially
+        var firstChar = firstWord[0];
+
+        // Check if the first character needs escaping (digits 0-9)
+        if (char.IsDigit(firstChar))
+        {
+            // Escape as a hex code point followed by space
+            result.Append($"\\{(int)firstChar:x} ");
+        }
+        else if (NeedsEscaping(firstChar))
+        {
+            result.Append('\\').Append(firstChar);
+        }
+        else
+        {
+            result.Append(firstChar);
+        }
+
+        // Process remaining characters
+        for (var i = 1; i < firstWord.Length; i++)
+        {
+            var c = firstWord[i];
+            if (NeedsEscaping(c))
+            {
+                if (c == ',')
+                {
+                    result.Append("\\2c ");
+                }
+                else
+                {
+                    result.Append('\\').Append(c);
+                }
+            }
+            else
+            {
+                result.Append(c);
+            }
+        }
+
+        return result.ToString();
+    }
+
+    private static bool NeedsEscaping(char c)
+    {
+        return c switch
+        {
+            '*' or ':' or '/' or '[' or ']' or '#' or
+                '(' or ')' or '.' or ',' or '?' or '=' or '&' => true,
+            _ => false,
+        };
     }
 }

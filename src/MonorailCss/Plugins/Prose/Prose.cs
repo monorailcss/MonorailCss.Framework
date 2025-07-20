@@ -626,16 +626,17 @@ public partial class Prose : IUtilityNamespacePlugin, IVariantPluginProvider
         {
             Css =
             [
+
                 // Default breakpoint range (375px to 1200px)
                 ("--prose-fluid-bp-min", "375"),
                 ("--prose-fluid-bp-max", "1200"),
-                
+
                 // Default size range (1rem to 1.125rem)
                 ("--prose-fluid-font-size-min", "1rem"),
                 ("--prose-fluid-font-size-max", "1.125rem"),
                 ("--prose-fluid-line-height-min", "1.5"),
                 ("--prose-fluid-line-height-max", "1.7"),
-                
+
                 // Use CSS calc() for fluid scaling with clamp() - no fallbacks so variables can be overridden
                 (CssProperties.FontSize, "clamp(var(--prose-fluid-font-size-min), calc(var(--prose-fluid-font-size-min) + (var(--prose-fluid-font-size-max) - var(--prose-fluid-font-size-min)) * ((100vw - var(--prose-fluid-bp-min) * 1px) / (var(--prose-fluid-bp-max) - var(--prose-fluid-bp-min)))), var(--prose-fluid-font-size-max))"),
                 (CssProperties.LineHeight, "clamp(var(--prose-fluid-line-height-min), calc(var(--prose-fluid-line-height-min) + (var(--prose-fluid-line-height-max) - var(--prose-fluid-line-height-min)) * ((100vw - var(--prose-fluid-bp-min) * 1px) / (var(--prose-fluid-bp-max) - var(--prose-fluid-bp-min)))), var(--prose-fluid-line-height-max))"),
@@ -682,7 +683,7 @@ public partial class Prose : IUtilityNamespacePlugin, IVariantPluginProvider
             {
                 if (decl is CssDeclaration cssDecl && IsFluidProperty(cssDecl.Property))
                 {
-                    var propName = cssDecl.Property.Replace("-", "");
+                    var propName = cssDecl.Property.Replace("-", string.Empty);
                     variables[$"--prose-fluid-{selectorKey}-{propName}-{prefix}"] = cssDecl.Value;
                 }
             }
@@ -694,23 +695,23 @@ public partial class Prose : IUtilityNamespacePlugin, IVariantPluginProvider
     private string NormalizeSelector(string selector)
     {
         return selector.Replace(" ", "-")
-                      .Replace(":", "")
-                      .Replace("[", "")
-                      .Replace("]", "")
-                      .Replace("\"", "")
-                      .Replace("~", "")
-                      .Replace("=", "")
-                      .Replace("(", "")
-                      .Replace(")", "")
-                      .Replace(">", "")
-                      .Replace("+", "")
-                      .Replace(".", "")
-                      .Replace(",", "");
+                      .Replace(":", string.Empty)
+                      .Replace("[", string.Empty)
+                      .Replace("]", string.Empty)
+                      .Replace("\"", string.Empty)
+                      .Replace("~", string.Empty)
+                      .Replace("=", string.Empty)
+                      .Replace("(", string.Empty)
+                      .Replace(")", string.Empty)
+                      .Replace(">", string.Empty)
+                      .Replace("+", string.Empty)
+                      .Replace(".", string.Empty)
+                      .Replace(",", string.Empty);
     }
 
     private bool IsFluidProperty(string property)
     {
-        return property.Contains("margin") || property.Contains("padding") || 
+        return property.Contains("margin") || property.Contains("padding") ||
                property.Contains("font-size") || property.Contains("line-height");
     }
 
@@ -721,19 +722,19 @@ public partial class Prose : IUtilityNamespacePlugin, IVariantPluginProvider
         // Add common selectors with fluid scaling
         var commonSelectors = new[]
         {
-            "p", "h1", "h2", "h3", "h4", "[class~=\"lead\"]", "blockquote", 
-            "ol", "ul", "li", "pre", "code", "img", "figure"
+            "p", "h1", "h2", "h3", "h4", "[class~=\"lead\"]", "blockquote",
+            "ol", "ul", "li", "pre", "code", "img", "figure",
         };
 
         foreach (var selector in commonSelectors)
         {
             var selectorKey = NormalizeSelector(selector);
-            
+
             var declarations = new CssDeclarationList();
-            
+
             // Add margin-top fluid scaling - use variables without fallbacks
             declarations["margin-top"] = $"clamp(var(--prose-fluid-{selectorKey}-margintop-min), calc(var(--prose-fluid-{selectorKey}-margintop-min) + (var(--prose-fluid-{selectorKey}-margintop-max) - var(--prose-fluid-{selectorKey}-margintop-min)) * ((100vw - var(--prose-fluid-bp-min) * 1px) / (var(--prose-fluid-bp-max) - var(--prose-fluid-bp-min)))), var(--prose-fluid-{selectorKey}-margintop-max))";
-            
+
             // Add margin-bottom fluid scaling - use variables without fallbacks
             declarations["margin-bottom"] = $"clamp(var(--prose-fluid-{selectorKey}-marginbottom-min), calc(var(--prose-fluid-{selectorKey}-marginbottom-min) + (var(--prose-fluid-{selectorKey}-marginbottom-max) - var(--prose-fluid-{selectorKey}-marginbottom-min)) * ((100vw - var(--prose-fluid-bp-min) * 1px) / (var(--prose-fluid-bp-max) - var(--prose-fluid-bp-min)))), var(--prose-fluid-{selectorKey}-marginbottom-max))";
 

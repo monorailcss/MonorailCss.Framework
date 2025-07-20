@@ -43,7 +43,7 @@ public class BackgroundImage : IUtilityNamespacePlugin
                         {
                             (CssProperties.BackgroundImage, value),
                         };
-                        
+
                         // Add gradient position variable for new syntax
                         var positionVar = CssFramework.GetVariableNameWithPrefix("gradient-position");
                         var gradientPosition = GetGradientPosition(suffix);
@@ -51,7 +51,7 @@ public class BackgroundImage : IUtilityNamespacePlugin
                         {
                             declarations[positionVar] = gradientPosition;
                         }
-                        
+
                         yield return new CssRuleSet(namespaceSyntax.OriginalSyntax, declarations);
                     }
 
@@ -68,7 +68,7 @@ public class BackgroundImage : IUtilityNamespacePlugin
     {
         var stopsVar = CssFramework.GetVariableNameWithPrefix("gradient-stops");
         var positionVar = CssFramework.GetVariableNameWithPrefix("gradient-position");
-        
+
         // Linear gradients
         var linearGradients = new Dictionary<string, string>
         {
@@ -91,7 +91,7 @@ public class BackgroundImage : IUtilityNamespacePlugin
             };
             yield return new CssRuleSet(gradient.Key, declarations);
         }
-        
+
         // Radial gradients
         var radialDeclarations = new CssDeclarationList
         {
@@ -99,7 +99,7 @@ public class BackgroundImage : IUtilityNamespacePlugin
             (CssProperties.BackgroundImage, $"radial-gradient(var({positionVar}), var({stopsVar}))"),
         };
         yield return new CssRuleSet("bg-radial", radialDeclarations);
-        
+
         // Conic gradients
         var conicDeclarations = new CssDeclarationList
         {
@@ -107,14 +107,14 @@ public class BackgroundImage : IUtilityNamespacePlugin
             (CssProperties.BackgroundImage, $"conic-gradient(var({positionVar}), var({stopsVar}))"),
         };
         yield return new CssRuleSet("bg-conic", conicDeclarations);
-        
+
         // Background none
         var noneDeclarations = new CssDeclarationList
         {
             (CssProperties.BackgroundImage, "none"),
         };
         yield return new CssRuleSet("bg-none", noneDeclarations);
-        
+
         // Keep legacy gradient-to-* for backwards compatibility
         var legacyGradients = new Dictionary<string, string>
         {
@@ -157,10 +157,11 @@ public class BackgroundImage : IUtilityNamespacePlugin
     {
         var stopsVar = CssFramework.GetVariableNameWithPrefix("gradient-stops");
         var positionVar = CssFramework.GetVariableNameWithPrefix("gradient-position");
-        
+
         return suffix switch
         {
             "none" => "none",
+
             // New gradient syntax
             "linear-to-t" => $"linear-gradient(var({positionVar}), var({stopsVar}))",
             "linear-to-tr" => $"linear-gradient(var({positionVar}), var({stopsVar}))",
@@ -172,6 +173,7 @@ public class BackgroundImage : IUtilityNamespacePlugin
             "linear-to-tl" => $"linear-gradient(var({positionVar}), var({stopsVar}))",
             "radial" => $"radial-gradient(var({positionVar}), var({stopsVar}))",
             "conic" => $"conic-gradient(var({positionVar}), var({stopsVar}))",
+
             // Legacy gradient syntax
             "gradient-to-t" => $"linear-gradient(to top, var({stopsVar}))",
             "gradient-to-tr" => $"linear-gradient(to top right, var({stopsVar}))",
@@ -375,7 +377,7 @@ public class GradientFromPositionPlugin : IUtilityNamespacePlugin
         // Generate common percentages
         var percentages = new[] { "0%", "10%", "20%", "25%", "30%", "33%", "40%", "50%", "60%", "66%", "70%", "75%", "80%", "90%", "100%" };
         var positionVar = CssFramework.GetVariableNameWithPrefix("gradient-from-position");
-        
+
         foreach (var percentage in percentages)
         {
             var declarations = new CssDeclarationList
@@ -421,7 +423,7 @@ public class GradientToPositionPlugin : IUtilityNamespacePlugin
         // Generate common percentages
         var percentages = new[] { "0%", "10%", "20%", "25%", "30%", "33%", "40%", "50%", "60%", "66%", "70%", "75%", "80%", "90%", "100%" };
         var positionVar = CssFramework.GetVariableNameWithPrefix("gradient-to-position");
-        
+
         foreach (var percentage in percentages)
         {
             var declarations = new CssDeclarationList
