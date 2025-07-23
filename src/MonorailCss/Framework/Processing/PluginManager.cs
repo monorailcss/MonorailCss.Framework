@@ -12,7 +12,6 @@ internal class PluginManager
     private readonly CssFrameworkSettings _frameworkSettings;
     private readonly ImmutableDictionary<Type, ISettings> _pluginSettingsMap;
     private readonly IUtilityPlugin[] _allPlugins;
-    private ImmutableDictionary<string, IUtilityPlugin[]> _namespacePluginsMap = ImmutableDictionary<string, IUtilityPlugin[]>.Empty;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="PluginManager"/> class.
@@ -80,24 +79,14 @@ internal class PluginManager
             return _allPlugins.OfType<ArbitraryPropertyPlugin>();
         }
 
-        if (syntax is not NamespaceSyntax namespaceSyntax)
+        if (syntax is not NamespaceSyntax)
         {
             return _allPlugins;
         }
 
-        if (_namespacePluginsMap.TryGetValue(namespaceSyntax.Namespace, out var existValue))
-        {
-            return existValue;
-        }
-
-        var plugins = _allPlugins
-            .OfType<IUtilityNamespacePlugin>()
-            .Where(i => i.Namespaces.Contains(namespaceSyntax.Namespace))
-            .Cast<IUtilityPlugin>()
-            .ToArray();
-
-        _namespacePluginsMap = _namespacePluginsMap.Add(namespaceSyntax.Namespace, plugins);
-
+        // For namespace syntax, we want to give both namespace-specific plugins
+        // AND general plugins a chance to process it, since some plugins like
+        // TextShadow handle namespace syntax but aren't namespace plugins themselves
         return _allPlugins;
     }
 
