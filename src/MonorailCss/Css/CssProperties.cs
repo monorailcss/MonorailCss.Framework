@@ -189,6 +189,10 @@ public static class CssProperties
     public static string TextJustify = nameof(TextJustify).ToKebabCase();
     public static string TextOrientation = nameof(TextOrientation).ToKebabCase();
     public static string TextCombineUpright = nameof(TextCombineUpright).ToKebabCase();
+    public static string WebkitTextStroke = "-webkit-text-stroke";
+    public static string WebkitTextStrokeWidth = "-webkit-text-stroke-width";
+    public static string WebkitTextStrokeColor = "-webkit-text-stroke-color";
+    public static string WebkitTextFillColor = "-webkit-text-fill-color";
 
     // Font properties
     public static string FontDisplay = nameof(FontDisplay).ToKebabCase();
