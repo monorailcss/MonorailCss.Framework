@@ -1,5 +1,6 @@
 ﻿using System.Collections.Immutable;
 
+using MonorailCss.Css;
 namespace MonorailCss.Plugins.Filters;
 
 /// <summary>
@@ -8,7 +9,7 @@ namespace MonorailCss.Plugins.Filters;
 public class BackdropBlur : BaseUtilityPlugin
 {
     /// <inheritdoc />
-    protected override string Property => "backdrop-filter";
+    protected override string Property => CssProperties.BackdropFilter;
 
     /// <inheritdoc />
     protected override ImmutableDictionary<string, string> GetUtilities() =>
