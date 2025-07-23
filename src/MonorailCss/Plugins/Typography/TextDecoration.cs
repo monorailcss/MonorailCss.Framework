@@ -15,10 +15,10 @@ public class TextDecoration : BaseUtilityPlugin
     {
         return new Dictionary<string, string>()
         {
-            { " underline", "underline" },
-            { " overline", "overline" },
-            { " line-through", "line-through" },
-            { " no-underline", "none" },
+            { "underline", "underline" },
+            { "overline", "overline" },
+            { "line-through", "line-through" },
+            { "no-underline", "none" },
         }.ToImmutableDictionary();
     }
 }
