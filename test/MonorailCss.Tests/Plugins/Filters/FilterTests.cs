@@ -24,6 +24,55 @@ public class FilterTests
     }
 
     [Fact]
+    public void Blur_all_sizes_output_correct_css()
+    {
+        var result = _framework.Process(["blur-xs", "blur-sm", "blur-lg", "blur-xl", "blur-2xl", "blur-3xl"]);
+        result.ShouldBeCss(@".blur-xs {
+  filter:blur(4px);
+}
+.blur-sm {
+  filter:blur(8px);
+}
+.blur-lg {
+  filter:blur(16px);
+}
+.blur-xl {
+  filter:blur(24px);
+}
+.blur-2xl {
+  filter:blur(40px);
+}
+.blur-3xl {
+  filter:blur(64px);
+}");
+    }
+
+    [Fact]
+    public void Blur_with_arbitrary_values_outputs_correct_css()
+    {
+        var result = _framework.Process(["blur-[2px]", "blur-[10px]", "blur-[5rem]"]);
+        result.ShouldBeCss(@".blur-\[2px\] {
+  filter:blur(2px);
+}
+.blur-\[10px\] {
+  filter:blur(10px);
+}
+.blur-\[5rem\] {
+  filter:blur(5rem);
+}");
+    }
+
+
+    [Fact]
+    public void Blur_arbitrary_none_value_outputs_empty_filter()
+    {
+        var result = _framework.Process(["blur-[none]"]);
+        result.ShouldBeCss(@".blur-\[none\] {
+  filter:;
+}");
+    }
+
+    [Fact]
     public void Brightness_outputs_correct_css()
     {
         var result = _framework.Process(["brightness-50", "brightness-100", "brightness-150"]);
