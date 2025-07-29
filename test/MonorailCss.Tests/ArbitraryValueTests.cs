@@ -211,10 +211,12 @@ public class ArbitraryValueTests
         ]);
 
         // Verify that ?, =, and & characters are properly escaped in the CSS selector
-        r.ShouldContain(".bg-\\[url\\('\\/path\\/to\\/image\\.jpg\\?v\\=1\\&size\\=large'\\)\\]");
+        r.ShouldContain("""
+                        .bg-\[url\(\'\/path\/to\/image\.jpg\?v\=1\&size\=large\'\)\]
+                        """);
         r.ShouldBeCss("""
 
-                      .bg-\[url\('\/path\/to\/image\.jpg\?v\=1\&size\=large'\)\] {
+                      .bg-\[url\(\'\/path\/to\/image\.jpg\?v\=1\&size\=large\'\)\] {
                         background-image:url('/path/to/image.jpg?v=1&size=large');
                       }
 

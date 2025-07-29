@@ -226,7 +226,7 @@ public static class SelectorGenerator
         return c switch
         {
             '*' or ':' or '/' or '[' or ']' or '#' or
-                '(' or ')' or '.' or ',' or '?' or '=' or '&' => true,
+                '(' or ')' or '.' or ',' or '?' or '=' or '&' or '\'' => true,
             _ => false,
         };
     }

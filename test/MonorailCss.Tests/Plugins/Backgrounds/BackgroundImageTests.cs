@@ -135,7 +135,7 @@ public class BackgroundImageTests
         var result = framework.Process(["bg-[url('/path/to/image.jpg')]"]);
         result.ShouldBeCss("""
 
-                           .bg-\[url\('\/path\/to\/image\.jpg'\)\] {
+                           .bg-\[url\(\'\/path\/to\/image\.jpg\'\)\] {
                              background-image:url('/path/to/image.jpg');
                            }
 
