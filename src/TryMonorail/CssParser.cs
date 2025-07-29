@@ -4,8 +4,9 @@ namespace TryMonorail;
 
 internal static partial class CssParser
 {
-    [GeneratedRegex(@"class\s*=\s*[\'\""](?<value>[^<]*?)[\'\""]", RegexOptions.CultureInvariant,
-        matchTimeoutMilliseconds: 1000)]
+    [GeneratedRegex("""
+                    class\s*=\s*(['"])(?<value>.*?)\1
+                    """, RegexOptions.CultureInvariant, matchTimeoutMilliseconds: 1000)]
     private static partial Regex FindCssClassRegex();
 
     [GeneratedRegex("<.*class\\s*=\\s*['|\"]([^\"]*)?$", RegexOptions.CultureInvariant,
