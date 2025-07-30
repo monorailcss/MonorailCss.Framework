@@ -44,6 +44,12 @@ public class BorderColor : IUtilityNamespacePlugin
         {
             case ArbitraryValueSyntax arbitraryValueSyntax when NamespaceToProperties.ContainsKey(arbitraryValueSyntax.Namespace):
                 {
+                    // Only process arbitrary values that are valid colors, not size values
+                    if (!IsValidColorValue(arbitraryValueSyntax.ArbitraryValue))
+                    {
+                        yield break;
+                    }
+
                     var color = new CssColor(arbitraryValueSyntax.ArbitraryValue);
                     var properties = NamespaceToProperties[arbitraryValueSyntax.Namespace];
                     var declarations = GetDeclarations(color, null, properties);
@@ -115,6 +121,50 @@ public class BorderColor : IUtilityNamespacePlugin
         b.Add("current", "currentColor");
         b.Add("transparent", "transparent");
         return b.ToImmutable();
+    }
+
+    /// <summary>
+    /// Checks if an arbitrary value is a valid color value and not a size value.
+    /// </summary>
+    /// <param name="value">The arbitrary value to check.</param>
+    /// <returns>True if it's a valid color value, false otherwise.</returns>
+    private static bool IsValidColorValue(string value)
+    {
+        // Check if it looks like a size value (ends with size units)
+        var sizeUnits = new[] { "px", "em", "rem", "ex", "ch", "lh", "rlh", "vw", "vh", "vmin", "vmax", "vi", "vb", "dvw", "dvh", "lvw", "lvh", "svw", "svh", "%", "fr", "cm", "mm", "in", "pt", "pc", "deg", "rad", "turn", "grad", "s", "ms", "Hz", "kHz", "dpi", "dpcm", "dppx" };
+        foreach (var unit in sizeUnits)
+        {
+            if (value.EndsWith(unit, StringComparison.OrdinalIgnoreCase))
+            {
+                return false; // This looks like a size value, not a color
+            }
+        }
+
+        // Check if it's a pure number (like "4", "10", etc.)
+        if (double.TryParse(value, out _))
+        {
+            return false; // Pure numbers are size values, not colors
+        }
+
+        // If it starts with # or contains color function names, it's likely a color
+        if (value.StartsWith('#') ||
+            value.Contains("rgb", StringComparison.OrdinalIgnoreCase) ||
+            value.Contains("hsl", StringComparison.OrdinalIgnoreCase) ||
+            value.Contains("oklch", StringComparison.OrdinalIgnoreCase) ||
+            value.Contains("color", StringComparison.OrdinalIgnoreCase))
+        {
+            return true;
+        }
+
+        // Known color keywords
+        var colorKeywords = new[] { "red", "green", "blue", "white", "black", "gray", "grey", "yellow", "orange", "purple", "pink", "brown", "cyan", "magenta", "lime", "navy", "teal", "silver", "maroon", "olive", "aqua", "fuchsia" };
+        if (colorKeywords.Any(keyword => value.Contains(keyword, StringComparison.OrdinalIgnoreCase)))
+        {
+            return true;
+        }
+
+        // If we can't determine it's clearly a color, assume it's not (to avoid conflicts with size values)
+        return false;
     }
 
     /// <inheritdoc />

@@ -90,4 +90,62 @@ public class BorderColorTests
 
                       """);
     }
+
+    // border-l-4 border-r-4 border-b-4 border-l-transparent border-r-transparent
+    [Fact]
+    public void Can_do_directional_border_colors_with_colors()
+    {
+        var framework = new CssFramework(new CssFrameworkSettings()
+        {
+            CssResetOverride = string.Empty
+        });
+
+        var r = framework.Process(["border-l-4", "border-r-5", "border-b-4", "border-l-transparent", "border-r-transparent"]);
+        r.ShouldBeCss("""
+
+                      :root {
+                        --monorail-spacing:0.25rem;
+                      }
+                      .border-l-4 {
+                        border-left-width:4px;
+                      }
+                      .border-r-5 {
+                        border-right-width:5px;
+                      }
+                      .border-b-4 {
+                        border-bottom-width:4px;
+                      }
+                      .border-l-transparent {
+                        border-left-color:transparent;
+                      }
+                      .border-r-transparent {
+                        border-right-color:transparent;
+                      }
+
+                      """);
+    }
+
+    [Fact]
+    public void Can_do_arbitrary_border_colors()
+    {
+        var framework = new CssFramework(new CssFrameworkSettings()
+        {
+            CssResetOverride = string.Empty
+        });
+
+        var r = framework.Process(["border-r-[#ff0000]", "border-l-[rgb(0,255,0)]", "border-t-[hsl(240,100%,50%)]"]);
+        r.ShouldBeCss("""
+
+                      .border-r-\[\#ff0000\] {
+                        border-right-color:rgb(255, 0, 0);
+                      }
+                      .border-l-\[rgb\(0\2c 255\2c 0\)\] {
+                        border-left-color:rgb(0, 255, 0);
+                      }
+                      .border-t-\[hsl\(240\2c 100%\2c 50%\)\] {
+                        border-top-color:hsl(240,100%,50%);
+                      }
+
+                      """);
+    }
 }

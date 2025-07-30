@@ -26,4 +26,26 @@ public class BorderWidth : BaseUtilityNamespacePlugin
             { "4", "4px" },
             { "8", "8px" },
         };
+
+    /// <inheritdoc />
+    protected override bool SupportsDynamicValues(out string cssVariableName, out string calculationPattern)
+    {
+        cssVariableName = string.Empty;
+        calculationPattern = "{1}px";
+        return true;
+    }
+
+    /// <inheritdoc />
+    protected override bool IsValidArbitraryValue(string arbitraryValue, CssSuffixToValueMap cssSuffixToValuesMap)
+    {
+        // Don't process color keywords as width values
+        var colorKeywords = new[] { "transparent", "inherit", "current", "red", "green", "blue", "white", "black", "gray", "grey", "yellow", "orange", "purple", "pink", "brown", "cyan", "magenta", "lime", "navy", "teal", "silver", "maroon", "olive", "aqua", "fuchsia" };
+        if (colorKeywords.Any(keyword => arbitraryValue.Equals(keyword, StringComparison.OrdinalIgnoreCase)))
+        {
+            return false;
+        }
+
+        // Use the base implementation for other validation
+        return base.IsValidArbitraryValue(arbitraryValue, cssSuffixToValuesMap);
+    }
 }
