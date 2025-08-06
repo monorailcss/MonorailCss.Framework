@@ -193,10 +193,10 @@ public partial class Prose
                     (CssProperties.LineHeight, ModifierSettings.Rounds(20 / 14m)),
                     (CssProperties.MarginTop, ModifierSettings.Em(12, 14)),
                 ]),
-                new CssRuleSet("> :first-child", [
+                new CssRuleSet(".prose > :first-child", [
                     (CssProperties.MarginTop, "0"),
                 ]),
-                new CssRuleSet("> :last-child", [
+                new CssRuleSet(".prose > :last-child", [
                     (CssProperties.MarginBottom, "0"),
                 ]),
             ],
