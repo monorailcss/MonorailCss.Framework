@@ -195,10 +195,10 @@ public partial class Prose
                 ]),
                 new CssRuleSet(".prose > :first-child", [
                     (CssProperties.MarginTop, "0"),
-                ]),
+                ], 100),
                 new CssRuleSet(".prose > :last-child", [
                     (CssProperties.MarginBottom, "0"),
-                ]),
+                ], 100),
             ],
         };
     }
