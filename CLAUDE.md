@@ -20,23 +20,6 @@ dotnet test                     # Run all tests
 dotnet test --logger console   # Run tests with console output
 ```
 
-### Run TryMonorail Demo
-```bash
-dotnet run --project src/TryMonorail
-```
-
-### Run Benchmarks
-```bash
-dotnet run --project test/Benchmarks -c Release
-```
-
-### Package Management
-The project uses `dotnet-releaser` for automated builds, tests, and NuGet publishing via CI/CD.
-
-NOTE: Always use `dotnet` commands for building and testing against the solution and project. 
-NEVER try to run individual files directly, NEVER try and test individual files, and NEVER try to run single-file execution.
-
-
 ## Architecture Overview
 
 ### Core Components

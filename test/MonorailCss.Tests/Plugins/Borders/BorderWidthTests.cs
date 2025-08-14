@@ -1,4 +1,6 @@
-﻿namespace MonorailCss.Tests.Plugins.Borders;
+﻿using Shouldly;
+
+namespace MonorailCss.Tests.Plugins.Borders;
 
 public class BorderWidthTests
 {
@@ -21,6 +23,35 @@ public class BorderWidthTests
 
                            .border-2 {
                              border-width: 2px;
+                           }
+
+                           """);
+    }
+
+    [Fact]
+    public void Border_color_doesnt_include_border_width()
+    {
+        var framework = new CssFramework(new CssFrameworkSettings { CssResetOverride = string.Empty } );
+        var result = framework.Process(["border", "border-2", "border-b-4", "border-t border-red-500"]);
+        result.ShouldNotContain("border-width:red-500px");
+        result.ShouldBeCss("""
+
+                           .border-b-4 {
+                             border-bottom-width:4px;
+                           }
+                           .border {
+                             border-width: 1px;
+                           }
+                           .border-t {
+                             border-top-width: 1px;
+                           }
+
+                           .border-2 {
+                             border-width: 2px;
+                           }
+
+                           .border-red-500 {
+                            border-color:oklch(0.637 0.237 25.331);
                            }
 
                            """);
