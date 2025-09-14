@@ -1,0 +1,20 @@
+using System.Collections.Immutable;
+using MonorailCss.Utilities.Base;
+
+namespace MonorailCss.Utilities.FlexboxGrid;
+
+/// <summary>
+/// Handles align-items utilities (items-center, items-start, etc.).
+/// </summary>
+internal class AlignItemsUtility : BaseStaticUtility
+{
+    protected override ImmutableDictionary<string, (string Property, string Value)> StaticValues { get; } =
+        new Dictionary<string, (string, string)>
+        {
+            { "items-center", ("align-items", "center") },
+            { "items-start", ("align-items", "flex-start") },
+            { "items-end", ("align-items", "flex-end") },
+            { "items-baseline", ("align-items", "baseline") },
+            { "items-stretch", ("align-items", "stretch") },
+        }.ToImmutableDictionary();
+}

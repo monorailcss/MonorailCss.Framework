@@ -1,0 +1,43 @@
+using System.Collections.Immutable;
+using MonorailCss.Ast;
+using MonorailCss.Core;
+using MonorailCss.Utilities.Base;
+
+namespace MonorailCss.Utilities.Sizing;
+
+/// <summary>
+/// Handles min-height utilities (min-h-*).
+/// </summary>
+internal class MinHeightUtility : BaseSizingUtility
+{
+    protected override string[] Patterns => ["min-h"];
+
+    protected override string[] SizingNamespaces => NamespaceResolver.MinHeightChain;
+
+    protected override SizingDimension Dimension => SizingDimension.Height;
+
+    protected override ImmutableList<AstNode> GenerateDeclarations(string pattern, string value, bool important)
+    {
+        var declarations = new List<AstNode>();
+
+        switch (pattern)
+        {
+            case "min-h":
+                declarations.Add(new Declaration("min-height", value, important));
+                break;
+        }
+
+        return declarations.ToImmutableList();
+    }
+
+    protected override string GetSpecialSizingValue(string key)
+    {
+        // Include "0" as a special value for min-height
+        if (key == "0")
+        {
+            return "0";
+        }
+
+        return base.GetSpecialSizingValue(key);
+    }
+}

@@ -1,0 +1,158 @@
+using System.Collections.Immutable;
+using MonorailCss.Ast;
+using MonorailCss.Candidates;
+using MonorailCss.Core;
+
+namespace MonorailCss.Utilities.FlexboxGrid;
+
+/// <summary>
+/// Utility for flex shorthand property values.
+/// Handles: flex-auto, flex-initial, flex-none, flex-1, flex-[2], flex-[1_1_0%], etc.
+/// CSS: flex: auto, flex: initial, flex: none, flex: 1, flex: 2, flex: 1 1 0%.
+/// </summary>
+internal class FlexUtility : IUtility
+{
+    public UtilityPriority Priority => UtilityPriority.NamespaceHandler;
+
+    public string[] GetNamespaces() => NamespaceResolver.FlexChain;
+
+    public string[] GetFunctionalRoots() => ["flex"];
+
+    public bool TryCompile(Candidate candidate, Theme.Theme theme, out ImmutableList<AstNode>? results)
+    {
+        results = null;
+
+        if (candidate is not FunctionalUtility functionalUtility || functionalUtility.Root != "flex")
+        {
+            return false;
+        }
+
+        if (functionalUtility.Value == null)
+        {
+            return false;
+        }
+
+        string flexValue;
+
+        // Handle static values first
+        if (functionalUtility.Value.Kind == ValueKind.Named)
+        {
+            var key = functionalUtility.Value.Value;
+
+            flexValue = key switch
+            {
+                "auto" => "auto",
+                "initial" => "initial",
+                "none" => "none",
+                _ => string.Empty,
+            };
+
+            // If it's a static value, use it
+            if (!string.Empty.Equals(flexValue))
+            {
+                results = ImmutableList.Create<AstNode>(
+                    new Declaration("flex", flexValue, candidate.Important));
+                return true;
+            }
+
+            // Handle numeric values (flex-1, flex-2, etc.)
+            if (int.TryParse(key, out var numValue) && numValue >= 0)
+            {
+                flexValue = numValue.ToString();
+                results = ImmutableList.Create<AstNode>(
+                    new Declaration("flex", flexValue, candidate.Important));
+                return true;
+            }
+        }
+
+        // Handle arbitrary values (flex-[2], flex-[1_1_0%], etc.)
+        if (functionalUtility.Value.Kind == ValueKind.Arbitrary)
+        {
+            var arbitrary = functionalUtility.Value.Value;
+
+            // Replace underscores with spaces for complex flex values like "1_1_0%"
+            flexValue = arbitrary.Replace('_', ' ');
+
+            // Basic validation - should contain valid CSS flex values
+            if (IsValidFlexValue(flexValue))
+            {
+                results = ImmutableList.Create<AstNode>(
+                    new Declaration("flex", flexValue, candidate.Important));
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /// <summary>
+    /// Validates if the arbitrary value is a valid flex shorthand value.
+    /// </summary>
+    private static bool IsValidFlexValue(string value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return false;
+        }
+
+        // Allow CSS keywords
+        var keywords = new[] { "auto", "initial", "none", "inherit", "unset", "revert" };
+        if (keywords.Contains(value.Trim()))
+        {
+            return true;
+        }
+
+        // Allow single numbers (flex-grow)
+        if (double.TryParse(value.Trim(), out _))
+        {
+            return true;
+        }
+
+        // Allow complex values like "1 1 0%", "2 2 auto", etc.
+        var parts = value.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        if (parts.Length >= 1 && parts.Length <= 3)
+        {
+            // First part should be flex-grow (number)
+            if (!double.TryParse(parts[0], out _))
+            {
+                return false;
+            }
+
+            // If second part exists, should be flex-shrink (number)
+            if (parts.Length >= 2 && !double.TryParse(parts[1], out _))
+            {
+                return false;
+            }
+
+            // Third part would be flex-basis (length, percentage, or keywords)
+            if (parts.Length == 3)
+            {
+                var basis = parts[2];
+
+                // Allow keywords
+                if (new[] { "auto", "content" }.Contains(basis))
+                {
+                    return true;
+                }
+
+                // Allow lengths and percentages - basic check for units
+                if (basis.EndsWith("px") || basis.EndsWith("em") || basis.EndsWith("rem") ||
+                    basis.EndsWith("%") || basis.EndsWith("ch") || basis.EndsWith("vw") ||
+                    basis.EndsWith("vh") || double.TryParse(basis.TrimEnd('0'), out _))
+                {
+                    return true;
+                }
+            }
+
+            return true;
+        }
+
+        // Allow CSS variables and calc expressions
+        if (value.StartsWith("var(") || value.Contains("calc("))
+        {
+            return true;
+        }
+
+        return false;
+    }
+}

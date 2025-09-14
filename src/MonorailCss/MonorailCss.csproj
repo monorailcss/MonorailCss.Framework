@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net9.0</TargetFramework>
@@ -15,22 +15,19 @@
     <PackageProjectUrl>https://github.com/phil-scott-78/monorail</PackageProjectUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
   </PropertyGroup>
-
+    <ItemGroup>
+        <InternalsVisibleTo Include="$(AssemblyName).Tests" />
+      <InternalsVisibleTo Include="$(AssemblyName).Interactive" />
+    </ItemGroup>
   <ItemGroup>
     <AdditionalFiles Include="..\stylecop.json" Link="Properties/stylecop.json" />
   </ItemGroup>
   <ItemGroup>
-    <InternalsVisibleTo Include="$(AssemblyName).Tests" />
-  </ItemGroup>
-  <ItemGroup Label="Package References">
-    <PackageReference Include="JetBrains.Annotations" Version="2021.3.0" />
+    <PackageReference Include="JetBrains.Annotations" Version="2025.2.2" />
     <PackageReference Include="MinVer" PrivateAssets="All" Version="3.1.0" />
     <PackageReference Include="StyleCop.Analyzers" Version="1.2.0-beta.556">
       <PrivateAssets>All</PrivateAssets>
     </PackageReference>
   </ItemGroup>
-  <ItemGroup>
-    <None Remove="reset.css" />
-    <EmbeddedResource Include="reset.css" />
-  </ItemGroup>
+
 </Project>

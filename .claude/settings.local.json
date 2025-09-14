@@ -1,20 +1,9 @@
 {
   "permissions": {
     "allow": [
-      "Bash(dotnet test:*)",
-      "Bash(dotnet clean:*)",
-      "Bash(dotnet build:*)",
-      "WebFetch(domain:tailwindcss.com)",
-      "Bash(dotnet run:*)",
-      "Bash(csc:*)",
-      "Bash(rm:*)",
-      "Bash(grep:*)",
-      "Bash(find:*)",
-      "Bash(~/.dotnet/dotnet test test/MonorailCss.Tests/MonorailCss.Tests.csproj --filter \"FullyQualifiedName~GridTests\" --verbosity normal)",
-      "Bash(~/.dotnet/dotnet test --filter \"Arbitrary_values_respect_built_in_suffixes\" --verbosity normal)",
-      "Bash(mkdir:*)",
-      "Bash(true)"
+      "Bash(dir:*)"
     ],
-    "deny": []
+    "deny": [],
+    "ask": []
   }
 }

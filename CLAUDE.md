@@ -1,119 +1,103 @@
-# CLAUDE.md
+# MonorailCSS
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
-
-## Project Overview
-
-MonorailCSS is a utility-first CSS library inspired by Tailwind CSS. It's a Just-In-Time (JIT) CSS compiler written in C# that generates CSS from a design system and a list of CSS class names.
-
-## Development Commands
-
-### Build
-```bash
-dotnet build                    # Build entire solution
-dotnet build -c Release        # Build in release mode
-```
-
-### Test
-```bash
-dotnet test                     # Run all tests
-dotnet test --logger console   # Run tests with console output
-```
+MonorailCss is a JIT CSS compiler that aims to be a Tailwind CSS 4.1 compatible CSS engine written in .NET. It processes utility class names and generates optimized CSS output.
 
 ## Architecture Overview
 
 ### Core Components
 
-1. **CssFramework** (`src/MonorailCss/CssFramework.cs`)
-   - Main entry point for processing CSS classes
-   - Orchestrates the entire compilation pipeline
-   - Handles settings, plugin management, and variant processing
+1. **CssFramework** (`src/MonorailCss/CssFramework.cs`): Main entry point that orchestrates the entire processing pipeline. It handles parsing, compilation, post-processing, and CSS generation.
 
-2. **DesignSystem** (`src/MonorailCss/DesignSystem.cs`)
-   - Configuration container for colors, typography, spacing, etc.
-   - Immutable record with hierarchical color definitions
-   - Default design system provided with Tailwind-like defaults
+2. **Utilities System** (`src/MonorailCss/Utilities/`): Self-contained components that compile CSS class candidates into AST nodes. Each utility handles specific CSS properties:
+   - Static utilities extend `BaseStaticUtility` for fixed property/value mappings
+   - Functional utilities extend `BaseFunctionalUtility` for theme-aware dynamic values
+   - Specialized base classes exist for common patterns (colors, spacing, filters)
 
-3. **Plugin System** (`src/MonorailCss/Plugins/`)
-   - Modular architecture where each CSS feature is a plugin
-   - Plugins implement `IUtilityPlugin` interface
-   - Auto-discovery via reflection from assembly
-   - Supports both namespace-based and arbitrary property plugins
+3. **Candidate System** (`src/MonorailCss/Candidates/`): Represents parsed utility classes with variants and modifiers. The `CandidateParser` tokenizes and structures raw class names.
 
-4. **Parser System** (`src/MonorailCss/Parser/`)
-   - Parses CSS class names into structured syntax objects
-   - Handles variants, modifiers, and arbitrary values
-   - Supports arbitrary properties like `[color:red]`
+4. **AST (Abstract Syntax Tree)** (`src/MonorailCss/Ast/`): Intermediate representation of CSS rules before final generation. Includes `Declaration`, `Rule`, `ComponentRule` nodes.
 
-5. **Variant System** (`src/MonorailCss/Variants/`)
-   - Handles responsive, pseudo-class, and other CSS variants
-   - Media queries, hover states, focus states, etc.
-   - Extensible through `IVariant` interface
+5. **Processing Pipeline** (`src/MonorailCss/Pipeline/`): Multi-stage transformation pipeline that processes AST nodes through:
+   - Theme variable tracking
+   - Arbitrary value validation
+   - Negative value normalization
+   - Color modifier processing
+   - Important flag handling
+   - Variable fallback resolution
+   - Declaration merging
+   - Media query consolidation
+   - Layer assignment
 
-### Plugin Architecture
+6. **Theme System** (`src/MonorailCss/Theme/`): Manages design tokens and CSS custom properties. Supports theme customization and usage tracking for optimization.
 
-Plugins are the core extensibility mechanism:
+7. **Variant System** (`src/MonorailCss/Variants/`): Handles pseudo-classes, media queries, and other CSS modifiers. Built-in variants are automatically registered.
 
-- **Base Plugins**: `BaseUtilityPlugin`, `BaseUtilityNamespacePlugin`
-- **Namespace Plugins**: Handle specific CSS property namespaces (e.g., `margin`, `padding`)
-- **Color Plugins**: Extend `BaseColorNamespacePlugin` for color-aware utilities
-- **Lookup Plugins**: Use dictionaries for simple value mappings
-- **Arbitrary Property Plugin**: Handles `[property:value]` syntax
+### Key Design Patterns
 
-### Key Patterns
+- **Auto-Discovery**: Utilities are automatically discovered via reflection at startup
+- **Priority System**: Utilities have priorities (0-1000) determining evaluation order
+- **Immutable Data**: Extensive use of immutable collections
+- **Pipeline Architecture**: Modular stages for processing transformations
+- **Theme Resolution**: Values resolved through namespace chains with fallback support
+- **Arbitrary Values**: Support for user-defined values in square brackets `[value]`
 
-1. **Immutable Design**: Heavy use of `ImmutableDictionary` and immutable records
-2. **Dependency Injection**: Plugins receive `DesignSystem` and settings via constructor
-3. **Caching**: Results cached at multiple levels for performance
-4. **Extensibility**: Everything is designed to be extended or overridden
-
-## Project Structure
+### Project Structure
 
 ```
-src/
-├── MonorailCss/              # Main library
-│   ├── Css/                  # CSS object model
-│   ├── Framework/            # Core processing logic
-│   ├── Parser/               # Class name parsing
-│   ├── Plugins/              # All utility plugins
-│   │   ├── Backgrounds/      # Background-related utilities
-│   │   ├── Borders/          # Border and outline utilities
-│   │   ├── FlexBoxAndGrid/   # Layout utilities
-│   │   ├── Typography/       # Text and font utilities
-│   │   └── ...
-│   └── Variants/             # Variant system
-└── TryMonorail/              # Blazor demo application
-
-test/
-├── MonorailCss.Tests/        # Unit tests
-└── Benchmarks/               # Performance benchmarks
+MonorailCss.Framework/
+├── src/
+│   └── MonorailCss/          # Core library
+│       ├── Ast/              # AST node types
+│       ├── Candidates/       # Candidate parsing
+│       ├── Css/              # CSS generation
+│       ├── Parser/           # Class name parsing
+│       ├── Pipeline/         # Processing pipeline
+│       ├── Processing/       # Post-processing
+│       ├── Sorting/          # CSS output sorting
+│       ├── Theme/            # Theme management
+│       ├── Utilities/        # Utility implementations
+│       └── Variants/         # Variant handling
+└── tests/
+    ├── MonorailCss.Tests/    # Integration tests
+    ├── MonorailCss.Interactive/  # Interactive testing
+    ├── MonorailCss.Benchmarks/   # Performance benchmarks
+    └── TryMonorail/          # Blazor playground app
 ```
 
-## Common Development Patterns
+## Commands
 
-### Adding a New Plugin
-1. Inherit from appropriate base class (`BaseUtilityNamespacePlugin`, etc.)
-2. Implement required methods (`GetAllRules`, `Process`)
-3. Plugin will be auto-discovered by `PluginManager`
-
-### Extending the Design System
-```csharp
-var customDesignSystem = DesignSystem.Default with
-{
-    Colors = DesignSystem.Default.Colors.Add("brand", brandColors)
-};
+### Build and Development
+```bash
+# Build the solution
+dotnet build
 ```
 
-### Working with Variants
-- Variants are processed by `VariantProcessor`
-- Media queries handled separately from other modifiers
-- Selector generation handled by `SelectorGenerator`
+### Testing
+```bash
+# Run all tests
+dotnet test
 
-## Technical Notes
+# Run tests with detailed output
+dotnet test --logger "console;verbosity=detailed"
 
-- **Target Framework**: .NET 9.0
-- **Language Version**: C# 13.0
-- **Nullable Reference Types**: Enabled
-- **Platform Separation**: Build outputs separated by platform (Windows/Linux)
-- **Embedded Resources**: CSS reset file embedded in assembly
-- **Code Analysis**: StyleCop analyzers enabled
+# Run tests matching a filter
+dotnet test --filter "FullyQualifiedName~OpacityUtility"
+```
+
+### Interactive Development
+
+Use the Interactive project to verify output. Pass the utilities to test in on the command line
+
+```bash
+# Run the interactive test project
+dotnet run --project tests/MonorailCss.Interactive/MonorailCss.Interactive.csproj -- bg-red-500
+```
+
+## Testing Strategy
+
+The project uses integration testing rather than unit testing individual utilities. The main test file `tests/MonorailCss.Tests/Interactive/AllUtilitiesIntegrationTest.cs` verifies that utilities generate expected CSS properties.
+
+When adding new utilities:
+1. Create the utility class in appropriate category folder
+2. Add test cases to `AllUtilitiesIntegrationTest.cs`
+3. Verify all tests pass before committing
