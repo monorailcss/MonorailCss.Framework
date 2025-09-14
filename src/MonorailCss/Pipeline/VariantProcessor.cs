@@ -1,40 +1,10 @@
 using System.Collections.Immutable;
-using MonorailCss.Ast;
-using MonorailCss.Css;
 using MonorailCss.Variants;
 
 namespace MonorailCss.Pipeline;
 
 internal class VariantProcessor
 {
-    public AstNode ApplyVariants(AstNode node, AppliedSelector appliedSelector)
-    {
-        if (node is StyleRule styleRule)
-        {
-            if (!appliedSelector.HasWrappers && appliedSelector.Selector.Value == styleRule.Selector)
-            {
-                return node;
-            }
-
-            var updatedRule = styleRule with { Selector = appliedSelector.Selector.Value };
-
-            if (appliedSelector.HasWrappers)
-            {
-                AstNode wrappedNode = updatedRule;
-                foreach (var wrapper in appliedSelector.Wrappers.Reverse())
-                {
-                    wrappedNode = new AtRule(wrapper.Name, wrapper.Params, ImmutableList.Create(wrappedNode));
-                }
-
-                return wrappedNode;
-            }
-
-            return updatedRule;
-        }
-
-        return node;
-    }
-
     public string BuildComponentSelector(string baseSelector, ImmutableList<IVariant> variants)
     {
         if (variants.IsEmpty)

@@ -90,9 +90,4 @@ internal record ClassOrder : IComparable<ClassOrder>
         // Finally, preserve original order for stable sorting
         return OriginalIndex.CompareTo(other.OriginalIndex);
     }
-
-    public static bool operator <(ClassOrder left, ClassOrder right) => left.CompareTo(right) < 0;
-    public static bool operator >(ClassOrder left, ClassOrder right) => left.CompareTo(right) > 0;
-    public static bool operator <=(ClassOrder left, ClassOrder right) => left.CompareTo(right) <= 0;
-    public static bool operator >=(ClassOrder left, ClassOrder right) => left.CompareTo(right) >= 0;
 }
