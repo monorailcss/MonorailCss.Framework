@@ -41,7 +41,18 @@ internal class FunctionalAttributeVariant : IVariant
         {
             case "data":
                 // Transform data-[selected=true] to &[data-selected="true"]
-                result = current.TransformSelector(s => s.Relativize($"&[data-{value}]"));
+                if (value.Contains('='))
+                {
+                    var parts = value.Split('=', 2);
+                    result = parts.Length == 2
+                        ? current.TransformSelector(s => s.Relativize($"&[data-{parts[0]}=\"{parts[1]}\"]"))
+                        : current.TransformSelector(s => s.Relativize($"&[data-{value}]"));
+                }
+                else
+                {
+                    result = current.TransformSelector(s => s.Relativize($"&[data-{value}]"));
+                }
+
                 return true;
 
             case "aria":
@@ -49,7 +60,10 @@ internal class FunctionalAttributeVariant : IVariant
                 // Transform aria-[label=Hello] to &[aria-label="Hello"]
                 if (value.Contains('='))
                 {
-                    result = current.TransformSelector(s => s.Relativize($"&[aria-{value}]"));
+                    var parts = value.Split('=', 2);
+                    result = parts.Length == 2
+                        ? current.TransformSelector(s => s.Relativize($"&[aria-{parts[0]}=\"{parts[1]}\"]"))
+                        : current.TransformSelector(s => s.Relativize($"&[aria-{value}]"));
                 }
                 else
                 {
