@@ -23,7 +23,7 @@ public class ApplyProcessorTests
         var variantRegistry = new VariantRegistry();
         variantRegistry.RegisterBuiltInVariants(_theme);
 
-        _processor = new ApplyProcessor(_utilityRegistry);
+        _processor = new ApplyProcessor(_utilityRegistry, variantRegistry, _theme);
         _propertyRegistry = new CssPropertyRegistry();
     }
 

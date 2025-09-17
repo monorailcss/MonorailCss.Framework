@@ -5,9 +5,9 @@ using MonorailCss.Css;
 using MonorailCss.Parser;
 using MonorailCss.Pipeline;
 using MonorailCss.Pipeline.Stages;
+using MonorailCss.Sorting;
 using MonorailCss.Theme;
 using MonorailCss.Variants;
-using MonorailCss.Variants.BuiltIn;
 
 namespace MonorailCss.Processing;
 
@@ -17,41 +17,68 @@ namespace MonorailCss.Processing;
 internal class ApplyProcessor
 {
     private readonly CandidateParser _parser;
-    private readonly VariantProcessor _variantProcessor;
     private readonly DeclarationMerger _declarationMerger;
-    private readonly Theme.Theme? _theme;
-    private readonly ColorModifierStage? _colorModifierStage;
-    private readonly NegativeValueNormalizationStage? _negativeValueStage;
+    private readonly VariantRegistry _variantRegistry;
+    private readonly Pipeline.Pipeline _pipeline;
 
-    public ApplyProcessor(UtilityRegistry utilityRegistry, VariantRegistry? variantRegistry = null, Theme.Theme? theme = null)
+    public ApplyProcessor(UtilityRegistry utilityRegistry, VariantRegistry variantRegistry, Theme.Theme theme)
     {
         _parser = new CandidateParser(utilityRegistry);
-        _variantProcessor = new VariantProcessor();
         _declarationMerger = new DeclarationMerger();
         _variantRegistry = variantRegistry;
-        _theme = theme;
 
-        // Create pipeline stages for processing applies
-        if (theme != null)
-        {
-            _colorModifierStage = new ColorModifierStage(theme);
-            _negativeValueStage = new NegativeValueNormalizationStage();
-        }
+        // Create a pipeline with the necessary stages for processing applies
+        // Note: We don't need ProcessingAndSortingStage here as applies handle their own variant application
+        _pipeline = new Pipeline.Pipeline(
+            new ThemeVariableTrackingStage(theme),
+            new ArbitraryValueValidationStage(),
+            new NegativeValueNormalizationStage(),
+            new ColorModifierStage(theme),
+            new ImportantFlagStage(),
+            new VariableFallbackStage(),
+            new PropertyRegistrationStage());
     }
 
-    private readonly VariantRegistry? _variantRegistry;
-
-    private static string GetMediaQueryForBreakpoint(string breakpointName)
+    /// <summary>
+    /// Converts an AppliedSelector (which uses class selector format) to component selector format.
+    /// </summary>
+    private static string ConvertAppliedSelectorToComponentSelector(AppliedSelector appliedSelector, string componentSelector)
     {
-        return breakpointName switch
+        var selectorString = appliedSelector.Selector.Value;
+
+        // Handle special cases for component selectors
+        if (selectorString.StartsWith("."))
         {
-            "sm" => "(min-width: 640px)",
-            "md" => "(min-width: 768px)",
-            "lg" => "(min-width: 1024px)",
-            "xl" => "(min-width: 1280px)",
-            "2xl" => "(min-width: 1536px)",
-            _ => string.Empty
-        };
+            // Regular class selector - replace with component selector
+            var className = selectorString.Substring(1);
+            var parts = className.Split(new[] { ':', '[', ' ', '>' }, 2);
+            if (parts.Length > 1)
+            {
+                // Has modifiers after the class name
+                return string.Concat(componentSelector, selectorString.AsSpan(parts[0].Length + 1));
+            }
+
+            return componentSelector;
+        }
+        else if (selectorString.Contains("&"))
+        {
+            // Contains & placeholder - replace with component selector
+            return selectorString.Replace("&", componentSelector);
+        }
+        else if (selectorString.StartsWith(":where") || selectorString.StartsWith(":is") ||
+                 selectorString.StartsWith(":not") || selectorString.StartsWith(":has"))
+        {
+            // Starts with a pseudo-function - needs special handling
+            return componentSelector + selectorString;
+        }
+        else if (selectorString.Contains(string.Concat(" ", componentSelector.AsSpan(1))))
+        {
+            // Already contains the component selector (e.g., for dark mode)
+            return selectorString.Replace(string.Concat(".", componentSelector.AsSpan(1)), componentSelector);
+        }
+
+        // Default: use the selector as-is
+        return selectorString;
     }
 
     /// <summary>
@@ -134,46 +161,30 @@ internal class ApplyProcessor
             }
         }
 
-        // Run through pipeline stages if available
-        if (_colorModifierStage != null || _negativeValueStage != null)
+        // Process through the pipeline
+        var pipelineContext = new PipelineContext();
+        pipelineContext.Metadata["processedClasses"] = processedClasses;
+        pipelineContext.Metadata["propertyRegistry"] = propertyRegistry;
+        if (themeTracker != null)
         {
-            var pipelineContext = new PipelineContext();
-            pipelineContext.Metadata["processedClasses"] = processedClasses;
-            if (themeTracker != null)
-            {
-                pipelineContext.Metadata["themeTracker"] = themeTracker;
-            }
-
-            // Apply pipeline stages
-            if (_negativeValueStage != null)
-            {
-                _negativeValueStage.Process(ImmutableList<AstNode>.Empty, pipelineContext);
-            }
-
-            if (_colorModifierStage != null)
-            {
-                _colorModifierStage.Process(ImmutableList<AstNode>.Empty, pipelineContext);
-            }
-
-            // Also run theme tracking stage if we have a tracker
-            if (themeTracker != null && _theme != null)
-            {
-                var trackingStage = new ThemeVariableTrackingStage(_theme);
-                trackingStage.Process(ImmutableList<AstNode>.Empty, pipelineContext);
-            }
+            pipelineContext.Metadata["themeTracker"] = themeTracker;
         }
+
+        // Run the processed classes through the pipeline to apply all transformations
+        _pipeline.Process(ImmutableList<AstNode>.Empty, pipelineContext);
 
         // Now group the processed classes by variant
         foreach (var processedClass in processedClasses)
         {
             var variantKey = string.Join(":", processedClass.Candidate.Variants.Select(v => v.Name));
 
-            if (!variantGroups.ContainsKey(variantKey))
+            if (!variantGroups.TryGetValue(variantKey, out var value))
             {
-                variantGroups[variantKey] = new List<(Candidate, ImmutableList<AstNode>)>();
+                value = [];
+                variantGroups[variantKey] = value;
             }
 
-            variantGroups[variantKey].Add((processedClass.Candidate, processedClass.AstNodes));
+            value.Add((processedClass.Candidate, processedClass.AstNodes));
         }
 
         // Always ensure we have a base component rule, even if empty
@@ -198,7 +209,7 @@ internal class ApplyProcessor
             }
             else
             {
-                // Has variants - need to handle media queries and selector variants separately
+                // Has variants - use the proper variant system
                 var allDeclarations = new List<Declaration>();
 
                 foreach (var (_, astNodes) in group)
@@ -208,51 +219,39 @@ internal class ApplyProcessor
 
                 var mergedDeclarations = _declarationMerger.MergeDeclarations(allDeclarations);
 
-                if (mergedDeclarations.Count > 0)
+                switch (mergedDeclarations.Count)
                 {
-                    var firstCandidate = group[0].Candidate;
-                    var mediaQueryVariants = new List<IVariant>();
-                    var selectorVariants = new List<IVariant>();
-
-                    if (_variantRegistry != null)
-                    {
-                        foreach (var variantToken in firstCandidate.Variants)
+                    case > 0 when _variantRegistry != null:
                         {
-                            if (_variantRegistry.TryGet(variantToken.Name, out var variant))
+                            var firstCandidate = group[0].Candidate;
+
+                            // Use the VariantRegistry to apply variants properly
+                            // We need to use the component selector as the base, not a class selector
+                            var baseSelector = selector.StartsWith(".") ? selector.Substring(1) : selector;
+                            var appliedSelector = _variantRegistry.ApplyVariants(baseSelector, firstCandidate.Variants);
+
+                            // Extract the final selector and handle any at-rule wrappers
+                            var finalSelector = ConvertAppliedSelectorToComponentSelector(appliedSelector, selector);
+                            var styleRule = new StyleRule(finalSelector, mergedDeclarations.Cast<AstNode>().ToImmutableList());
+
+                            // Wrap in any at-rules (media queries, supports, etc.)
+                            AstNode ruleToAdd = styleRule;
+                            foreach (var wrapper in appliedSelector.Wrappers)
                             {
-                                // Check if this is a media query variant (breakpoints like sm, md, lg, xl, 2xl)
-                                if (variant is BreakpointVariant)
-                                {
-                                    mediaQueryVariants.Add(variant);
-                                }
-                                else
-                                {
-                                    selectorVariants.Add(variant);
-                                }
+                                ruleToAdd = new AtRule(wrapper.Name, wrapper.Params, ImmutableList.Create(ruleToAdd));
                             }
+
+                            nodes.Add(ruleToAdd);
+                            break;
                         }
-                    }
 
-                    // Build the selector with only non-media-query variants
-                    var variantSelector = _variantProcessor.BuildComponentSelector(selector, selectorVariants.ToImmutableList());
-                    var styleRule = new StyleRule(variantSelector, mergedDeclarations.Cast<AstNode>().ToImmutableList());
-
-                    // Wrap in media queries if needed
-                    AstNode ruleToAdd = styleRule;
-                    foreach (var mediaVariant in mediaQueryVariants)
-                    {
-                        if (mediaVariant is BreakpointVariant breakpoint)
+                    case > 0:
                         {
-                            // Get the media query string from the breakpoint
-                            var mediaQuery = GetMediaQueryForBreakpoint(breakpoint.Name);
-                            if (!string.IsNullOrEmpty(mediaQuery))
-                            {
-                                ruleToAdd = new AtRule("media", mediaQuery, ImmutableList.Create(ruleToAdd));
-                            }
+                            // No variant registry, fallback to simple selector
+                            var styleRule = new StyleRule(selector, mergedDeclarations.Cast<AstNode>().ToImmutableList());
+                            nodes.Add(styleRule);
+                            break;
                         }
-                    }
-
-                    nodes.Add(ruleToAdd);
                 }
             }
         }
@@ -273,19 +272,24 @@ internal class ApplyProcessor
     {
         foreach (var node in astNodes)
         {
-            if (node is Declaration directDecl)
+            switch (node)
             {
-                declarations.Add(directDecl);
-            }
-            else if (node is StyleRule styleRule)
-            {
-                foreach (var child in styleRule.Nodes)
-                {
-                    if (child is Declaration decl)
+                case Declaration directDecl:
+                    declarations.Add(directDecl);
+                    break;
+
+                case StyleRule styleRule:
                     {
-                        declarations.Add(decl);
+                        foreach (var child in styleRule.Nodes)
+                        {
+                            if (child is Declaration decl)
+                            {
+                                declarations.Add(decl);
+                            }
+                        }
+
+                        break;
                     }
-                }
             }
         }
     }

@@ -104,7 +104,7 @@ public class CssThemeIntegrationTests
         result.ShouldContain("@layer components");
         result.ShouldContain(".btn");
         result.ShouldContain("background-color: var(--color-red-400)");
-        result.ShouldContain(":where(.dark, .dark *) .btn");
+        result.ShouldContain(".btn:where(.dark, .dark *)");
         result.ShouldContain("background-color: var(--color-green-500)");
     }
 
@@ -294,7 +294,7 @@ public class CssThemeIntegrationTests
         result.ShouldContain("background-color: var(--color-red-400)");
 
         // Dark variant
-        result.ShouldContain(":where(.dark, .dark *) .btn");
+        result.ShouldContain(".btn:where(.dark, .dark *)");
 
         // The hover variant should use the overridden orange color
         result.ShouldContain(".btn:hover");
