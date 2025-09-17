@@ -277,7 +277,7 @@ public class ThemeToCssConverterTests
 
         // Act
         var result = _converter.ConvertTheme(theme);
-        var lines = result.Split('\n').Where(l => l.Contains(":")).ToList();
+        var lines = result.Split('\n').Where(l => l.Contains(':')).ToList();
 
         // Assert - Should be in alphabetical order
         lines[0].ShouldContain("--animation-spin");

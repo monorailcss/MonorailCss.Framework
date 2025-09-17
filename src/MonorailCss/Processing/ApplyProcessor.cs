@@ -5,7 +5,6 @@ using MonorailCss.Css;
 using MonorailCss.Parser;
 using MonorailCss.Pipeline;
 using MonorailCss.Pipeline.Stages;
-using MonorailCss.Sorting;
 using MonorailCss.Theme;
 using MonorailCss.Variants;
 
@@ -51,7 +50,7 @@ internal class ApplyProcessor
         {
             // Regular class selector - replace with component selector
             var className = selectorString.Substring(1);
-            var parts = className.Split(new[] { ':', '[', ' ', '>' }, 2);
+            var parts = className.Split([':', '[', ' ', '>'], 2);
             if (parts.Length > 1)
             {
                 // Has modifiers after the class name
@@ -60,18 +59,21 @@ internal class ApplyProcessor
 
             return componentSelector;
         }
-        else if (selectorString.Contains("&"))
+
+        if (selectorString.Contains('&'))
         {
             // Contains & placeholder - replace with component selector
             return selectorString.Replace("&", componentSelector);
         }
-        else if (selectorString.StartsWith(":where") || selectorString.StartsWith(":is") ||
-                 selectorString.StartsWith(":not") || selectorString.StartsWith(":has"))
+
+        if (selectorString.StartsWith(":where") || selectorString.StartsWith(":is") ||
+            selectorString.StartsWith(":not") || selectorString.StartsWith(":has"))
         {
             // Starts with a pseudo-function - needs special handling
             return componentSelector + selectorString;
         }
-        else if (selectorString.Contains(string.Concat(" ", componentSelector.AsSpan(1))))
+
+        if (selectorString.Contains(string.Concat(" ", componentSelector.AsSpan(1))))
         {
             // Already contains the component selector (e.g., for dark mode)
             return selectorString.Replace(string.Concat(".", componentSelector.AsSpan(1)), componentSelector);
@@ -123,7 +125,7 @@ internal class ApplyProcessor
         UtilityRegistry utilityRegistry,
         Theme.Theme theme,
         CssPropertyRegistry propertyRegistry,
-        ThemeUsageTracker? themeTracker)
+        ThemeUsageTracker themeTracker)
     {
         var nodes = new List<AstNode>();
 
@@ -162,13 +164,15 @@ internal class ApplyProcessor
         }
 
         // Process through the pipeline
-        var pipelineContext = new PipelineContext();
-        pipelineContext.Metadata["processedClasses"] = processedClasses;
-        pipelineContext.Metadata["propertyRegistry"] = propertyRegistry;
-        if (themeTracker != null)
+        var pipelineContext = new PipelineContext
         {
-            pipelineContext.Metadata["themeTracker"] = themeTracker;
-        }
+            Metadata =
+            {
+                ["processedClasses"] = processedClasses,
+                ["propertyRegistry"] = propertyRegistry,
+                ["themeTracker"] = themeTracker,
+            },
+        };
 
         // Run the processed classes through the pipeline to apply all transformations
         _pipeline.Process(ImmutableList<AstNode>.Empty, pipelineContext);
@@ -219,39 +223,33 @@ internal class ApplyProcessor
 
                 var mergedDeclarations = _declarationMerger.MergeDeclarations(allDeclarations);
 
-                switch (mergedDeclarations.Count)
+                if (mergedDeclarations.Count > 0)
                 {
-                    case > 0 when _variantRegistry != null:
-                        {
-                            var firstCandidate = group[0].Candidate;
+                    var firstCandidate = group[0].Candidate;
 
-                            // Use the VariantRegistry to apply variants properly
-                            // We need to use the component selector as the base, not a class selector
-                            var baseSelector = selector.StartsWith(".") ? selector.Substring(1) : selector;
-                            var appliedSelector = _variantRegistry.ApplyVariants(baseSelector, firstCandidate.Variants);
+                    // Use the VariantRegistry to apply variants properly
+                    // We need to use the component selector as the base, not a class selector
+                    var baseSelector = selector.StartsWith(".") ? selector.Substring(1) : selector;
+                    var appliedSelector = _variantRegistry.ApplyVariants(baseSelector, firstCandidate.Variants);
 
-                            // Extract the final selector and handle any at-rule wrappers
-                            var finalSelector = ConvertAppliedSelectorToComponentSelector(appliedSelector, selector);
-                            var styleRule = new StyleRule(finalSelector, mergedDeclarations.Cast<AstNode>().ToImmutableList());
+                    // Extract the final selector and handle any at-rule wrappers
+                    var finalSelector = ConvertAppliedSelectorToComponentSelector(appliedSelector, selector);
+                    var styleRule = new StyleRule(finalSelector, mergedDeclarations.Cast<AstNode>().ToImmutableList());
 
-                            // Wrap in any at-rules (media queries, supports, etc.)
-                            AstNode ruleToAdd = styleRule;
-                            foreach (var wrapper in appliedSelector.Wrappers)
-                            {
-                                ruleToAdd = new AtRule(wrapper.Name, wrapper.Params, ImmutableList.Create(ruleToAdd));
-                            }
+                    // Wrap in any at-rules (media queries, supports, etc.)
+                    AstNode ruleToAdd = styleRule;
+                    foreach (var wrapper in appliedSelector.Wrappers)
+                    {
+                        ruleToAdd = new AtRule(wrapper.Name, wrapper.Params, ImmutableList.Create(ruleToAdd));
+                    }
 
-                            nodes.Add(ruleToAdd);
-                            break;
-                        }
-
-                    case > 0:
-                        {
-                            // No variant registry, fallback to simple selector
-                            var styleRule = new StyleRule(selector, mergedDeclarations.Cast<AstNode>().ToImmutableList());
-                            nodes.Add(styleRule);
-                            break;
-                        }
+                    nodes.Add(ruleToAdd);
+                }
+                else if (mergedDeclarations.Count > 0)
+                {
+                    // No variant registry, fallback to simple selector
+                    var styleRule = new StyleRule(selector, mergedDeclarations.Cast<AstNode>().ToImmutableList());
+                    nodes.Add(styleRule);
                 }
             }
         }
