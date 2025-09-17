@@ -165,4 +165,46 @@ public class AppliesIntegrationTest
         result.ShouldContain(":where(.dark, .dark *) .btn");
         result.ShouldContain("background-color: var(--color-green-500)");
     }
+
+    [Fact]
+    public void Process_WithBeforeContentAndMediaQuery_GeneratesCorrectStructure()
+    {
+        // Arrange - Test the exact bug scenario reported
+        var settings = new CssFrameworkSettings
+        {
+            IncludePreflight = false,
+            Applies = ImmutableDictionary<string, string>.Empty
+                .Add(".btn", "before:content-['+'] before:hidden md:before:block")
+        };
+
+        var framework = new CssFramework(settings);
+
+        // Act
+        var result = framework.Process("");
+
+        Console.WriteLine(result);
+
+        // Assert - verify the components layer exists
+        result.ShouldContain("@layer components");
+
+        // Should have base .btn rule (can be empty)
+        result.ShouldContain(".btn");
+
+        // Should have .btn::before with content and display:none
+        result.ShouldContain(".btn::before");
+
+        // The before pseudo-element should have both content declarations and display: none
+        // We need to check that the content property is properly set
+        result.ShouldContain("--tw-content: '+'");
+        result.ShouldContain("content: var(--tw-content)");
+        result.ShouldContain("display: none");
+
+        // Media query variant should wrap the rule, not modify the selector
+        result.ShouldContain("@media (min-width: 768px)");
+        result.ShouldContain("display: block");
+
+        // Should NOT have invalid syntax like .btn:md::before
+        result.ShouldNotContain(".btn:md::before");
+        result.ShouldNotContain(":md");
+    }
 }

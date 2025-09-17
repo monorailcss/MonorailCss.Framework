@@ -7,6 +7,7 @@ using MonorailCss.Pipeline;
 using MonorailCss.Pipeline.Stages;
 using MonorailCss.Theme;
 using MonorailCss.Variants;
+using MonorailCss.Variants.BuiltIn;
 
 namespace MonorailCss.Processing;
 
@@ -39,6 +40,19 @@ internal class ApplyProcessor
     }
 
     private readonly VariantRegistry? _variantRegistry;
+
+    private static string GetMediaQueryForBreakpoint(string breakpointName)
+    {
+        return breakpointName switch
+        {
+            "sm" => "(min-width: 640px)",
+            "md" => "(min-width: 768px)",
+            "lg" => "(min-width: 1024px)",
+            "xl" => "(min-width: 1280px)",
+            "2xl" => "(min-width: 1536px)",
+            _ => string.Empty
+        };
+    }
 
     /// <summary>
     /// Processes apply definitions into CSS component rules.
@@ -184,7 +198,7 @@ internal class ApplyProcessor
             }
             else
             {
-                // Has variants - use variant processor
+                // Has variants - need to handle media queries and selector variants separately
                 var allDeclarations = new List<Declaration>();
 
                 foreach (var (_, astNodes) in group)
@@ -197,7 +211,8 @@ internal class ApplyProcessor
                 if (mergedDeclarations.Count > 0)
                 {
                     var firstCandidate = group[0].Candidate;
-                    var variants = new List<IVariant>();
+                    var mediaQueryVariants = new List<IVariant>();
+                    var selectorVariants = new List<IVariant>();
 
                     if (_variantRegistry != null)
                     {
@@ -205,14 +220,39 @@ internal class ApplyProcessor
                         {
                             if (_variantRegistry.TryGet(variantToken.Name, out var variant))
                             {
-                                variants.Add(variant);
+                                // Check if this is a media query variant (breakpoints like sm, md, lg, xl, 2xl)
+                                if (variant is BreakpointVariant)
+                                {
+                                    mediaQueryVariants.Add(variant);
+                                }
+                                else
+                                {
+                                    selectorVariants.Add(variant);
+                                }
                             }
                         }
                     }
 
-                    var variantSelector = _variantProcessor.BuildComponentSelector(selector, variants.ToImmutableList());
+                    // Build the selector with only non-media-query variants
+                    var variantSelector = _variantProcessor.BuildComponentSelector(selector, selectorVariants.ToImmutableList());
                     var styleRule = new StyleRule(variantSelector, mergedDeclarations.Cast<AstNode>().ToImmutableList());
-                    nodes.Add(styleRule);
+
+                    // Wrap in media queries if needed
+                    AstNode ruleToAdd = styleRule;
+                    foreach (var mediaVariant in mediaQueryVariants)
+                    {
+                        if (mediaVariant is BreakpointVariant breakpoint)
+                        {
+                            // Get the media query string from the breakpoint
+                            var mediaQuery = GetMediaQueryForBreakpoint(breakpoint.Name);
+                            if (!string.IsNullOrEmpty(mediaQuery))
+                            {
+                                ruleToAdd = new AtRule("media", mediaQuery, ImmutableList.Create(ruleToAdd));
+                            }
+                        }
+                    }
+
+                    nodes.Add(ruleToAdd);
                 }
             }
         }
