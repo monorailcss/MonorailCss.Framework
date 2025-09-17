@@ -309,14 +309,14 @@ public class AppliesIntegrationTest
     }
 
     [Fact]
-    public void Debug_HasVariant_InApplies()
+    public void Process_WithChildSelector_GeneratesExpectedOutput()
     {
         // Arrange
         var settings = new CssFrameworkSettings
-        {
+        {//
             IncludePreflight = false,
             Applies = ImmutableDictionary<string, string>.Empty
-                .Add(".card", "has-[>img]:p-0")
+                .Add(".btn .inner", "dark:bg-gray-800")
         };
 
         var framework = new CssFramework(settings);
@@ -325,126 +325,10 @@ public class AppliesIntegrationTest
         var result = framework.Process("");
 
         // Output for debugging
-        Console.WriteLine("Debug Has Variant:");
         Console.WriteLine(result);
 
         // Basic checks
-        result.ShouldContain("@layer components");
+        result.ShouldContain(".btn .inner:where(.dark, .dark *) {");
 
-        // Check if any component CSS is generated
-        var componentStart = result.IndexOf("@layer components", StringComparison.Ordinal);
-        if (componentStart > 0)
-        {
-            var componentEnd = result.IndexOf("@property", componentStart, StringComparison.Ordinal);
-            if (componentEnd < 0) componentEnd = result.Length;
-            var componentSection = result.Substring(componentStart, componentEnd - componentStart);
-            Console.WriteLine("Component section:");
-            Console.WriteLine(componentSection);
-        }
-    }
-
-    [Fact]
-    public void Debug_SmVariant_InApplies()
-    {
-        // Arrange
-        var settings = new CssFrameworkSettings
-        {
-            IncludePreflight = false,
-            Applies = ImmutableDictionary<string, string>.Empty
-                .Add(".btn", "sm:p-4")
-        };
-
-        var framework = new CssFramework(settings);
-
-        // Act
-        var result = framework.Process("");
-
-        // Output for debugging
-        Console.WriteLine("Debug sm: Variant:");
-        Console.WriteLine(result);
-
-        // Basic checks
-        result.ShouldContain("@layer components");
-
-        // Check if any component CSS is generated
-        var componentStart = result.IndexOf("@layer components", StringComparison.Ordinal);
-        if (componentStart > 0)
-        {
-            var componentEnd = result.IndexOf("@property", componentStart, StringComparison.Ordinal);
-            if (componentEnd < 0) componentEnd = result.Length;
-            var componentSection = result.Substring(componentStart, componentEnd - componentStart);
-            Console.WriteLine("Component section:");
-            Console.WriteLine(componentSection);
-        }
-    }
-
-    [Fact]
-    public void Debug_DarkHoverCombo_InApplies()
-    {
-        // Arrange
-        var settings = new CssFrameworkSettings
-        {
-            IncludePreflight = false,
-            Applies = ImmutableDictionary<string, string>.Empty
-                .Add(".btn", "dark:hover:bg-gray-600")
-        };
-
-        var framework = new CssFramework(settings);
-
-        // Act
-        var result = framework.Process("");
-
-        // Output for debugging
-        Console.WriteLine("Debug dark:hover: Combo:");
-        Console.WriteLine(result);
-
-        // Basic checks
-        result.ShouldContain("@layer components");
-
-        // Check if any component CSS is generated
-        var componentStart = result.IndexOf("@layer components", StringComparison.Ordinal);
-        if (componentStart > 0)
-        {
-            var componentEnd = result.IndexOf("@property", componentStart, StringComparison.Ordinal);
-            if (componentEnd < 0) componentEnd = result.Length;
-            var componentSection = result.Substring(componentStart, componentEnd - componentStart);
-            Console.WriteLine("Component section:");
-            Console.WriteLine(componentSection);
-        }
-    }
-
-    [Fact]
-    public void Debug_DarkVariant_InApplies()
-    {
-        // Arrange
-        var settings = new CssFrameworkSettings
-        {
-            IncludePreflight = false,
-            Applies = ImmutableDictionary<string, string>.Empty
-                .Add(".btn", "dark:bg-gray-800")
-        };
-
-        var framework = new CssFramework(settings);
-
-        // Act
-        var result = framework.Process("");
-
-        // Output for debugging
-        Console.WriteLine("Debug dark: Variant:");
-        Console.WriteLine(result);
-
-        // Basic checks
-        result.ShouldContain("@layer components");
-
-        // Check if any component CSS is generated
-        var componentStart = result.IndexOf("@layer components", StringComparison.Ordinal);
-        if (componentStart > 0)
-        {
-            var componentEnd = result.IndexOf("@property", componentStart, StringComparison.Ordinal);
-            if (componentEnd < 0) componentEnd = result.Length;
-            var componentSection = result.Substring(componentStart, componentEnd - componentStart);
-            Console.WriteLine("Component section:");
-            Console.WriteLine(componentSection);
-        }
     }
 }

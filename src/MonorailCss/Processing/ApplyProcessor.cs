@@ -45,11 +45,19 @@ internal class ApplyProcessor
     {
         var selectorString = appliedSelector.Selector.Value;
 
+        // For descendant selectors, the appliedSelector already has the correct format
+        // We should just use it as-is since the variant was applied to the full selector
+        if (componentSelector.Contains(' ') && selectorString.StartsWith(componentSelector))
+        {
+            // The selector was correctly transformed by the variant system
+            return selectorString;
+        }
+
         // Handle special cases for component selectors
         if (selectorString.StartsWith("."))
         {
             // Regular class selector - replace with component selector
-            var className = selectorString.Substring(1);
+            var className = selectorString[1..];
             var parts = className.Split([':', '[', ' ', '>'], 2);
             if (parts.Length > 1)
             {
@@ -228,9 +236,36 @@ internal class ApplyProcessor
                     var firstCandidate = group[0].Candidate;
 
                     // Use the VariantRegistry to apply variants properly
-                    // We need to use the component selector as the base, not a class selector
-                    var baseSelector = selector.StartsWith(".") ? selector.Substring(1) : selector;
-                    var appliedSelector = _variantRegistry.ApplyVariants(baseSelector, firstCandidate.Variants);
+                    // For descendant selectors, we need to pass them properly to the variant system
+                    AppliedSelector appliedSelector;
+                    if (selector.Contains(' '))
+                    {
+                        // For descendant selectors, create an AppliedSelector directly with the full selector
+                        // Don't use FromClass since it's not a simple class name
+                        appliedSelector = AppliedSelector.FromSelector(new Selector(selector));
+
+                        // Now apply the variants to this selector
+                        foreach (var variant in firstCandidate.Variants)
+                        {
+                            foreach (var registeredVariant in _variantRegistry.GetAll())
+                            {
+                                if (registeredVariant.CanHandle(variant))
+                                {
+                                    if (registeredVariant.TryApply(appliedSelector, variant, out var newResult))
+                                    {
+                                        appliedSelector = newResult;
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    else
+                    {
+                        // Simple class selector - use the existing logic
+                        var baseSelector = selector.StartsWith(".") ? selector.Substring(1) : selector;
+                        appliedSelector = _variantRegistry.ApplyVariants(baseSelector, firstCandidate.Variants);
+                    }
 
                     // Extract the final selector and handle any at-rule wrappers
                     var finalSelector = ConvertAppliedSelectorToComponentSelector(appliedSelector, selector);
