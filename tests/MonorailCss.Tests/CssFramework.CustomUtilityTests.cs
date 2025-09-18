@@ -36,7 +36,32 @@ public class CssFrameworkCustomUtilityTests
 
         public bool TryCompile(Candidate candidate, MonorailCss.Theme.Theme theme, out ImmutableList<AstNode>? results)
         {
-            if (candidate.Raw == _className)
+            // Check different candidate types to handle both direct usage and usage with variants
+            var shouldCompile = false;
+
+            if (candidate is StaticUtility staticUtil)
+            {
+                if (staticUtil.Root == _className)
+                {
+                    shouldCompile = true;
+                }
+            }
+            else if (candidate is FunctionalUtility funcUtil)
+            {
+                // For custom utilities that get parsed as functional, check if root-value combination matches
+                var fullName = funcUtil.Value != null ? $"{funcUtil.Root}-{funcUtil.Value.Value}" : funcUtil.Root;
+                if (fullName == _className || funcUtil.Root == _className)
+                {
+                    shouldCompile = true;
+                }
+            }
+
+            if (!shouldCompile && candidate.Raw == _className)
+            {
+                shouldCompile = true;
+            }
+
+            if (shouldCompile)
             {
                 var declaration = new Declaration(_cssProperty, _cssValue, candidate.Important);
                 results = ImmutableList.Create<AstNode>(declaration);
@@ -207,7 +232,23 @@ public class CssFrameworkCustomUtilityTests
 
         public bool TryCompile(Candidate candidate, MonorailCss.Theme.Theme theme, out ImmutableList<AstNode>? results)
         {
-            if (candidate.Raw == "priority-test")
+            // Check different candidate types to handle both direct usage and usage with variants
+            var shouldCompile = false;
+
+            if (candidate is StaticUtility staticUtil && staticUtil.Root == "priority-test")
+            {
+                shouldCompile = true;
+            }
+            else if (candidate is FunctionalUtility funcUtil && funcUtil.Root == "priority-test")
+            {
+                shouldCompile = true;
+            }
+            else if (candidate.Raw == "priority-test")
+            {
+                shouldCompile = true;
+            }
+
+            if (shouldCompile)
             {
                 var declaration = new Declaration("high-priority", "true", candidate.Important);
                 results = ImmutableList.Create<AstNode>(declaration);
@@ -227,7 +268,23 @@ public class CssFrameworkCustomUtilityTests
 
         public bool TryCompile(Candidate candidate, MonorailCss.Theme.Theme theme, out ImmutableList<AstNode>? results)
         {
-            if (candidate.Raw == "priority-test")
+            // Check different candidate types to handle both direct usage and usage with variants
+            var shouldCompile = false;
+
+            if (candidate is StaticUtility staticUtil && staticUtil.Root == "priority-test")
+            {
+                shouldCompile = true;
+            }
+            else if (candidate is FunctionalUtility funcUtil && funcUtil.Root == "priority-test")
+            {
+                shouldCompile = true;
+            }
+            else if (candidate.Raw == "priority-test")
+            {
+                shouldCompile = true;
+            }
+
+            if (shouldCompile)
             {
                 var declaration = new Declaration("low-priority", "true", candidate.Important);
                 results = ImmutableList.Create<AstNode>(declaration);
