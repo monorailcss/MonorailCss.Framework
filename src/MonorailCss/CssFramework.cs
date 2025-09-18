@@ -8,6 +8,7 @@ using MonorailCss.Pipeline.Stages;
 using MonorailCss.Processing;
 using MonorailCss.Sorting;
 using MonorailCss.Theme;
+using MonorailCss.Utilities;
 using MonorailCss.Variants;
 
 namespace MonorailCss;
@@ -74,6 +75,54 @@ public class CssFramework
     /// Gets the utility registry used by this framework instance.
     /// </summary>
     private UtilityRegistry UtilityRegistry { get; }
+
+    /// <summary>
+    /// Adds a custom utility to the framework at runtime.
+    /// The utility will be registered with proper priority ordering.
+    /// </summary>
+    /// <param name="utility">The utility to add.</param>
+    public void AddUtility(IUtility utility)
+    {
+        if (utility == null)
+        {
+            throw new ArgumentNullException(nameof(utility));
+        }
+
+        UtilityRegistry.RegisterUtility(utility);
+    }
+
+    /// <summary>
+    /// Adds multiple custom utilities to the framework at runtime.
+    /// The utilities will be registered with proper priority ordering.
+    /// </summary>
+    /// <param name="utilities">The utilities to add.</param>
+    public void AddUtilities(IEnumerable<IUtility> utilities)
+    {
+        if (utilities == null)
+        {
+            throw new ArgumentNullException(nameof(utilities));
+        }
+
+        foreach (var utility in utilities)
+        {
+            AddUtility(utility);
+        }
+    }
+
+    /// <summary>
+    /// Adds a custom variant to the framework at runtime.
+    /// </summary>
+    /// <param name="variant">The variant to add.</param>
+    /// <param name="overwrite">Whether to overwrite an existing variant with the same name.</param>
+    public void AddVariant(IVariant variant, bool overwrite = false)
+    {
+        if (variant == null)
+        {
+            throw new ArgumentNullException(nameof(variant));
+        }
+
+        _variantRegistry.Register(variant, overwrite);
+    }
 
     /// <summary>
     /// Processes a string of CSS classes and returns the generated CSS.

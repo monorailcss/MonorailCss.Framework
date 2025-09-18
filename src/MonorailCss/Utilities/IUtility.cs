@@ -11,7 +11,7 @@ namespace MonorailCss.Utilities;
 /// Each utility is self-contained with its own namespace registration and compilation logic.
 /// </summary>
 [UsedImplicitly(ImplicitUseTargetFlags.WithInheritors | ImplicitUseTargetFlags.WithMembers)]
-internal interface IUtility
+public interface IUtility
 {
     /// <summary>
     /// Gets the priority of this utility determines the order in which utilities are evaluated.

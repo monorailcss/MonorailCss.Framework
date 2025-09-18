@@ -1,4 +1,5 @@
 using System.Collections.Concurrent;
+using System.Diagnostics.CodeAnalysis;
 
 namespace MonorailCss.Css;
 
@@ -6,7 +7,7 @@ namespace MonorailCss.Css;
 /// Registry for tracking CSS custom properties used during compilation.
 /// Thread-safe for concurrent access.
 /// </summary>
-internal class CssPropertyRegistry
+public class CssPropertyRegistry
 {
     private readonly ConcurrentDictionary<string, CssPropertyDefinition> _properties = new();
 
@@ -33,33 +34,48 @@ internal class CssPropertyRegistry
     }
 
     /// <summary>
-    /// Gets all registered properties.
+    /// Retrieves all registered CSS property definitions.
     /// </summary>
+    /// <returns>A read-only collection of all registered CSS property definitions.</returns>
     public IReadOnlyCollection<CssPropertyDefinition> GetAll()
     {
         return _properties.Values.ToList().AsReadOnly();
     }
 
     /// <summary>
-    /// Gets properties that need fallback initialization.
+    /// Retrieves the collection of CSS property definitions that require fallback initialization.
     /// </summary>
+    /// <returns>
+    /// A read-only collection of CSS property definitions marked as needing fallback,
+    /// and that have an initial value specified.
+    /// </returns>
     public IReadOnlyCollection<CssPropertyDefinition> GetPropertiesNeedingFallback()
     {
         return _properties.Values.Where(p => p.NeedsFallback && p.InitialValue != null).ToList().AsReadOnly();
     }
 
     /// <summary>
-    /// Checks if a property is registered.
+    /// Determines whether a CSS property is registered in the registry.
     /// </summary>
+    /// <param name="name">The name of the CSS property to check for registration.</param>
+    /// <returns>True if the property is registered; otherwise, false.</returns>
     public bool IsRegistered(string name)
     {
         return _properties.ContainsKey(name);
     }
 
     /// <summary>
-    /// Attempts to get a registered property definition.
+    /// Attempts to retrieve a registered CSS property definition by its name.
     /// </summary>
-    public bool TryGet(string name, out CssPropertyDefinition? definition)
+    /// <param name="name">The name of the CSS custom property to retrieve.</param>
+    /// <param name="definition">
+    /// When this method returns, contains the <see cref="CssPropertyDefinition"/> associated with the specified name if it exists,
+    /// or null if the registration does not exist.
+    /// </param>
+    /// <returns>
+    /// true if the property with the specified name is found; otherwise, false.
+    /// </returns>
+    public bool TryGet(string name, [NotNullWhen(true)] out CssPropertyDefinition? definition)
     {
         return _properties.TryGetValue(name, out definition);
     }

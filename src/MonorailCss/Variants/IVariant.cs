@@ -5,7 +5,7 @@ namespace MonorailCss.Variants;
 /// <summary>
 /// Defines a variant that can transform selectors and add at-rule wrappers.
 /// </summary>
-internal interface IVariant
+public interface IVariant
 {
     /// <summary>
     /// Gets the name of the variant (e.g., "hover", "focus", "dark").

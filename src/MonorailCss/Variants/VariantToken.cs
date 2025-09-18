@@ -3,7 +3,7 @@ namespace MonorailCss.Variants;
 /// <summary>
 /// Represents a parsed variant token from a class string.
 /// </summary>
-internal readonly record struct VariantToken(
+public readonly record struct VariantToken(
     string Name,
     string? Modifier,
     string? Value,
@@ -64,5 +64,6 @@ internal readonly record struct VariantToken(
     /// </summary>
     public bool IsArbitrary => Name == "arbitrary" || (Raw.StartsWith("[") && Raw.EndsWith("]"));
 
+    /// <inheritdoc />
     public override string ToString() => Raw;
 }

@@ -8,7 +8,7 @@ namespace MonorailCss.Css;
 /// <param name="Inherits">Whether the property should inherit from parent elements.</param>
 /// <param name="InitialValue">The initial value for the property (null if no initial value should be output).</param>
 /// <param name="NeedsFallback">Whether this property needs fallback initialization for older browsers.</param>
-internal record CssPropertyDefinition(
+public record CssPropertyDefinition(
     string Name,
     string Syntax,
     bool Inherits,
