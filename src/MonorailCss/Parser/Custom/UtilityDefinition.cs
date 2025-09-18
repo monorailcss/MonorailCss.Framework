@@ -75,7 +75,7 @@ public record NestedSelector(string Selector, ImmutableList<CssDeclaration> Decl
 {
     /// <summary>
     /// Gets the selector string (e.g., "&amp;::-webkit-scrollbar").
-    /// The & represents the parent selector.
+    /// The &amp; represents the parent selector.
     /// </summary>
     public string Selector { get; } = Selector;
 

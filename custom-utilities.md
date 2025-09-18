@@ -60,22 +60,24 @@ The implementation will support the provided scrollbar utilities as the primary 
   - `scrollbar-gutter-auto`
 - [x] Test static utility generation and CSS output
 
-### Phase 4: Dynamic Custom Utility Implementation
-- [ ] Create `DynamicCustomUtility` extending `BaseFunctionalUtility`
+### Phase 4: Dynamic Custom Utility Implementation ✅
+- [x] Create `DynamicCustomUtility` implementing `IUtility`
   - Support wildcard matching (`*`)
   - Extract dynamic segments from class names
   - Map to theme values or arbitrary values
-- [ ] Implement pattern matching system
+- [x] Implement pattern matching system
   - Convert utility patterns to regex
   - Extract captured groups
   - Map to replacement tokens
-- [ ] Implement `--value()` function for theme lookups
+- [x] Implement `--value()` function for theme lookups
   - Parse `--value(--color-*)` syntax
   - Resolve through existing theme system
-  - Use `GetValueFromTheme` infrastructure
-- [ ] Test dynamic utilities:
+  - Use Theme.ContainsKey() for resolution
+- [x] Test dynamic utilities:
   - `scrollbar-thumb-*` mapping to colors
   - `scrollbar-track-*` mapping to colors
+  - Complex patterns like `shadow-*-sm`
+  - Arbitrary value support `[#123456]`
 
 ### Phase 5: CSS Variable Integration (Handled by AST Pipeline)
 - [ ] Custom utilities generate appropriate AST nodes
@@ -263,6 +265,68 @@ new UtilityDefinition {
 - [ ] CSS variables processed correctly by existing pipeline
 
 ## Changelog
+
+### 2025-09-17: Phase 4 Completed
+**Implementation Details:**
+1. **Created DynamicCustomUtility Class (`src/MonorailCss/Parser/Custom/DynamicCustomUtility.cs`):**
+   - Implements `IUtility` interface directly
+   - Supports wildcard pattern matching using regex
+   - Converts patterns like `scrollbar-thumb-*` to regex `^scrollbar-thumb-(.+)$`
+   - Extracts captured groups from matched patterns
+   - Resolves values through theme system or returns arbitrary values
+   - Implements `GetFunctionalRoots()` to return base pattern for parser recognition
+   - Handles nested selectors and CSS variable generation
+
+2. **Pattern Matching Features:**
+   - Regex-based pattern compilation for performance
+   - Support for patterns with wildcards anywhere (e.g., `shadow-*-sm`)
+   - Multiple wildcard support in patterns
+   - Proper extraction of dynamic segments
+
+3. **Theme Value Resolution:**
+   - `--value()` function parsing and processing
+   - Theme key pattern substitution (e.g., `--value(--color-*)` with captured `red-500`)
+   - Fallback to direct value when theme key not found
+   - Support for arbitrary values in square brackets
+   - CSS color validation for direct color values
+
+4. **Updated CustomUtilityFactory:**
+   - Removed `NotImplementedException` from `CreateDynamicUtility()`
+   - Factory now creates `DynamicCustomUtility` instances for wildcard patterns
+   - `CreateUtilities()` now handles both static and dynamic utilities
+
+5. **Comprehensive Testing:**
+   - **Unit Tests (`tests/MonorailCss.Tests/Parser/DynamicCustomUtilityTests.cs`):**
+     - 12 unit tests covering all functionality
+     - Pattern matching validation
+     - Theme resolution testing
+     - Arbitrary value handling
+     - Nested selector support
+     - Important flag application
+     - Complex wildcard patterns
+   - **Integration Tests (`tests/MonorailCss.Tests/CssFramework.CustomUtilityTests.cs`):**
+     - Added `DynamicCustomUtilityIntegrationTests` class
+     - 7 integration tests with CssFramework
+     - Tests for scrollbar utilities (thumb, track)
+     - Variant compatibility testing
+     - Mixed static and dynamic utility testing
+
+**Key Design Decisions:**
+- Used IUtility interface directly (BaseFunctionalUtility is internal)
+- Regex compilation for efficient pattern matching
+- Direct substitution of wildcards in CSS values
+- Leveraged existing Theme.ContainsKey() for theme resolution
+- Generate standard AST nodes that flow through existing pipeline
+
+**Technical Achievements:**
+- Full wildcard pattern support for custom utilities
+- Seamless theme integration with --value() function
+- Arbitrary value support matching built-in utilities
+- All tests passing (19 total: 12 unit + 7 integration)
+
+**Next Steps:**
+- Phase 5: CSS Variable Integration (mostly handled by existing pipeline)
+- Phase 6: Full CSS file support with @utility directive loading
 
 ### 2025-09-17: Phase 3 Completed
 **Implementation Details:**

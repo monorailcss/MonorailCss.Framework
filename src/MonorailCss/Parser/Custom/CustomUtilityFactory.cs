@@ -38,7 +38,6 @@ public static class CustomUtilityFactory
     /// <param name="definition">The utility definition parsed from CSS.</param>
     /// <returns>A dynamic custom utility instance.</returns>
     /// <exception cref="ArgumentNullException">Thrown when definition is null.</exception>
-    /// <exception cref="NotImplementedException">Dynamic utilities are not yet implemented.</exception>
     public static IUtility CreateDynamicUtility(UtilityDefinition definition)
     {
         if (definition == null)
@@ -54,8 +53,7 @@ public static class CustomUtilityFactory
                 nameof(definition));
         }
 
-        // TODO: Implement DynamicCustomUtility in Phase 4
-        throw new NotImplementedException("Dynamic custom utilities are not yet implemented");
+        return new DynamicCustomUtility(definition);
     }
 
     /// <summary>
@@ -92,18 +90,7 @@ public static class CustomUtilityFactory
 
         foreach (var definition in definitions)
         {
-            try
-            {
-                // Skip dynamic utilities for now (Phase 4)
-                if (!definition.IsWildcard)
-                {
-                    utilities.Add(CreateUtility(definition));
-                }
-            }
-            catch (NotImplementedException)
-            {
-                // Skip dynamic utilities until Phase 4
-            }
+            utilities.Add(CreateUtility(definition));
         }
 
         return utilities;
