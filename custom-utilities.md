@@ -79,22 +79,21 @@ The implementation will support the provided scrollbar utilities as the primary 
   - Complex patterns like `shadow-*-sm`
   - Arbitrary value support `[#123456]`
 
-### Phase 5: CSS Variable Integration (Handled by AST Pipeline)
-- [ ] Custom utilities generate appropriate AST nodes
+### Phase 5: CSS Variable Integration (Handled by AST Pipeline) ✅
+- [x] Custom utilities generate appropriate AST nodes
   - Generate `Declaration` nodes with CSS variable names
   - Generate `Declaration` nodes with `var()` references
   - Let existing pipeline handle all transformations
-- [ ] Leverage existing pipeline processors:
-  - `VariableProcessor` - handles CSS variable declarations
-  - `ArbitraryValueValidationProcessor` - validates values
-  - `ColorModifierProcessor` - processes color functions
-  - `VariableFallbackProcessor` - handles var() fallbacks
-  - `ThemeVariableProcessor` - tracks theme variable usage
-- [ ] No new pipeline work needed - just generate correct AST:
+- [x] Leverage existing pipeline processors:
+  - `VariableFallbackStage` - handles var() fallbacks automatically
+  - `ArbitraryValueValidationStage` - validates values
+  - `ColorModifierStage` - processes color functions
+  - `ThemeVariableTrackingStage` - tracks theme variable usage
+- [x] No new pipeline work needed - just generate correct AST:
   - `scrollbar-both-edges` → `Declaration("--tw-scrollbar-gutter-modifier", "both-edges")`
   - `scrollbar-stable` → `Declaration("scrollbar-gutter", "stable var(--tw-scrollbar-gutter-modifier)")`
   - `scrollbar-color` → `Declaration("scrollbar-color", "var(--tw-scrollbar-thumb-color) var(--tw-scrollbar-track-color)")`
-- [ ] Test that pipeline correctly processes custom utility AST nodes
+- [x] Test that pipeline correctly processes custom utility AST nodes
 
 ### Phase 6: Full CSS File Support
 - [ ] Create `CustomUtilityLoader` class
@@ -265,6 +264,42 @@ new UtilityDefinition {
 - [ ] CSS variables processed correctly by existing pipeline
 
 ## Changelog
+
+### 2025-09-18: Phase 5 Completed
+**Implementation Details:**
+1. **Verified CSS Variable Integration Works Out of the Box:**
+   - Custom utilities correctly generate `Declaration` AST nodes with CSS variables
+   - Both static and dynamic utilities handle CSS variables properly
+   - Pipeline processors automatically handle all CSS variable processing
+
+2. **Confirmed Existing Pipeline Stages Handle Everything:**
+   - `VariableFallbackStage` - Automatically adds fallbacks to CSS variables with `--tw-` prefix
+   - `ThemeVariableTrackingStage` - Tracks usage of theme variables
+   - No new pipeline processors were needed - existing infrastructure handles everything
+
+3. **Created Comprehensive Test Suite (`tests/MonorailCss.Tests/Parser/Custom/CssVariableIntegrationTests.cs`):**
+   - 12 comprehensive tests covering all CSS variable scenarios
+   - Tests CSS variable declarations and var() references
+   - Tests complex scenarios: calc() expressions, nested selectors, multiple variables
+   - Tests theme variable resolution with --value() function
+   - Tests CSS variable chains and dependencies
+   - Tests responsive variants with CSS variables
+   - All tests passing
+
+**Key Findings:**
+- The design principle of generating standard AST nodes was validated
+- Custom utilities flow through the existing pipeline without modification
+- CSS variable handling is automatic and robust
+- No parallel systems were created - everything uses existing infrastructure
+
+**Technical Achievement:**
+- Phase 5 required minimal implementation work because the architecture was correct
+- The existing pipeline processors handle CSS variables transparently
+- Custom utilities are true first-class citizens in the framework
+
+**Next Steps:**
+- Phase 6: Full CSS file support with @utility directive loading
+- Phase 7: Integration and optimization
 
 ### 2025-09-17: Phase 4 Completed
 **Implementation Details:**
