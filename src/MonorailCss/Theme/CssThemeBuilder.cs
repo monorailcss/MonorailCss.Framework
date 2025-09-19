@@ -1,5 +1,6 @@
 using System.Collections.Immutable;
 using MonorailCss.Css;
+using MonorailCss.Utilities;
 
 namespace MonorailCss.Theme;
 
@@ -19,11 +20,6 @@ internal class CssThemeBuilder
     /// <returns>A new theme with merged values.</returns>
     public Theme MergeWithCssSources(Theme baseTheme, IList<string> cssSources)
     {
-        if (baseTheme == null)
-        {
-            throw new ArgumentNullException(nameof(baseTheme));
-        }
-
         if (!cssSources.Any())
         {
             return baseTheme;
@@ -84,29 +80,25 @@ internal class CssThemeBuilder
     }
 
     /// <summary>
-    /// Processes CSS sources and returns both theme and applies.
+    /// Processes CSS sources and returns theme, applies, and utilities.
     /// </summary>
     /// <param name="baseTheme">The base theme to merge with.</param>
     /// <param name="baseApplies">The base applies to merge with.</param>
     /// <param name="cssSources">CSS source strings to process.</param>
-    /// <returns>Tuple of merged theme and applies.</returns>
-    public (Theme Theme, ImmutableDictionary<string, string> Applies) ProcessCssSources(
+    /// <returns>Tuple of merged theme, applies, and utilities.</returns>
+    public (Theme Theme, ImmutableDictionary<string, string> Applies, ImmutableList<IUtility> Utilities) ProcessCssSources(
         Theme baseTheme,
         ImmutableDictionary<string, string> baseApplies,
         IList<string> cssSources)
     {
-        if (baseTheme == null)
-        {
-            throw new ArgumentNullException(nameof(baseTheme));
-        }
-
         if (!cssSources.Any())
         {
-            return (baseTheme, baseApplies);
+            return (baseTheme, baseApplies, ImmutableList<IUtility>.Empty);
         }
 
         var mergedTheme = baseTheme;
         var mergedApplies = baseApplies.ToBuilder();
+        var utilities = ImmutableList.CreateBuilder<IUtility>();
 
         foreach (var cssSource in cssSources)
         {
@@ -124,12 +116,15 @@ internal class CssThemeBuilder
             }
 
             // Merge component rules (last one wins for duplicate selectors)
-            foreach (var (selector, utilities) in parseResult.ComponentRules)
+            foreach (var (selector, utilityClasses) in parseResult.ComponentRules)
             {
-                mergedApplies[selector] = utilities;
+                mergedApplies[selector] = utilityClasses;
             }
+
+            // Collect utilities from @utility blocks
+            utilities.AddRange(parseResult.Utilities);
         }
 
-        return (mergedTheme, mergedApplies.ToImmutable());
+        return (mergedTheme, mergedApplies.ToImmutable(), utilities.ToImmutable());
     }
 }

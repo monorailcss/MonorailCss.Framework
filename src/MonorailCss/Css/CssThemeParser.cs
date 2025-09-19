@@ -1,6 +1,8 @@
 using System.Collections.Immutable;
 using System.Text;
 using System.Text.RegularExpressions;
+using MonorailCss.Parser.Custom;
+using MonorailCss.Utilities;
 
 namespace MonorailCss.Css;
 
@@ -22,6 +24,7 @@ internal partial class CssThemeParser
     internal record ParseResult(
         ImmutableDictionary<string, string> ThemeVariables,
         ImmutableDictionary<string, string> ComponentRules,
+        ImmutableList<IUtility> Utilities,
         bool HasImport);
 
     /// <summary>
@@ -36,6 +39,7 @@ internal partial class CssThemeParser
             return new ParseResult(
                 ImmutableDictionary<string, string>.Empty,
                 ImmutableDictionary<string, string>.Empty,
+                ImmutableList<IUtility>.Empty,
                 false);
         }
 
@@ -51,7 +55,10 @@ internal partial class CssThemeParser
         // Extract component rules with @apply directives
         var componentRules = ExtractComponentRules(cssSource);
 
-        return new ParseResult(themeVariables, componentRules, hasImport);
+        // Extract custom utilities from @utility blocks
+        var utilities = ExtractUtilities(cssSource);
+
+        return new ParseResult(themeVariables, componentRules, utilities, hasImport);
     }
 
     private string RemoveComments(string css)
@@ -197,6 +204,18 @@ internal partial class CssThemeParser
         }
 
         return utilities;
+    }
+
+    private ImmutableList<IUtility> ExtractUtilities(string css)
+    {
+        // Use the existing CustomUtilityCssParser to parse @utility blocks
+        var parser = new CustomUtilityCssParser();
+        var definitions = parser.ParseCustomUtilities(css);
+
+        // Convert definitions to utility instances using the factory
+        var utilities = CustomUtilityFactory.CreateUtilities(definitions);
+
+        return utilities.ToImmutableList();
     }
 
     [GeneratedRegex(@"@import\s+[""']tailwindcss[""']\s*;?", RegexOptions.Compiled)]

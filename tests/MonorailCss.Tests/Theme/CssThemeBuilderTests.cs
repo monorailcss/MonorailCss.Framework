@@ -188,7 +188,7 @@ public class CssThemeBuilderTests
         };
 
         // Act
-        var (resultTheme, resultApplies) = _builder.ProcessCssSources(baseTheme, baseApplies, cssSources);
+        var (resultTheme, resultApplies, _) = _builder.ProcessCssSources(baseTheme, baseApplies, cssSources);
 
         // Assert
         // Check theme
@@ -230,7 +230,7 @@ public class CssThemeBuilderTests
         };
 
         // Act
-        var (resultTheme, resultApplies) = _builder.ProcessCssSources(baseTheme, baseApplies, cssSources);
+        var (resultTheme, resultApplies, _) = _builder.ProcessCssSources(baseTheme, baseApplies, cssSources);
 
         // Assert
         // Theme: last values win

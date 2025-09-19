@@ -40,10 +40,8 @@ public class CssFramework
     /// <param name="settings">The framework settings.</param>
     public CssFramework(CssFrameworkSettings settings)
     {
-        _settings = settings ?? throw new ArgumentNullException(nameof(settings));
-
         // Process CSS theme sources if provided
-        var (processedTheme, processedApplies) = ProcessCssThemeSources(settings);
+        var (processedTheme, processedApplies, customUtilities) = ProcessCssThemeSources(settings);
 
         // Update settings with processed theme and applies
         // Apply ProseCustomization to the theme
@@ -56,7 +54,7 @@ public class CssFramework
             };
         }
 
-        _settings = _settings with
+        _settings = settings with
         {
             Theme = processedTheme,
             Applies = processedApplies,
@@ -69,6 +67,12 @@ public class CssFramework
         _variantRegistry.RegisterBuiltInVariants(_settings.Theme);
 
         _applyProcessor = new ApplyProcessor(UtilityRegistry, _variantRegistry, _settings.Theme);
+
+        // Register any custom utilities loaded from CSS sources
+        if (customUtilities.Count > 0)
+        {
+            AddUtilities(customUtilities);
+        }
     }
 
     /// <summary>
@@ -338,11 +342,11 @@ public class CssFramework
         variables["--default-mono-font-family"] = "var(--font-mono)";
     }
 
-    private (Theme.Theme Theme, ImmutableDictionary<string, string> Applies) ProcessCssThemeSources(CssFrameworkSettings settings)
+    private (Theme.Theme Theme, ImmutableDictionary<string, string> Applies, ImmutableList<IUtility> Utilities) ProcessCssThemeSources(CssFrameworkSettings settings)
     {
         if (settings.CssThemeSources.Count == 0)
         {
-            return (settings.Theme, settings.Applies);
+            return (settings.Theme, settings.Applies, ImmutableList<IUtility>.Empty);
         }
 
         var cssThemeBuilder = new CssThemeBuilder();

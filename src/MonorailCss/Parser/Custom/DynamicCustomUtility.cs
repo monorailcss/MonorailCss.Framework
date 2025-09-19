@@ -39,7 +39,7 @@ public partial class DynamicCustomUtility : IUtility
 
         // Extract base pattern (everything before the first wildcard)
         var wildcardIndex = definition.Pattern.IndexOf('*');
-        _basePattern = wildcardIndex > 0 ? definition.Pattern.Substring(0, wildcardIndex).TrimEnd('-') : definition.Pattern;
+        _basePattern = wildcardIndex > 0 ? definition.Pattern[..wildcardIndex].TrimEnd('-') : definition.Pattern;
 
         // Convert pattern to regex
         // Replace * with (.+) and escape other regex special characters
@@ -243,7 +243,7 @@ public partial class DynamicCustomUtility : IUtility
     /// <summary>
     /// Resolves a value from theme or returns it directly if it's a valid CSS value.
     /// </summary>
-    private string? ResolveValue(string value, Theme.Theme theme, Candidate candidate)
+    private string ResolveValue(string value, Theme.Theme theme, Candidate candidate)
     {
         // Handle arbitrary values
         if (candidate is FunctionalUtility funcUtil && funcUtil.Value?.Kind == ValueKind.Arbitrary)
