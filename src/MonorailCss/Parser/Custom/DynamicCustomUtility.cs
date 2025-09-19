@@ -15,6 +15,11 @@ namespace MonorailCss.Parser.Custom;
 /// </summary>
 public partial class DynamicCustomUtility : IUtility
 {
+    // Static regex cache for performance optimization
+    // Pattern string -> compiled Regex
+    private static readonly Dictionary<string, Regex> RegexCache = new();
+    private static readonly object RegexCacheLock = new();
+
     private readonly UtilityDefinition _definition;
     private readonly Regex _patternRegex;
     private readonly string _basePattern;
@@ -41,10 +46,39 @@ public partial class DynamicCustomUtility : IUtility
         var wildcardIndex = definition.Pattern.IndexOf('*');
         _basePattern = wildcardIndex > 0 ? definition.Pattern[..wildcardIndex].TrimEnd('-') : definition.Pattern;
 
-        // Convert pattern to regex
-        // Replace * with (.+) and escape other regex special characters
-        var regexPattern = "^" + Regex.Escape(definition.Pattern).Replace(@"\*", "(.+)") + "$";
-        _patternRegex = new Regex(regexPattern, RegexOptions.Compiled);
+        // Get or create cached regex for this pattern
+        _patternRegex = GetOrCreateCachedRegex(definition.Pattern);
+    }
+
+    /// <summary>
+    /// Gets or creates a cached regex pattern for improved performance.
+    /// Thread-safe implementation to avoid concurrent dictionary modifications.
+    /// </summary>
+    private static Regex GetOrCreateCachedRegex(string pattern)
+    {
+        // Convert pattern to regex pattern string
+        var regexPattern = "^" + Regex.Escape(pattern).Replace(@"\*", "(.+)") + "$";
+
+        // Check cache first (optimistic path, no lock)
+        if (RegexCache.TryGetValue(regexPattern, out var cachedRegex))
+        {
+            return cachedRegex;
+        }
+
+        // If not found, acquire lock and check again (double-check pattern)
+        lock (RegexCacheLock)
+        {
+            // Another thread might have added it while we were waiting for the lock
+            if (RegexCache.TryGetValue(regexPattern, out cachedRegex))
+            {
+                return cachedRegex;
+            }
+
+            // Create and cache the new regex
+            var newRegex = new Regex(regexPattern, RegexOptions.Compiled);
+            RegexCache[regexPattern] = newRegex;
+            return newRegex;
+        }
     }
 
     /// <summary>

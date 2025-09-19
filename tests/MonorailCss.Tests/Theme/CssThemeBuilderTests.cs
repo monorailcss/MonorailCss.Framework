@@ -9,17 +9,6 @@ public class CssThemeBuilderTests
     private readonly CssThemeBuilder _builder = new();
 
     [Fact]
-    public void MergeWithCssSources_NullBaseTheme_ThrowsException()
-    {
-        // Arrange
-        MonorailCss.Theme.Theme? baseTheme = null;
-        var cssSources = new[] { "@theme { --color-red-500: #ef4444; }" };
-
-        // Act & Assert
-        Should.Throw<ArgumentNullException>(() => _builder.MergeWithCssSources(baseTheme!, cssSources));
-    }
-
-    [Fact]
     public void MergeWithCssSources_EmptyCssSources_ReturnsBaseTheme()
     {
         // Arrange

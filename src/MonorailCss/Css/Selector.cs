@@ -20,9 +20,9 @@ public record Selector(string Value)
     public Selector WithPseudo(string pseudo) => new($"{Value}{pseudo}");
 
     /// <summary>
-    /// Replaces the first occurrence of "&" in the given relative selector with the value of the current selector.
+    /// Replaces the first occurrence of "&amp;" in the given relative selector with the value of the current selector.
     /// </summary>
-    /// <param name="relative">The relative selector string where "&" will be replaced.</param>
+    /// <param name="relative">The relative selector string where "&amp;" will be replaced.</param>
     /// <returns>A new <see cref="Selector"/> instance with the updated selector string.</returns>
     public Selector Relativize(string relative) => new(relative.Replace("&", Value));
 

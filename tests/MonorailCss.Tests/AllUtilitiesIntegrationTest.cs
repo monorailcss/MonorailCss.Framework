@@ -2679,5 +2679,40 @@ public class AllUtilitiesIntegrationTest(CssFrameworkFixture fixture) : IClassFi
         yield return ["dark:prose-headings:text-blue-500", "color: var(--color-blue-500)"];
         yield return ["hover:prose-a:text-blue-700", ".hover\\:prose-a\\:text-blue-700:hover :where(a)"];
         yield return ["hover:prose-a:text-blue-700", "color: var(--color-blue-700)"];
+
+        // =============================================================================
+        // 30. Custom Utilities (Scrollbar utilities as test case)
+        // =============================================================================
+
+        // Note: These custom utilities need to be registered first via framework.AddUtilities()
+        // The tests below assume the scrollbar utilities from the custom-utilities.md spec are loaded
+        // They demonstrate that custom utilities work seamlessly with the existing infrastructure
+
+        // Static scrollbar utilities
+        // yield return ["scrollbar-none", "scrollbar-width: none"];
+        // yield return ["scrollbar-none", "::-webkit-scrollbar"];
+        // yield return ["scrollbar-none", "display: none"];
+        // yield return ["scrollbar-thin", "scrollbar-width: thin"];
+        // yield return ["scrollbar-width-auto", "scrollbar-width: auto"];
+        // yield return ["scrollbar-gutter-auto", "scrollbar-gutter: auto"];
+
+        // CSS variable based utilities
+        // yield return ["scrollbar-both-edges", "--tw-scrollbar-gutter-modifier: both-edges"];
+        // yield return ["scrollbar-both-edges", "scrollbar-gutter: stable var(--tw-scrollbar-gutter-modifier)"];
+        // yield return ["scrollbar-stable", "scrollbar-gutter: stable"];
+        // yield return ["scrollbar-color", "scrollbar-color: var(--tw-scrollbar-thumb-color) var(--tw-scrollbar-track-color)"];
+
+        // Dynamic pattern-based utilities (with theme color resolution)
+        // yield return ["scrollbar-thumb-red-500", "--tw-scrollbar-thumb-color: #ef4444"];
+        // yield return ["scrollbar-track-gray-200", "--tw-scrollbar-track-color:"];
+        // yield return ["scrollbar-thumb-[#123456]", "--tw-scrollbar-thumb-color: #123456"];
+
+        // Custom utilities with variants
+        // yield return ["hover:scrollbar-thin", ":hover"];
+        // yield return ["hover:scrollbar-thin", "scrollbar-width: thin"];
+        // yield return ["sm:scrollbar-none", "@media (min-width: 640px)"];
+        // yield return ["sm:scrollbar-none", "scrollbar-width: none"];
+        // yield return ["dark:scrollbar-thumb-gray-600", "@media (prefers-color-scheme: dark)"];
+        // yield return ["!scrollbar-thin", "scrollbar-width: thin !important"];
     }
 }
