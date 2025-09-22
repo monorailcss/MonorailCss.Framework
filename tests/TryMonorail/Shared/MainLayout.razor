@@ -1,11 +1,4 @@
-﻿@using MonorailCss
-@inherits LayoutComponentBase
-
-<HeadContent>
-    <style>
-        @_cssContent
-    </style>
-</HeadContent>
+﻿@inherits LayoutComponentBase
 
 <div id="main-app" class="font-sans bg-gray-900 h-screen flex flex-col">
     <NavMenu />
@@ -13,20 +6,3 @@
         @Body
     </main>
 </div>
-
-
-@code{
-    private string _cssContent = string.Empty;
-
-    protected override void OnAfterRender(bool firstRender)
-    {
-        // CssClassValues is generated via a source generator
-         // that looks at all the html class attributes in the razor files
-         // and returns them as an array. We can then pass them into
-         // monorail to generated the needed CSS
-         var values = Monorail.CssClassValues();
-         var framework = new CssFramework();
-         _cssContent = framework.Process(values);
-         base.OnAfterRender(firstRender);
-    }
-}

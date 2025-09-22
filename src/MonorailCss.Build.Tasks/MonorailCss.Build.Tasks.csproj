@@ -1,0 +1,55 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <LangVersion>13.0</LangVersion>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+
+    <!-- MSBuild Task Configuration -->
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <DevelopmentDependency>true</DevelopmentDependency>
+    <NoPackageAnalysis>true</NoPackageAnalysis>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+
+    <!-- Don't include build output automatically, we'll do it manually -->
+    <IncludeBuildOutput>false</IncludeBuildOutput>
+
+    <!-- Suppress NU5118 warnings for duplicate files -->
+    <NoWarn>$(NoWarn);NU5118</NoWarn>
+
+    <!-- Package Metadata -->
+    <PackageId>MonorailCss.Build.Tasks</PackageId>
+    <Description>MSBuild tasks for processing CSS files with MonorailCss</Description>
+    <Authors>Phil Scott</Authors>
+    <Copyright>Phil Scott</Copyright>
+    <PackageProjectUrl>https://github.com/phil-scott-78/monorail</PackageProjectUrl>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageTags>css;tailwind;msbuild;tasks</PackageTags>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Build.Utilities.Core" Version="17.12.6" PrivateAssets="All" />
+    <PackageReference Include="MinVer" PrivateAssets="All" Version="3.1.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\MonorailCss\MonorailCss.csproj" PrivateAssets="All" />
+  </ItemGroup>
+
+  <!-- Include build props/targets in the package -->
+  <ItemGroup>
+    <None Include="build\**" Pack="true" PackagePath="build\" />
+  </ItemGroup>
+
+  <!-- Pack task assembly and its dependencies -->
+  <Target Name="PackTaskDependencies" AfterTargets="Build" BeforeTargets="GenerateNuspec">
+    <ItemGroup>
+      <!-- Include all DLLs from output -->
+      <None Include="$(OutputPath)**\*.dll" Pack="true" PackagePath="tasks\$(TargetFramework)\" />
+      <!-- Include PDB files for debugging -->
+      <None Include="$(OutputPath)**\*.pdb" Pack="true" PackagePath="tasks\$(TargetFramework)\" />
+    </ItemGroup>
+  </Target>
+
+</Project>

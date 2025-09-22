@@ -1,0 +1,13 @@
+﻿<Project>
+  <!-- MonorailCss Build Tasks Properties -->
+  <PropertyGroup>
+    <!-- Enable/disable MonorailCss processing (default: true) -->
+    <MonorailCssEnabled Condition="'$(MonorailCssEnabled)' == ''">true</MonorailCssEnabled>
+
+    <!-- Directories to exclude from content scanning (semicolon-separated) -->
+    <MonorailCssExcludePaths Condition="'$(MonorailCssExcludePaths)' == ''">bin;obj</MonorailCssExcludePaths>
+
+    <!-- Content file patterns to scan (semicolon-separated glob patterns) -->
+    <MonorailCssContentPatterns Condition="'$(MonorailCssContentPatterns)' == ''">**/*.html;**/*.razor;**/*.cshtml;**/*.jsx;**/*.tsx;**/*.vue</MonorailCssContentPatterns>
+  </PropertyGroup>
+</Project>

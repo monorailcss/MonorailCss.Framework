@@ -1,0 +1,58 @@
+﻿<Project>
+  <!-- MonorailCss Build Task Definition -->
+  <UsingTask TaskName="MonorailCss.Build.Tasks.ProcessCssTask"
+             AssemblyFile="$(MSBuildThisFileDirectory)..\bin\$(Configuration)\net9.0\MonorailCss.Build.Tasks.dll"
+             Condition="'$(MonorailCssDevelopment)' == 'true'" />
+  <UsingTask TaskName="MonorailCss.Build.Tasks.ProcessCssTask"
+             AssemblyFile="$(MSBuildThisFileDirectory)..\tasks\net9.0\MonorailCss.Build.Tasks.dll"
+             Condition="'$(MonorailCssDevelopment)' != 'true'" />
+
+  <!-- Define the custom build action for MonorailCss files -->
+  <ItemGroup>
+    <AvailableItemName Include="MonorailCss" />
+  </ItemGroup>
+
+  <!-- Default properties for MonorailCss processing -->
+  <PropertyGroup>
+    <MonorailCssEnabled Condition="'$(MonorailCssEnabled)' == ''">true</MonorailCssEnabled>
+    <MonorailCssExcludePaths Condition="'$(MonorailCssExcludePaths)' == ''">bin;obj</MonorailCssExcludePaths>
+    <MonorailCssContentPatterns Condition="'$(MonorailCssContentPatterns)' == ''">**/*.html;**/*.razor;**/*.cshtml;**/*.jsx;**/*.tsx;**/*.vue</MonorailCssContentPatterns>
+  </PropertyGroup>
+
+  <!-- Process each MonorailCss file -->
+  <Target Name="ProcessMonorailCss"
+          BeforeTargets="BeforeBuild"
+          Condition="'$(MonorailCssEnabled)' == 'true' and '@(MonorailCss)' != ''"
+          Inputs="@(MonorailCss);@(Content);@(Compile);@(EmbeddedResource)"
+          Outputs="@(MonorailCss->'%(OutputFile)')">
+
+    <!-- Set default output file for each MonorailCss item if not specified -->
+    <ItemGroup>
+      <MonorailCss>
+        <OutputFile Condition="'%(OutputFile)' == ''">$(MSBuildProjectDirectory)\wwwroot\css\%(Filename).css</OutputFile>
+      </MonorailCss>
+    </ItemGroup>
+
+    <!-- Execute the ProcessCssTask for each input file -->
+    <ProcessCssTask
+      InputFile="%(MonorailCss.Identity)"
+      OutputFile="%(MonorailCss.OutputFile)"
+      ContentPatterns="$(MonorailCssContentPatterns)"
+      ExcludePaths="$(MonorailCssExcludePaths)" />
+
+    <!-- Add generated files to Content if in wwwroot -->
+    <ItemGroup>
+      <Content Include="%(MonorailCss.OutputFile)"
+               Condition="Exists('%(MonorailCss.OutputFile)') AND $([System.String]::Copy('%(MonorailCss.OutputFile)').Contains('wwwroot'))">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </Content>
+    </ItemGroup>
+  </Target>
+
+  <!-- Clean target to remove generated files -->
+  <Target Name="CleanMonorailCss"
+          BeforeTargets="Clean"
+          Condition="'$(MonorailCssEnabled)' == 'true'">
+    <Delete Files="@(MonorailCss->'%(OutputFile)')" />
+  </Target>
+</Project>
