@@ -208,6 +208,7 @@ internal abstract class BaseSizingUtility : IUtility
             "min" => "min-content",
             "max" => "max-content",
             "fit" => "fit-content",
+            "lh" => "1lh",
             _ => string.Empty,
         };
 
@@ -217,28 +218,24 @@ internal abstract class BaseSizingUtility : IUtility
         }
 
         // Dimension-specific viewport units
-        return Dimension switch
+        // Note: Width utilities can use height viewport units and vice versa (e.g., w-dvh, h-dvw)
+        return key switch
         {
-            SizingDimension.Width => key switch
+            // Width viewport units (can be used by any dimension)
+            "svw" => "100svw",
+            "lvw" => "100lvw",
+            "dvw" => "100dvw",
+
+            // Height viewport units (can be used by any dimension)
+            "svh" => "100svh",
+            "lvh" => "100lvh",
+            "dvh" => "100dvh",
+
+            // Dimension-specific screen unit
+            "screen" => Dimension switch
             {
-                "screen" => "100vw",
-                "svw" => "100svw",
-                "lvw" => "100lvw",
-                "dvw" => "100dvw",
-                _ => string.Empty,
-            },
-            SizingDimension.Height => key switch
-            {
-                "screen" => "100vh",
-                "svh" => "100svh",
-                "lvh" => "100lvh",
-                "dvh" => "100dvh",
-                _ => string.Empty,
-            },
-            SizingDimension.Both => key switch
-            {
-                // For size utility, we don't have specific viewport units
-                // as it sets both width and height
+                SizingDimension.Width => "100vw",
+                SizingDimension.Height => "100vh",
                 _ => string.Empty,
             },
             _ => string.Empty,

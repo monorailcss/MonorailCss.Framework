@@ -39,7 +39,7 @@ public class AppliesWithPseudoElementTest
         result.ShouldContain("content: var(--tw-content)");
         result.ShouldContain("--tw-content: '+'");
         result.ShouldContain("color: var(--color-green-700)");
-        result.ShouldContain("font-weight: 700");
+        result.ShouldContain("font-weight: var(--font-weight-bold)");
     }
 
     [Fact]

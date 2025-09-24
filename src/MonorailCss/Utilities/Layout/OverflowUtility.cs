@@ -26,5 +26,6 @@ internal class OverflowUtility : BaseStaticUtility
             { "overflow-y-clip", ("overflow-y", "clip") },
             { "overflow-y-visible", ("overflow-y", "visible") },
             { "overflow-y-scroll", ("overflow-y", "scroll") },
+            { "overflow-ellipsis", ("text-overflow", "ellipsis") },
         }.ToImmutableDictionary();
 }

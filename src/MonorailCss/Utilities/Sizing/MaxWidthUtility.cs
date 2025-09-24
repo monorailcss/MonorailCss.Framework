@@ -32,17 +32,13 @@ internal class MaxWidthUtility : BaseSizingUtility
 
     protected override string GetSpecialSizingValue(string key)
     {
-        // Include "none" and "0" as special values for max-width
+        // Include "none" as special value for max-width
         if (key == "none")
         {
             return "none";
         }
 
-        if (key == "0")
-        {
-            return "0";
-        }
-
+        // Don't handle "0" specially - let it go through numeric value handling
         return base.GetSpecialSizingValue(key);
     }
 }

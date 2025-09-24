@@ -12,9 +12,11 @@ internal class JustifySelfUtility : BaseStaticUtility
         new Dictionary<string, (string, string)>
         {
             { "justify-self-auto", ("justify-self", "auto") },
-            { "justify-self-start", ("justify-self", "start") },
-            { "justify-self-end", ("justify-self", "end") },
+            { "justify-self-start", ("justify-self", "flex-start") },
+            { "justify-self-end", ("justify-self", "flex-end") },
             { "justify-self-center", ("justify-self", "center") },
             { "justify-self-stretch", ("justify-self", "stretch") },
+            { "justify-self-center-safe", ("justify-self", "safe center") },
+            { "justify-self-end-safe", ("justify-self", "safe flex-end") },
         }.ToImmutableDictionary();
 }

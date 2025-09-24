@@ -12,6 +12,8 @@ internal class ObjectPositionUtility : BaseStaticUtility
         new Dictionary<string, (string, string)>
         {
             { "object-bottom", ("object-position", "bottom") },
+            { "object-bottom-left", ("object-position", "left bottom") },
+            { "object-bottom-right", ("object-position", "right bottom") },
             { "object-center", ("object-position", "center") },
             { "object-left", ("object-position", "left") },
             { "object-left-bottom", ("object-position", "left bottom") },
@@ -20,5 +22,7 @@ internal class ObjectPositionUtility : BaseStaticUtility
             { "object-right-bottom", ("object-position", "right bottom") },
             { "object-right-top", ("object-position", "right top") },
             { "object-top", ("object-position", "top") },
+            { "object-top-left", ("object-position", "left top") },
+            { "object-top-right", ("object-position", "right top") },
         }.ToImmutableDictionary();
 }

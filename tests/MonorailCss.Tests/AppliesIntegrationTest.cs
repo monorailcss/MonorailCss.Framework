@@ -246,12 +246,12 @@ public class AppliesIntegrationTest
         yield return [".btn", "hover:bg-red-500", ".btn:hover", "background-color: var(--color-red-500)"];
         yield return [".btn", "focus:bg-blue-500", ".btn:focus", "background-color: var(--color-blue-500)"];
         yield return [".btn", "active:bg-green-500", ".btn:active", "background-color: var(--color-green-500)"];
-        yield return [".btn", "disabled:opacity-50", ".btn:disabled", "opacity: 0.5"];
+        yield return [".btn", "disabled:opacity-50", ".btn:disabled", "opacity: 50%"];
 
         // Pseudo-element variants
         yield return [".btn", "before:content-['→']", ".btn::before", "--tw-content: '→'"];
         yield return [".btn", "after:absolute", ".btn::after", "position: absolute"];
-        yield return [".btn", "first-line:text-lg", ".btn::first-line", "font-size: 1.125rem"];
+        yield return [".btn", "first-line:text-lg", ".btn::first-line", "font-size: var(--text-lg)"];
 
         // Functional attribute variants
         yield return [".btn", "data-[active=true]:bg-blue-600", ".btn[data-active=\"true\"]", "background-color: var(--color-blue-600)"];
@@ -260,12 +260,13 @@ public class AppliesIntegrationTest
         // Functional pseudo-class variants
         yield return [".card", "has-[>img]:p-0", ".card:has(>img)", "padding: calc(var(--spacing) * 0)"];
         yield return [".item", "where-[.active]:text-white", ".item:where(.active)", "color: var(--color-white)"];
-        yield return [".nav", "is-[.current]:font-bold", ".nav:is(.current)", "font-weight: 700"];
+        // is-[.current] syntax is not supported in Tailwind v4
+        // yield return [".nav", "is-[.current]:font-bold", ".nav:is(.current)", "font-weight: 700"];
         yield return [".list", "not-[.hidden]:block", ".list:not(.hidden)", "display: block"];
 
         // Media query variants
         yield return [".btn", "sm:p-4", "@media (min-width: 640px)", "padding: calc(var(--spacing) * 4)"];
-        yield return [".btn", "md:text-xl", "@media (min-width: 768px)", "font-size: 1.25rem"];
+        yield return [".btn", "md:text-xl", "@media (min-width: 768px)", "font-size: var(--text-xl)"];
         yield return [".btn", "lg:w-full", "@media (min-width: 1024px)", "width: 100%"];
 
         // Dark mode variant

@@ -20,6 +20,7 @@ internal class BorderRadiusUtility : IUtility
     private static readonly string[] _functionalRoots = [
         "rounded", "rounded-t", "rounded-r", "rounded-b", "rounded-l",
         "rounded-tl", "rounded-tr", "rounded-bl", "rounded-br",
+        "rounded-s", "rounded-e",
         "rounded-ss", "rounded-se", "rounded-ee", "rounded-es"
     ];
 
@@ -113,6 +114,16 @@ internal class BorderRadiusUtility : IUtility
                 break;
             case "rounded-br":
                 declarations.Add(new Declaration("border-bottom-right-radius", value, important));
+                break;
+
+            // Logical directional patterns
+            case "rounded-s":
+                declarations.Add(new Declaration("border-start-start-radius", value, important));
+                declarations.Add(new Declaration("border-end-start-radius", value, important));
+                break;
+            case "rounded-e":
+                declarations.Add(new Declaration("border-start-end-radius", value, important));
+                declarations.Add(new Declaration("border-end-end-radius", value, important));
                 break;
 
             // Logical corner patterns

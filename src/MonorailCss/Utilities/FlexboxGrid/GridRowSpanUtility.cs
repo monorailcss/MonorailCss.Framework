@@ -27,7 +27,7 @@ internal class GridRowSpanUtility : BaseFunctionalUtility
 
     private static string? TryParseNumericSpan(string value)
     {
-        if (int.TryParse(value, out var numValue) && numValue >= 1 && numValue <= 6)
+        if (int.TryParse(value, out var numValue) && numValue >= 1 && numValue <= 12)
         {
             return $"span {numValue} / span {numValue}";
         }

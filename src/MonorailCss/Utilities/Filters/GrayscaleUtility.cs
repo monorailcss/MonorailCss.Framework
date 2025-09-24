@@ -17,7 +17,7 @@ internal class GrayscaleUtility : BaseFilterUtility
     protected override string[] Patterns => ["grayscale"];
     protected override string[] ThemeKeys => NamespaceResolver.GrayscaleChain;
     protected override string FilterVariableName => "grayscale";
-    protected override string DefaultValue => "grayscale(1)";
+    protected override string DefaultValue => "grayscale(100%)";
 
     /// <summary>
     /// Static grayscale mappings for built-in grayscale values.
@@ -25,7 +25,7 @@ internal class GrayscaleUtility : BaseFilterUtility
     private static readonly ImmutableDictionary<string, string> _staticGrayscaleValues =
         new Dictionary<string, string>
         {
-            ["0"] = "grayscale(0)",
+            ["0"] = "grayscale(0%)",
         }.ToImmutableDictionary();
 
     protected override bool TryResolveValue(CandidateValue value, Theme.Theme theme, bool isNegative, out string resolvedValue)
@@ -64,12 +64,11 @@ internal class GrayscaleUtility : BaseFilterUtility
                 return true;
             }
 
-            // Convert numeric values to percentages or decimals
+            // Convert numeric values to percentages
             if (int.TryParse(key, out var numericValue))
             {
-                // Convert to decimal (e.g., 100 -> 1, 50 -> 0.5, 0 -> 0)
-                var decimalValue = numericValue / 100.0;
-                resolvedValue = $"grayscale({decimalValue})";
+                // Keep as percentage (e.g., 100 -> 100%, 50 -> 50%, 0 -> 0%)
+                resolvedValue = $"grayscale({numericValue}%)";
                 return true;
             }
 

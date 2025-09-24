@@ -19,5 +19,8 @@ internal class JustifyContentUtility : BaseStaticUtility
             { "justify-around", ("justify-content", "space-around") },
             { "justify-evenly", ("justify-content", "space-evenly") },
             { "justify-stretch", ("justify-content", "stretch") },
+            { "justify-baseline", ("justify-content", "baseline") },
+            { "justify-center-safe", ("justify-content", "safe center") },
+            { "justify-end-safe", ("justify-content", "safe flex-end") },
         }.ToImmutableDictionary();
 }

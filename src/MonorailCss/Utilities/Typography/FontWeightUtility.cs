@@ -1,6 +1,8 @@
 using System.Collections.Immutable;
 using MonorailCss.Ast;
+using MonorailCss.Candidates;
 using MonorailCss.Core;
+using MonorailCss.Css;
 using MonorailCss.Utilities.Base;
 
 namespace MonorailCss.Utilities.Typography;
@@ -69,7 +71,7 @@ internal class FontWeightUtility : BaseFunctionalUtility
 
     /// <summary>
     /// Handles bare numeric values and named weight values.
-    /// Examples: "100" -> "100", "thin" -> "100", "bold" -> "700".
+    /// Examples: "100" -> "100", "thin" -> "var(--font-weight-thin)", "bold" -> "var(--font-weight-bold)".
     /// </summary>
     protected override string? HandleBareValue(string value)
     {
@@ -83,18 +85,18 @@ internal class FontWeightUtility : BaseFunctionalUtility
             }
         }
 
-        // Handle named weight values
+        // Handle named weight values with theme variables
         var weightMap = new Dictionary<string, string>
         {
-            ["thin"] = "100",
-            ["extralight"] = "200",
-            ["light"] = "300",
-            ["normal"] = "400",
-            ["medium"] = "500",
-            ["semibold"] = "600",
-            ["bold"] = "700",
-            ["extrabold"] = "800",
-            ["black"] = "900",
+            ["thin"] = "var(--font-weight-thin)",
+            ["extralight"] = "var(--font-weight-extralight)",
+            ["light"] = "var(--font-weight-light)",
+            ["normal"] = "var(--font-weight-normal)",
+            ["medium"] = "var(--font-weight-medium)",
+            ["semibold"] = "var(--font-weight-semibold)",
+            ["bold"] = "var(--font-weight-bold)",
+            ["extrabold"] = "var(--font-weight-extrabold)",
+            ["black"] = "var(--font-weight-black)",
         };
 
         if (weightMap.TryGetValue(value, out var weightValue))
@@ -115,7 +117,24 @@ internal class FontWeightUtility : BaseFunctionalUtility
 
     protected override ImmutableList<AstNode> GenerateDeclarations(string pattern, string value, bool important)
     {
-        return ImmutableList.Create<AstNode>(
-            new Declaration("font-weight", value, important));
+        var declarations = ImmutableList.CreateBuilder<AstNode>();
+
+        // Set both the custom property and the font-weight property
+        declarations.Add(new Declaration("--tw-font-weight", value, important));
+        declarations.Add(new Declaration("font-weight", value, important));
+
+        return declarations.ToImmutable();
+    }
+
+    /// <summary>
+    /// Override to register the --tw-font-weight property.
+    /// </summary>
+    public bool TryCompile(Candidate candidate, Theme.Theme theme, CssPropertyRegistry propertyRegistry, out ImmutableList<AstNode>? results)
+    {
+        // Register the font weight custom property
+        propertyRegistry.Register("--tw-font-weight", "*", false, string.Empty);
+
+        // Call the base implementation
+        return TryCompile(candidate, theme, out results);
     }
 }

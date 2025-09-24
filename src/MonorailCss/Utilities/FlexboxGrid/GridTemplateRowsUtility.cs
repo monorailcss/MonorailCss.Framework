@@ -46,7 +46,7 @@ internal class GridTemplateRowsUtility : BaseFunctionalUtility
             }
 
             // Handle numeric values (grid-rows-1, grid-rows-2, etc.)
-            if (int.TryParse(key, out var numValue) && numValue >= 1 && numValue <= 6)
+            if (int.TryParse(key, out var numValue) && numValue >= 1 && numValue <= 12)
             {
                 resolvedValue = $"repeat({numValue}, minmax(0, 1fr))";
                 return true;

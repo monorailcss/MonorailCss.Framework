@@ -29,22 +29,28 @@ internal class TextShadowColorUtility : BaseColorUtility
     {
         color = null;
 
-        // Handle special keywords directly
+        // Handle special keywords with color-mix format
         if (value.Value == "transparent")
         {
-            color = "transparent";
+            color = "color-mix(in oklab, transparent var(--tw-text-shadow-alpha, 100%))";
             return true;
         }
 
         if (value.Value == "current")
         {
-            color = "currentcolor";
+            color = "color-mix(in oklab, currentColor var(--tw-text-shadow-alpha, 100%))";
             return true;
         }
 
         if (value.Value == "inherit")
         {
-            color = "inherit";
+            color = "color-mix(in oklab, inherit var(--tw-text-shadow-alpha, 100%))";
+            return true;
+        }
+
+        if (value.Value == "initial")
+        {
+            color = "initial";
             return true;
         }
 

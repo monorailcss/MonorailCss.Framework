@@ -143,10 +143,11 @@ internal class TextUtility : IUtility
             ["9xl"] = ("8rem", "1"),
         };
 
-        if (knownSizes.TryGetValue(value.Value, out var sizeInfo))
+        if (knownSizes.TryGetValue(value.Value, out _))
         {
-            // Use the hardcoded font-size value
-            fontSize = sizeInfo.Size;
+            // Use CSS variable for font-size
+            var fontSizeKey = $"--text-{value.Value}";
+            fontSize = $"var({fontSizeKey})";
 
             // Check if theme has a line-height variable for this size
             var lineHeightKey = $"--text-{value.Value}--line-height";
@@ -160,8 +161,8 @@ internal class TextUtility : IUtility
             }
             else
             {
-                // Fall back to hardcoded line-height
-                lineHeight = sizeInfo.LineHeight;
+                // Fall back to hardcoded line-height with CSS variable pattern
+                lineHeight = $"var(--tw-leading, var({lineHeightKey}))";
             }
 
             return true;

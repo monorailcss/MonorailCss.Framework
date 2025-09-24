@@ -20,5 +20,7 @@ internal class AlignContentUtility : BaseStaticUtility
             { "content-evenly", ("align-content", "space-evenly") },
             { "content-baseline", ("align-content", "baseline") },
             { "content-stretch", ("align-content", "stretch") },
+            { "content-center-safe", ("align-content", "safe center") },
+            { "content-end-safe", ("align-content", "safe flex-end") },
         }.ToImmutableDictionary();
 }

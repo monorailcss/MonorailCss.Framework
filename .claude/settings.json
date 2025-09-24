@@ -1,0 +1,15 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "powershell -Command \"$input = [Console]::In.ReadToEnd(); $json = $input | ConvertFrom-Json; $file = $json.tool_input.file_path; if ($file -match '\\.cs$') { dotnet format $file }\""
+          }
+        ]
+      }
+    ]
+  }
+}

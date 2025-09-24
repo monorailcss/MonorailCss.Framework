@@ -16,5 +16,8 @@ internal class AlignItemsUtility : BaseStaticUtility
             { "items-end", ("align-items", "flex-end") },
             { "items-baseline", ("align-items", "baseline") },
             { "items-stretch", ("align-items", "stretch") },
+            { "items-baseline-last", ("align-items", "last baseline") },
+            { "items-center-safe", ("align-items", "safe center") },
+            { "items-end-safe", ("align-items", "safe flex-end") },
         }.ToImmutableDictionary();
 }

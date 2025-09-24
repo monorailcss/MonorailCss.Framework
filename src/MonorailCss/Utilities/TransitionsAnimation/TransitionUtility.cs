@@ -23,7 +23,7 @@ internal class TransitionUtility : BaseFunctionalUtility
         {
             // Default transition - covers most commonly animated properties
             [string.Empty] = new TransitionConfig(
-                "color, background-color, border-color, outline-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter",
+                "color, background-color, border-color, outline-color, text-decoration-color, fill, stroke, --tw-gradient-from, --tw-gradient-via, --tw-gradient-to, opacity, box-shadow, transform, translate, scale, rotate, filter, backdrop-filter",
                 true),
 
             // None - disables transitions
@@ -34,7 +34,7 @@ internal class TransitionUtility : BaseFunctionalUtility
 
             // Colors - color-related properties only
             ["colors"] = new TransitionConfig(
-                "color, background-color, border-color, outline-color, text-decoration-color, fill, stroke",
+                "color, background-color, border-color, outline-color, text-decoration-color, fill, stroke, --tw-gradient-from, --tw-gradient-via, --tw-gradient-to",
                 true),
 
             // Opacity - opacity only
@@ -44,7 +44,7 @@ internal class TransitionUtility : BaseFunctionalUtility
             ["shadow"] = new TransitionConfig("box-shadow", true),
 
             // Transform - transform-related properties
-            ["transform"] = new TransitionConfig("transform", true),
+            ["transform"] = new TransitionConfig("transform, translate, scale, rotate", true),
         }.ToImmutableDictionary();
 
     /// <summary>
@@ -83,8 +83,8 @@ internal class TransitionUtility : BaseFunctionalUtility
                 // Add timing function and duration for non-none transitions
                 if (kvp.Value.IncludeTimingAndDuration)
                 {
-                    declarations.Add(new Declaration("transition-timing-function", "cubic-bezier(0.4, 0, 0.2, 1)", important));
-                    declarations.Add(new Declaration("transition-duration", "150ms", important));
+                    declarations.Add(new Declaration("transition-timing-function", "var(--tw-ease, ease)", important));
+                    declarations.Add(new Declaration("transition-duration", "var(--tw-duration, 0s)", important));
                 }
 
                 return declarations.ToImmutableList();
@@ -95,8 +95,8 @@ internal class TransitionUtility : BaseFunctionalUtility
         // Add timing and duration for these as well to match Tailwind behavior
         return ImmutableList.Create<AstNode>(
             new Declaration("transition-property", value, important),
-            new Declaration("transition-timing-function", "cubic-bezier(0.4, 0, 0.2, 1)", important),
-            new Declaration("transition-duration", "150ms", important));
+            new Declaration("transition-timing-function", "var(--tw-ease, ease)", important),
+            new Declaration("transition-duration", "var(--tw-duration, 0s)", important));
     }
 
     /// <summary>

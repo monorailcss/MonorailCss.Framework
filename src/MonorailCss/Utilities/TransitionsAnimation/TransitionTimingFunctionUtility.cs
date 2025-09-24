@@ -36,6 +36,12 @@ internal class TransitionTimingFunctionUtility : BaseFunctionalUtility
     /// </summary>
     protected override string? HandleBareValue(string value)
     {
+        // Handle special "initial" value
+        if (value == "initial")
+        {
+            return "initial";
+        }
+
         // Handle predefined timing functions - return the CSS property value directly
         if (_timingFunctions.TryGetValue(value, out var config))
         {

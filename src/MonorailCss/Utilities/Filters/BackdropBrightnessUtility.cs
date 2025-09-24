@@ -137,6 +137,7 @@ internal class BackdropBrightnessUtility : BaseFilterUtility
         propertyRegistry.Register("--tw-backdrop-grayscale", "*", false, string.Empty);
         propertyRegistry.Register("--tw-backdrop-hue-rotate", "*", false, string.Empty);
         propertyRegistry.Register("--tw-backdrop-invert", "*", false, string.Empty);
+        propertyRegistry.Register("--tw-backdrop-opacity", "*", false, string.Empty);
         propertyRegistry.Register("--tw-backdrop-saturate", "*", false, string.Empty);
         propertyRegistry.Register("--tw-backdrop-sepia", "*", false, string.Empty);
 

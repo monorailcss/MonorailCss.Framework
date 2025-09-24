@@ -30,6 +30,7 @@ internal class ContentUtility : IUtility
             if (functionalUtility.Value?.Kind == ValueKind.Named && functionalUtility.Value.Value == "none")
             {
                 results = ImmutableList.Create<AstNode>(
+                    new Declaration("--tw-content", "none", candidate.Important),
                     new Declaration("content", "none", candidate.Important));
                 return true;
             }

@@ -32,6 +32,8 @@ internal partial class NegativeValueNormalizationStage : IPipelineStage
 
         // Grid/Flex properties
         "order", "z-index",
+        "grid-column-start", "grid-column-end",
+        "grid-row-start", "grid-row-end",
 
         // Scroll properties
         "scroll-margin", "scroll-margin-top", "scroll-margin-right",
@@ -41,6 +43,7 @@ internal partial class NegativeValueNormalizationStage : IPipelineStage
 
         // Other properties that accept negative values
         "text-indent", "letter-spacing", "word-spacing",
+        "outline-offset", "text-underline-offset",
     };
 
     public string Name => "Negative Value Normalization";
@@ -118,7 +121,7 @@ internal partial class NegativeValueNormalizationStage : IPipelineStage
         switch (node)
         {
             case Declaration declaration when ShouldNormalizeNegative(declaration.Property):
-                if (TryNormalizeNegativeValue(declaration.Value, candidate, out var normalizedValue))
+                if (TryNormalizeNegativeValue(declaration.Value, candidate, declaration.Property, out var normalizedValue))
                 {
                     return declaration with { Value = normalizedValue };
                 }
@@ -162,6 +165,7 @@ internal partial class NegativeValueNormalizationStage : IPipelineStage
     private bool TryNormalizeNegativeValue(
         string value,
         Candidate candidate,
+        string property,
         [NotNullWhen(true)] out string? result)
     {
         result = null;
@@ -172,8 +176,8 @@ internal partial class NegativeValueNormalizationStage : IPipelineStage
             return false;
         }
 
-        // Skip special values
-        if (value is "auto" or "inherit" or "initial" or "unset" or "0")
+        // Skip special values (but not 0 for numeric properties)
+        if (value is "auto" or "inherit" or "initial" or "unset")
         {
             return false;
         }
@@ -209,11 +213,22 @@ internal partial class NegativeValueNormalizationStage : IPipelineStage
             return false;
         }
 
+        // Check if this property should use direct negation
+        var useDirectNegation = ShouldUseDirectNegation(property);
+
         // Apply negative transformation based on value type
         if (IsNumericValue(value))
         {
-            // Direct numeric values: just add negative sign
-            result = $"-{value}";
+            if (useDirectNegation)
+            {
+                // Direct negation for position and margin properties
+                result = $"-{value}";
+            }
+            else
+            {
+                // Use calc() for other properties like translate
+                result = $"calc({value} * -1)";
+            }
         }
         else if (value.StartsWith("var("))
         {
@@ -266,6 +281,41 @@ internal partial class NegativeValueNormalizationStage : IPipelineStage
     {
         // Check if the value contains any numeric component
         return ContainsNumericRegex().IsMatch(value);
+    }
+
+    private static bool ShouldUseDirectNegation(string property)
+    {
+        // Properties that should use direct negation (-value) instead of calc(value * -1)
+        return property switch
+        {
+            // Position properties
+            "top" or "right" or "bottom" or "left" => true,
+            "inset" or "inset-inline" or "inset-block" => true,
+            "inset-inline-start" or "inset-inline-end" => true,
+            "inset-block-start" or "inset-block-end" => true,
+
+            // Margin properties
+            "margin" or "margin-top" or "margin-right" or "margin-bottom" or "margin-left" => true,
+            "margin-inline" or "margin-block" => true,
+            "margin-inline-start" or "margin-inline-end" => true,
+            "margin-block-start" or "margin-block-end" => true,
+
+            // Scroll margin properties
+            "scroll-margin" or "scroll-margin-top" or "scroll-margin-right" => true,
+            "scroll-margin-bottom" or "scroll-margin-left" => true,
+            "scroll-margin-inline" or "scroll-margin-block" => true,
+            "scroll-margin-inline-start" or "scroll-margin-inline-end" => true,
+            "scroll-margin-block-start" or "scroll-margin-block-end" => true,
+
+            // Text indent
+            "text-indent" => true,
+
+            // Translate CSS variables also use direct negation
+            "--tw-translate-x" or "--tw-translate-y" or "--tw-translate-z" => true,
+
+            // Everything else uses calc()
+            _ => false,
+        };
     }
 
     [GeneratedRegex(@"^(var\([^)]+\))\s*\*\s*(\d+(?:\.\d+)?)$")]

@@ -1,5 +1,4 @@
 using System.Collections.Immutable;
-using System.Globalization;
 using MonorailCss.Ast;
 using MonorailCss.Core;
 using MonorailCss.Utilities.Base;
@@ -17,17 +16,16 @@ internal class OpacityUtility : BaseFunctionalUtility
     protected override string[] ThemeKeys => NamespaceResolver.OpacityChain;
 
     /// <summary>
-    /// Handles bare numeric values by converting them to decimal opacity values.
-    /// Examples: "0" -> "0", "50" -> "0.5", "100" -> "1".
+    /// Handles bare numeric values by converting them to percentage values.
+    /// Examples: "0" -> "0%", "50" -> "50%", "100" -> "100%".
     /// </summary>
     protected override string? HandleBareValue(string value)
     {
         // Try to parse as integer (0-100)
         if (int.TryParse(value, out var intValue) && intValue >= 0 && intValue <= 100)
         {
-            // Convert percentage to decimal (0-100 -> 0.0-1.0)
-            var decimalValue = intValue / 100.0;
-            return decimalValue.ToString("G", CultureInfo.InvariantCulture);
+            // Keep as percentage for Tailwind v4 compatibility
+            return $"{intValue}%";
         }
 
         return null;

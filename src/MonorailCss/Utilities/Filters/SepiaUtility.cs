@@ -17,7 +17,7 @@ internal class SepiaUtility : BaseFilterUtility
     protected override string[] Patterns => ["sepia"];
     protected override string[] ThemeKeys => NamespaceResolver.SepiaChain;
     protected override string FilterVariableName => "sepia";
-    protected override string DefaultValue => "sepia(1)";
+    protected override string DefaultValue => "sepia(100%)";
 
     /// <summary>
     /// Static sepia mappings for built-in sepia values.
@@ -25,7 +25,7 @@ internal class SepiaUtility : BaseFilterUtility
     private static readonly ImmutableDictionary<string, string> _staticSepiaValues =
         new Dictionary<string, string>
         {
-            ["0"] = "sepia(0)",
+            ["0"] = "sepia(0%)",
         }.ToImmutableDictionary();
 
     protected override bool TryResolveValue(CandidateValue value, Theme.Theme theme, bool isNegative, out string resolvedValue)
@@ -64,12 +64,11 @@ internal class SepiaUtility : BaseFilterUtility
                 return true;
             }
 
-            // Convert numeric values to percentages or decimals
+            // Convert numeric values to percentages
             if (int.TryParse(key, out var numericValue))
             {
-                // Convert to decimal (e.g., 100 -> 1, 50 -> 0.5, 0 -> 0)
-                var decimalValue = numericValue / 100.0;
-                resolvedValue = $"sepia({decimalValue})";
+                // Keep as percentage (e.g., 100 -> 100%, 50 -> 50%, 0 -> 0%)
+                resolvedValue = $"sepia({numericValue}%)";
                 return true;
             }
 

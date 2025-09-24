@@ -10,12 +10,12 @@ namespace MonorailCss.Utilities.Transforms;
 
 /// <summary>
 /// Utility for skew transform values.
-/// Handles: skew-x-*, skew-y-*, -skew-x-*, -skew-y-*
+/// Handles: skew-*, skew-x-*, skew-y-*, -skew-*, -skew-x-*, -skew-y-*
 /// CSS: Uses transform property with CSS variables --tw-skew-x and --tw-skew-y.
 /// </summary>
 internal class SkewUtility : BaseFunctionalUtility
 {
-    protected override string[] Patterns => ["skew-x", "skew-y"];
+    protected override string[] Patterns => ["skew", "skew-x", "skew-y"];
     protected override string[] ThemeKeys => NamespaceResolver.SkewChain;
     protected override bool SupportsNegative => true;
 
@@ -79,12 +79,16 @@ internal class SkewUtility : BaseFunctionalUtility
     {
         return pattern switch
         {
+            "skew" => ImmutableList.Create<AstNode>(
+                new Declaration("--tw-skew-x", $"skewX({value})", important),
+                new Declaration("--tw-skew-y", $"skewY({value})", important),
+                new Declaration("transform", "var(--tw-rotate-x) var(--tw-rotate-y) var(--tw-rotate-z) var(--tw-skew-x) var(--tw-skew-y)", important)),
             "skew-x" => ImmutableList.Create<AstNode>(
                 new Declaration("--tw-skew-x", $"skewX({value})", important),
-                new Declaration("transform", "var(--tw-rotate-x,) var(--tw-rotate-y,) var(--tw-rotate-z,) var(--tw-skew-x,) var(--tw-skew-y,)", important)),
+                new Declaration("transform", "var(--tw-rotate-x) var(--tw-rotate-y) var(--tw-rotate-z) var(--tw-skew-x) var(--tw-skew-y)", important)),
             "skew-y" => ImmutableList.Create<AstNode>(
                 new Declaration("--tw-skew-y", $"skewY({value})", important),
-                new Declaration("transform", "var(--tw-rotate-x,) var(--tw-rotate-y,) var(--tw-rotate-z,) var(--tw-skew-x,) var(--tw-skew-y,)", important)),
+                new Declaration("transform", "var(--tw-rotate-x) var(--tw-rotate-y) var(--tw-rotate-z) var(--tw-skew-x) var(--tw-skew-y)", important)),
             _ => ImmutableList<AstNode>.Empty,
         };
     }

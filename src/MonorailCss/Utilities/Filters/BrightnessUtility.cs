@@ -47,12 +47,11 @@ internal class BrightnessUtility : BaseFilterUtility
         {
             var key = value.Value;
 
-            // Convert numeric values to percentages or decimals
+            // Convert numeric values to percentages
             if (int.TryParse(key, out var numericValue))
             {
-                // Convert to decimal (e.g., 100 -> 1, 150 -> 1.5, 50 -> 0.5)
-                var decimalValue = numericValue / 100.0;
-                resolvedValue = $"brightness({decimalValue})";
+                // Use percentage format (e.g., 100 -> 100%, 150 -> 150%, 50 -> 50%)
+                resolvedValue = $"brightness({numericValue}%)";
                 return true;
             }
 

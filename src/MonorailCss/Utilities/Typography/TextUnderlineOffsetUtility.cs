@@ -1,4 +1,6 @@
 using System.Collections.Immutable;
+using MonorailCss.Ast;
+using MonorailCss.Candidates;
 using MonorailCss.Utilities.Base;
 
 namespace MonorailCss.Utilities.Typography;
@@ -6,17 +8,50 @@ namespace MonorailCss.Utilities.Typography;
 /// <summary>
 /// Handles text underline offset utilities.
 /// Maps underline-offset-* to text-underline-offset CSS property with specific pixel values.
+/// Supports negative values: -underline-offset-1, -underline-offset-2, etc.
 /// </summary>
-internal class TextUnderlineOffsetUtility : BaseStaticUtility
+internal class TextUnderlineOffsetUtility : BaseFunctionalUtility
 {
-    protected override ImmutableDictionary<string, (string Property, string Value)> StaticValues { get; } =
-        new Dictionary<string, (string, string)>
+    protected override string[] Patterns => ["underline-offset"];
+
+    protected override string[] ThemeKeys => [];
+
+    protected override bool SupportsNegative => true;
+
+    /// <summary>
+    /// Static mapping of values to pixel values.
+    /// </summary>
+    private static readonly ImmutableDictionary<string, string> _staticValues =
+        new Dictionary<string, string>
         {
-            { "underline-offset-auto", ("text-underline-offset", "auto") },
-            { "underline-offset-0", ("text-underline-offset", "0px") },
-            { "underline-offset-1", ("text-underline-offset", "1px") },
-            { "underline-offset-2", ("text-underline-offset", "2px") },
-            { "underline-offset-4", ("text-underline-offset", "4px") },
-            { "underline-offset-8", ("text-underline-offset", "8px") },
+            ["auto"] = "auto",
+            ["0"] = "0px",
+            ["1"] = "1px",
+            ["2"] = "2px",
+            ["4"] = "4px",
+            ["8"] = "8px",
         }.ToImmutableDictionary();
+
+    protected override bool TryResolveValue(CandidateValue value, Theme.Theme theme, bool isNegative, out string resolvedValue)
+    {
+        resolvedValue = string.Empty;
+
+        if (value.Kind == ValueKind.Named)
+        {
+            if (_staticValues.TryGetValue(value.Value, out var pixelValue))
+            {
+                // Let NegativeValueNormalizationStage handle the negative format
+                resolvedValue = pixelValue;
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    protected override ImmutableList<AstNode> GenerateDeclarations(string pattern, string value, bool important)
+    {
+        return ImmutableList.Create<AstNode>(
+            new Declaration("text-underline-offset", value, important));
+    }
 }

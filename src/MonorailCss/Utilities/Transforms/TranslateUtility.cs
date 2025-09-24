@@ -11,27 +11,51 @@ namespace MonorailCss.Utilities.Transforms;
 
 /// <summary>
 /// Utility for translate transform values.
-/// Handles: translate-x-*, translate-y-*, -translate-x-*, -translate-y-*
+/// Handles: translate-*, translate-x-*, translate-y-*, translate-z-*, -translate-*, -translate-x-*, -translate-y-*, -translate-z-*
 /// CSS: Uses modern translate property with CSS variables --tw-translate-x and --tw-translate-y.
 /// </summary>
 internal class TranslateUtility : BaseSpacingUtility
 {
-    protected override string[] Patterns => ["translate-x", "translate-y"];
+    protected override string[] Patterns => ["translate", "translate-x", "translate-y", "translate-z"];
     protected override string[] SpacingNamespaces => NamespaceResolver.TranslateChain;
 
     protected override ImmutableList<AstNode> GenerateDeclarations(string pattern, string value, bool important)
     {
+        // Handle special values
+        if (pattern == "translate")
+        {
+            if (value == "none")
+            {
+                return ImmutableList.Create<AstNode>(
+                    new Declaration("translate", "none", important));
+            }
+
+            if (value == "var(--tw-translate-x) var(--tw-translate-y) var(--tw-translate-z)")
+            {
+                // translate-3d case
+                return ImmutableList.Create<AstNode>(
+                    new Declaration("translate", value, important));
+            }
+        }
+
         // Handle percentage values for translate (full, 1/2, 1/3, etc.)
         var translatedValue = TranslatePercentageValue(value);
 
         return pattern switch
         {
+            "translate" => ImmutableList.Create<AstNode>(
+                new Declaration("--tw-translate-x", translatedValue, important),
+                new Declaration("--tw-translate-y", translatedValue, important),
+                new Declaration("translate", "var(--tw-translate-x) var(--tw-translate-y)", important)),
             "translate-x" => ImmutableList.Create<AstNode>(
                 new Declaration("--tw-translate-x", translatedValue, important),
                 new Declaration("translate", "var(--tw-translate-x) var(--tw-translate-y)", important)),
             "translate-y" => ImmutableList.Create<AstNode>(
                 new Declaration("--tw-translate-y", translatedValue, important),
                 new Declaration("translate", "var(--tw-translate-x) var(--tw-translate-y)", important)),
+            "translate-z" => ImmutableList.Create<AstNode>(
+                new Declaration("--tw-translate-z", translatedValue, important),
+                new Declaration("translate", "var(--tw-translate-x) var(--tw-translate-y) var(--tw-translate-z)", important)),
             _ => ImmutableList<AstNode>.Empty,
         };
     }
@@ -41,6 +65,7 @@ internal class TranslateUtility : BaseSpacingUtility
         // Register the CSS variables for translate
         propertyRegistry.Register("--tw-translate-x", "*", false, "0");
         propertyRegistry.Register("--tw-translate-y", "*", false, "0");
+        propertyRegistry.Register("--tw-translate-z", "*", false, "0");
 
         // Call the base implementation
         return GenerateDeclarations(pattern, value, important);
@@ -64,6 +89,22 @@ internal class TranslateUtility : BaseSpacingUtility
     protected override bool TryResolveSpacing(CandidateValue value, Theme.Theme theme, out string spacing)
     {
         spacing = string.Empty;
+
+        // Handle special named values
+        if (value.Kind == ValueKind.Named)
+        {
+            spacing = value.Value switch
+            {
+                "none" => "none",
+                "3d" => "var(--tw-translate-x) var(--tw-translate-y) var(--tw-translate-z)",
+                _ => string.Empty,
+            };
+
+            if (!string.IsNullOrEmpty(spacing))
+            {
+                return true;
+            }
+        }
 
         // Handle arbitrary values
         if (value.Kind == ValueKind.Arbitrary)

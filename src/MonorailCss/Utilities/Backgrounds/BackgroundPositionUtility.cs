@@ -42,6 +42,11 @@ internal class BackgroundPositionUtility : BaseFunctionalUtility
                 "right" => "right",
 
                 // Corner positions (use two-value syntax)
+                // Both orderings for compatibility
+                "left-top" => "left top",
+                "left-bottom" => "left bottom",
+                "right-top" => "right top",
+                "right-bottom" => "right bottom",
                 "top-left" => "left top",
                 "top-right" => "right top",
                 "bottom-left" => "left bottom",

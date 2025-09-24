@@ -15,7 +15,10 @@
     --default-mono-font-family: var(--font-mono);
     --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
     --font-sans: ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+    --font-weight-black: 900;
+    --font-weight-thin: 100;
     --spacing: 0.25rem;
+    --text-3xl: 1.875rem;
   }
 }
 
@@ -401,10 +404,7 @@
 
 @layer utilities {
   .inset-4 {
-    top: calc(var(--spacing) * 4);
-    right: calc(var(--spacing) * 4);
-    bottom: calc(var(--spacing) * 4);
-    left: calc(var(--spacing) * 4);
+    inset: calc(var(--spacing) * 4);
   }
   .space-x-4 {
     :where(& > :not(:last-child)) {
@@ -503,14 +503,16 @@
     font-family: var(--font-sans);
   }
   .text-3xl {
-    font-size: 1.875rem;
+    font-size: var(--text-3xl);
     line-height: var(--tw-leading, var(--text-3xl--line-height));
   }
   .font-black {
-    font-weight: 900;
+    --tw-font-weight: var(--font-weight-black);
+    font-weight: var(--font-weight-black);
   }
   .font-thin {
-    font-weight: 100;
+    --tw-font-weight: var(--font-weight-thin);
+    font-weight: var(--font-weight-thin);
   }
   .text-gray-100 {
     color: var(--color-gray-100);
@@ -533,9 +535,9 @@
     box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
   }
   .transition-colors {
-    transition-property: color, background-color, border-color, outline-color, text-decoration-color, fill, stroke;
-    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-    transition-duration: 150ms;
+    transition-property: color, background-color, border-color, outline-color, text-decoration-color, fill, stroke, --tw-gradient-from, --tw-gradient-via, --tw-gradient-to;
+    transition-timing-function: var(--tw-ease, ease);
+    transition-duration: var(--tw-duration, 0s);
   }
   .hover\:fill-sky-400:hover {
     fill: var(--color-sky-400);
@@ -551,6 +553,68 @@
   syntax: "*";
   inherits: false;
   initial-value: ;
+}
+@property --tw-drop-shadow {
+  syntax: "*";
+  inherits: false;
+  initial-value: ;
+}
+@property --tw-gradient-from {
+  syntax: "<color>";
+  inherits: false;
+  initial-value: #0000;
+}
+@property --tw-gradient-from-position {
+  syntax: "<length-percentage>";
+  inherits: false;
+  initial-value: 0%;
+}
+@property --tw-gradient-position {
+  syntax: "*";
+  inherits: false;
+}
+@property --tw-gradient-stops {
+  syntax: "*";
+  inherits: false;
+}
+@property --tw-gradient-to {
+  syntax: "<color>";
+  inherits: false;
+  initial-value: #0000;
+}
+@property --tw-gradient-to-position {
+  syntax: "<length-percentage>";
+  inherits: false;
+  initial-value: 100%;
+}
+@property --tw-gradient-via {
+  syntax: "<color>";
+  inherits: false;
+  initial-value: #0000;
+}
+@property --tw-gradient-via-position {
+  syntax: "<length-percentage>";
+  inherits: false;
+  initial-value: 50%;
+}
+@property --tw-gradient-via-stops {
+  syntax: "*";
+  inherits: false;
+}
+@property --tw-inset-ring-color {
+  syntax: "<color>";
+  inherits: false;
+  initial-value: currentColor;
+}
+@property --tw-inset-ring-shadow {
+  syntax: "*";
+  inherits: false;
+  initial-value: 0 0 transparent;
+}
+@property --tw-inset-shadow {
+  syntax: "*";
+  inherits: false;
+  initial-value: 0 0 #0000;
 }
 @property --tw-outline-style {
   syntax: "*";
@@ -608,6 +672,16 @@
     *, ::before, ::after, ::backdrop {
       --tw-border-style: solid;
       --tw-content: ;
+      --tw-drop-shadow: ;
+      --tw-gradient-from: #0000;
+      --tw-gradient-from-position: 0%;
+      --tw-gradient-to: #0000;
+      --tw-gradient-to-position: 100%;
+      --tw-gradient-via: #0000;
+      --tw-gradient-via-position: 50%;
+      --tw-inset-ring-color: currentColor;
+      --tw-inset-ring-shadow: 0 0 transparent;
+      --tw-inset-shadow: 0 0 #0000;
       --tw-outline-style: solid;
       --tw-ring-color: rgb(59 130 246 / 0.5);
       --tw-ring-inset: ;

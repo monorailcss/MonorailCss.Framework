@@ -31,6 +31,7 @@ internal class LineHeightUtility : BaseFunctionalUtility
             ["normal"] = "1.5",
             ["relaxed"] = "1.625",
             ["loose"] = "2",
+            ["px"] = "1px",
         };
 
         if (namedValues.TryGetValue(value, out var namedValue))
@@ -100,7 +101,9 @@ internal class LineHeightUtility : BaseFunctionalUtility
 
     protected override ImmutableList<AstNode> GenerateDeclarations(string pattern, string value, bool important)
     {
+        // Also set --tw-leading variable
         return ImmutableList.Create<AstNode>(
+            new Declaration("--tw-leading", value, important),
             new Declaration("line-height", value, important));
     }
 }

@@ -20,6 +20,8 @@ internal class PlaceUtility : BaseStaticUtility
             { "place-content-evenly", ("place-content", "space-evenly") },
             { "place-content-baseline", ("place-content", "baseline") },
             { "place-content-stretch", ("place-content", "stretch") },
+            { "place-content-center-safe", ("place-content", "safe center") },
+            { "place-content-end-safe", ("place-content", "safe end") },
 
             // Place Items utilities
             { "place-items-start", ("place-items", "start") },
@@ -27,6 +29,8 @@ internal class PlaceUtility : BaseStaticUtility
             { "place-items-center", ("place-items", "center") },
             { "place-items-baseline", ("place-items", "baseline") },
             { "place-items-stretch", ("place-items", "stretch") },
+            { "place-items-center-safe", ("place-items", "safe center") },
+            { "place-items-end-safe", ("place-items", "safe end") },
 
             // Place Self utilities
             { "place-self-auto", ("place-self", "auto") },
@@ -34,5 +38,7 @@ internal class PlaceUtility : BaseStaticUtility
             { "place-self-end", ("place-self", "end") },
             { "place-self-center", ("place-self", "center") },
             { "place-self-stretch", ("place-self", "stretch") },
+            { "place-self-center-safe", ("place-self", "safe center") },
+            { "place-self-end-safe", ("place-self", "safe end") },
         }.ToImmutableDictionary();
 }

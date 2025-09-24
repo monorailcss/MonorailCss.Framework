@@ -17,15 +17,18 @@ internal partial class PropertyRegistrationStage : IPipelineStage
     private static readonly Dictionary<string, (string Syntax, bool Inherits, string Initial)> _knownProperties = new()
     {
         // Transform properties - needed for animation and composition
-        ["--tw-translate-x"] = ("<length-percentage>", false, "0"),
-        ["--tw-translate-y"] = ("<length-percentage>", false, "0"),
-        ["--tw-translate-z"] = ("<length>", false, "0"),
+        ["--tw-translate-x"] = ("*", false, "0"),
+        ["--tw-translate-y"] = ("*", false, "0"),
+        ["--tw-translate-z"] = ("*", false, "0"),
         ["--tw-rotate"] = ("<angle>", false, "0deg"),
-        ["--tw-skew-x"] = ("<angle>", false, "0deg"),
-        ["--tw-skew-y"] = ("<angle>", false, "0deg"),
-        ["--tw-scale-x"] = ("<number>", false, "1"),
-        ["--tw-scale-y"] = ("<number>", false, "1"),
-        ["--tw-scale-z"] = ("<number>", false, "1"),
+        ["--tw-rotate-x"] = ("*", false, string.Empty),
+        ["--tw-rotate-y"] = ("*", false, string.Empty),
+        ["--tw-rotate-z"] = ("*", false, string.Empty),
+        ["--tw-skew-x"] = ("*", false, string.Empty),
+        ["--tw-skew-y"] = ("*", false, string.Empty),
+        ["--tw-scale-x"] = ("*", false, "1"),
+        ["--tw-scale-y"] = ("*", false, "1"),
+        ["--tw-scale-z"] = ("*", false, "1"),
 
         // Filter properties - needed for filter stack composition
         ["--tw-blur"] = ("*", false, string.Empty),
@@ -58,6 +61,11 @@ internal partial class PropertyRegistrationStage : IPipelineStage
         ["--tw-ring-offset-color"] = ("<color>", false, "#fff"),
         ["--tw-ring-offset-shadow"] = ("*", false, "0 0 #0000"),
         ["--tw-ring-shadow"] = ("*", false, "0 0 #0000"),
+        ["--tw-inset-shadow"] = ("*", false, "0 0 #0000"),
+        ["--tw-inset-ring-shadow"] = ("*", false, "0 0 #0000"),
+        ["--tw-shadow-color"] = ("*", false, string.Empty),
+        ["--tw-inset-shadow-color"] = ("*", false, string.Empty),
+        ["--tw-text-shadow-color"] = ("*", false, string.Empty),
 
         // Gradient properties - needed for gradient composition and type safety
         ["--tw-gradient-from"] = ("<color>", false, "#0000"),
@@ -74,11 +82,69 @@ internal partial class PropertyRegistrationStage : IPipelineStage
         ["--tw-border-spacing-x"] = ("<length>", false, "0"),
         ["--tw-border-spacing-y"] = ("<length>", false, "0"),
 
+        // Layout and spacing properties
+        ["--tw-border-style"] = ("*", false, "solid"),
+        ["--tw-outline-style"] = ("*", false, "solid"),
+        ["--tw-contain-layout"] = ("*", false, string.Empty),
+        ["--tw-contain-paint"] = ("*", false, string.Empty),
+        ["--tw-contain-size"] = ("*", false, string.Empty),
+        ["--tw-contain-style"] = ("*", false, string.Empty),
+        ["--tw-divide-x-reverse"] = ("*", false, "0"),
+        ["--tw-divide-y-reverse"] = ("*", false, "0"),
+        ["--tw-space-x-reverse"] = ("*", false, "0"),
+        ["--tw-space-y-reverse"] = ("*", false, "0"),
+
+        // Animation properties
+        ["--tw-duration"] = ("*", false, string.Empty),
+        ["--tw-ease"] = ("*", false, string.Empty),
+
+        // Touch and scroll properties
+        ["--tw-pan-x"] = ("*", false, string.Empty),
+        ["--tw-pan-y"] = ("*", false, string.Empty),
+        ["--tw-pinch-zoom"] = ("*", false, string.Empty),
+        ["--tw-scroll-snap-strictness"] = ("*", false, "proximity"),
+
         // Content property - needed for before/after content
         ["--tw-content"] = ("*", false, string.Empty),
 
-        // NOTE: Properties like --tw-leading, --tw-ordinal, --tw-slashed-zero, --tw-numeric-*
-        // are simple CSS variables that don't need @property declarations
+        // Typography properties - needed for font features
+        ["--tw-leading"] = ("*", false, string.Empty),
+        ["--tw-ordinal"] = ("*", false, string.Empty),
+        ["--tw-slashed-zero"] = ("*", false, string.Empty),
+        ["--tw-numeric-figure"] = ("*", false, string.Empty),
+        ["--tw-numeric-fraction"] = ("*", false, string.Empty),
+        ["--tw-numeric-spacing"] = ("*", false, string.Empty),
+        ["--tw-font-weight"] = ("*", false, string.Empty),
+
+        // Mask gradient properties - needed for mask composition
+        ["--tw-mask-linear"] = ("*", false, "linear-gradient(#fff, #fff)"),
+        ["--tw-mask-linear-position"] = ("*", false, "0deg"),
+        ["--tw-mask-linear-from-position"] = ("*", false, "0%"),
+        ["--tw-mask-linear-to-position"] = ("*", false, "100%"),
+        ["--tw-mask-radial"] = ("*", false, "linear-gradient(#fff, #fff)"),
+        ["--tw-mask-radial-position"] = ("*", false, "center"),
+        ["--tw-mask-radial-shape"] = ("*", false, "ellipse"),
+        ["--tw-mask-radial-size"] = ("*", false, "farthest-corner"),
+        ["--tw-mask-radial-from-position"] = ("*", false, "0%"),
+        ["--tw-mask-radial-to-position"] = ("*", false, "100%"),
+        ["--tw-mask-conic"] = ("*", false, "linear-gradient(#fff, #fff)"),
+        ["--tw-mask-conic-position"] = ("*", false, "0deg"),
+        ["--tw-mask-conic-from-position"] = ("*", false, "0%"),
+        ["--tw-mask-conic-to-position"] = ("*", false, "100%"),
+
+        // Directional mask properties
+        ["--tw-mask-top"] = ("*", false, "linear-gradient(#fff, #fff)"),
+        ["--tw-mask-top-from-position"] = ("*", false, "0%"),
+        ["--tw-mask-top-to-position"] = ("*", false, "100%"),
+        ["--tw-mask-bottom"] = ("*", false, "linear-gradient(#fff, #fff)"),
+        ["--tw-mask-bottom-from-position"] = ("*", false, "0%"),
+        ["--tw-mask-bottom-to-position"] = ("*", false, "100%"),
+        ["--tw-mask-left"] = ("*", false, "linear-gradient(#fff, #fff)"),
+        ["--tw-mask-left-from-position"] = ("*", false, "0%"),
+        ["--tw-mask-left-to-position"] = ("*", false, "100%"),
+        ["--tw-mask-right"] = ("*", false, "linear-gradient(#fff, #fff)"),
+        ["--tw-mask-right-from-position"] = ("*", false, "0%"),
+        ["--tw-mask-right-to-position"] = ("*", false, "100%"),
     };
 
     public string Name => "Property Registration";

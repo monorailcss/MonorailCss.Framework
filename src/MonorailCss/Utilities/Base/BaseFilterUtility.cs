@@ -26,12 +26,23 @@ internal abstract class BaseFilterUtility : BaseFunctionalUtility
     protected override ImmutableList<AstNode> GenerateDeclarations(string pattern, string value, bool important)
     {
         var filterVariableName = IsBackdropFilter ? $"--tw-backdrop-{FilterVariableName}" : $"--tw-{FilterVariableName}";
-        var filterPropertyName = IsBackdropFilter ? "backdrop-filter" : "filter";
         var filterPropertyValue = GetFilterPropertyValue();
 
-        return ImmutableList.Create<AstNode>(
-            new Declaration(filterVariableName, value, important),
-            new Declaration(filterPropertyName, filterPropertyValue, important));
+        var declarations = ImmutableList.CreateBuilder<AstNode>();
+        declarations.Add(new Declaration(filterVariableName, value, important));
+
+        if (IsBackdropFilter)
+        {
+            // Add webkit prefix for backdrop-filter
+            declarations.Add(new Declaration("-webkit-backdrop-filter", filterPropertyValue, important));
+            declarations.Add(new Declaration("backdrop-filter", filterPropertyValue, important));
+        }
+        else
+        {
+            declarations.Add(new Declaration("filter", filterPropertyValue, important));
+        }
+
+        return declarations.ToImmutable();
     }
 
     /// <summary>
@@ -42,7 +53,7 @@ internal abstract class BaseFilterUtility : BaseFunctionalUtility
     {
         if (IsBackdropFilter)
         {
-            return "var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,)";
+            return "var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-opacity,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,)";
         }
 
         return "var(--tw-blur,) var(--tw-brightness,) var(--tw-contrast,) var(--tw-grayscale,) var(--tw-hue-rotate,) var(--tw-invert,) var(--tw-saturate,) var(--tw-sepia,) var(--tw-drop-shadow,)";

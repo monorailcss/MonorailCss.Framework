@@ -17,7 +17,7 @@ internal class InvertUtility : BaseFilterUtility
     protected override string[] Patterns => ["invert"];
     protected override string[] ThemeKeys => NamespaceResolver.InvertChain;
     protected override string FilterVariableName => "invert";
-    protected override string DefaultValue => "invert(1)";
+    protected override string DefaultValue => "invert(100%)";
 
     /// <summary>
     /// Static invert mappings for built-in invert values.
@@ -25,7 +25,7 @@ internal class InvertUtility : BaseFilterUtility
     private static readonly ImmutableDictionary<string, string> _staticInvertValues =
         new Dictionary<string, string>
         {
-            ["0"] = "invert(0)",
+            ["0"] = "invert(0%)",
         }.ToImmutableDictionary();
 
     protected override bool TryResolveValue(CandidateValue value, Theme.Theme theme, bool isNegative, out string resolvedValue)
@@ -64,12 +64,11 @@ internal class InvertUtility : BaseFilterUtility
                 return true;
             }
 
-            // Convert numeric values to percentages or decimals
+            // Convert numeric values to percentages
             if (int.TryParse(key, out var numericValue))
             {
-                // Convert to decimal (e.g., 100 -> 1, 50 -> 0.5, 0 -> 0)
-                var decimalValue = numericValue / 100.0;
-                resolvedValue = $"invert({decimalValue})";
+                // Keep as percentage (e.g., 100 -> 100%, 50 -> 50%, 0 -> 0%)
+                resolvedValue = $"invert({numericValue}%)";
                 return true;
             }
 

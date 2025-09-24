@@ -24,6 +24,12 @@ internal class TransitionDurationUtility : BaseFunctionalUtility
     /// </summary>
     protected override string? HandleBareValue(string value)
     {
+        // Handle special "initial" value
+        if (value == "initial")
+        {
+            return "initial";
+        }
+
         // Try to parse as integer (milliseconds)
         if (int.TryParse(value, out var milliseconds) && milliseconds >= 0)
         {

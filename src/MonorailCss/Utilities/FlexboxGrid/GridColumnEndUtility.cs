@@ -14,6 +14,7 @@ internal class GridColumnEndUtility : BaseFunctionalUtility
 {
     protected override string[] Patterns => ["col-end"];
     protected override string[] ThemeKeys => NamespaceResolver.GridColumnChain;
+    protected override bool SupportsNegative => true;
 
     protected override string? HandleBareValue(string value)
     {

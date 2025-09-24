@@ -29,15 +29,4 @@ internal class MinWidthUtility : BaseSizingUtility
 
         return declarations.ToImmutableList();
     }
-
-    protected override string GetSpecialSizingValue(string key)
-    {
-        // Include "0" as a special value for min-width
-        if (key == "0")
-        {
-            return "0";
-        }
-
-        return base.GetSpecialSizingValue(key);
-    }
 }

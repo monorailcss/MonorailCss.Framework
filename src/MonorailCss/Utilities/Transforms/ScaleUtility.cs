@@ -15,7 +15,7 @@ namespace MonorailCss.Utilities.Transforms;
 /// </summary>
 internal class ScaleUtility : BaseFunctionalUtility
 {
-    protected override string[] Patterns => ["scale", "scale-x", "scale-y"];
+    protected override string[] Patterns => ["scale", "scale-x", "scale-y", "scale-z"];
     protected override string[] ThemeKeys => NamespaceResolver.ScaleChain;
     protected override bool SupportsNegative => true;
 
@@ -25,6 +25,8 @@ internal class ScaleUtility : BaseFunctionalUtility
     private static readonly ImmutableDictionary<string, string> _staticScaleValues =
         new Dictionary<string, string>
         {
+            ["none"] = "none",
+            ["3d"] = "var(--tw-scale-x) var(--tw-scale-y) var(--tw-scale-z)",
             ["0"] = "0%",
             ["50"] = "50%",
             ["75"] = "75%",
@@ -35,6 +37,7 @@ internal class ScaleUtility : BaseFunctionalUtility
             ["110"] = "110%",
             ["125"] = "125%",
             ["150"] = "150%",
+            ["200"] = "200%",
         }.ToImmutableDictionary();
 
     protected override bool TryResolveValue(CandidateValue value, Theme.Theme theme, bool isNegative, out string resolvedValue)
@@ -86,6 +89,7 @@ internal class ScaleUtility : BaseFunctionalUtility
             "scale" => ImmutableList.Create<AstNode>(
                 new Declaration("--tw-scale-x", value, important),
                 new Declaration("--tw-scale-y", value, important),
+                new Declaration("--tw-scale-z", value, important),
                 new Declaration("scale", "var(--tw-scale-x) var(--tw-scale-y)", important)),
             "scale-x" => ImmutableList.Create<AstNode>(
                 new Declaration("--tw-scale-x", value, important),
@@ -93,6 +97,9 @@ internal class ScaleUtility : BaseFunctionalUtility
             "scale-y" => ImmutableList.Create<AstNode>(
                 new Declaration("--tw-scale-y", value, important),
                 new Declaration("scale", "var(--tw-scale-x) var(--tw-scale-y)", important)),
+            "scale-z" => ImmutableList.Create<AstNode>(
+                new Declaration("--tw-scale-z", value, important),
+                new Declaration("scale", "var(--tw-scale-x) var(--tw-scale-y) var(--tw-scale-z)", important)),
             _ => ImmutableList<AstNode>.Empty,
         };
     }
@@ -172,6 +179,7 @@ internal class ScaleUtility : BaseFunctionalUtility
         // Register CSS variables for scale
         propertyRegistry.Register("--tw-scale-x", "*", false, "1");
         propertyRegistry.Register("--tw-scale-y", "*", false, "1");
+        propertyRegistry.Register("--tw-scale-z", "*", false, "1");
 
         // Call the base implementation
         return TryCompile(candidate, theme, out results);

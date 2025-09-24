@@ -16,6 +16,9 @@ internal class AlignSelfUtility : BaseStaticUtility
             { "self-start", ("align-self", "flex-start") },
             { "self-end", ("align-self", "flex-end") },
             { "self-baseline", ("align-self", "baseline") },
+            { "self-baseline-last", ("align-self", "last baseline") },
             { "self-stretch", ("align-self", "stretch") },
+            { "self-center-safe", ("align-self", "safe center") },
+            { "self-end-safe", ("align-self", "safe flex-end") },
         }.ToImmutableDictionary();
 }

@@ -21,11 +21,8 @@ internal class InsetUtility : BaseFractionAwareSpacingUtility
         switch (pattern)
         {
             case "inset":
-                // inset sets all four properties
-                declarations.Add(new Declaration("top", value, important));
-                declarations.Add(new Declaration("right", value, important));
-                declarations.Add(new Declaration("bottom", value, important));
-                declarations.Add(new Declaration("left", value, important));
+                // Use the shorthand inset property
+                declarations.Add(new Declaration("inset", value, important));
                 break;
             case "top":
                 declarations.Add(new Declaration("top", value, important));

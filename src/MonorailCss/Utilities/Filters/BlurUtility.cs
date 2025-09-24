@@ -25,7 +25,7 @@ internal class BlurUtility : BaseFilterUtility
     private static readonly ImmutableDictionary<string, string> _staticBlurValues =
         new Dictionary<string, string>
         {
-            ["none"] = string.Empty,
+            ["none"] = "  ", // Two spaces for blur-none as per Tailwind spec
             ["sm"] = "blur(4px)",
             ["md"] = "blur(12px)",
             ["lg"] = "blur(16px)",

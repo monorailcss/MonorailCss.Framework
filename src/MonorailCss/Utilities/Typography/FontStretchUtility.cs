@@ -50,6 +50,17 @@ internal class FontStretchUtility : BaseFunctionalUtility
             {
                 return true;
             }
+
+            // Handle percentage values as named values (e.g., font-stretch-100%)
+            if (key.EndsWith("%") && key.Length > 1)
+            {
+                var percentStr = key[..^1];
+                if (float.TryParse(percentStr, out var percent) && percent >= 0)
+                {
+                    resolvedValue = key;
+                    return true;
+                }
+            }
         }
 
         // Handle arbitrary values (font-stretch-[75%])

@@ -42,7 +42,7 @@ internal class FlexUtility : IUtility
             flexValue = key switch
             {
                 "auto" => "auto",
-                "initial" => "initial",
+                "initial" => "0 auto",
                 "none" => "none",
                 _ => string.Empty,
             };
@@ -50,6 +50,15 @@ internal class FlexUtility : IUtility
             // If it's a static value, use it
             if (!string.Empty.Equals(flexValue))
             {
+                results = ImmutableList.Create<AstNode>(
+                    new Declaration("flex", flexValue, candidate.Important));
+                return true;
+            }
+
+            // Handle fractions (flex-1/2, flex-1/3, etc.)
+            if (key.Contains('/') && TryParseFraction(key, out var fractionValue))
+            {
+                flexValue = fractionValue;
                 results = ImmutableList.Create<AstNode>(
                     new Declaration("flex", flexValue, candidate.Important));
                 return true;
@@ -154,5 +163,29 @@ internal class FlexUtility : IUtility
         }
 
         return false;
+    }
+
+    /// <summary>
+    /// Tries to parse a fraction value for flex properties.
+    /// </summary>
+    private static bool TryParseFraction(string key, out string fractionValue)
+    {
+        fractionValue = string.Empty;
+
+        var parts = key.Split('/');
+        if (parts.Length != 2)
+        {
+            return false;
+        }
+
+        if (!int.TryParse(parts[0], out var numerator) ||
+            !int.TryParse(parts[1], out var denominator) ||
+            denominator <= 0)
+        {
+            return false;
+        }
+
+        fractionValue = $"calc({numerator}/{denominator} * 100%)";
+        return true;
     }
 }

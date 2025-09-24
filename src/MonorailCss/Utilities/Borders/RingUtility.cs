@@ -256,9 +256,8 @@ internal class RingUtility : IUtility
         // Ring uses box-shadow: 0 0 0 <width> <color>
         // We use CSS variables for composability
         return ImmutableList.Create<AstNode>(
-            new Declaration("--tw-ring-offset-shadow", "var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color)", important),
-            new Declaration("--tw-ring-shadow", $"var(--tw-ring-inset) 0 0 0 calc({value} + var(--tw-ring-offset-width)) var(--tw-ring-color)", important),
-            new Declaration("box-shadow", "var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 transparent)", important));
+            new Declaration("--tw-ring-shadow", $"var(--tw-ring-inset,) 0 0 0 calc({value} + var(--tw-ring-offset-width)) var(--tw-ring-color, currentColor)", important),
+            new Declaration("box-shadow", "var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow)", important));
     }
 
     private static ImmutableList<AstNode> CreateColorDeclarations(string value, bool important)

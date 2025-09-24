@@ -15,7 +15,7 @@ namespace MonorailCss.Utilities.Transforms;
 /// </summary>
 internal class RotateUtility : BaseFunctionalUtility
 {
-    protected override string[] Patterns => ["rotate", "rotate-x", "rotate-y"];
+    protected override string[] Patterns => ["rotate", "rotate-x", "rotate-y", "rotate-z"];
     protected override string[] ThemeKeys => NamespaceResolver.RotateChain;
     protected override bool SupportsNegative => true;
 
@@ -25,6 +25,7 @@ internal class RotateUtility : BaseFunctionalUtility
     private static readonly ImmutableDictionary<string, string> _staticRotateValues =
         new Dictionary<string, string>
         {
+            ["none"] = "none",
             ["0"] = "0deg",
             ["1"] = "1deg",
             ["2"] = "2deg",
@@ -86,10 +87,13 @@ internal class RotateUtility : BaseFunctionalUtility
                 new Declaration("rotate", value, important)),
             "rotate-x" => ImmutableList.Create<AstNode>(
                 new Declaration("--tw-rotate-x", $"rotateX({value})", important),
-                new Declaration("transform", "var(--tw-rotate-x,) var(--tw-rotate-y,) var(--tw-rotate-z,) var(--tw-skew-x,) var(--tw-skew-y,)", important)),
+                new Declaration("transform", "var(--tw-rotate-x) var(--tw-rotate-y) var(--tw-rotate-z) var(--tw-skew-x) var(--tw-skew-y)", important)),
             "rotate-y" => ImmutableList.Create<AstNode>(
                 new Declaration("--tw-rotate-y", $"rotateY({value})", important),
-                new Declaration("transform", "var(--tw-rotate-x,) var(--tw-rotate-y,) var(--tw-rotate-z,) var(--tw-skew-x,) var(--tw-skew-y,)", important)),
+                new Declaration("transform", "var(--tw-rotate-x) var(--tw-rotate-y) var(--tw-rotate-z) var(--tw-skew-x) var(--tw-skew-y)", important)),
+            "rotate-z" => ImmutableList.Create<AstNode>(
+                new Declaration("--tw-rotate-z", $"rotateZ({value})", important),
+                new Declaration("transform", "var(--tw-rotate-x) var(--tw-rotate-y) var(--tw-rotate-z) var(--tw-skew-x) var(--tw-skew-y)", important)),
             _ => ImmutableList<AstNode>.Empty,
         };
     }

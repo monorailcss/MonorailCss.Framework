@@ -14,6 +14,7 @@ internal class GridRowStartUtility : BaseFunctionalUtility
 {
     protected override string[] Patterns => ["row-start"];
     protected override string[] ThemeKeys => NamespaceResolver.GridRowChain;
+    protected override bool SupportsNegative => true;
 
     protected override string? HandleBareValue(string value)
     {
@@ -26,7 +27,7 @@ internal class GridRowStartUtility : BaseFunctionalUtility
 
     private static string? TryParsePosition(string value)
     {
-        if (int.TryParse(value, out var numValue) && numValue >= 1 && numValue <= 7)
+        if (int.TryParse(value, out var numValue) && numValue >= 1 && numValue <= 13)
         {
             return numValue.ToString();
         }

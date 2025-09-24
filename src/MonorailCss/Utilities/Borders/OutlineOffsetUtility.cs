@@ -1,6 +1,6 @@
 using System.Collections.Immutable;
 using MonorailCss.Ast;
-using MonorailCss.Core;
+using MonorailCss.Candidates;
 using MonorailCss.Utilities.Base;
 
 namespace MonorailCss.Utilities.Borders;
@@ -11,13 +11,45 @@ namespace MonorailCss.Utilities.Borders;
 /// Offset patterns: outline-offset-0, outline-offset-1, outline-offset-2, etc.
 /// Negative patterns: -outline-offset-1, -outline-offset-2, etc.
 ///
-/// Maps to CSS outline-offset property using spacing theme values.
+/// Maps to CSS outline-offset property using literal px values.
 /// </summary>
-internal class OutlineOffsetUtility : BaseSpacingUtility
+internal class OutlineOffsetUtility : BaseFunctionalUtility
 {
     protected override string[] Patterns => ["outline-offset"];
 
-    protected override string[] SpacingNamespaces => NamespaceResolver.OutlineOffsetChain;
+    protected override string[] ThemeKeys => [];
+
+    protected override bool SupportsNegative => true;
+
+    /// <summary>
+    /// Static mapping of numeric values to px values.
+    /// </summary>
+    private static readonly ImmutableDictionary<string, string> _staticValues =
+        new Dictionary<string, string>
+        {
+            ["0"] = "0px",
+            ["1"] = "1px",
+            ["2"] = "2px",
+            ["4"] = "4px",
+            ["8"] = "8px",
+        }.ToImmutableDictionary();
+
+    protected override bool TryResolveValue(CandidateValue value, Theme.Theme theme, bool isNegative, out string resolvedValue)
+    {
+        resolvedValue = string.Empty;
+
+        if (value.Kind == ValueKind.Named)
+        {
+            if (_staticValues.TryGetValue(value.Value, out var pixelValue))
+            {
+                // Let NegativeValueNormalizationStage handle the negative format
+                resolvedValue = pixelValue;
+                return true;
+            }
+        }
+
+        return false;
+    }
 
     protected override ImmutableList<AstNode> GenerateDeclarations(string pattern, string value, bool important)
     {

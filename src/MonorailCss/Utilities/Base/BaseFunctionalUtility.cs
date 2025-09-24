@@ -1,5 +1,4 @@
 using System.Collections.Immutable;
-using System.Globalization;
 using MonorailCss.Ast;
 using MonorailCss.Candidates;
 
@@ -139,24 +138,9 @@ internal abstract class BaseFunctionalUtility : IUtility
             var bareValue = HandleBareValue(key);
             if (bareValue != null)
             {
-                // Apply negative if needed
-                if (isNegative)
-                {
-                    // If it's already a number, negate it
-                    if (double.TryParse(bareValue, out var numValue))
-                    {
-                        resolvedValue = (-numValue).ToString("G", CultureInfo.InvariantCulture);
-                    }
-                    else
-                    {
-                        resolvedValue = $"calc(-1 * ({bareValue}))";
-                    }
-                }
-                else
-                {
-                    resolvedValue = bareValue;
-                }
-
+                // Don't apply negative here - let NegativeValueNormalizationStage handle it
+                // This ensures consistent calc() format for all negative values
+                resolvedValue = bareValue;
                 return true;
             }
 
@@ -167,18 +151,8 @@ internal abstract class BaseFunctionalUtility : IUtility
                 if (theme.ContainsKey(fullKey))
                 {
                     // ThemeVariableTrackingStage automatically tracks var() references
-                    var themeValue = $"var({fullKey})";
-
-                    // Apply negative if needed
-                    if (isNegative)
-                    {
-                        resolvedValue = $"calc(-1 * {themeValue})";
-                    }
-                    else
-                    {
-                        resolvedValue = themeValue;
-                    }
-
+                    // Don't apply negative here - let NegativeValueNormalizationStage handle it
+                    resolvedValue = $"var({fullKey})";
                     return true;
                 }
 
@@ -187,18 +161,8 @@ internal abstract class BaseFunctionalUtility : IUtility
                 if (theme.ContainsKey(baseKey))
                 {
                     // ThemeVariableTrackingStage automatically tracks var() references
-                    var themeValue = $"var({baseKey})";
-
-                    // Apply negative if needed
-                    if (isNegative)
-                    {
-                        resolvedValue = $"calc(-1 * {themeValue})";
-                    }
-                    else
-                    {
-                        resolvedValue = themeValue;
-                    }
-
+                    // Don't apply negative here - let NegativeValueNormalizationStage handle it
+                    resolvedValue = $"var({baseKey})";
                     return true;
                 }
             }

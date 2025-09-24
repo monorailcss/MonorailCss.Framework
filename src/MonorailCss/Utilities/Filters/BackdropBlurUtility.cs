@@ -26,7 +26,7 @@ internal class BackdropBlurUtility : BaseFilterUtility
     private static readonly ImmutableDictionary<string, string> _staticBlurValues =
         new Dictionary<string, string>
         {
-            ["none"] = string.Empty,
+            ["none"] = "  ", // Two spaces for backdrop-blur-none as per Tailwind spec
             ["sm"] = "blur(8px)",
             ["md"] = "blur(12px)",
             ["lg"] = "blur(16px)",
@@ -165,6 +165,7 @@ internal class BackdropBlurUtility : BaseFilterUtility
         propertyRegistry.Register("--tw-backdrop-grayscale", "*", false, string.Empty);
         propertyRegistry.Register("--tw-backdrop-hue-rotate", "*", false, string.Empty);
         propertyRegistry.Register("--tw-backdrop-invert", "*", false, string.Empty);
+        propertyRegistry.Register("--tw-backdrop-opacity", "*", false, string.Empty);
         propertyRegistry.Register("--tw-backdrop-saturate", "*", false, string.Empty);
         propertyRegistry.Register("--tw-backdrop-sepia", "*", false, string.Empty);
 
