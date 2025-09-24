@@ -9,14 +9,21 @@ namespace MonorailCss.Utilities.SVG;
 
 /// <summary>
 /// Handles SVG stroke utilities with dual functionality:
+/// - Static values: stroke-none, stroke-current
 /// - Stroke color: stroke-red-500, stroke-blue-600, etc.
 /// - Stroke width: stroke-0, stroke-1, stroke-2, etc.
 ///
-/// Static values (stroke-none, stroke-current) are handled by StrokeStaticUtility.
 /// Similar to BorderUtility, determines value type and handles accordingly.
 /// </summary>
 internal class StrokeUtility : IUtility
 {
+    private static readonly ImmutableDictionary<string, string> _staticValues =
+        new Dictionary<string, string>
+        {
+            { "none", "none" },
+            { "current", "currentcolor" },
+        }.ToImmutableDictionary();
+
     public UtilityPriority Priority => UtilityPriority.ConstrainedFunctional;
 
     public string[] GetNamespaces() => NamespaceResolver.AppendFallbacks(NamespaceResolver.StrokeColorChain, "--stroke-width");
@@ -39,6 +46,13 @@ internal class StrokeUtility : IUtility
         if (functionalUtility.Value == null)
         {
             return false;
+        }
+
+        // Check for static values first
+        if (_staticValues.TryGetValue(functionalUtility.Value.Value, out var staticValue))
+        {
+            results = ImmutableList.Create<AstNode>(new Declaration("stroke", staticValue, candidate.Important));
+            return true;
         }
 
         // Try to resolve as stroke width first (numeric values)

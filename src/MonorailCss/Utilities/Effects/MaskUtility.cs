@@ -81,7 +81,7 @@ internal class MaskUtility : IUtility
         ["mask-ellipse"] = ("--tw-mask-radial-shape", "ellipse"),
     };
 
-    private static readonly HashSet<string> FunctionalPatterns =
+    private static readonly HashSet<string> _functionalPatterns =
     [
         "mask-linear",
         "mask-linear-from",
@@ -118,7 +118,7 @@ internal class MaskUtility : IUtility
     public string[] GetNamespaces() => [];
 
     /// <inheritdoc/>
-    public string[] GetFunctionalRoots() => FunctionalPatterns.ToArray();
+    public string[] GetFunctionalRoots() => _functionalPatterns.ToArray();
 
     /// <summary>
     /// Gets the names of all static utilities handled by this class.
@@ -148,7 +148,7 @@ internal class MaskUtility : IUtility
             var root = functionalUtility.Root;
 
             // Check for functional patterns
-            if (FunctionalPatterns.Contains(root))
+            if (_functionalPatterns.Contains(root))
             {
                 results = CompileFunctionalPattern(root, functionalUtility, theme);
                 return results.Count > 0;
@@ -158,7 +158,7 @@ internal class MaskUtility : IUtility
             if (root.StartsWith('-'))
             {
                 var positiveRoot = root.Substring(1);
-                if (FunctionalPatterns.Contains(positiveRoot))
+                if (_functionalPatterns.Contains(positiveRoot))
                 {
                     results = CompileFunctionalPattern(positiveRoot, functionalUtility, theme, true);
                     return results.Count > 0;

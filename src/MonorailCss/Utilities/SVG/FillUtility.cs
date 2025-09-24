@@ -8,12 +8,20 @@ using MonorailCss.Utilities.Resolvers;
 namespace MonorailCss.Utilities.SVG;
 
 /// <summary>
-/// Handles SVG fill color utilities (fill-red-500, fill-blue-600, etc.).
+/// Handles SVG fill utilities.
+/// Static values: fill-none, fill-current
+/// Color values: fill-red-500, fill-blue-600, fill-[#123456], etc.
 /// Supports color values with opacity modifiers.
-/// Static values (fill-none, fill-current) are handled by FillStaticUtility.
 /// </summary>
 internal class FillUtility : IUtility
 {
+    private static readonly ImmutableDictionary<string, string> _staticValues =
+        new Dictionary<string, string>
+        {
+            { "none", "none" },
+            { "current", "currentcolor" },
+        }.ToImmutableDictionary();
+
     public UtilityPriority Priority => UtilityPriority.ConstrainedFunctional;
 
     public string[] GetNamespaces() => NamespaceResolver.FillColorChain;
@@ -22,7 +30,7 @@ internal class FillUtility : IUtility
     {
         results = null;
 
-        // Handle functional values (colors)
+        // Handle functional values (colors and static values)
         if (candidate is not FunctionalUtility functionalUtility)
         {
             return false;
@@ -38,6 +46,14 @@ internal class FillUtility : IUtility
             return false;
         }
 
+        // Check for static values first
+        if (_staticValues.TryGetValue(functionalUtility.Value.Value, out var staticValue))
+        {
+            results = ImmutableList.Create<AstNode>(new Declaration("fill", staticValue, candidate.Important));
+            return true;
+        }
+
+        // Try to resolve as a color
         if (!TryResolveColor(functionalUtility.Value, theme, out var color))
         {
             return false;

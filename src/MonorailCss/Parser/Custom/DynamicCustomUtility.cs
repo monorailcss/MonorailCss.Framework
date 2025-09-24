@@ -17,8 +17,8 @@ public partial class DynamicCustomUtility : IUtility
 {
     // Static regex cache for performance optimization
     // Pattern string -> compiled Regex
-    private static readonly Dictionary<string, Regex> RegexCache = new();
-    private static readonly object RegexCacheLock = new();
+    private static readonly Dictionary<string, Regex> _regexCache = new();
+    private static readonly object _regexCacheLock = new();
 
     private readonly UtilityDefinition _definition;
     private readonly Regex _patternRegex;
@@ -60,23 +60,23 @@ public partial class DynamicCustomUtility : IUtility
         var regexPattern = "^" + Regex.Escape(pattern).Replace(@"\*", "(.+)") + "$";
 
         // Check cache first (optimistic path, no lock)
-        if (RegexCache.TryGetValue(regexPattern, out var cachedRegex))
+        if (_regexCache.TryGetValue(regexPattern, out var cachedRegex))
         {
             return cachedRegex;
         }
 
         // If not found, acquire lock and check again (double-check pattern)
-        lock (RegexCacheLock)
+        lock (_regexCacheLock)
         {
             // Another thread might have added it while we were waiting for the lock
-            if (RegexCache.TryGetValue(regexPattern, out cachedRegex))
+            if (_regexCache.TryGetValue(regexPattern, out cachedRegex))
             {
                 return cachedRegex;
             }
 
             // Create and cache the new regex
             var newRegex = new Regex(regexPattern, RegexOptions.Compiled);
-            RegexCache[regexPattern] = newRegex;
+            _regexCache[regexPattern] = newRegex;
             return newRegex;
         }
     }

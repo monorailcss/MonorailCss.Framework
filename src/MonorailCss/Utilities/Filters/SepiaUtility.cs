@@ -146,16 +146,8 @@ internal class SepiaUtility : BaseFilterUtility
 
     public bool TryCompile(Candidate candidate, Theme.Theme theme, CssPropertyRegistry propertyRegistry, out ImmutableList<AstNode>? results)
     {
-        // Register CSS variables for filter
-        propertyRegistry.Register("--tw-blur", "*", false, string.Empty);
-        propertyRegistry.Register("--tw-brightness", "*", false, string.Empty);
-        propertyRegistry.Register("--tw-contrast", "*", false, string.Empty);
-        propertyRegistry.Register("--tw-grayscale", "*", false, string.Empty);
-        propertyRegistry.Register("--tw-hue-rotate", "*", false, string.Empty);
-        propertyRegistry.Register("--tw-invert", "*", false, string.Empty);
-        propertyRegistry.Register("--tw-saturate", "*", false, string.Empty);
-        propertyRegistry.Register("--tw-sepia", "*", false, string.Empty);
-        propertyRegistry.Register("--tw-drop-shadow", "*", false, string.Empty);
+        // Use shared method to register filter variables
+        RegisterFilterVariables(propertyRegistry);
 
         // Call the base implementation
         return TryCompile(candidate, theme, out results);

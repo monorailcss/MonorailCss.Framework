@@ -147,16 +147,8 @@ internal class BackdropSepiaUtility : BaseFilterUtility
 
     public bool TryCompile(Candidate candidate, Theme.Theme theme, CssPropertyRegistry propertyRegistry, out ImmutableList<AstNode>? results)
     {
-        // Register CSS variables for backdrop filter
-        propertyRegistry.Register("--tw-backdrop-blur", "*", false, string.Empty);
-        propertyRegistry.Register("--tw-backdrop-brightness", "*", false, string.Empty);
-        propertyRegistry.Register("--tw-backdrop-contrast", "*", false, string.Empty);
-        propertyRegistry.Register("--tw-backdrop-grayscale", "*", false, string.Empty);
-        propertyRegistry.Register("--tw-backdrop-hue-rotate", "*", false, string.Empty);
-        propertyRegistry.Register("--tw-backdrop-invert", "*", false, string.Empty);
-        propertyRegistry.Register("--tw-backdrop-opacity", "*", false, string.Empty);
-        propertyRegistry.Register("--tw-backdrop-saturate", "*", false, string.Empty);
-        propertyRegistry.Register("--tw-backdrop-sepia", "*", false, string.Empty);
+        // Use shared method to register filter variables
+        RegisterFilterVariables(propertyRegistry);
 
         // Call the base implementation
         return TryCompile(candidate, theme, out results);

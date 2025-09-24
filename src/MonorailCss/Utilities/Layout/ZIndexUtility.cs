@@ -6,10 +6,9 @@ using MonorailCss.Utilities.Base;
 namespace MonorailCss.Utilities.Layout;
 
 /// <summary>
-/// Functional utility for z-index values.
-/// Handles: z-0, z-10, z-50, -z-10, etc.
-/// CSS: z-index: 0, z-index: 10, z-index: 50, z-index: -10
-/// Note: z-auto is handled by ZIndexStaticUtility.
+/// Utility for z-index values.
+/// Handles: z-auto, z-0, z-10, z-50, -z-10, z-[100], etc.
+/// CSS: z-index: auto, z-index: 0, z-index: 10, z-index: 50, z-index: -10, z-index: 100.
 /// </summary>
 internal class ZIndexUtility : BaseFunctionalUtility
 {
@@ -19,10 +18,16 @@ internal class ZIndexUtility : BaseFunctionalUtility
 
     /// <summary>
     /// Handles bare integer values for z-index.
-    /// Examples: "0" -> "0", "10" -> "10", "50" -> "50".
+    /// Examples: "0" -> "0", "10" -> "10", "50" -> "50", "auto" -> "auto".
     /// </summary>
     protected override string? HandleBareValue(string value)
     {
+        // Handle static 'auto' value
+        if (value == "auto")
+        {
+            return "auto";
+        }
+
         // Allow integer values (including 0)
         if (int.TryParse(value, out var intValue))
         {

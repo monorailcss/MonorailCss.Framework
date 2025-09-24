@@ -1,5 +1,6 @@
 using System.Collections.Immutable;
 using MonorailCss.Ast;
+using MonorailCss.Css;
 
 namespace MonorailCss.Utilities.Base;
 
@@ -19,6 +20,40 @@ internal abstract class BaseFilterUtility : BaseFunctionalUtility
     /// Gets a value indicating whether gets whether this is a backdrop filter utility.
     /// </summary>
     protected virtual bool IsBackdropFilter => false;
+
+    /// <summary>
+    /// Registers all filter-related CSS variables with the property registry.
+    /// Call this from derived classes' TryCompile method when needed.
+    /// </summary>
+    protected void RegisterFilterVariables(CssPropertyRegistry propertyRegistry)
+    {
+        if (IsBackdropFilter)
+        {
+            // Register backdrop filter variables
+            propertyRegistry.Register("--tw-backdrop-blur", "*", false, string.Empty);
+            propertyRegistry.Register("--tw-backdrop-brightness", "*", false, string.Empty);
+            propertyRegistry.Register("--tw-backdrop-contrast", "*", false, string.Empty);
+            propertyRegistry.Register("--tw-backdrop-grayscale", "*", false, string.Empty);
+            propertyRegistry.Register("--tw-backdrop-hue-rotate", "*", false, string.Empty);
+            propertyRegistry.Register("--tw-backdrop-invert", "*", false, string.Empty);
+            propertyRegistry.Register("--tw-backdrop-opacity", "*", false, string.Empty);
+            propertyRegistry.Register("--tw-backdrop-saturate", "*", false, string.Empty);
+            propertyRegistry.Register("--tw-backdrop-sepia", "*", false, string.Empty);
+        }
+        else
+        {
+            // Register regular filter variables
+            propertyRegistry.Register("--tw-blur", "*", false, string.Empty);
+            propertyRegistry.Register("--tw-brightness", "*", false, string.Empty);
+            propertyRegistry.Register("--tw-contrast", "*", false, string.Empty);
+            propertyRegistry.Register("--tw-grayscale", "*", false, string.Empty);
+            propertyRegistry.Register("--tw-hue-rotate", "*", false, string.Empty);
+            propertyRegistry.Register("--tw-invert", "*", false, string.Empty);
+            propertyRegistry.Register("--tw-saturate", "*", false, string.Empty);
+            propertyRegistry.Register("--tw-sepia", "*", false, string.Empty);
+            propertyRegistry.Register("--tw-drop-shadow", "*", false, string.Empty);
+        }
+    }
 
     /// <summary>
     /// Generates the filter CSS declarations with the filter CSS variable system.
