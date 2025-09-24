@@ -559,6 +559,21 @@
   inherits: false;
   initial-value: ;
 }
+@property --tw-duration {
+  syntax: "*";
+  inherits: false;
+  initial-value: ;
+}
+@property --tw-ease {
+  syntax: "*";
+  inherits: false;
+  initial-value: ;
+}
+@property --tw-font-weight {
+  syntax: "*";
+  inherits: false;
+  initial-value: ;
+}
 @property --tw-gradient-from {
   syntax: "<color>";
   inherits: false;
@@ -616,6 +631,11 @@
   inherits: false;
   initial-value: 0 0 #0000;
 }
+@property --tw-leading {
+  syntax: "*";
+  inherits: false;
+  initial-value: ;
+}
 @property --tw-outline-style {
   syntax: "*";
   inherits: false;
@@ -656,6 +676,11 @@
   inherits: false;
   initial-value: 0 0 transparent;
 }
+@property --tw-shadow-color {
+  syntax: "*";
+  inherits: false;
+  initial-value: ;
+}
 @property --tw-space-x-reverse {
   syntax: "*";
   inherits: false;
@@ -673,6 +698,9 @@
       --tw-border-style: solid;
       --tw-content: ;
       --tw-drop-shadow: ;
+      --tw-duration: ;
+      --tw-ease: ;
+      --tw-font-weight: ;
       --tw-gradient-from: #0000;
       --tw-gradient-from-position: 0%;
       --tw-gradient-to: #0000;
@@ -682,6 +710,7 @@
       --tw-inset-ring-color: currentColor;
       --tw-inset-ring-shadow: 0 0 transparent;
       --tw-inset-shadow: 0 0 #0000;
+      --tw-leading: ;
       --tw-outline-style: solid;
       --tw-ring-color: rgb(59 130 246 / 0.5);
       --tw-ring-inset: ;
@@ -690,6 +719,7 @@
       --tw-ring-offset-width: 0px;
       --tw-ring-shadow: 0 0 #0000;
       --tw-shadow: 0 0 transparent;
+      --tw-shadow-color: ;
       --tw-space-x-reverse: 0;
       --tw-space-y-reverse: 0;
     }

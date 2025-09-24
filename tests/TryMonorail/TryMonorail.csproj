@@ -23,11 +23,13 @@
       <!-- Reference the MSBuild task project to ensure it builds first -->
       <ProjectReference Include="..\..\src\MonorailCss.Build.Tasks\MonorailCss.Build.Tasks.csproj"
                         ReferenceOutputAssembly="false"
-                        PrivateAssets="All" />
+                        PrivateAssets="All"
+                        SetTargetFramework="TargetFramework=net9.0" />
     </ItemGroup>
 
-    <!-- Import the MonorailCss targets -->
-    <Import Project="..\..\src\MonorailCss.Build.Tasks\build\MonorailCss.Build.Tasks.targets" />
+    <!-- Import the MonorailCss targets conditionally after the build tasks are available -->
+    <Import Project="..\..\src\MonorailCss.Build.Tasks\build\MonorailCss.Build.Tasks.targets"
+            Condition="Exists('..\..\src\MonorailCss.Build.Tasks\bin\$(Configuration)\net9.0\MonorailCss.Build.Tasks.dll')" />
 
     <!-- Mark app.css file with MonorailCss build action -->
     <ItemGroup>
@@ -35,4 +37,12 @@
         <OutputFile>$(MSBuildProjectDirectory)\wwwroot\css\app.css</OutputFile>
       </MonorailCss>
     </ItemGroup>
+
+    <!-- Ensure build tasks are built before processing CSS -->
+    <Target Name="EnsureMonorailCssBuildTasks" BeforeTargets="ProcessMonorailCss">
+      <MSBuild Projects="..\..\src\MonorailCss.Build.Tasks\MonorailCss.Build.Tasks.csproj"
+               Targets="Build"
+               Properties="Configuration=$(Configuration)"
+               Condition="!Exists('..\..\src\MonorailCss.Build.Tasks\bin\$(Configuration)\net9.0\MonorailCss.Build.Tasks.dll')" />
+    </Target>
 </Project>
