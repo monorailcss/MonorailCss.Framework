@@ -7,6 +7,7 @@ namespace MonorailCss.Parser;
 /// </summary>
 internal sealed class UtilityMatcher
 {
+    private static readonly string[] _multiDashPatterns;
     private readonly UtilityRegistry _utilityRegistry;
     private readonly ArbitraryValueParser _arbitraryValueParser;
 
@@ -14,6 +15,29 @@ internal sealed class UtilityMatcher
     {
         _utilityRegistry = utilityRegistry;
         _arbitraryValueParser = arbitraryValueParser;
+    }
+
+    static UtilityMatcher()
+    {
+        _multiDashPatterns = new[]
+        {
+            "space-x", "space-y", "divide-x", "divide-y",
+            "translate-x", "translate-y", "-translate-x", "-translate-y",
+            "inset-x", "inset-y",
+
+            // Mask utilities with multi-dash patterns
+            "mask-linear-from", "mask-linear-to",
+            "mask-radial-from", "mask-radial-to", "mask-radial-position", "mask-radial-shape",
+            "mask-radial-at", "mask-radial-closest", "mask-radial-farthest",
+            "mask-conic-from", "mask-conic-to",
+            "mask-directional-from", "mask-directional-to",
+            "mask-b-from", "mask-b-to",
+            "mask-t-from", "mask-t-to",
+            "mask-l-from", "mask-l-to",
+            "mask-r-from", "mask-r-to",
+            "mask-x-from", "mask-x-to",
+            "mask-y-from", "mask-y-to",
+        };
     }
 
     /// <summary>
@@ -178,18 +202,20 @@ internal sealed class UtilityMatcher
         }
 
         // Handle negative values by checking all functional roots if input starts with dash
-        if (input.StartsWith("-"))
+        if (input.StartsWith('-'))
         {
             var inputWithoutDash = input[1..];
 
             // Check if the input without the dash matches any registered functional roots
             foreach (var functionalRoot in _utilityRegistry.FunctionalRoots
-                .Where(r => !r.StartsWith("-"))
+                .Where(r => !r.StartsWith('-'))
                 .OrderByDescending(r => r.Length))
             {
                 // Only check positive roots
                 // Check longer roots first to handle "hue-rotate" before "hue"
-                if (inputWithoutDash.StartsWith(functionalRoot + "-"))
+                if (inputWithoutDash.StartsWith(functionalRoot) &&
+                    inputWithoutDash.Length > functionalRoot.Length &&
+                    inputWithoutDash[functionalRoot.Length] == '-')
                 {
                     var value = inputWithoutDash[(functionalRoot.Length + 1)..];
                     if (!string.IsNullOrEmpty(value))
@@ -205,28 +231,14 @@ internal sealed class UtilityMatcher
         // Special multi-dash patterns that should be treated as single roots
         // These utilities have dashes in their base name (e.g., space-x, divide-y)
         // Also include utilities that might support fractions even if not yet implemented
-        var multiDashPatterns = new[]
+        foreach (var pattern in _multiDashPatterns)
         {
-            "space-x", "space-y", "divide-x", "divide-y",
-            "translate-x", "translate-y", "-translate-x", "-translate-y",
-            "inset-x", "inset-y",
+            if (!input.StartsWith(pattern))
+            {
+                continue;
+            }
 
-            // Mask utilities with multi-dash patterns
-            "mask-linear-from", "mask-linear-to",
-            "mask-radial-from", "mask-radial-to", "mask-radial-position", "mask-radial-shape",
-            "mask-radial-at", "mask-radial-closest", "mask-radial-farthest",
-            "mask-conic-from", "mask-conic-to",
-            "mask-directional-from", "mask-directional-to",
-            "mask-b-from", "mask-b-to",
-            "mask-t-from", "mask-t-to",
-            "mask-l-from", "mask-l-to",
-            "mask-r-from", "mask-r-to",
-            "mask-x-from", "mask-x-to",
-            "mask-y-from", "mask-y-to",
-        };
-        foreach (var pattern in multiDashPatterns)
-        {
-            if (!input.StartsWith(pattern + "-"))
+            if (input.Length <= pattern.Length || input[pattern.Length] != '-')
             {
                 continue;
             }

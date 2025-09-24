@@ -4,7 +4,7 @@ using MonorailCss;
 BenchmarkRunner.Run<Benchmark>();
 
 [MemoryDiagnoser]
-internal class Benchmark
+public class Benchmark
 {
 
     private List<string> _classes = [];
