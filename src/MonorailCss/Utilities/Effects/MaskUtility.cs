@@ -120,6 +120,12 @@ internal class MaskUtility : IUtility
     /// <inheritdoc/>
     public string[] GetFunctionalRoots() => FunctionalPatterns.ToArray();
 
+    /// <summary>
+    /// Gets the names of all static utilities handled by this class.
+    /// Required for UtilityRegistry to properly index static utilities.
+    /// </summary>
+    public static string[] GetUtilityNames() => _staticMappings.Keys.ToArray();
+
     /// <inheritdoc/>
     public bool TryCompile(Candidate candidate, Theme.Theme theme, out ImmutableList<AstNode>? results)
     {
@@ -175,10 +181,7 @@ internal class MaskUtility : IUtility
             case "mask-linear":
                 if (TryParseAngle(value, isNegative, out var linearAngle))
                 {
-                    declarations.Add(new Declaration("mask-image", "var(--tw-mask-linear), var(--tw-mask-radial), var(--tw-mask-conic)", important));
-                    declarations.Add(new Declaration("mask-composite", "intersect", important));
-                    declarations.Add(new Declaration("--tw-mask-linear", "linear-gradient(var(--tw-mask-linear-stops, var(--tw-mask-linear-position)))", important));
-                    declarations.Add(new Declaration("--tw-mask-linear-position", linearAngle, important));
+                    BuildLinearGradient(declarations, important, position: linearAngle);
                 }
 
                 break;
@@ -186,11 +189,7 @@ internal class MaskUtility : IUtility
             case "mask-linear-from":
                 if (TryParsePosition(value, out var fromPosition))
                 {
-                    declarations.Add(new Declaration("mask-image", "var(--tw-mask-linear), var(--tw-mask-radial), var(--tw-mask-conic)", important));
-                    declarations.Add(new Declaration("mask-composite", "intersect", important));
-                    declarations.Add(new Declaration("--tw-mask-linear-stops", "var(--tw-mask-linear-position), var(--tw-mask-linear-from-color) var(--tw-mask-linear-from-position), var(--tw-mask-linear-to-color) var(--tw-mask-linear-to-position)", important));
-                    declarations.Add(new Declaration("--tw-mask-linear", "linear-gradient(var(--tw-mask-linear-stops))", important));
-                    declarations.Add(new Declaration("--tw-mask-linear-from-position", fromPosition, important));
+                    BuildLinearGradient(declarations, important, fromPosition: fromPosition);
                 }
 
                 break;
@@ -198,29 +197,19 @@ internal class MaskUtility : IUtility
             case "mask-linear-to":
                 if (TryParsePosition(value, out var toPosition))
                 {
-                    declarations.Add(new Declaration("mask-image", "var(--tw-mask-linear), var(--tw-mask-radial), var(--tw-mask-conic)", important));
-                    declarations.Add(new Declaration("mask-composite", "intersect", important));
-                    declarations.Add(new Declaration("--tw-mask-linear-stops", "var(--tw-mask-linear-position), var(--tw-mask-linear-from-color) var(--tw-mask-linear-from-position), var(--tw-mask-linear-to-color) var(--tw-mask-linear-to-position)", important));
-                    declarations.Add(new Declaration("--tw-mask-linear", "linear-gradient(var(--tw-mask-linear-stops))", important));
-                    declarations.Add(new Declaration("--tw-mask-linear-to-position", toPosition, important));
+                    BuildLinearGradient(declarations, important, toPosition: toPosition);
                 }
 
                 break;
 
             case "mask-radial":
-                declarations.Add(new Declaration("mask-image", "var(--tw-mask-linear), var(--tw-mask-radial), var(--tw-mask-conic)", important));
-                declarations.Add(new Declaration("mask-composite", "intersect", important));
-                declarations.Add(new Declaration("--tw-mask-radial", "radial-gradient(var(--tw-mask-radial-shape) var(--tw-mask-radial-size) at var(--tw-mask-radial-position), var(--tw-mask-radial-stops))", important));
+                BuildRadialGradient(declarations, important);
                 break;
 
             case "mask-radial-from":
                 if (TryParsePosition(value, out var radialFromPos))
                 {
-                    declarations.Add(new Declaration("mask-image", "var(--tw-mask-linear), var(--tw-mask-radial), var(--tw-mask-conic)", important));
-                    declarations.Add(new Declaration("mask-composite", "intersect", important));
-                    declarations.Add(new Declaration("--tw-mask-radial-stops", "var(--tw-mask-radial-from-color) var(--tw-mask-radial-from-position), var(--tw-mask-radial-to-color) var(--tw-mask-radial-to-position)", important));
-                    declarations.Add(new Declaration("--tw-mask-radial", "radial-gradient(var(--tw-mask-radial-shape) var(--tw-mask-radial-size) at var(--tw-mask-radial-position), var(--tw-mask-radial-stops))", important));
-                    declarations.Add(new Declaration("--tw-mask-radial-from-position", radialFromPos, important));
+                    BuildRadialGradient(declarations, important, fromPosition: radialFromPos);
                 }
 
                 break;
@@ -228,44 +217,40 @@ internal class MaskUtility : IUtility
             case "mask-radial-to":
                 if (TryParsePosition(value, out var radialToPos))
                 {
-                    declarations.Add(new Declaration("mask-image", "var(--tw-mask-linear), var(--tw-mask-radial), var(--tw-mask-conic)", important));
-                    declarations.Add(new Declaration("mask-composite", "intersect", important));
-                    declarations.Add(new Declaration("--tw-mask-radial-stops", "var(--tw-mask-radial-from-color) var(--tw-mask-radial-from-position), var(--tw-mask-radial-to-color) var(--tw-mask-radial-to-position)", important));
-                    declarations.Add(new Declaration("--tw-mask-radial", "radial-gradient(var(--tw-mask-radial-shape) var(--tw-mask-radial-size) at var(--tw-mask-radial-position), var(--tw-mask-radial-stops))", important));
-                    declarations.Add(new Declaration("--tw-mask-radial-to-position", radialToPos, important));
+                    BuildRadialGradient(declarations, important, toPosition: radialToPos);
                 }
 
                 break;
 
             case "mask-radial-position":
+            case "mask-radial-at":
                 if (TryParseRadialPosition(value, out var radialPos))
                 {
-                    declarations.Add(new Declaration("mask-image", "var(--tw-mask-linear), var(--tw-mask-radial), var(--tw-mask-conic)", important));
-                    declarations.Add(new Declaration("mask-composite", "intersect", important));
-                    declarations.Add(new Declaration("--tw-mask-radial", "radial-gradient(var(--tw-mask-radial-shape) var(--tw-mask-radial-size) at var(--tw-mask-radial-position), var(--tw-mask-radial-stops))", important));
-                    declarations.Add(new Declaration("--tw-mask-radial-position", radialPos, important));
+                    BuildRadialGradient(declarations, important, position: radialPos);
                 }
 
                 break;
 
             case "mask-radial-shape":
-                if (value == "circle" || value == "ellipse")
+                if (value is "circle" or "ellipse")
                 {
-                    declarations.Add(new Declaration("mask-image", "var(--tw-mask-linear), var(--tw-mask-radial), var(--tw-mask-conic)", important));
-                    declarations.Add(new Declaration("mask-composite", "intersect", important));
-                    declarations.Add(new Declaration("--tw-mask-radial", "radial-gradient(var(--tw-mask-radial-shape) var(--tw-mask-radial-size) at var(--tw-mask-radial-position), var(--tw-mask-radial-stops))", important));
-                    declarations.Add(new Declaration("--tw-mask-radial-shape", value, important));
+                    BuildRadialGradient(declarations, important, shape: value);
                 }
 
+                break;
+
+            case "mask-radial-closest":
+                BuildRadialGradient(declarations, important, size: value.Contains("corner") ? "closest-corner" : "closest-side");
+                break;
+
+            case "mask-radial-farthest":
+                BuildRadialGradient(declarations, important, size: value.Contains("corner") ? "farthest-corner" : "farthest-side");
                 break;
 
             case "mask-conic":
                 if (TryParseAngle(value, isNegative, out var conicAngle))
                 {
-                    declarations.Add(new Declaration("mask-image", "var(--tw-mask-linear), var(--tw-mask-radial), var(--tw-mask-conic)", important));
-                    declarations.Add(new Declaration("mask-composite", "intersect", important));
-                    declarations.Add(new Declaration("--tw-mask-conic", "conic-gradient(from var(--tw-mask-conic-position) at var(--tw-mask-conic-center), var(--tw-mask-conic-stops))", important));
-                    declarations.Add(new Declaration("--tw-mask-conic-position", conicAngle, important));
+                    BuildConicGradient(declarations, important, position: conicAngle);
                 }
 
                 break;
@@ -273,11 +258,7 @@ internal class MaskUtility : IUtility
             case "mask-conic-from":
                 if (TryParsePosition(value, out var conicFromPos))
                 {
-                    declarations.Add(new Declaration("mask-image", "var(--tw-mask-linear), var(--tw-mask-radial), var(--tw-mask-conic)", important));
-                    declarations.Add(new Declaration("mask-composite", "intersect", important));
-                    declarations.Add(new Declaration("--tw-mask-conic-stops", "from var(--tw-mask-conic-position), var(--tw-mask-conic-from-color) var(--tw-mask-conic-from-position), var(--tw-mask-conic-to-color) var(--tw-mask-conic-to-position)", important));
-                    declarations.Add(new Declaration("--tw-mask-conic", "conic-gradient(var(--tw-mask-conic-stops))", important));
-                    declarations.Add(new Declaration("--tw-mask-conic-from-position", conicFromPos, important));
+                    BuildConicGradient(declarations, important, fromPosition: conicFromPos);
                 }
 
                 break;
@@ -285,11 +266,7 @@ internal class MaskUtility : IUtility
             case "mask-conic-to":
                 if (TryParsePosition(value, out var conicToPos))
                 {
-                    declarations.Add(new Declaration("mask-image", "var(--tw-mask-linear), var(--tw-mask-radial), var(--tw-mask-conic)", important));
-                    declarations.Add(new Declaration("mask-composite", "intersect", important));
-                    declarations.Add(new Declaration("--tw-mask-conic-stops", "from var(--tw-mask-conic-position), var(--tw-mask-conic-from-color) var(--tw-mask-conic-from-position), var(--tw-mask-conic-to-color) var(--tw-mask-conic-to-position)", important));
-                    declarations.Add(new Declaration("--tw-mask-conic", "conic-gradient(var(--tw-mask-conic-stops))", important));
-                    declarations.Add(new Declaration("--tw-mask-conic-to-position", conicToPos, important));
+                    BuildConicGradient(declarations, important, toPosition: conicToPos);
                 }
 
                 break;
@@ -297,10 +274,7 @@ internal class MaskUtility : IUtility
             case "mask-directional":
                 if (TryParseDirection(value, out var direction))
                 {
-                    declarations.Add(new Declaration("mask-image", "var(--tw-mask-linear), var(--tw-mask-radial), var(--tw-mask-conic)", important));
-                    declarations.Add(new Declaration("mask-composite", "intersect", important));
-                    declarations.Add(new Declaration("--tw-mask-linear", "linear-gradient(var(--tw-mask-linear-stops, var(--tw-mask-linear-position)))", important));
-                    declarations.Add(new Declaration("--tw-mask-linear-position", direction, important));
+                    BuildLinearGradient(declarations, important, position: direction);
                 }
 
                 break;
@@ -308,11 +282,7 @@ internal class MaskUtility : IUtility
             case "mask-directional-from":
                 if (TryParsePosition(value, out var dirFromPos))
                 {
-                    declarations.Add(new Declaration("mask-image", "var(--tw-mask-linear), var(--tw-mask-radial), var(--tw-mask-conic)", important));
-                    declarations.Add(new Declaration("mask-composite", "intersect", important));
-                    declarations.Add(new Declaration("--tw-mask-linear-stops", "var(--tw-mask-linear-position), var(--tw-mask-linear-from-color) var(--tw-mask-linear-from-position), var(--tw-mask-linear-to-color) var(--tw-mask-linear-to-position)", important));
-                    declarations.Add(new Declaration("--tw-mask-linear", "linear-gradient(var(--tw-mask-linear-stops))", important));
-                    declarations.Add(new Declaration("--tw-mask-linear-from-position", dirFromPos, important));
+                    BuildLinearGradient(declarations, important, fromPosition: dirFromPos);
                 }
 
                 break;
@@ -320,23 +290,16 @@ internal class MaskUtility : IUtility
             case "mask-directional-to":
                 if (TryParsePosition(value, out var dirToPos))
                 {
-                    declarations.Add(new Declaration("mask-image", "var(--tw-mask-linear), var(--tw-mask-radial), var(--tw-mask-conic)", important));
-                    declarations.Add(new Declaration("mask-composite", "intersect", important));
-                    declarations.Add(new Declaration("--tw-mask-linear-stops", "var(--tw-mask-linear-position), var(--tw-mask-linear-from-color) var(--tw-mask-linear-from-position), var(--tw-mask-linear-to-color) var(--tw-mask-linear-to-position)", important));
-                    declarations.Add(new Declaration("--tw-mask-linear", "linear-gradient(var(--tw-mask-linear-stops))", important));
-                    declarations.Add(new Declaration("--tw-mask-linear-to-position", dirToPos, important));
+                    BuildLinearGradient(declarations, important, toPosition: dirToPos);
                 }
 
                 break;
 
-            // Bottom mask patterns
+            // Directional mask patterns
             case "mask-b-from":
                 if (TryParsePosition(value, out var bFromPos))
                 {
-                    declarations.Add(new Declaration("mask-image", "var(--tw-mask-linear), var(--tw-mask-radial), var(--tw-mask-conic), var(--tw-mask-top), var(--tw-mask-bottom), var(--tw-mask-left), var(--tw-mask-right)", important));
-                    declarations.Add(new Declaration("mask-composite", "intersect", important));
-                    declarations.Add(new Declaration("--tw-mask-bottom", "linear-gradient(to top, transparent var(--tw-mask-bottom-from-position), black var(--tw-mask-bottom-to-position))", important));
-                    declarations.Add(new Declaration("--tw-mask-bottom-from-position", bFromPos, important));
+                    BuildDirectionalMask(declarations, important, "bottom", fromPosition: bFromPos);
                 }
 
                 break;
@@ -344,22 +307,15 @@ internal class MaskUtility : IUtility
             case "mask-b-to":
                 if (TryParsePosition(value, out var bToPos))
                 {
-                    declarations.Add(new Declaration("mask-image", "var(--tw-mask-linear), var(--tw-mask-radial), var(--tw-mask-conic), var(--tw-mask-top), var(--tw-mask-bottom), var(--tw-mask-left), var(--tw-mask-right)", important));
-                    declarations.Add(new Declaration("mask-composite", "intersect", important));
-                    declarations.Add(new Declaration("--tw-mask-bottom", "linear-gradient(to top, transparent var(--tw-mask-bottom-from-position), black var(--tw-mask-bottom-to-position))", important));
-                    declarations.Add(new Declaration("--tw-mask-bottom-to-position", bToPos, important));
+                    BuildDirectionalMask(declarations, important, "bottom", toPosition: bToPos);
                 }
 
                 break;
 
-            // Top mask patterns
             case "mask-t-from":
                 if (TryParsePosition(value, out var tFromPos))
                 {
-                    declarations.Add(new Declaration("mask-image", "var(--tw-mask-linear), var(--tw-mask-radial), var(--tw-mask-conic), var(--tw-mask-top), var(--tw-mask-bottom), var(--tw-mask-left), var(--tw-mask-right)", important));
-                    declarations.Add(new Declaration("mask-composite", "intersect", important));
-                    declarations.Add(new Declaration("--tw-mask-top", "linear-gradient(to bottom, transparent var(--tw-mask-top-from-position), black var(--tw-mask-top-to-position))", important));
-                    declarations.Add(new Declaration("--tw-mask-top-from-position", tFromPos, important));
+                    BuildDirectionalMask(declarations, important, "top", fromPosition: tFromPos);
                 }
 
                 break;
@@ -367,22 +323,15 @@ internal class MaskUtility : IUtility
             case "mask-t-to":
                 if (TryParsePosition(value, out var tToPos))
                 {
-                    declarations.Add(new Declaration("mask-image", "var(--tw-mask-linear), var(--tw-mask-radial), var(--tw-mask-conic), var(--tw-mask-top), var(--tw-mask-bottom), var(--tw-mask-left), var(--tw-mask-right)", important));
-                    declarations.Add(new Declaration("mask-composite", "intersect", important));
-                    declarations.Add(new Declaration("--tw-mask-top", "linear-gradient(to bottom, transparent var(--tw-mask-top-from-position), black var(--tw-mask-top-to-position))", important));
-                    declarations.Add(new Declaration("--tw-mask-top-to-position", tToPos, important));
+                    BuildDirectionalMask(declarations, important, "top", toPosition: tToPos);
                 }
 
                 break;
 
-            // Left/Right mask patterns (similar pattern)
             case "mask-l-from":
                 if (TryParsePosition(value, out var lFromPos))
                 {
-                    declarations.Add(new Declaration("mask-image", "var(--tw-mask-linear), var(--tw-mask-radial), var(--tw-mask-conic), var(--tw-mask-top), var(--tw-mask-bottom), var(--tw-mask-left), var(--tw-mask-right)", important));
-                    declarations.Add(new Declaration("mask-composite", "intersect", important));
-                    declarations.Add(new Declaration("--tw-mask-left", "linear-gradient(to right, transparent var(--tw-mask-left-from-position), black var(--tw-mask-left-to-position))", important));
-                    declarations.Add(new Declaration("--tw-mask-left-from-position", lFromPos, important));
+                    BuildDirectionalMask(declarations, important, "left", fromPosition: lFromPos);
                 }
 
                 break;
@@ -390,10 +339,7 @@ internal class MaskUtility : IUtility
             case "mask-l-to":
                 if (TryParsePosition(value, out var lToPos))
                 {
-                    declarations.Add(new Declaration("mask-image", "var(--tw-mask-linear), var(--tw-mask-radial), var(--tw-mask-conic), var(--tw-mask-top), var(--tw-mask-bottom), var(--tw-mask-left), var(--tw-mask-right)", important));
-                    declarations.Add(new Declaration("mask-composite", "intersect", important));
-                    declarations.Add(new Declaration("--tw-mask-left", "linear-gradient(to right, transparent var(--tw-mask-left-from-position), black var(--tw-mask-left-to-position))", important));
-                    declarations.Add(new Declaration("--tw-mask-left-to-position", lToPos, important));
+                    BuildDirectionalMask(declarations, important, "left", toPosition: lToPos);
                 }
 
                 break;
@@ -401,10 +347,7 @@ internal class MaskUtility : IUtility
             case "mask-r-from":
                 if (TryParsePosition(value, out var rFromPos))
                 {
-                    declarations.Add(new Declaration("mask-image", "var(--tw-mask-linear), var(--tw-mask-radial), var(--tw-mask-conic), var(--tw-mask-top), var(--tw-mask-bottom), var(--tw-mask-left), var(--tw-mask-right)", important));
-                    declarations.Add(new Declaration("mask-composite", "intersect", important));
-                    declarations.Add(new Declaration("--tw-mask-right", "linear-gradient(to left, transparent var(--tw-mask-right-from-position), black var(--tw-mask-right-to-position))", important));
-                    declarations.Add(new Declaration("--tw-mask-right-from-position", rFromPos, important));
+                    BuildDirectionalMask(declarations, important, "right", fromPosition: rFromPos);
                 }
 
                 break;
@@ -412,24 +355,16 @@ internal class MaskUtility : IUtility
             case "mask-r-to":
                 if (TryParsePosition(value, out var rToPos))
                 {
-                    declarations.Add(new Declaration("mask-image", "var(--tw-mask-linear), var(--tw-mask-radial), var(--tw-mask-conic), var(--tw-mask-top), var(--tw-mask-bottom), var(--tw-mask-left), var(--tw-mask-right)", important));
-                    declarations.Add(new Declaration("mask-composite", "intersect", important));
-                    declarations.Add(new Declaration("--tw-mask-right", "linear-gradient(to left, transparent var(--tw-mask-right-from-position), black var(--tw-mask-right-to-position))", important));
-                    declarations.Add(new Declaration("--tw-mask-right-to-position", rToPos, important));
+                    BuildDirectionalMask(declarations, important, "right", toPosition: rToPos);
                 }
 
                 break;
 
-            // X/Y axis patterns (combine horizontal/vertical)
+            // X/Y axis patterns
             case "mask-x-from":
                 if (TryParsePosition(value, out var xFromPos))
                 {
-                    declarations.Add(new Declaration("mask-image", "var(--tw-mask-linear), var(--tw-mask-radial), var(--tw-mask-conic), var(--tw-mask-top), var(--tw-mask-bottom), var(--tw-mask-left), var(--tw-mask-right)", important));
-                    declarations.Add(new Declaration("mask-composite", "intersect", important));
-                    declarations.Add(new Declaration("--tw-mask-left", "linear-gradient(to right, transparent var(--tw-mask-left-from-position), black var(--tw-mask-left-to-position))", important));
-                    declarations.Add(new Declaration("--tw-mask-right", "linear-gradient(to left, transparent var(--tw-mask-right-from-position), black var(--tw-mask-right-to-position))", important));
-                    declarations.Add(new Declaration("--tw-mask-left-from-position", xFromPos, important));
-                    declarations.Add(new Declaration("--tw-mask-right-from-position", xFromPos, important));
+                    BuildAxisMask(declarations, important, "x", fromPosition: xFromPos);
                 }
 
                 break;
@@ -437,12 +372,7 @@ internal class MaskUtility : IUtility
             case "mask-x-to":
                 if (TryParsePosition(value, out var xToPos))
                 {
-                    declarations.Add(new Declaration("mask-image", "var(--tw-mask-linear), var(--tw-mask-radial), var(--tw-mask-conic), var(--tw-mask-top), var(--tw-mask-bottom), var(--tw-mask-left), var(--tw-mask-right)", important));
-                    declarations.Add(new Declaration("mask-composite", "intersect", important));
-                    declarations.Add(new Declaration("--tw-mask-left", "linear-gradient(to right, transparent var(--tw-mask-left-from-position), black var(--tw-mask-left-to-position))", important));
-                    declarations.Add(new Declaration("--tw-mask-right", "linear-gradient(to left, transparent var(--tw-mask-right-from-position), black var(--tw-mask-right-to-position))", important));
-                    declarations.Add(new Declaration("--tw-mask-left-to-position", xToPos, important));
-                    declarations.Add(new Declaration("--tw-mask-right-to-position", xToPos, important));
+                    BuildAxisMask(declarations, important, "x", toPosition: xToPos);
                 }
 
                 break;
@@ -450,12 +380,7 @@ internal class MaskUtility : IUtility
             case "mask-y-from":
                 if (TryParsePosition(value, out var yFromPos))
                 {
-                    declarations.Add(new Declaration("mask-image", "var(--tw-mask-linear), var(--tw-mask-radial), var(--tw-mask-conic), var(--tw-mask-top), var(--tw-mask-bottom), var(--tw-mask-left), var(--tw-mask-right)", important));
-                    declarations.Add(new Declaration("mask-composite", "intersect", important));
-                    declarations.Add(new Declaration("--tw-mask-top", "linear-gradient(to bottom, transparent var(--tw-mask-top-from-position), black var(--tw-mask-top-to-position))", important));
-                    declarations.Add(new Declaration("--tw-mask-bottom", "linear-gradient(to top, transparent var(--tw-mask-bottom-from-position), black var(--tw-mask-bottom-to-position))", important));
-                    declarations.Add(new Declaration("--tw-mask-top-from-position", yFromPos, important));
-                    declarations.Add(new Declaration("--tw-mask-bottom-from-position", yFromPos, important));
+                    BuildAxisMask(declarations, important, "y", fromPosition: yFromPos);
                 }
 
                 break;
@@ -463,47 +388,181 @@ internal class MaskUtility : IUtility
             case "mask-y-to":
                 if (TryParsePosition(value, out var yToPos))
                 {
-                    declarations.Add(new Declaration("mask-image", "var(--tw-mask-linear), var(--tw-mask-radial), var(--tw-mask-conic), var(--tw-mask-top), var(--tw-mask-bottom), var(--tw-mask-left), var(--tw-mask-right)", important));
-                    declarations.Add(new Declaration("mask-composite", "intersect", important));
-                    declarations.Add(new Declaration("--tw-mask-top", "linear-gradient(to bottom, transparent var(--tw-mask-top-from-position), black var(--tw-mask-top-to-position))", important));
-                    declarations.Add(new Declaration("--tw-mask-bottom", "linear-gradient(to top, transparent var(--tw-mask-bottom-from-position), black var(--tw-mask-bottom-to-position))", important));
-                    declarations.Add(new Declaration("--tw-mask-top-to-position", yToPos, important));
-                    declarations.Add(new Declaration("--tw-mask-bottom-to-position", yToPos, important));
+                    BuildAxisMask(declarations, important, "y", toPosition: yToPos);
                 }
 
-                break;
-
-            // Additional radial patterns
-            case "mask-radial-at":
-                if (TryParseRadialPosition(value, out var atPosition))
-                {
-                    declarations.Add(new Declaration("mask-image", "var(--tw-mask-linear), var(--tw-mask-radial), var(--tw-mask-conic)", important));
-                    declarations.Add(new Declaration("mask-composite", "intersect", important));
-                    declarations.Add(new Declaration("--tw-mask-radial", "radial-gradient(var(--tw-mask-radial-shape) var(--tw-mask-radial-size) at var(--tw-mask-radial-position), var(--tw-mask-radial-stops))", important));
-                    declarations.Add(new Declaration("--tw-mask-radial-position", atPosition, important));
-                }
-
-                break;
-
-            case "mask-radial-closest":
-                declarations.Add(new Declaration("mask-image", "var(--tw-mask-linear), var(--tw-mask-radial), var(--tw-mask-conic)", important));
-                declarations.Add(new Declaration("mask-composite", "intersect", important));
-                declarations.Add(new Declaration("--tw-mask-radial", "radial-gradient(var(--tw-mask-radial-shape) var(--tw-mask-radial-size) at var(--tw-mask-radial-position), var(--tw-mask-radial-stops))", important));
-                declarations.Add(new Declaration("--tw-mask-radial-size", value.Contains("corner") ? "closest-corner" : "closest-side", important));
-                break;
-
-            case "mask-radial-farthest":
-                declarations.Add(new Declaration("mask-image", "var(--tw-mask-linear), var(--tw-mask-radial), var(--tw-mask-conic)", important));
-                declarations.Add(new Declaration("mask-composite", "intersect", important));
-                declarations.Add(new Declaration("--tw-mask-radial", "radial-gradient(var(--tw-mask-radial-shape) var(--tw-mask-radial-size) at var(--tw-mask-radial-position), var(--tw-mask-radial-stops))", important));
-                declarations.Add(new Declaration("--tw-mask-radial-size", value.Contains("corner") ? "farthest-corner" : "farthest-side", important));
                 break;
         }
 
         return declarations.ToImmutable();
     }
 
-    private bool TryParseAngle(string value, bool isNegative, out string angle)
+    private static void AddCommonMaskDeclarations(ImmutableList<AstNode>.Builder declarations, bool important, params string[] maskVars)
+    {
+        var maskImage = maskVars.Length > 0 ? string.Join(", ", maskVars) : "var(--tw-mask-linear), var(--tw-mask-radial), var(--tw-mask-conic)";
+        declarations.Add(new Declaration("mask-image", maskImage, important));
+        declarations.Add(new Declaration("mask-composite", "intersect", important));
+    }
+
+    private static void BuildLinearGradient(ImmutableList<AstNode>.Builder declarations, bool important, string? position = null, string? fromPosition = null, string? toPosition = null)
+    {
+        AddCommonMaskDeclarations(declarations, important);
+
+        if (position != null)
+        {
+            declarations.Add(new Declaration("--tw-mask-linear", "linear-gradient(var(--tw-mask-linear-stops, var(--tw-mask-linear-position)))", important));
+            declarations.Add(new Declaration("--tw-mask-linear-position", position, important));
+        }
+
+        if (fromPosition != null || toPosition != null)
+        {
+            declarations.Add(new Declaration("--tw-mask-linear-stops", "var(--tw-mask-linear-position), var(--tw-mask-linear-from-color) var(--tw-mask-linear-from-position), var(--tw-mask-linear-to-color) var(--tw-mask-linear-to-position)", important));
+            declarations.Add(new Declaration("--tw-mask-linear", "linear-gradient(var(--tw-mask-linear-stops))", important));
+
+            if (fromPosition != null)
+            {
+                declarations.Add(new Declaration("--tw-mask-linear-from-position", fromPosition, important));
+            }
+
+            if (toPosition != null)
+            {
+                declarations.Add(new Declaration("--tw-mask-linear-to-position", toPosition, important));
+            }
+        }
+    }
+
+    private static void BuildRadialGradient(ImmutableList<AstNode>.Builder declarations, bool important, string? position = null, string? fromPosition = null, string? toPosition = null, string? shape = null, string? size = null)
+    {
+        AddCommonMaskDeclarations(declarations, important);
+        declarations.Add(new Declaration("--tw-mask-radial", "radial-gradient(var(--tw-mask-radial-shape) var(--tw-mask-radial-size) at var(--tw-mask-radial-position), var(--tw-mask-radial-stops))", important));
+
+        if (position != null)
+        {
+            declarations.Add(new Declaration("--tw-mask-radial-position", position, important));
+        }
+
+        if (fromPosition != null || toPosition != null)
+        {
+            declarations.Add(new Declaration("--tw-mask-radial-stops", "var(--tw-mask-radial-from-color) var(--tw-mask-radial-from-position), var(--tw-mask-radial-to-color) var(--tw-mask-radial-to-position)", important));
+
+            if (fromPosition != null)
+            {
+                declarations.Add(new Declaration("--tw-mask-radial-from-position", fromPosition, important));
+            }
+
+            if (toPosition != null)
+            {
+                declarations.Add(new Declaration("--tw-mask-radial-to-position", toPosition, important));
+            }
+        }
+
+        if (shape != null)
+        {
+            declarations.Add(new Declaration("--tw-mask-radial-shape", shape, important));
+        }
+
+        if (size != null)
+        {
+            declarations.Add(new Declaration("--tw-mask-radial-size", size, important));
+        }
+    }
+
+    private static void BuildConicGradient(ImmutableList<AstNode>.Builder declarations, bool important, string? position = null, string? fromPosition = null, string? toPosition = null)
+    {
+        AddCommonMaskDeclarations(declarations, important);
+
+        if (position != null)
+        {
+            declarations.Add(new Declaration("--tw-mask-conic", "conic-gradient(from var(--tw-mask-conic-position) at var(--tw-mask-conic-center), var(--tw-mask-conic-stops))", important));
+            declarations.Add(new Declaration("--tw-mask-conic-position", position, important));
+        }
+
+        if (fromPosition != null || toPosition != null)
+        {
+            declarations.Add(new Declaration("--tw-mask-conic-stops", "from var(--tw-mask-conic-position), var(--tw-mask-conic-from-color) var(--tw-mask-conic-from-position), var(--tw-mask-conic-to-color) var(--tw-mask-conic-to-position)", important));
+            declarations.Add(new Declaration("--tw-mask-conic", "conic-gradient(var(--tw-mask-conic-stops))", important));
+
+            if (fromPosition != null)
+            {
+                declarations.Add(new Declaration("--tw-mask-conic-from-position", fromPosition, important));
+            }
+
+            if (toPosition != null)
+            {
+                declarations.Add(new Declaration("--tw-mask-conic-to-position", toPosition, important));
+            }
+        }
+    }
+
+    private static void BuildDirectionalMask(ImmutableList<AstNode>.Builder declarations, bool important, string direction, string? fromPosition = null, string? toPosition = null)
+    {
+        var maskVars = "var(--tw-mask-linear), var(--tw-mask-radial), var(--tw-mask-conic), var(--tw-mask-top), var(--tw-mask-bottom), var(--tw-mask-left), var(--tw-mask-right)";
+        AddCommonMaskDeclarations(declarations, important, maskVars);
+
+        var (varName, gradientDirection, fromVar, toVar) = direction switch
+        {
+            "bottom" => ("--tw-mask-bottom", "to top", "--tw-mask-bottom-from-position", "--tw-mask-bottom-to-position"),
+            "top" => ("--tw-mask-top", "to bottom", "--tw-mask-top-from-position", "--tw-mask-top-to-position"),
+            "left" => ("--tw-mask-left", "to right", "--tw-mask-left-from-position", "--tw-mask-left-to-position"),
+            "right" => ("--tw-mask-right", "to left", "--tw-mask-right-from-position", "--tw-mask-right-to-position"),
+            _ => throw new ArgumentException($"Invalid direction: {direction}"),
+        };
+
+        declarations.Add(new Declaration(varName, $"linear-gradient({gradientDirection}, transparent var({fromVar}), black var({toVar}))", important));
+
+        if (fromPosition != null)
+        {
+            declarations.Add(new Declaration(fromVar, fromPosition, important));
+        }
+
+        if (toPosition != null)
+        {
+            declarations.Add(new Declaration(toVar, toPosition, important));
+        }
+    }
+
+    private static void BuildAxisMask(ImmutableList<AstNode>.Builder declarations, bool important, string axis, string? fromPosition = null, string? toPosition = null)
+    {
+        var maskVars = "var(--tw-mask-linear), var(--tw-mask-radial), var(--tw-mask-conic), var(--tw-mask-top), var(--tw-mask-bottom), var(--tw-mask-left), var(--tw-mask-right)";
+        AddCommonMaskDeclarations(declarations, important, maskVars);
+
+        if (axis == "x")
+        {
+            declarations.Add(new Declaration("--tw-mask-left", "linear-gradient(to right, transparent var(--tw-mask-left-from-position), black var(--tw-mask-left-to-position))", important));
+            declarations.Add(new Declaration("--tw-mask-right", "linear-gradient(to left, transparent var(--tw-mask-right-from-position), black var(--tw-mask-right-to-position))", important));
+
+            if (fromPosition != null)
+            {
+                declarations.Add(new Declaration("--tw-mask-left-from-position", fromPosition, important));
+                declarations.Add(new Declaration("--tw-mask-right-from-position", fromPosition, important));
+            }
+
+            if (toPosition != null)
+            {
+                declarations.Add(new Declaration("--tw-mask-left-to-position", toPosition, important));
+                declarations.Add(new Declaration("--tw-mask-right-to-position", toPosition, important));
+            }
+        }
+        else if (axis == "y")
+        {
+            declarations.Add(new Declaration("--tw-mask-top", "linear-gradient(to bottom, transparent var(--tw-mask-top-from-position), black var(--tw-mask-top-to-position))", important));
+            declarations.Add(new Declaration("--tw-mask-bottom", "linear-gradient(to top, transparent var(--tw-mask-bottom-from-position), black var(--tw-mask-bottom-to-position))", important));
+
+            if (fromPosition != null)
+            {
+                declarations.Add(new Declaration("--tw-mask-top-from-position", fromPosition, important));
+                declarations.Add(new Declaration("--tw-mask-bottom-from-position", fromPosition, important));
+            }
+
+            if (toPosition != null)
+            {
+                declarations.Add(new Declaration("--tw-mask-top-to-position", toPosition, important));
+                declarations.Add(new Declaration("--tw-mask-bottom-to-position", toPosition, important));
+            }
+        }
+    }
+
+    private static bool TryParseAngle(string value, bool isNegative, out string angle)
     {
         angle = string.Empty;
         if (int.TryParse(value, out var angleNum))
@@ -515,7 +574,7 @@ internal class MaskUtility : IUtility
         return false;
     }
 
-    private bool TryParsePosition(string value, out string position)
+    private static bool TryParsePosition(string value, out string position)
     {
         position = string.Empty;
         if (value.EndsWith('%'))
@@ -527,7 +586,7 @@ internal class MaskUtility : IUtility
         return false;
     }
 
-    private bool TryParseRadialPosition(string value, out string position)
+    private static bool TryParseRadialPosition(string value, out string position)
     {
         position = string.Empty;
         var positions = new Dictionary<string, string>
@@ -552,7 +611,7 @@ internal class MaskUtility : IUtility
         return false;
     }
 
-    private bool TryParseDirection(string value, out string direction)
+    private static bool TryParseDirection(string value, out string direction)
     {
         direction = string.Empty;
         var directions = new Dictionary<string, string>
