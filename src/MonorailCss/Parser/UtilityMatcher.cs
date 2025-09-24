@@ -210,6 +210,19 @@ internal sealed class UtilityMatcher
             "space-x", "space-y", "divide-x", "divide-y",
             "translate-x", "translate-y", "-translate-x", "-translate-y",
             "inset-x", "inset-y",
+
+            // Mask utilities with multi-dash patterns
+            "mask-linear-from", "mask-linear-to",
+            "mask-radial-from", "mask-radial-to", "mask-radial-position", "mask-radial-shape",
+            "mask-radial-at", "mask-radial-closest", "mask-radial-farthest",
+            "mask-conic-from", "mask-conic-to",
+            "mask-directional-from", "mask-directional-to",
+            "mask-b-from", "mask-b-to",
+            "mask-t-from", "mask-t-to",
+            "mask-l-from", "mask-l-to",
+            "mask-r-from", "mask-r-to",
+            "mask-x-from", "mask-x-to",
+            "mask-y-from", "mask-y-to",
         };
         foreach (var pattern in multiDashPatterns)
         {

@@ -55,7 +55,7 @@ internal class UtilityRegistry
             }
         }
 
-        // Index custom static utilities that have a GetUtilityName method
+        // Index custom static utilities that have a GetUtilityName or GetUtilityNames method
         foreach (var customUtility in _utilities)
         {
             // Skip if already handled as BaseStaticUtility
@@ -64,14 +64,31 @@ internal class UtilityRegistry
                 continue;
             }
 
-            // Check if it has a GetUtilityName method (like our StaticCustomUtility)
-            var getUtilityNameMethod = customUtility.GetType().GetMethod("GetUtilityName");
-            if (getUtilityNameMethod != null && getUtilityNameMethod.ReturnType == typeof(string))
+            // Check if it has a GetUtilityNames method (plural)
+            var getUtilityNamesMethod = customUtility.GetType().GetMethod("GetUtilityNames");
+            if (getUtilityNamesMethod != null && getUtilityNamesMethod.ReturnType == typeof(string[]))
             {
-                var utilityName = getUtilityNameMethod.Invoke(customUtility, null) as string;
-                if (!string.IsNullOrEmpty(utilityName))
+                var utilityNames = getUtilityNamesMethod.Invoke(customUtility, null) as string[];
+                if (utilityNames != null)
                 {
-                    dictionary.TryAdd(utilityName, customUtility);
+                    foreach (var utilityName in utilityNames)
+                    {
+                        dictionary.TryAdd(utilityName, customUtility);
+                    }
+                }
+            }
+
+            // Check if it has a GetUtilityName method (like our StaticCustomUtility)
+            else
+            {
+                var getUtilityNameMethod = customUtility.GetType().GetMethod("GetUtilityName");
+                if (getUtilityNameMethod != null && getUtilityNameMethod.ReturnType == typeof(string))
+                {
+                    var utilityName = getUtilityNameMethod.Invoke(customUtility, null) as string;
+                    if (!string.IsNullOrEmpty(utilityName))
+                    {
+                        dictionary.TryAdd(utilityName, customUtility);
+                    }
                 }
             }
         }
