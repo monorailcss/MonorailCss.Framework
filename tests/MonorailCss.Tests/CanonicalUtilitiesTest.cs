@@ -139,15 +139,8 @@ public class CanonicalUtilitiesTest(CssFrameworkFixture fixture) : IClassFixture
 
             // Add metadata for better test naming and organization
             row.TestDisplayName = $"{kvp.Key}";
-            // Skip shadow color tests that expect @supports with color-mix
-            if (kvp.Key == "shadow-black" || kvp.Key == "shadow-white" || kvp.Key == "shadow-red-500")
-            {
-                row.Skip = "Shadow color utilities use different implementation than Tailwind v4 @supports blocks";
-            }
-            else
-            {
-                row.Skip = null; // Can be used to skip specific tests if needed
-            }
+            // All tests should now pass - no skips needed
+            row.Skip = null;
             row.Traits.Add("Category", ["Canonical"]);
 
             // Add trait based on utility prefix for better grouping
