@@ -1,7 +1,7 @@
 ﻿@using JetBrains.Annotations
 @inject IJSRuntime Js
 
-<iframe @ref="PreviewViewerIFrame" class="flex-1 h-screen w-full bg-white" sandbox="allow-popups-to-escape-sandbox allow-scripts allow-popups allow-forms allow-pointer-lock allow-top-navigation allow-modals" srcdoc="@PreviewHtml"></iframe>
+<iframe @ref="PreviewViewerIFrame" class="flex-1 h-full w-full bg-white" sandbox="allow-popups-to-escape-sandbox allow-scripts allow-popups allow-forms allow-pointer-lock allow-top-navigation allow-modals" srcdoc="@PreviewHtml"></iframe>
 
 @code {
     private ElementReference PreviewViewerIFrame { get; set; }

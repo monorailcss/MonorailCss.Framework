@@ -4,15 +4,15 @@
 @inject IJSRuntime Js
 
 <PageTitle>Try MonorailCss</PageTitle>
-<div class="max-w-full h-full inset-4" style="display: grid;grid-template-columns: 1fr 6px 2fr;">
-    <div class="grid grid-cols-1 grid-rows-2">
-        <div class="flex flex-col">
+<div class="max-w-full h-full" style="display: grid;grid-template-columns: 1fr 6px 2fr;">
+    <div class="grid grid-cols-1 grid-rows-2 h-full">
+        <div class="flex flex-col h-full">
             @_headerMessage("HTML")
             <div class="flex-auto">
                 <StandaloneCodeEditor @ref="HtmlEditor" Id="htmlEditor" ConstructionOptions="EditorConstructionOptions" OnDidInit="EditorOnInit" OnDidChangeModelContent="ModelChanged"/>
             </div>
         </div>
-        <div class="flex flex-col border-t border-gray-700">
+        <div class="flex flex-col h-full border-t border-gray-700">
             @_headerMessage("CSS")
             <div class="flex-auto">
                 <StandaloneCodeEditor @ref="CssEditor" Id="cssViewer" ConstructionOptions="ViewerConstructionOptions"/>
@@ -21,7 +21,7 @@
     </div>
     <div class="gutter-col-1 bg-slate-600 shadow-inner" style="grid-row: 1/-1;cursor: col-resize;grid-column: 2"></div>
     <div>
-        <div class="h-screen w-full flex">
+        <div class="h-full w-full flex">
             <PreviewViewer @ref="@PreviewViewer"/>
         </div>
     </div>
