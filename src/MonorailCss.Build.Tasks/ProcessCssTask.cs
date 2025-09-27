@@ -1,6 +1,7 @@
 using System.Collections.Immutable;
 using System.Text.RegularExpressions;
 using Microsoft.Build.Framework;
+using MonorailCss.Build.Tasks.Parsing;
 
 namespace MonorailCss.Build.Tasks;
 
@@ -109,19 +110,49 @@ public partial class ProcessCssTask : Microsoft.Build.Utilities.Task
                 Log.LogMessage(MessageImportance.Normal, $"Found {utilities.Count} unique utility classes");
             }
 
-            // Load the input CSS file as theme source
-            var themeSources = new List<string>();
+            // Parse the input CSS file and build theme
+            var baseTheme = new MonorailCss.Theme.Theme();
+            var baseApplies = ImmutableDictionary<string, string>.Empty;
+
             if (File.Exists(InputFile))
             {
-                themeSources.Add(File.ReadAllText(InputFile));
-                Log.LogMessage(MessageImportance.Low, $"Loaded theme from: {InputFile}");
+                var cssContent = File.ReadAllText(InputFile);
+                var parser = new CssThemeParser();
+                var parsedData = parser.Parse(cssContent);
+                Log.LogMessage(MessageImportance.Low, $"Parsed theme from: {InputFile}");
+
+                // Apply theme variables
+                if (parsedData.ThemeVariables.Any())
+                {
+                    Log.LogMessage(MessageImportance.Low, $"Found {parsedData.ThemeVariables.Count} theme variables");
+                    foreach (var (key, value) in parsedData.ThemeVariables)
+                    {
+                        baseTheme = baseTheme.Add(key, value);
+                    }
+                }
+
+                // Apply component rules
+                if (parsedData.ComponentRules.Any())
+                {
+                    Log.LogMessage(MessageImportance.Low, $"Found {parsedData.ComponentRules.Count} component rules");
+                    baseApplies = baseApplies.SetItems(parsedData.ComponentRules);
+                }
+
+                // Note: Custom utilities from @utility blocks need special handling
+                // For now, we'll pass them as CSS theme sources for the framework to process
+                if (parsedData.UtilityDefinitions.Any())
+                {
+                    Log.LogMessage(MessageImportance.Low, $"Found {parsedData.UtilityDefinitions.Count} custom utilities");
+                    // TODO: Handle custom utilities registration
+                }
             }
 
-            // Create settings with theme source and always include preflight
+            // Create settings with the configured theme and always include preflight
             var settings = new CssFrameworkSettings
             {
                 IncludePreflight = true,
-                CssThemeSources = themeSources.ToImmutableList()
+                Theme = baseTheme,
+                Applies = baseApplies
             };
 
             // Create and configure the CSS framework

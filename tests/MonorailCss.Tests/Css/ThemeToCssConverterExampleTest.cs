@@ -43,53 +43,6 @@ public class ThemeToCssConverterExampleTest
         cssOutput.ShouldContain("--color-brand-secondary: #6633ff;");
         cssOutput.ShouldContain(".btn-primary {");
         cssOutput.ShouldContain("@apply bg-brand-primary text-white px-6 py-3 rounded-lg hover:opacity-90;");
-
-        // Demonstrate round-trip capability
-        var parser = new CssThemeParser();
-        var parsed = parser.Parse(cssOutput);
-
-        // Verify round-trip preserves data
-        parsed.ThemeVariables["--color-brand-primary"].ShouldBe("#0066cc");
-        parsed.ComponentRules[".btn-primary"].ShouldBe("bg-brand-primary text-white px-6 py-3 rounded-lg hover:opacity-90");
-    }
-
-    [Fact]
-    public void MigrateFromCSharpToCss_Workflow()
-    {
-        // This demonstrates a workflow where a team wants to migrate
-        // from C# configuration to CSS-based configuration
-
-        // Step 1: Start with existing C# configuration
-        var existingTheme = MonorailCss.Theme.Theme.CreateWithDefaults(
-            ImmutableDictionary<string, string>.Empty
-                .Add("--color-primary", "#007bff")
-                .Add("--color-success", "#28a745")
-        );
-
-        var existingApplies = ImmutableDictionary<string, string>.Empty
-            .Add(".alert", "p-4 rounded-md border")
-            .Add(".alert-success", "bg-success text-white");
-
-        // Step 2: Export to CSS
-        var converter = new ThemeToCssConverter();
-        var exportedCss = converter.Convert(existingTheme, existingApplies);
-
-        // Step 3: Save to file (simulated here)
-        Console.WriteLine("=== Exported Configuration for Migration ===");
-        Console.WriteLine(exportedCss);
-        Console.WriteLine("============================================");
-
-        // Step 4: Load back from CSS (demonstrating the migration is complete)
-        var newSettings = new CssFrameworkSettings
-        {
-            CssThemeSources = ImmutableList.Create(exportedCss)
-        };
-
-        var framework = new CssFramework(newSettings);
-
-        // The framework now uses the CSS-based configuration
-        var result = framework.Process(".alert .alert-success");
-        result.ShouldNotBeNullOrEmpty();
     }
 
     [Fact]

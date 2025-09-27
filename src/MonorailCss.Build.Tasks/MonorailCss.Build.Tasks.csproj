@@ -7,9 +7,7 @@
     <Nullable>enable</Nullable>
 
     <!-- MSBuild Task Configuration -->
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <DevelopmentDependency>true</DevelopmentDependency>
-    <NoPackageAnalysis>true</NoPackageAnalysis>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
 
     <!-- Don't include build output automatically, we'll do it manually -->

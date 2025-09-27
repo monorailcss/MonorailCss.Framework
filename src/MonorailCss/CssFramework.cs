@@ -40,11 +40,8 @@ public class CssFramework
     /// <param name="settings">The framework settings.</param>
     public CssFramework(CssFrameworkSettings settings)
     {
-        // Process CSS theme sources if provided
-        var (processedTheme, processedApplies, customUtilities) = ProcessCssThemeSources(settings);
-
-        // Update settings with processed theme and applies
-        // Apply ProseCustomization to the theme
+        // Apply ProseCustomization to the theme if needed
+        var processedTheme = settings.Theme;
         if (settings.ProseCustomization != null)
         {
             processedTheme = new Theme.Theme(processedTheme.Values)
@@ -57,7 +54,6 @@ public class CssFramework
         _settings = settings with
         {
             Theme = processedTheme,
-            Applies = processedApplies,
         };
 
         UtilityRegistry = new UtilityRegistry(autoRegisterUtilities: true);
@@ -67,12 +63,6 @@ public class CssFramework
         _variantRegistry.RegisterBuiltInVariants(_settings.Theme);
 
         _applyProcessor = new ApplyProcessor(UtilityRegistry, _variantRegistry, _settings.Theme);
-
-        // Register any custom utilities loaded from CSS sources
-        if (customUtilities.Count > 0)
-        {
-            AddUtilities(customUtilities);
-        }
     }
 
     /// <summary>
@@ -340,16 +330,5 @@ public class CssFramework
         // Add default font family variables that reference the theme fonts
         variables["--default-font-family"] = "var(--font-sans)";
         variables["--default-mono-font-family"] = "var(--font-mono)";
-    }
-
-    private (Theme.Theme Theme, ImmutableDictionary<string, string> Applies, ImmutableList<IUtility> Utilities) ProcessCssThemeSources(CssFrameworkSettings settings)
-    {
-        if (settings.CssThemeSources.Count == 0)
-        {
-            return (settings.Theme, settings.Applies, ImmutableList<IUtility>.Empty);
-        }
-
-        var cssThemeBuilder = new CssThemeBuilder();
-        return cssThemeBuilder.ProcessCssSources(settings.Theme, settings.Applies, settings.CssThemeSources);
     }
 }

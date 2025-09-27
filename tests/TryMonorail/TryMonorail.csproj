@@ -7,8 +7,6 @@
         <LangVersion>preview</LangVersion>
         <BlazorEnableTimeZoneSupport>false</BlazorEnableTimeZoneSupport>
         <BlazorWebAssemblyPreserveCollationData>false</BlazorWebAssemblyPreserveCollationData>
-        <!-- Enable development mode for MonorailCss -->
-        <MonorailCssDevelopment>true</MonorailCssDevelopment>
     </PropertyGroup>
 
     <ItemGroup>
@@ -20,29 +18,22 @@
 
     <ItemGroup>
       <ProjectReference Include="..\..\src\MonorailCss\MonorailCss.csproj" />
-      <!-- Reference the MSBuild task project to ensure it builds first -->
+      <!-- Reference the Build.Tasks project to ensure it builds first -->
       <ProjectReference Include="..\..\src\MonorailCss.Build.Tasks\MonorailCss.Build.Tasks.csproj"
-                        ReferenceOutputAssembly="false"
-                        PrivateAssets="All"
-                        SetTargetFramework="TargetFramework=net9.0" />
+                        PrivateAssets="All" />
     </ItemGroup>
 
-    <!-- Import the MonorailCss targets conditionally after the build tasks are available -->
-    <Import Project="..\..\src\MonorailCss.Build.Tasks\build\MonorailCss.Build.Tasks.targets"
-            Condition="Exists('..\..\src\MonorailCss.Build.Tasks\bin\$(Configuration)\net9.0\MonorailCss.Build.Tasks.dll')" />
+    <!-- Simple UsingTask pointing directly to the Build.Tasks assembly -->
+    <UsingTask TaskName="MonorailCss.Build.Tasks.ProcessCssTask"
+               AssemblyFile="..\..\src\MonorailCss.Build.Tasks\bin\$(Configuration)\net9.0\MonorailCss.Build.Tasks.dll" />
 
-    <!-- Mark app.css file with MonorailCss build action -->
-    <ItemGroup>
-      <MonorailCss Include="app.css">
-        <OutputFile>$(MSBuildProjectDirectory)\wwwroot\css\app.css</OutputFile>
-      </MonorailCss>
-    </ItemGroup>
-
-    <!-- Ensure build tasks are built before processing CSS -->
-    <Target Name="EnsureMonorailCssBuildTasks" BeforeTargets="ProcessMonorailCss">
-      <MSBuild Projects="..\..\src\MonorailCss.Build.Tasks\MonorailCss.Build.Tasks.csproj"
-               Targets="Build"
-               Properties="Configuration=$(Configuration)"
-               Condition="!Exists('..\..\src\MonorailCss.Build.Tasks\bin\$(Configuration)\net9.0\MonorailCss.Build.Tasks.dll')" />
+    <!-- Direct target with hardcoded values for CSS generation -->
+    <Target Name="GenerateCss"
+            BeforeTargets="BeforeBuild"
+            Inputs="app.css;@(Content);@(Compile)"
+            Outputs="wwwroot\css\app.css">
+      <ProcessCssTask
+        InputFile="app.css"
+        OutputFile="wwwroot\css\app.css" />
     </Target>
 </Project>

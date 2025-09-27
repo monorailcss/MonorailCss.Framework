@@ -19,7 +19,6 @@ public record CssFrameworkSettings
         Important = false;
         IncludePreflight = true;
         Applies = ImmutableDictionary<string, string>.Empty;
-        CssThemeSources = ImmutableList<string>.Empty;
         ProseCustomization = null;
     }
 
@@ -47,11 +46,6 @@ public record CssFrameworkSettings
     /// Gets a map of custom apply rules where the key is a selector or alias and the value is a space-separated list of utilities or raw CSS to apply.
     /// </summary>
     public ImmutableDictionary<string, string> Applies { get; init; }
-
-    /// <summary>
-    /// Gets the list of additional CSS theme sources (e.g., files or inline blocks) to merge into the effective theme.
-    /// </summary>
-    public ImmutableList<string> CssThemeSources { get; init; }
 
     /// <summary>
     /// Gets the optional customization for prose/typographic styles.

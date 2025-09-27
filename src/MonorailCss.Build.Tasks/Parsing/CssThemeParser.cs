@@ -1,14 +1,33 @@
 using System.Collections.Immutable;
 using System.Text;
 using System.Text.RegularExpressions;
-using MonorailCss.Parser.Custom;
-using MonorailCss.Utilities;
 
-namespace MonorailCss.Css;
+namespace MonorailCss.Build.Tasks.Parsing;
+
+/// <summary>
+/// Represents a parsed custom utility definition.
+/// </summary>
+public record ParsedUtilityDefinition(
+    string Pattern,
+    bool IsWildcard,
+    ImmutableList<ParsedCssDeclaration> Declarations,
+    ImmutableList<ParsedNestedSelector> NestedSelectors,
+    ImmutableList<string> CustomPropertyDependencies);
+
+/// <summary>
+/// Represents a CSS declaration.
+/// </summary>
+public record ParsedCssDeclaration(string Property, string Value);
+
+/// <summary>
+/// Represents a nested selector.
+/// </summary>
+public record ParsedNestedSelector(string Selector, ImmutableList<ParsedCssDeclaration> Declarations);
 
 /// <summary>
 /// Parses CSS source containing @theme blocks and component rules with @apply directives.
 /// Supports a minimal subset of Tailwind v4 syntax for IntelliSense compatibility.
+/// This version is decoupled from the main framework and returns DTOs.
 /// </summary>
 internal partial class CssThemeParser
 {
@@ -21,11 +40,10 @@ internal partial class CssThemeParser
     /// <summary>
     /// Result of parsing CSS source.
     /// </summary>
-    internal record ParseResult(
+    public record ParseResult(
         ImmutableDictionary<string, string> ThemeVariables,
         ImmutableDictionary<string, string> ComponentRules,
-        ImmutableList<IUtility> Utilities,
-        bool HasImport);
+        ImmutableList<ParsedUtilityDefinition> UtilityDefinitions);
 
     /// <summary>
     /// Parses CSS source and extracts theme variables and component rules.
@@ -39,8 +57,7 @@ internal partial class CssThemeParser
             return new ParseResult(
                 ImmutableDictionary<string, string>.Empty,
                 ImmutableDictionary<string, string>.Empty,
-                ImmutableList<IUtility>.Empty,
-                false);
+                ImmutableList<ParsedUtilityDefinition>.Empty);
         }
 
         // Remove comments to simplify parsing
@@ -58,7 +75,7 @@ internal partial class CssThemeParser
         // Extract custom utilities from @utility blocks
         var utilities = ExtractUtilities(cssSource);
 
-        return new ParseResult(themeVariables, componentRules, utilities, hasImport);
+        return new ParseResult(themeVariables, componentRules, utilities);
     }
 
     private string RemoveComments(string css)
@@ -206,23 +223,32 @@ internal partial class CssThemeParser
         return utilities;
     }
 
-    private ImmutableList<IUtility> ExtractUtilities(string css)
+    private ImmutableList<ParsedUtilityDefinition> ExtractUtilities(string css)
     {
-        // Use the existing CustomUtilityCssParser to parse @utility blocks
+        // Use the custom utility parser to extract utility definitions
         var parser = new CustomUtilityCssParser();
         var definitions = parser.ParseCustomUtilities(css);
 
-        // Convert definitions to utility instances using the factory
-        var utilities = CustomUtilityFactory.CreateUtilities(definitions);
+        // Convert to parsed utility definitions (DTOs)
+        var utilities = definitions.Select(def => new ParsedUtilityDefinition(
+            def.Pattern,
+            def.IsWildcard,
+            def.Declarations.Select(d => new ParsedCssDeclaration(d.Property, d.Value)).ToImmutableList(),
+            def.NestedSelectors.Select(ns => new ParsedNestedSelector(
+                ns.Selector,
+                ns.Declarations.Select(d => new ParsedCssDeclaration(d.Property, d.Value)).ToImmutableList()
+            )).ToImmutableList(),
+            def.CustomPropertyDependencies
+        )).ToImmutableList();
 
-        return utilities.ToImmutableList();
+        return utilities;
     }
 
     [GeneratedRegex(@"@import\s+[""']tailwindcss[""']\s*;?", RegexOptions.Compiled)]
     private static partial Regex ImportRegexDefinition();
     [GeneratedRegex(@"@theme\s*\{([^}]*)\}", RegexOptions.Compiled | RegexOptions.Singleline)]
     private static partial Regex ThemeBlockRegexDefinition();
-    [GeneratedRegex(@"(--[\w-]+)\s*:\s*([^;]+);", RegexOptions.Compiled)]
+    [GeneratedRegex(@"(--([\w-]+))\s*:\s*([^;]+);", RegexOptions.Compiled)]
     private static partial Regex ThemeVariableRegexDefinition();
     [GeneratedRegex(@"([\w\s\-\.\#\:\[\]]+)\s*\{([^}]*@apply[^}]*)\}", RegexOptions.Compiled | RegexOptions.Singleline)]
     private static partial Regex ComponentRuleRegexDefinition();
