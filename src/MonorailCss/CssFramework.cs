@@ -3,6 +3,7 @@ using MonorailCss.Ast;
 using MonorailCss.Candidates;
 using MonorailCss.Css;
 using MonorailCss.Parser;
+using MonorailCss.Parser.Custom;
 using MonorailCss.Pipeline;
 using MonorailCss.Pipeline.Stages;
 using MonorailCss.Processing;
@@ -63,6 +64,13 @@ public class CssFramework
         _variantRegistry.RegisterBuiltInVariants(_settings.Theme);
 
         _applyProcessor = new ApplyProcessor(UtilityRegistry, _variantRegistry, _settings.Theme);
+
+        // Register custom utilities from settings
+        if (settings.CustomUtilities.Count > 0)
+        {
+            var customUtilities = CustomUtilityFactory.CreateUtilities(settings.CustomUtilities);
+            AddUtilities(customUtilities);
+        }
     }
 
     /// <summary>

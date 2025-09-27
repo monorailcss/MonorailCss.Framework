@@ -1,4 +1,5 @@
 using System.Collections.Immutable;
+using MonorailCss.Parser.Custom;
 using MonorailCss.Theme;
 
 namespace MonorailCss;
@@ -20,6 +21,7 @@ public record CssFrameworkSettings
         IncludePreflight = true;
         Applies = ImmutableDictionary<string, string>.Empty;
         ProseCustomization = null;
+        CustomUtilities = ImmutableList<UtilityDefinition>.Empty;
     }
 
     /// <summary>
@@ -51,4 +53,10 @@ public record CssFrameworkSettings
     /// Gets the optional customization for prose/typographic styles.
     /// </summary>
     public ProseCustomization? ProseCustomization { get; init; }
+
+    /// <summary>
+    /// Gets a list of custom utility definitions to be registered with the framework.
+    /// These are typically parsed from @utility blocks in CSS source files.
+    /// </summary>
+    public ImmutableList<UtilityDefinition> CustomUtilities { get; init; }
 }

@@ -1,5 +1,6 @@
 using System.Collections.Immutable;
 using System.Text.RegularExpressions;
+using JetBrains.Annotations;
 using Microsoft.Build.Framework;
 using MonorailCss.Build.Tasks.Parsing;
 
@@ -9,6 +10,7 @@ namespace MonorailCss.Build.Tasks;
 /// MSBuild task that scans content files for Tailwind utility classes
 /// and generates optimized CSS output using the MonorailCss framework.
 /// </summary>
+[UsedImplicitly]
 public partial class ProcessCssTask : Microsoft.Build.Utilities.Task
 {
     /// <summary>
@@ -113,6 +115,7 @@ public partial class ProcessCssTask : Microsoft.Build.Utilities.Task
             // Parse the input CSS file and build theme
             var baseTheme = new MonorailCss.Theme.Theme();
             var baseApplies = ImmutableDictionary<string, string>.Empty;
+            var customUtilities = ImmutableList<MonorailCss.Parser.Custom.UtilityDefinition>.Empty;
 
             if (File.Exists(InputFile))
             {
@@ -138,21 +141,23 @@ public partial class ProcessCssTask : Microsoft.Build.Utilities.Task
                     baseApplies = baseApplies.SetItems(parsedData.ComponentRules);
                 }
 
-                // Note: Custom utilities from @utility blocks need special handling
-                // For now, we'll pass them as CSS theme sources for the framework to process
+                // Convert and include custom utilities from @utility blocks
                 if (parsedData.UtilityDefinitions.Any())
                 {
                     Log.LogMessage(MessageImportance.Low, $"Found {parsedData.UtilityDefinitions.Count} custom utilities");
-                    // TODO: Handle custom utilities registration
+                    customUtilities = parsedData.UtilityDefinitions
+                        .Select(ConvertToFrameworkDefinition)
+                        .ToImmutableList();
                 }
             }
 
-            // Create settings with the configured theme and always include preflight
+            // Create settings with the configured theme, custom utilities, and always include preflight
             var settings = new CssFrameworkSettings
             {
                 IncludePreflight = true,
                 Theme = baseTheme,
-                Applies = baseApplies
+                Applies = baseApplies,
+                CustomUtilities = customUtilities
             };
 
             // Create and configure the CSS framework
@@ -346,6 +351,33 @@ public partial class ProcessCssTask : Microsoft.Build.Utilities.Task
         }
 
         return classNames;
+    }
+
+    /// <summary>
+    /// Converts a parsed utility definition from the build task parser to the framework's utility definition format.
+    /// </summary>
+    private MonorailCss.Parser.Custom.UtilityDefinition ConvertToFrameworkDefinition(ParsedUtilityDefinition parsedDefinition)
+    {
+        // Convert parsed CSS declarations to framework CSS declarations
+        var declarations = parsedDefinition.Declarations
+            .Select(d => new MonorailCss.Parser.Custom.CssDeclaration(d.Property, d.Value))
+            .ToImmutableList();
+
+        // Convert nested selectors
+        var nestedSelectors = parsedDefinition.NestedSelectors
+            .Select(ns => new MonorailCss.Parser.Custom.NestedSelector(
+                ns.Selector,
+                ns.Declarations.Select(d => new MonorailCss.Parser.Custom.CssDeclaration(d.Property, d.Value)).ToImmutableList()))
+            .ToImmutableList();
+
+        return new MonorailCss.Parser.Custom.UtilityDefinition
+        {
+            Pattern = parsedDefinition.Pattern,
+            IsWildcard = parsedDefinition.IsWildcard,
+            Declarations = declarations,
+            NestedSelectors = nestedSelectors,
+            CustomPropertyDependencies = parsedDefinition.CustomPropertyDependencies
+        };
     }
 
 }

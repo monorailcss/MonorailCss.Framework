@@ -31,7 +31,6 @@ public record ParsedNestedSelector(string Selector, ImmutableList<ParsedCssDecla
 /// </summary>
 internal partial class CssThemeParser
 {
-    private static readonly Regex _importRegex = ImportRegexDefinition();
     private static readonly Regex _themeBlockRegex = ThemeBlockRegexDefinition();
     private static readonly Regex _themeVariableRegex = ThemeVariableRegexDefinition();
     private static readonly Regex _componentRuleRegex = ComponentRuleRegexDefinition();
@@ -62,9 +61,6 @@ internal partial class CssThemeParser
 
         // Remove comments to simplify parsing
         cssSource = RemoveComments(cssSource);
-
-        // Check for @import "tailwindcss"
-        var hasImport = _importRegex.IsMatch(cssSource);
 
         // Extract theme variables from @theme blocks
         var themeVariables = ExtractThemeVariables(cssSource);
@@ -244,8 +240,6 @@ internal partial class CssThemeParser
         return utilities;
     }
 
-    [GeneratedRegex(@"@import\s+[""']tailwindcss[""']\s*;?", RegexOptions.Compiled)]
-    private static partial Regex ImportRegexDefinition();
     [GeneratedRegex(@"@theme\s*\{([^}]*)\}", RegexOptions.Compiled | RegexOptions.Singleline)]
     private static partial Regex ThemeBlockRegexDefinition();
     [GeneratedRegex(@"(--([\w-]+))\s*:\s*([^;]+);", RegexOptions.Compiled)]
