@@ -312,8 +312,7 @@ public class CandidateParserTests
 
     [Theory]
     [InlineData("-m-4/50", "-m", "4", "50")]
-    // TODO: Enable when translate-x utility is implemented
-    // [InlineData("-translate-x-1/2/50", "-translate-x", "1/2", "50")]
+    [InlineData("-translate-x-1/2/50", "-translate-x", "1/2", "50")]
     [InlineData("-rotate-45/[0.5]", "-rotate", "45", "0.5")]
     public void TryParseCandidate_WithNegativeAndModifier_ParsesBothCorrectly(string input, string expectedRoot, string expectedValue, string expectedModifier)
     {
