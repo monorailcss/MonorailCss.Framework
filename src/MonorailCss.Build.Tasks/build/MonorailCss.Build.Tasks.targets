@@ -12,13 +12,6 @@
     <AvailableItemName Include="MonorailCss" />
   </ItemGroup>
 
-  <!-- Default properties for MonorailCss processing -->
-  <PropertyGroup>
-    <MonorailCssEnabled Condition="'$(MonorailCssEnabled)' == ''">true</MonorailCssEnabled>
-    <MonorailCssExcludePaths Condition="'$(MonorailCssExcludePaths)' == ''">bin;obj</MonorailCssExcludePaths>
-    <MonorailCssContentPatterns Condition="'$(MonorailCssContentPatterns)' == ''">**/*.html;**/*.razor;**/*.cshtml;**/*.jsx;**/*.tsx;**/*.vue</MonorailCssContentPatterns>
-  </PropertyGroup>
-
   <!-- Process each MonorailCss file -->
   <Target Name="ProcessMonorailCss"
           BeforeTargets="BeforeBuild"
@@ -34,11 +27,10 @@
     </ItemGroup>
 
     <!-- Execute the ProcessCssTask for each input file -->
+    <!-- Use @source and @import directives in your CSS file to configure source scanning -->
     <ProcessCssTask
       InputFile="%(MonorailCss.Identity)"
-      OutputFile="%(MonorailCss.OutputFile)"
-      ContentPatterns="$(MonorailCssContentPatterns)"
-      ExcludePaths="$(MonorailCssExcludePaths)" />
+      OutputFile="%(MonorailCss.OutputFile)" />
 
     <!-- Add generated files to Content if in wwwroot -->
     <ItemGroup>

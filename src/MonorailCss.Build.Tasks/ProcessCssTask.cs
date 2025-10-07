@@ -3,6 +3,7 @@ using System.Text.RegularExpressions;
 using JetBrains.Annotations;
 using Microsoft.Build.Framework;
 using MonorailCss.Build.Tasks.Parsing;
+using MonorailCss.Build.Tasks.Scanning;
 
 namespace MonorailCss.Build.Tasks;
 
@@ -25,20 +26,10 @@ public partial class ProcessCssTask : Microsoft.Build.Utilities.Task
     [Required]
     public string OutputFile { get; set; } = string.Empty;
 
-    /// <summary>
-    /// Gets or sets the glob patterns for content files to scan.
-    /// If not specified, uses default patterns.
-    /// </summary>
-    public string? ContentPatterns { get; set; }
-
-    /// <summary>
-    /// Gets or sets the directories to exclude from scanning.
-    /// Default is "bin;obj".
-    /// </summary>
-    public string ExcludePaths { get; set; } = "bin;obj";
+    private readonly IDllScanner _dllScanner = new DllScanner();
 
     // Default content patterns for common web frameworks
-    private static readonly string[] DefaultContentPatterns =
+    private static readonly string[] _defaultContentPatterns =
     [
         "**/*.html",
         "**/*.htm",
@@ -92,30 +83,11 @@ public partial class ProcessCssTask : Microsoft.Build.Utilities.Task
                 rootDir = Directory.GetCurrentDirectory();
             }
 
-            // Get content file patterns
-            var patterns = GetContentPatterns();
-
-            // Get excluded directories
-            var excludeDirs = ExcludePaths.Split(';', StringSplitOptions.RemoveEmptyEntries)
-                .Select(p => p.Trim())
-                .ToHashSet(StringComparer.OrdinalIgnoreCase);
-
-            // Scan content files for utility classes
-            var utilities = ScanContentFiles(rootDir, patterns, excludeDirs);
-
-            if (utilities.Count == 0)
-            {
-                Log.LogWarning("No utility classes found in content files");
-            }
-            else
-            {
-                Log.LogMessage(MessageImportance.Normal, $"Found {utilities.Count} unique utility classes");
-            }
-
-            // Parse the input CSS file and build theme
+            // Parse the input CSS file first to get source configuration
             var baseTheme = new MonorailCss.Theme.Theme();
             var baseApplies = ImmutableDictionary<string, string>.Empty;
             var customUtilities = ImmutableList<MonorailCss.Parser.Custom.UtilityDefinition>.Empty;
+            var sourceConfiguration = new SourceConfiguration();
 
             if (File.Exists(InputFile))
             {
@@ -149,6 +121,21 @@ public partial class ProcessCssTask : Microsoft.Build.Utilities.Task
                         .Select(ConvertToFrameworkDefinition)
                         .ToImmutableList();
                 }
+
+                // Get source configuration
+                sourceConfiguration = parsedData.SourceConfiguration;
+            }
+
+            // Scan for utilities using source configuration (or auto-detect if no config)
+            var utilities = ScanWithSourceConfiguration(rootDir, sourceConfiguration);
+
+            if (utilities.Count == 0)
+            {
+                Log.LogWarning("No utility classes found in content files");
+            }
+            else
+            {
+                Log.LogMessage(MessageImportance.Normal, $"Found {utilities.Count} unique utility classes");
             }
 
             // Create settings with the configured theme, custom utilities, and always include preflight
@@ -190,16 +177,150 @@ public partial class ProcessCssTask : Microsoft.Build.Utilities.Task
     }
 
     /// <summary>
-    /// Gets the content file patterns to use for scanning.
+    /// Scans files using @source and @import directives from the input CSS.
     /// </summary>
-    private string[] GetContentPatterns()
+    private HashSet<string> ScanWithSourceConfiguration(string rootDir, SourceConfiguration config)
     {
-        if (!string.IsNullOrEmpty(ContentPatterns))
+        var utilities = new HashSet<string>();
+
+        // Determine the base directory for scanning
+        var baseDir = rootDir;
+        if (!string.IsNullOrEmpty(config.BasePath))
         {
-            return ContentPatterns.Split(';', StringSplitOptions.RemoveEmptyEntries);
+            baseDir = Path.IsPathRooted(config.BasePath)
+                ? config.BasePath
+                : Path.GetFullPath(Path.Combine(rootDir, config.BasePath));
+            Log.LogMessage(MessageImportance.Low, $"Using base path: {baseDir}");
         }
 
-        return DefaultContentPatterns;
+        // Build exclude list from @source not directives
+        var excludePaths = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        foreach (var exclude in config.ExcludeSources)
+        {
+            var resolvedPath = Path.IsPathRooted(exclude.Path)
+                ? exclude.Path
+                : Path.GetFullPath(Path.Combine(rootDir, exclude.Path));
+            excludePaths.Add(resolvedPath);
+            Log.LogMessage(MessageImportance.Low, $"Excluding: {resolvedPath}");
+        }
+
+        // Process explicit @source includes
+        if (config.IncludeSources.Count > 0)
+        {
+            Log.LogMessage(MessageImportance.Normal, $"Processing {config.IncludeSources.Count} explicit source(s)");
+            foreach (var source in config.IncludeSources)
+            {
+                var resolvedPath = Path.IsPathRooted(source.Path)
+                    ? source.Path
+                    : Path.GetFullPath(Path.Combine(rootDir, source.Path));
+
+                if (source.IsDll)
+                {
+                    // Handle DLL scanning
+                    var dllUtilities = _dllScanner.ScanDllForUtilities(resolvedPath, Log);
+                    foreach (var utility in dllUtilities)
+                    {
+                        utilities.Add(utility);
+                    }
+                }
+                else
+                {
+                    // Scan directory or file
+                    ScanSourcePath(resolvedPath, utilities, excludePaths);
+                }
+            }
+        }
+        else if (!config.DisableAutoDetection)
+        {
+            // Auto-detect: scan baseDir with default patterns
+            Log.LogMessage(MessageImportance.Normal, "Auto-detecting sources from base directory");
+            var excludeDirs = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "bin", "obj" };
+
+            // Add exclude paths as directory names
+            foreach (var excludePath in excludePaths)
+            {
+                var dirName = Path.GetFileName(excludePath);
+                if (!string.IsNullOrEmpty(dirName))
+                {
+                    excludeDirs.Add(dirName);
+                }
+            }
+
+            utilities = ScanContentFiles(baseDir, _defaultContentPatterns, excludeDirs);
+        }
+
+        // Process inline safelisted utilities
+        foreach (var inline in config.InlineSources)
+        {
+            Log.LogMessage(MessageImportance.Low, $"Adding inline utilities: {inline.Pattern}");
+            foreach (var utility in inline.ExpandedUtilities)
+            {
+                utilities.Add(utility);
+            }
+        }
+
+        return utilities;
+    }
+
+    /// <summary>
+    /// Scans a specific source path (file or directory) for utilities.
+    /// </summary>
+    private void ScanSourcePath(string path, HashSet<string> utilities, HashSet<string> excludePaths)
+    {
+        // Check if path is excluded
+        if (excludePaths.Contains(path))
+        {
+            Log.LogMessage(MessageImportance.Low, $"Skipping excluded path: {path}");
+            return;
+        }
+
+        if (File.Exists(path))
+        {
+            // Scan single file
+            try
+            {
+                var content = File.ReadAllText(path);
+                var classNames = ExtractClassNames(content);
+                foreach (var className in classNames)
+                {
+                    var classes = className.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+                    foreach (var cls in classes)
+                    {
+                        var trimmed = cls.Trim();
+                        if (!string.IsNullOrEmpty(trimmed))
+                        {
+                            utilities.Add(trimmed);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Log.LogWarning($"Could not read file {path}: {ex.Message}");
+            }
+        }
+        else if (Directory.Exists(path))
+        {
+            // Scan directory with default patterns
+            var excludeDirs = excludePaths
+                .Where(Directory.Exists)
+                .Select(p => Path.GetFileName(p))
+                .Where(name => !string.IsNullOrEmpty(name))
+                .ToHashSet(StringComparer.OrdinalIgnoreCase)!;
+
+            excludeDirs.Add("bin");
+            excludeDirs.Add("obj");
+
+            var scannedUtilities = ScanContentFiles(path, _defaultContentPatterns, excludeDirs);
+            foreach (var utility in scannedUtilities)
+            {
+                utilities.Add(utility);
+            }
+        }
+        else
+        {
+            Log.LogWarning($"Source path not found: {path}");
+        }
     }
 
     /// <summary>
@@ -298,7 +419,7 @@ public partial class ProcessCssTask : Microsoft.Build.Utilities.Task
             catch (Exception ex)
             {
                 Log.LogWarning($"Error scanning for pattern {pattern}: {ex.Message}");
-                return Array.Empty<string>();
+                return [];
             }
         }
     }

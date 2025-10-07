@@ -42,13 +42,14 @@ internal partial class CssThemeParser
     public record ParseResult(
         ImmutableDictionary<string, string> ThemeVariables,
         ImmutableDictionary<string, string> ComponentRules,
-        ImmutableList<ParsedUtilityDefinition> UtilityDefinitions);
+        ImmutableList<ParsedUtilityDefinition> UtilityDefinitions,
+        SourceConfiguration SourceConfiguration);
 
     /// <summary>
-    /// Parses CSS source and extracts theme variables and component rules.
+    /// Parses CSS source and extracts theme variables, component rules, and source configuration.
     /// </summary>
     /// <param name="cssSource">The CSS source string to parse.</param>
-    /// <returns>Parsed theme variables and component rules.</returns>
+    /// <returns>Parsed theme variables, component rules, utilities, and source configuration.</returns>
     public ParseResult Parse(string cssSource)
     {
         if (string.IsNullOrWhiteSpace(cssSource))
@@ -56,7 +57,8 @@ internal partial class CssThemeParser
             return new ParseResult(
                 ImmutableDictionary<string, string>.Empty,
                 ImmutableDictionary<string, string>.Empty,
-                ImmutableList<ParsedUtilityDefinition>.Empty);
+                ImmutableList<ParsedUtilityDefinition>.Empty,
+                new SourceConfiguration());
         }
 
         // Remove comments to simplify parsing
@@ -71,7 +73,11 @@ internal partial class CssThemeParser
         // Extract custom utilities from @utility blocks
         var utilities = ExtractUtilities(cssSource);
 
-        return new ParseResult(themeVariables, componentRules, utilities);
+        // Extract source configuration from @import and @source directives
+        var sourceParser = new CssSourceParser();
+        var sourceConfiguration = sourceParser.Parse(cssSource);
+
+        return new ParseResult(themeVariables, componentRules, utilities, sourceConfiguration);
     }
 
     private string RemoveComments(string css)
