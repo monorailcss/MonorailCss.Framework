@@ -306,7 +306,7 @@ public partial class ProcessCssTask : Microsoft.Build.Utilities.Task
                 .Where(Directory.Exists)
                 .Select(p => Path.GetFileName(p))
                 .Where(name => !string.IsNullOrEmpty(name))
-                .ToHashSet(StringComparer.OrdinalIgnoreCase)!;
+                .ToHashSet(StringComparer.OrdinalIgnoreCase);
 
             excludeDirs.Add("bin");
             excludeDirs.Add("obj");
