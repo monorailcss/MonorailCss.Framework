@@ -26,7 +26,7 @@ public partial class ProcessCssTask : Microsoft.Build.Utilities.Task
     [Required]
     public string OutputFile { get; set; } = string.Empty;
 
-    private readonly IDllScanner _dllScanner = new DllScanner();
+    private readonly DllScanner _dllScanner = new();
 
     // Default content patterns for common web frameworks
     private static readonly string[] _defaultContentPatterns =
