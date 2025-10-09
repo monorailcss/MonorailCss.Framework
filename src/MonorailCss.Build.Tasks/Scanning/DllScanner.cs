@@ -1,3 +1,4 @@
+using System.IO.Abstractions;
 using System.Reflection.Metadata;
 using System.Reflection.Metadata.Ecma335;
 using System.Reflection.PortableExecutable;
@@ -10,6 +11,16 @@ namespace MonorailCss.Build.Tasks.Scanning;
 /// </summary>
 internal class DllScanner
 {
+    private readonly IFileSystem _fileSystem;
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="DllScanner"/> class.
+    /// </summary>
+    /// <param name="fileSystem">The file system abstraction to use for file operations.</param>
+    public DllScanner(IFileSystem? fileSystem = null)
+    {
+        _fileSystem = fileSystem ?? new FileSystem();
+    }
     /// <summary>
     /// Scans a DLL file for utility classes by extracting user strings from IL code.
     /// </summary>
@@ -18,7 +29,7 @@ internal class DllScanner
     /// <returns>A set of utility class names found in the DLL.</returns>
     public HashSet<string> ScanDllForUtilities(string dllPath, TaskLoggingHelper log)
     {
-        if (!File.Exists(dllPath))
+        if (!_fileSystem.File.Exists(dllPath))
         {
             log.LogWarning($"DLL file not found: {dllPath}");
             return [];
@@ -28,7 +39,7 @@ internal class DllScanner
         {
             log.LogMessage(Microsoft.Build.Framework.MessageImportance.Low, $"Scanning DLL for utilities: {dllPath}");
 
-            using var stream = File.OpenRead(dllPath);
+            using var stream = _fileSystem.File.OpenRead(dllPath);
             using var peReader = new PEReader(stream);
 
             if (!peReader.HasMetadata)

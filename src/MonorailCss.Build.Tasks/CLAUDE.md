@@ -35,16 +35,21 @@ Uses regex patterns to extract class names from various frameworks:
 - `@utility` blocks for custom utility definitions
 - `@import` and `@source` directives for source configuration
 
-**CssSourceParser.cs**: Parses Tailwind v4 source directives:
-- `@import "tailwindcss" source("path")` - Set base path for auto-detection
-- `@import "tailwindcss" source(none)` - Disable auto-detection
+**CssSourceParser.cs**: Parses Tailwind v4 source and import directives:
+- `@import "path"` - Import CSS files (parsed but not yet processed)
+- `@import "path" source("path")` - Set base path for auto-detection
+- `@import "path" source(none)` - Disable auto-detection
+- `@import "path" theme(static)` - Theme modifier (parsed but not yet implemented)
+- `@import "path" layer(utilities)` - Layer modifier (parsed but not yet implemented)
 - `@source "path"` - Explicitly include a file or directory
 - `@source not "path"` - Exclude a file or directory
 - `@source inline("pattern")` - Safelist utilities with brace/variant expansion
+- `@custom-variant name (selector)` - Define custom variant with selector pattern
 
 **CustomUtilityCssParser.cs**: Extracts custom utility definitions from `@utility` directives, supporting:
 - Static utilities (e.g., `@utility scrollbar-none`)
 - Wildcard patterns (e.g., `@utility scrollbar-thumb-*`)
+- `@apply` directives within utilities (e.g., `@utility bordered-link { @apply font-semibold border-b; }`)
 - Nested selectors with `&` references
 - Automatic custom property dependency tracking
 
@@ -108,6 +113,41 @@ Typically consumed via NuGet package. The task is automatically invoked during b
 @source inline("{hover:,focus:,}underline");
 /* Forces generation of specific utilities */
 ```
+
+**Custom variants**:
+```css
+@custom-variant scrollbar (&::-webkit-scrollbar);
+@custom-variant scrollbar-track (&::-webkit-scrollbar-track);
+@custom-variant scrollbar-thumb (&::-webkit-scrollbar-thumb);
+
+/* Use custom variants in markup */
+/* class="scrollbar:w-2 scrollbar-track:bg-gray-100" */
+```
+
+**Import modifiers** (theme and layer are parsed but not yet implemented):
+```css
+@import "tailwindcss" theme(static);
+@import "../bin/lumexui/_theme";
+@import "./typography" layer(utilities);
+/* Theme and layer modifiers are logged but not processed by framework */
+```
+
+**Custom utilities with @apply**:
+```css
+@utility bordered-link {
+    @apply font-semibold leading-tight text-current border-b border-current hover:border-b-2;
+}
+
+/* Use in markup: class="bordered-link" */
+```
+
+## Unsupported Directives
+
+The following Tailwind v4 directives are **not yet parsed**:
+- `@plugin` - Plugin loading (e.g., `@plugin "@tailwindcss/typography"`)
+- CSS import processing - `@import` paths are not resolved or merged into output
+
+These may be added in future versions.
 
 ## Testing
 

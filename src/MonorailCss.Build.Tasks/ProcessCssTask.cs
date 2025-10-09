@@ -1,4 +1,5 @@
 using System.Collections.Immutable;
+using System.IO.Abstractions;
 using System.Text.RegularExpressions;
 using JetBrains.Annotations;
 using Microsoft.Build.Framework;
@@ -11,9 +12,33 @@ namespace MonorailCss.Build.Tasks;
 /// MSBuild task that scans content files for Tailwind utility classes
 /// and generates optimized CSS output using the MonorailCss framework.
 /// </summary>
+/// <remarks>
+/// Supported CSS directives:
+/// - @import with source(), theme(), and layer() modifiers (theme/layer parsed but not yet implemented)
+/// - @source for explicit file/directory inclusion
+/// - @source not for exclusion
+/// - @source inline() for safelisting utilities
+/// - @custom-variant for defining custom pseudo-class/element variants
+/// - @utility for custom utility definitions
+/// - @theme for CSS custom properties
+/// - @apply for component composition
+/// </remarks>
 [UsedImplicitly]
 public partial class ProcessCssTask : Microsoft.Build.Utilities.Task
 {
+    private readonly IFileSystem _fileSystem;
+    private readonly DllScanner _dllScanner;
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="ProcessCssTask"/> class.
+    /// </summary>
+    /// <param name="fileSystem">The file system abstraction to use for file operations. Defaults to the real file system if not provided.</param>
+    public ProcessCssTask(IFileSystem? fileSystem = null)
+    {
+        _fileSystem = fileSystem ?? new FileSystem();
+        _dllScanner = new DllScanner(_fileSystem);
+    }
+
     /// <summary>
     /// Gets or sets the input CSS file that contains theme definitions and custom utilities.
     /// </summary>
@@ -25,8 +50,6 @@ public partial class ProcessCssTask : Microsoft.Build.Utilities.Task
     /// </summary>
     [Required]
     public string OutputFile { get; set; } = string.Empty;
-
-    private readonly DllScanner _dllScanner = new();
 
     // Default content patterns for common web frameworks
     private static readonly string[] _defaultContentPatterns =
@@ -80,18 +103,19 @@ public partial class ProcessCssTask : Microsoft.Build.Utilities.Task
             var rootDir = Path.GetDirectoryName(InputFile);
             if (string.IsNullOrEmpty(rootDir))
             {
-                rootDir = Directory.GetCurrentDirectory();
+                rootDir = _fileSystem.Directory.GetCurrentDirectory();
             }
 
             // Parse the input CSS file first to get source configuration
             var baseTheme = new MonorailCss.Theme.Theme();
             var baseApplies = ImmutableDictionary<string, string>.Empty;
             var customUtilities = ImmutableList<MonorailCss.Parser.Custom.UtilityDefinition>.Empty;
+            var customVariants = ImmutableList<CustomVariantDefinition>.Empty;
             var sourceConfiguration = new SourceConfiguration();
 
-            if (File.Exists(InputFile))
+            if (_fileSystem.File.Exists(InputFile))
             {
-                var cssContent = File.ReadAllText(InputFile);
+                var cssContent = _fileSystem.File.ReadAllText(InputFile);
                 var parser = new CssThemeParser();
                 var parsedData = parser.Parse(cssContent);
                 Log.LogMessage(MessageImportance.Low, $"Parsed theme from: {InputFile}");
@@ -122,6 +146,33 @@ public partial class ProcessCssTask : Microsoft.Build.Utilities.Task
                         .ToImmutableList();
                 }
 
+                // Convert and include custom variants from @custom-variant directives
+                if (parsedData.SourceConfiguration.CustomVariants.Any())
+                {
+                    Log.LogMessage(MessageImportance.Low, $"Found {parsedData.SourceConfiguration.CustomVariants.Count} custom variants");
+                    customVariants = parsedData.SourceConfiguration.CustomVariants
+                        .Select(cv => new CustomVariantDefinition
+                        {
+                            Name = cv.Name,
+                            Selector = cv.Selector,
+                            Weight = 490 // Default weight before built-in pseudo-elements
+                        })
+                        .ToImmutableList();
+                }
+
+                // Log parsed @import directives
+                if (parsedData.SourceConfiguration.Imports.Any())
+                {
+                    Log.LogMessage(MessageImportance.Low, $"Found {parsedData.SourceConfiguration.Imports.Count} @import directives");
+                    foreach (var import in parsedData.SourceConfiguration.Imports)
+                    {
+                        var modifierInfo = import.Modifier != ImportModifier.None
+                            ? $" {import.Modifier.ToString().ToLowerInvariant()}({import.ModifierValue})"
+                            : string.Empty;
+                        Log.LogMessage(MessageImportance.Low, $"  @import \"{import.Path}\"{modifierInfo}");
+                    }
+                }
+
                 // Get source configuration
                 sourceConfiguration = parsedData.SourceConfiguration;
             }
@@ -138,13 +189,14 @@ public partial class ProcessCssTask : Microsoft.Build.Utilities.Task
                 Log.LogMessage(MessageImportance.Normal, $"Found {utilities.Count} unique utility classes");
             }
 
-            // Create settings with the configured theme, custom utilities, and always include preflight
+            // Create settings with the configured theme, custom utilities, custom variants, and always include preflight
             var settings = new CssFrameworkSettings
             {
                 IncludePreflight = true,
                 Theme = baseTheme,
                 Applies = baseApplies,
-                CustomUtilities = customUtilities
+                CustomUtilities = customUtilities,
+                CustomVariants = customVariants
             };
 
             // Create and configure the CSS framework
@@ -156,15 +208,15 @@ public partial class ProcessCssTask : Microsoft.Build.Utilities.Task
 
             // Ensure output directory exists
             var outputDir = Path.GetDirectoryName(OutputFile);
-            if (!string.IsNullOrEmpty(outputDir) && !Directory.Exists(outputDir))
+            if (!string.IsNullOrEmpty(outputDir) && !_fileSystem.Directory.Exists(outputDir))
             {
-                Directory.CreateDirectory(outputDir);
+                _fileSystem.Directory.CreateDirectory(outputDir);
             }
 
             // Write output
-            File.WriteAllText(OutputFile, generatedCss);
+            _fileSystem.File.WriteAllText(OutputFile, generatedCss);
 
-            Log.LogMessage(MessageImportance.High, $"MonorailCss: Generated {OutputFile} ({new FileInfo(OutputFile).Length / 1024.0:F1} KB)");
+            Log.LogMessage(MessageImportance.High, $"MonorailCss: Generated {OutputFile} ({_fileSystem.FileInfo.New(OutputFile).Length / 1024.0:F1} KB)");
 
             return true;
         }
@@ -274,12 +326,12 @@ public partial class ProcessCssTask : Microsoft.Build.Utilities.Task
             return;
         }
 
-        if (File.Exists(path))
+        if (_fileSystem.File.Exists(path))
         {
             // Scan single file
             try
             {
-                var content = File.ReadAllText(path);
+                var content = _fileSystem.File.ReadAllText(path);
                 var classNames = ExtractClassNames(content);
                 foreach (var className in classNames)
                 {
@@ -299,11 +351,11 @@ public partial class ProcessCssTask : Microsoft.Build.Utilities.Task
                 Log.LogWarning($"Could not read file {path}: {ex.Message}");
             }
         }
-        else if (Directory.Exists(path))
+        else if (_fileSystem.Directory.Exists(path))
         {
             // Scan directory with default patterns
             var excludeDirs = excludePaths
-                .Where(Directory.Exists)
+                .Where(_fileSystem.Directory.Exists)
                 .Select(p => Path.GetFileName(p))
                 .Where(name => !string.IsNullOrEmpty(name))
                 .ToHashSet(StringComparer.OrdinalIgnoreCase);
@@ -339,7 +391,7 @@ public partial class ProcessCssTask : Microsoft.Build.Utilities.Task
             {
                 try
                 {
-                    var content = File.ReadAllText(file);
+                    var content = _fileSystem.File.ReadAllText(file);
                     var classNames = ExtractClassNames(content);
 
                     foreach (var className in classNames)
@@ -382,7 +434,7 @@ public partial class ProcessCssTask : Microsoft.Build.Utilities.Task
 
             try
             {
-                var files = Directory.GetFiles(rootDir, searchPattern, option);
+                var files = _fileSystem.Directory.GetFiles(rootDir, searchPattern, option);
 
                 // Filter out files in excluded directories
                 return files.Where(file =>
@@ -404,7 +456,7 @@ public partial class ProcessCssTask : Microsoft.Build.Utilities.Task
         {
             try
             {
-                var files = Directory.GetFiles(rootDir, pattern, SearchOption.TopDirectoryOnly);
+                var files = _fileSystem.Directory.GetFiles(rootDir, pattern, SearchOption.TopDirectoryOnly);
 
                 // Filter out files in excluded directories
                 return files.Where(file =>

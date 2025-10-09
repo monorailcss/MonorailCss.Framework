@@ -12,7 +12,8 @@ public record ParsedUtilityDefinition(
     bool IsWildcard,
     ImmutableList<ParsedCssDeclaration> Declarations,
     ImmutableList<ParsedNestedSelector> NestedSelectors,
-    ImmutableList<string> CustomPropertyDependencies);
+    ImmutableList<string> CustomPropertyDependencies,
+    ImmutableList<string> ApplyUtilities);
 
 /// <summary>
 /// Represents a CSS declaration.
@@ -147,7 +148,7 @@ internal partial class CssThemeParser
             foreach (Match varMatch in variableMatches)
             {
                 var varName = varMatch.Groups[1].Value.Trim();
-                var varValue = varMatch.Groups[2].Value.Trim();
+                var varValue = varMatch.Groups[3].Value.Trim(); // Group 3 is the value, Group 2 is the variable name without --
 
                 // Store the variable (last one wins if duplicates)
                 variables[varName] = varValue;
@@ -240,7 +241,8 @@ internal partial class CssThemeParser
                 ns.Selector,
                 ns.Declarations.Select(d => new ParsedCssDeclaration(d.Property, d.Value)).ToImmutableList()
             )).ToImmutableList(),
-            def.CustomPropertyDependencies
+            def.CustomPropertyDependencies,
+            def.ApplyUtilities
         )).ToImmutableList();
 
         return utilities;

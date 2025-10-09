@@ -11,6 +11,7 @@ internal partial class CustomUtilityCssParser
 {
     private static readonly Regex _utilityBlockRegex = UtilityBlockRegexDefinition();
     private static readonly Regex _varFunctionRegex = VarFunctionRegexDefinition();
+    private static readonly Regex _applyDirectiveRegex = ApplyDirectiveRegexDefinition();
 
     /// <summary>
     /// Parses CSS source and extracts custom utility definitions from @utility blocks.
@@ -50,9 +51,22 @@ internal partial class CustomUtilityCssParser
         var declarations = new List<CssDeclaration>();
         var nestedSelectors = new List<NestedSelector>();
         var customProperties = new HashSet<string>();
+        var applyUtilities = new List<string>();
 
         // Check if this is a wildcard pattern
         var isWildcard = pattern.Contains('*');
+
+        // Extract @apply directives first
+        var applyMatches = _applyDirectiveRegex.Matches(content);
+        foreach (Match applyMatch in applyMatches)
+        {
+            var applyContent = applyMatch.Groups[1].Value.Trim();
+            // Split utilities while preserving variant prefixes like "hover:"
+            applyUtilities.AddRange(SplitUtilities(applyContent));
+        }
+
+        // Remove @apply directives from content before parsing declarations
+        content = _applyDirectiveRegex.Replace(content, string.Empty);
 
         // Parse the content to extract declarations and nested selectors
         ParseBlockContent(content, declarations, nestedSelectors, customProperties);
@@ -77,7 +91,8 @@ internal partial class CustomUtilityCssParser
             IsWildcard = isWildcard,
             Declarations = declarations.ToImmutableList(),
             NestedSelectors = nestedSelectors.ToImmutableList(),
-            CustomPropertyDependencies = customProperties.ToImmutableList()
+            CustomPropertyDependencies = customProperties.ToImmutableList(),
+            ApplyUtilities = applyUtilities.ToImmutableList()
         };
     }
 
@@ -197,6 +212,37 @@ internal partial class CustomUtilityCssParser
         }
     }
 
+    private List<string> SplitUtilities(string applyContent)
+    {
+        var utilities = new List<string>();
+        var current = new StringBuilder();
+
+        for (var i = 0; i < applyContent.Length; i++)
+        {
+            var c = applyContent[i];
+
+            if (char.IsWhiteSpace(c))
+            {
+                if (current.Length > 0)
+                {
+                    utilities.Add(current.ToString());
+                    current.Clear();
+                }
+            }
+            else
+            {
+                current.Append(c);
+            }
+        }
+
+        if (current.Length > 0)
+        {
+            utilities.Add(current.ToString());
+        }
+
+        return utilities;
+    }
+
     private string RemoveComments(string css)
     {
         var sb = new StringBuilder();
@@ -256,4 +302,7 @@ internal partial class CustomUtilityCssParser
 
     [GeneratedRegex(@"var\s*\(\s*([^)]+)\s*\)", RegexOptions.Compiled)]
     private static partial Regex VarFunctionRegexDefinition();
+
+    [GeneratedRegex(@"@apply\s+([^;]+);", RegexOptions.Compiled)]
+    private static partial Regex ApplyDirectiveRegexDefinition();
 }

@@ -37,6 +37,13 @@ internal record UtilityDefinition
     /// These are properties that are referenced via var() or set as custom properties.
     /// </summary>
     public ImmutableList<string> CustomPropertyDependencies { get; set; } = ImmutableList<string>.Empty;
+
+    /// <summary>
+    /// Gets or sets the list of utility classes to apply from @apply directives.
+    /// These are utilities that should be expanded when this custom utility is used.
+    /// Example: @apply font-semibold leading-tight hover:border-b-2
+    /// </summary>
+    public ImmutableList<string> ApplyUtilities { get; set; } = ImmutableList<string>.Empty;
 }
 
 /// <summary>

@@ -30,6 +30,7 @@
     <!-- Direct target with hardcoded values for CSS generation -->
     <Target Name="GenerateCss"
             BeforeTargets="BeforeBuild"
+            DependsOnTargets="ResolveProjectReferences"
             Inputs="app.css;@(Content);@(Compile)"
             Outputs="wwwroot\css\app.css">
       <ProcessCssTask

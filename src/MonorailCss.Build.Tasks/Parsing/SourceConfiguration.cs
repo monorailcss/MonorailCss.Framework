@@ -35,6 +35,16 @@ internal record SourceConfiguration
     public ImmutableList<InlineSourceDirective> InlineSources { get; init; } = ImmutableList<InlineSourceDirective>.Empty;
 
     /// <summary>
+    /// Gets the list of custom variant definitions from @custom-variant directives.
+    /// </summary>
+    public ImmutableList<CustomVariantDefinition> CustomVariants { get; init; } = ImmutableList<CustomVariantDefinition>.Empty;
+
+    /// <summary>
+    /// Gets the list of all @import directives parsed from the CSS.
+    /// </summary>
+    public ImmutableList<ImportDirective> Imports { get; init; } = ImmutableList<ImportDirective>.Empty;
+
+    /// <summary>
     /// Gets a value indicating whether any source configuration was found.
     /// </summary>
     public bool HasConfiguration =>
@@ -42,7 +52,9 @@ internal record SourceConfiguration
         DisableAutoDetection ||
         IncludeSources.Count > 0 ||
         ExcludeSources.Count > 0 ||
-        InlineSources.Count > 0;
+        InlineSources.Count > 0 ||
+        CustomVariants.Count > 0 ||
+        Imports.Count > 0;
 }
 
 /// <summary>
@@ -82,4 +94,62 @@ internal record InlineSourceDirective
     /// Gets the expanded list of utility classes after processing braces and variants.
     /// </summary>
     public ImmutableList<string> ExpandedUtilities { get; init; } = ImmutableList<string>.Empty;
+}
+
+/// <summary>
+/// Represents a custom variant definition from @custom-variant directive.
+/// Example: @custom-variant scrollbar (&amp;::-webkit-scrollbar)
+/// </summary>
+internal record CustomVariantDefinition
+{
+    /// <summary>
+    /// Gets the variant name (e.g., "scrollbar", "scrollbar-track").
+    /// </summary>
+    public string Name { get; init; } = string.Empty;
+
+    /// <summary>
+    /// Gets the selector pattern, typically using &amp; for parent reference.
+    /// Example: "&amp;::-webkit-scrollbar" or "&amp;::-webkit-scrollbar-track".
+    /// </summary>
+    public string Selector { get; init; } = string.Empty;
+}
+
+/// <summary>
+/// Modifier types for @import directives.
+/// </summary>
+internal enum ImportModifier
+{
+    /// <summary>No modifier specified.</summary>
+    None,
+
+    /// <summary>The source() modifier for controlling auto-detection.</summary>
+    Source,
+
+    /// <summary>The theme() modifier for theme handling.</summary>
+    Theme,
+
+    /// <summary>The layer() modifier for layer assignment.</summary>
+    Layer
+}
+
+/// <summary>
+/// Represents a parsed @import directive.
+/// Example: @import "tailwindcss" theme(static) or @import "./typography" layer(utilities)
+/// </summary>
+internal record ImportDirective
+{
+    /// <summary>
+    /// Gets the import path (e.g., "tailwindcss", "./fonts", "../theme").
+    /// </summary>
+    public string Path { get; init; } = string.Empty;
+
+    /// <summary>
+    /// Gets the type of modifier applied to this import.
+    /// </summary>
+    public ImportModifier Modifier { get; init; } = ImportModifier.None;
+
+    /// <summary>
+    /// Gets the modifier value (e.g., "static" for theme(static), "utilities" for layer(utilities), path for source()).
+    /// </summary>
+    public string? ModifierValue { get; init; }
 }

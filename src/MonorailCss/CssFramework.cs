@@ -63,6 +63,19 @@ public class CssFramework
         _variantRegistry = new VariantRegistry();
         _variantRegistry.RegisterBuiltInVariants(_settings.Theme);
 
+        // Register custom variants from settings
+        if (settings.CustomVariants.Count > 0)
+        {
+            foreach (var customVariant in settings.CustomVariants)
+            {
+                var variant = new Variants.BuiltIn.PseudoElementVariant(
+                    customVariant.Name,
+                    customVariant.Selector,
+                    customVariant.Weight);
+                _variantRegistry.Register(variant);
+            }
+        }
+
         _applyProcessor = new ApplyProcessor(UtilityRegistry, _variantRegistry, _settings.Theme);
 
         // Register custom utilities from settings

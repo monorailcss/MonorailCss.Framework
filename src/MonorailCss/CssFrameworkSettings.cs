@@ -22,6 +22,7 @@ public record CssFrameworkSettings
         Applies = ImmutableDictionary<string, string>.Empty;
         ProseCustomization = null;
         CustomUtilities = ImmutableList<UtilityDefinition>.Empty;
+        CustomVariants = ImmutableList<CustomVariantDefinition>.Empty;
     }
 
     /// <summary>
@@ -59,4 +60,34 @@ public record CssFrameworkSettings
     /// These are typically parsed from @utility blocks in CSS source files.
     /// </summary>
     public ImmutableList<UtilityDefinition> CustomUtilities { get; init; }
+
+    /// <summary>
+    /// Gets a list of custom variant definitions to be registered with the framework.
+    /// These are typically parsed from @custom-variant directives in CSS source files.
+    /// Each variant definition includes a name and selector pattern (e.g., "scrollbar" with "&amp;::-webkit-scrollbar").
+    /// </summary>
+    public ImmutableList<CustomVariantDefinition> CustomVariants { get; init; }
+}
+
+/// <summary>
+/// Represents a custom variant definition for extending the framework's built-in variants.
+/// </summary>
+public record CustomVariantDefinition
+{
+    /// <summary>
+    /// Gets the variant name (e.g., "scrollbar", "scrollbar-track").
+    /// </summary>
+    public string Name { get; init; } = string.Empty;
+
+    /// <summary>
+    /// Gets the selector pattern, typically using &amp; for parent reference.
+    /// Example: "&amp;::-webkit-scrollbar" or "&amp;::-webkit-scrollbar-track".
+    /// </summary>
+    public string Selector { get; init; } = string.Empty;
+
+    /// <summary>
+    /// Gets the weight for ordering. Lower values appear earlier in the output.
+    /// Defaults to 490 (just before built-in pseudo-elements at 500+).
+    /// </summary>
+    public int Weight { get; init; } = 490;
 }

@@ -10,10 +10,10 @@ namespace MonorailCss.Build.Tasks.Parsing;
 /// </summary>
 internal partial class CssSourceParser
 {
-    private static readonly Regex _importRegex = ImportRegexDefinition();
     private static readonly Regex _sourceRegex = SourceRegexDefinition();
     private static readonly Regex _sourceNotRegex = SourceNotRegexDefinition();
     private static readonly Regex _sourceInlineRegex = SourceInlineRegexDefinition();
+    private static readonly Regex _customVariantRegex = CustomVariantRegexDefinition();
 
     /// <summary>
     /// Parses CSS source and extracts source configuration from @import and @source directives.
@@ -35,9 +35,11 @@ internal partial class CssSourceParser
         var includeSources = new List<SourceDirective>();
         var excludeSources = new List<SourceDirective>();
         var inlineSources = new List<InlineSourceDirective>();
+        var customVariants = new List<CustomVariantDefinition>();
+        var imports = new List<ImportDirective>();
 
-        // Parse @import directives with source() function
-        ParseImportDirectives(cssSource, ref basePath, ref disableAutoDetection);
+        // Parse all @import directives (including source(), theme(), layer())
+        ParseAllImportDirectives(cssSource, imports, ref basePath, ref disableAutoDetection);
 
         // Parse @source directives
         ParseSourceDirectives(cssSource, includeSources);
@@ -48,38 +50,70 @@ internal partial class CssSourceParser
         // Parse @source inline() directives
         ParseSourceInlineDirectives(cssSource, inlineSources);
 
+        // Parse @custom-variant directives
+        ParseCustomVariantDirectives(cssSource, customVariants);
+
         return new SourceConfiguration
         {
             BasePath = basePath,
             DisableAutoDetection = disableAutoDetection,
             IncludeSources = includeSources.ToImmutableList(),
             ExcludeSources = excludeSources.ToImmutableList(),
-            InlineSources = inlineSources.ToImmutableList()
+            InlineSources = inlineSources.ToImmutableList(),
+            CustomVariants = customVariants.ToImmutableList(),
+            Imports = imports.ToImmutableList()
         };
     }
 
-    private void ParseImportDirectives(string cssSource, ref string? basePath, ref bool disableAutoDetection)
+    private void ParseAllImportDirectives(
+        string cssSource,
+        List<ImportDirective> imports,
+        ref string? basePath,
+        ref bool disableAutoDetection)
     {
-        var matches = _importRegex.Matches(cssSource);
+        // Regex to match @import "path" with optional modifiers: source(), theme(), or layer()
+        var generalImportRegex = GeneralImportRegexDefinition();
+        var matches = generalImportRegex.Matches(cssSource);
 
         foreach (Match match in matches)
         {
-            var sourceParam = match.Groups[1].Value.Trim();
+            var path = match.Groups[1].Value.Trim();
+            var modifierName = match.Groups[2].Success ? match.Groups[2].Value.Trim() : null;
+            var modifierValue = match.Groups[3].Success ? match.Groups[3].Value.Trim() : null;
 
-            // Check for source(none)
-            if (sourceParam.Equals("none", StringComparison.OrdinalIgnoreCase))
+            var modifier = ImportModifier.None;
+            if (!string.IsNullOrEmpty(modifierName))
             {
-                disableAutoDetection = true;
+                modifier = modifierName.ToLowerInvariant() switch
+                {
+                    "source" => ImportModifier.Source,
+                    "theme" => ImportModifier.Theme,
+                    "layer" => ImportModifier.Layer,
+                    _ => ImportModifier.None
+                };
+
+                // Handle source() modifier special cases
+                if (modifier == ImportModifier.Source && !string.IsNullOrEmpty(modifierValue))
+                {
+                    if (modifierValue.Equals("none", StringComparison.OrdinalIgnoreCase))
+                    {
+                        disableAutoDetection = true;
+                    }
+                    else
+                    {
+                        // Remove quotes if present
+                        var cleanedValue = modifierValue.Trim('"', '\'');
+                        basePath = cleanedValue;
+                    }
+                }
             }
-            // Extract path from quotes
-            else if (sourceParam.StartsWith('"') && sourceParam.EndsWith('"'))
+
+            imports.Add(new ImportDirective
             {
-                basePath = sourceParam.Trim('"');
-            }
-            else if (sourceParam.StartsWith('\'') && sourceParam.EndsWith('\''))
-            {
-                basePath = sourceParam.Trim('\'');
-            }
+                Path = path,
+                Modifier = modifier,
+                ModifierValue = modifierValue
+            });
         }
     }
 
@@ -126,6 +160,26 @@ internal partial class CssSourceParser
                 {
                     Pattern = pattern,
                     ExpandedUtilities = expanded
+                });
+            }
+        }
+    }
+
+    private void ParseCustomVariantDirectives(string cssSource, List<CustomVariantDefinition> customVariants)
+    {
+        var matches = _customVariantRegex.Matches(cssSource);
+
+        foreach (Match match in matches)
+        {
+            var name = match.Groups[1].Value.Trim();
+            var selector = match.Groups[2].Value.Trim();
+
+            if (!string.IsNullOrEmpty(name) && !string.IsNullOrEmpty(selector))
+            {
+                customVariants.Add(new CustomVariantDefinition
+                {
+                    Name = name,
+                    Selector = selector
                 });
             }
         }
@@ -286,19 +340,24 @@ internal partial class CssSourceParser
         return sb.ToString();
     }
 
-    // Matches @import "tailwindcss" source(...)
-    [GeneratedRegex(@"@import\s+[""']tailwindcss[""']\s+source\s*\(\s*([^)]+)\s*\)", RegexOptions.Compiled | RegexOptions.IgnoreCase)]
-    private static partial Regex ImportRegexDefinition();
+    // Matches @import "path" with optional modifiers (source(), theme(), layer())
+    // Group 1: path, Group 2: modifier name (source/theme/layer), Group 3: modifier value
+    [GeneratedRegex("""@import\s+["']([^"']+)["'](?:\s+(source|theme|layer)\s*\(\s*([^)]*)\s*\))?""", RegexOptions.Compiled | RegexOptions.IgnoreCase)]
+    private static partial Regex GeneralImportRegexDefinition();
 
     // Matches @source "path" (but not @source not or @source inline)
-    [GeneratedRegex(@"@source\s+(?!not\s|inline\s*\()[""']([^""']+)[""']", RegexOptions.Compiled | RegexOptions.IgnoreCase)]
+    [GeneratedRegex("""@source\s+(?!not\s|inline\s*\()["']([^"']+)["']""", RegexOptions.Compiled | RegexOptions.IgnoreCase)]
     private static partial Regex SourceRegexDefinition();
 
     // Matches @source not "path"
-    [GeneratedRegex(@"@source\s+not\s+[""']([^""']+)[""']", RegexOptions.Compiled | RegexOptions.IgnoreCase)]
+    [GeneratedRegex("""@source\s+not\s+["']([^"']+)["']""", RegexOptions.Compiled | RegexOptions.IgnoreCase)]
     private static partial Regex SourceNotRegexDefinition();
 
     // Matches @source inline("pattern")
-    [GeneratedRegex(@"@source\s+inline\s*\(\s*[""']([^""']+)[""']\s*\)", RegexOptions.Compiled | RegexOptions.IgnoreCase)]
+    [GeneratedRegex("""@source\s+inline\s*\(\s*["']([^"']+)["']\s*\)""", RegexOptions.Compiled | RegexOptions.IgnoreCase)]
     private static partial Regex SourceInlineRegexDefinition();
+
+    // Matches @custom-variant name (selector)
+    [GeneratedRegex(@"@custom-variant\s+([\w-]+)\s*\(\s*([^)]+)\s*\)", RegexOptions.Compiled | RegexOptions.IgnoreCase)]
+    private static partial Regex CustomVariantRegexDefinition();
 }
