@@ -48,13 +48,11 @@
   </ItemGroup>
 
   <!-- Pack task assembly and its dependencies -->
-  <Target Name="PackTaskDependencies" AfterTargets="Build" BeforeTargets="GenerateNuspec">
-    <ItemGroup>
-      <!-- Include all DLLs from output -->
-      <None Include="$(OutputPath)**\*.dll" Pack="true" PackagePath="tasks\$(TargetFramework)\" />
-      <!-- Include PDB files for debugging -->
-      <None Include="$(OutputPath)**\*.pdb" Pack="true" PackagePath="tasks\$(TargetFramework)\" />
-    </ItemGroup>
-  </Target>
+  <ItemGroup>
+    <!-- Include all DLLs from output -->
+    <None Include="$(OutputPath)*.dll" Pack="true" PackagePath="tasks\$(TargetFramework)\" />
+    <!-- Include PDB files for debugging -->
+    <None Include="$(OutputPath)*.pdb" Pack="true" PackagePath="tasks\$(TargetFramework)\" />
+  </ItemGroup>
 
 </Project>
