@@ -28,6 +28,7 @@ public partial class ProcessCssTask : Microsoft.Build.Utilities.Task
 {
     private readonly IFileSystem _fileSystem;
     private readonly DllScanner _dllScanner;
+    private readonly GlobScanner _globScanner;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="ProcessCssTask"/> class.
@@ -45,6 +46,7 @@ public partial class ProcessCssTask : Microsoft.Build.Utilities.Task
     {
         _fileSystem = fileSystem ?? new FileSystem();
         _dllScanner = new DllScanner(_fileSystem);
+        _globScanner = new GlobScanner(_fileSystem);
     }
 
     /// <summary>
@@ -323,7 +325,7 @@ public partial class ProcessCssTask : Microsoft.Build.Utilities.Task
     }
 
     /// <summary>
-    /// Scans a specific source path (file or directory) for utilities.
+    /// Scans a specific source path (file, directory, or glob pattern) for utilities.
     /// </summary>
     private void ScanSourcePath(string path, HashSet<string> utilities, HashSet<string> excludePaths)
     {
@@ -334,30 +336,50 @@ public partial class ProcessCssTask : Microsoft.Build.Utilities.Task
             return;
         }
 
-        if (_fileSystem.File.Exists(path))
+        // Check if this is a glob pattern
+        if (GlobScanner.IsGlobPattern(path))
         {
-            // Scan single file
-            try
+            // Extract base directory and pattern
+            var (baseDir, pattern) = SplitGlobPath(path);
+
+            if (!_fileSystem.Directory.Exists(baseDir))
             {
-                var content = _fileSystem.File.ReadAllText(path);
-                var classNames = ExtractClassNames(content);
-                foreach (var className in classNames)
+                Log.LogWarning($"Base directory not found for glob pattern: {baseDir}");
+                return;
+            }
+
+            Log.LogMessage(MessageImportance.Low, $"Expanding glob pattern '{pattern}' in {baseDir}");
+
+            var excludeDirs = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "bin", "obj" };
+
+            // Add exclude paths as directory names
+            foreach (var excludePath in excludePaths)
+            {
+                if (_fileSystem.Directory.Exists(excludePath))
                 {
-                    var classes = className.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-                    foreach (var cls in classes)
+                    var dirName = Path.GetFileName(excludePath);
+                    if (!string.IsNullOrEmpty(dirName))
                     {
-                        var trimmed = cls.Trim();
-                        if (!string.IsNullOrEmpty(trimmed))
-                        {
-                            utilities.Add(trimmed);
-                        }
+                        excludeDirs.Add(dirName);
                     }
                 }
             }
-            catch (Exception ex)
+
+            var matchedFiles = _globScanner.ExpandGlob(baseDir, pattern, excludeDirs);
+            var fileCount = 0;
+
+            foreach (var file in matchedFiles)
             {
-                Log.LogWarning($"Could not read file {path}: {ex.Message}");
+                ScanSingleFile(file, utilities);
+                fileCount++;
             }
+
+            Log.LogMessage(MessageImportance.Low, $"Glob pattern matched {fileCount} files");
+        }
+        else if (_fileSystem.File.Exists(path))
+        {
+            // Scan single file
+            ScanSingleFile(path, utilities);
         }
         else if (_fileSystem.Directory.Exists(path))
         {
@@ -381,6 +403,62 @@ public partial class ProcessCssTask : Microsoft.Build.Utilities.Task
         {
             Log.LogWarning($"Source path not found: {path}");
         }
+    }
+
+    /// <summary>
+    /// Scans a single file for utility class names.
+    /// </summary>
+    private void ScanSingleFile(string filePath, HashSet<string> utilities)
+    {
+        try
+        {
+            var content = _fileSystem.File.ReadAllText(filePath);
+            var classNames = ExtractClassNames(content);
+            foreach (var className in classNames)
+            {
+                var classes = className.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+                foreach (var cls in classes)
+                {
+                    var trimmed = cls.Trim();
+                    if (!string.IsNullOrEmpty(trimmed))
+                    {
+                        utilities.Add(trimmed);
+                    }
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Log.LogWarning($"Could not read file {filePath}: {ex.Message}");
+        }
+    }
+
+    /// <summary>
+    /// Splits a path containing glob patterns into base directory and pattern parts.
+    /// Example: "C:/src/{Pages,Components}/**/*.razor" -> ("C:/src", "{Pages,Components}/**/*.razor")
+    /// </summary>
+    private (string baseDir, string pattern) SplitGlobPath(string path)
+    {
+        // Find the first component with a glob character
+        var parts = path.Replace('\\', '/').Split('/');
+        var basePathParts = new List<string>();
+
+        for (int i = 0; i < parts.Length; i++)
+        {
+            if (GlobScanner.IsGlobPattern(parts[i]))
+            {
+                // Everything from here is the pattern
+                var pattern = string.Join("/", parts[i..]);
+                var baseDir = basePathParts.Count > 0
+                    ? string.Join(Path.DirectorySeparatorChar, basePathParts)
+                    : ".";
+                return (baseDir, pattern);
+            }
+            basePathParts.Add(parts[i]);
+        }
+
+        // No glob found? Return the whole path as base dir and "**/*" as pattern
+        return (path, "**/*");
     }
 
     /// <summary>
