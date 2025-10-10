@@ -48,11 +48,20 @@
   </ItemGroup>
 
   <!-- Pack task assembly and its dependencies -->
-  <ItemGroup>
-    <!-- Include all DLLs from output -->
-    <None Include="$(OutputPath)*.dll" Pack="true" PackagePath="tasks\$(TargetFramework)\" />
-    <!-- Include PDB files for debugging -->
-    <None Include="$(OutputPath)*.pdb" Pack="true" PackagePath="tasks\$(TargetFramework)\" />
-  </ItemGroup>
+  <Target Name="PackTaskDependencies" AfterTargets="Build">
+    <ItemGroup>
+      <_TempDllFiles Include="$(OutputPath)*.dll" />
+      <_TempPdbFiles Include="$(OutputPath)*.pdb" />
+
+      <_PackageFiles Include="@(_TempDllFiles)">
+        <PackagePath>tasks\$(TargetFramework)</PackagePath>
+        <Pack>true</Pack>
+      </_PackageFiles>
+      <_PackageFiles Include="@(_TempPdbFiles)">
+        <PackagePath>tasks\$(TargetFramework)</PackagePath>
+        <Pack>true</Pack>
+      </_PackageFiles>
+    </ItemGroup>
+  </Target>
 
 </Project>
