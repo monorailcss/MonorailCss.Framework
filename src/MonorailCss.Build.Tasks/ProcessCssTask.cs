@@ -31,9 +31,17 @@ public partial class ProcessCssTask : Microsoft.Build.Utilities.Task
 
     /// <summary>
     /// Initializes a new instance of the <see cref="ProcessCssTask"/> class.
+    /// This parameterless constructor is required by MSBuild.
+    /// </summary>
+    public ProcessCssTask() : this(null)
+    {
+    }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="ProcessCssTask"/> class.
     /// </summary>
     /// <param name="fileSystem">The file system abstraction to use for file operations. Defaults to the real file system if not provided.</param>
-    public ProcessCssTask(IFileSystem? fileSystem = null)
+    public ProcessCssTask(IFileSystem? fileSystem)
     {
         _fileSystem = fileSystem ?? new FileSystem();
         _dllScanner = new DllScanner(_fileSystem);
