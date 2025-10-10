@@ -107,6 +107,19 @@ public partial class ProcessCssTask : Microsoft.Build.Utilities.Task
     {
         try
         {
+            // Check if output is up-to-date with input
+            if (_fileSystem.File.Exists(OutputFile) && _fileSystem.File.Exists(InputFile))
+            {
+                var inputTime = _fileSystem.File.GetLastWriteTimeUtc(InputFile);
+                var outputTime = _fileSystem.File.GetLastWriteTimeUtc(OutputFile);
+
+                if (outputTime >= inputTime)
+                {
+                    Log.LogMessage(MessageImportance.Low, $"MonorailCss: Output is up-to-date, skipping regeneration");
+                    return true;
+                }
+            }
+
             Log.LogMessage(MessageImportance.Normal, $"MonorailCss: Processing {InputFile}");
 
             // Determine the root directory from the input file location

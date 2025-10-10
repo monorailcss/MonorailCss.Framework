@@ -18,6 +18,8 @@ Main MSBuild task that orchestrates the build process. Accepts:
 - `InputFile`: CSS file with theme definitions, custom utilities, and source directives (e.g., `app.css`)
 - `OutputFile`: Generated CSS output path
 
+**Incremental Build Support**: The task implements timestamp-based incremental builds. If the output file exists and is newer than the input file, CSS regeneration is skipped. This prevents duplicate file tracking errors from the Static Web Assets system and improves build performance.
+
 Source scanning is controlled entirely through `@source` and `@import` directives in the input CSS file.
 
 Uses regex patterns to extract class names from various frameworks:
@@ -57,7 +59,14 @@ Uses regex patterns to extract class names from various frameworks:
 
 ### Scanning (`Scanning/`)
 
-**DllScanner.cs**: Placeholder implementation for scanning .NET assemblies (DLLs) for utility classes. Currently logs a warning and returns empty set. Future implementation will use reflection to scan embedded resources and custom attributes.
+**GlobScanner.cs**: Handles glob pattern matching for file system scanning. Supports:
+- Wildcards (`*`) for single-level matching
+- Recursive globs (`**`) for multi-level directory traversal
+- Brace expansion (`{Pages,Components}` or `{razor,cs}`) for multiple alternatives
+- Automatic exclusion of `bin` and `obj` directories
+- Cross-platform path normalization
+
+**DllScanner.cs**: Scans .NET assemblies (DLLs) for utility class strings embedded in string literals using PE metadata reader. Extracts string values from the #Strings heap in the metadata tables.
 
 ## Usage
 

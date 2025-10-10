@@ -470,4 +470,84 @@ public class ProcessCssTaskGlobTests
             result.ShouldBeTrue();
         }
     }
+
+    [Fact]
+    public void Execute_WhenOutputIsUpToDate_SkipsRegeneration()
+    {
+        // Arrange
+        var fileSystem = new MockFileSystem();
+
+        var inputPath = XFS.Path(@"C:\project\app.css");
+        var outputPath = XFS.Path(@"C:\project\wwwroot\app.css");
+        const string inputContent = """
+            @import "tailwindcss" source(none);
+            @source inline("bg-blue-500 text-white");
+            """;
+
+        fileSystem.AddFile(inputPath, new MockFileData(inputContent));
+
+        // Create initial output file with a newer timestamp
+        var existingOutput = "/* existing CSS */";
+        fileSystem.AddFile(outputPath, new MockFileData(existingOutput)
+        {
+            LastWriteTime = fileSystem.File.GetLastWriteTimeUtc(inputPath).AddSeconds(10)
+        });
+
+        var task = new ProcessCssTask(fileSystem)
+        {
+            InputFile = inputPath,
+            OutputFile = outputPath,
+            BuildEngine = new MockBuildEngine()
+        };
+
+        // Act
+        var result = task.Execute();
+
+        // Assert
+        result.ShouldBeTrue();
+
+        // Output file should not have been regenerated - content should remain unchanged
+        var outputContent = fileSystem.File.ReadAllText(outputPath);
+        outputContent.ShouldBe(existingOutput);
+    }
+
+    [Fact]
+    public void Execute_WhenInputIsNewer_RegeneratesOutput()
+    {
+        // Arrange
+        var fileSystem = new MockFileSystem();
+
+        var inputPath = XFS.Path(@"C:\project\app.css");
+        var outputPath = XFS.Path(@"C:\project\wwwroot\app.css");
+        const string inputContent = """
+            @import "tailwindcss" source(none);
+            @source inline("bg-blue-500 text-white");
+            """;
+
+        // Create output first, then input with a newer timestamp
+        fileSystem.AddFile(outputPath, new MockFileData("/* old CSS */"));
+        fileSystem.AddFile(inputPath, new MockFileData(inputContent)
+        {
+            LastWriteTime = fileSystem.File.GetLastWriteTimeUtc(outputPath).AddSeconds(10)
+        });
+
+        var task = new ProcessCssTask(fileSystem)
+        {
+            InputFile = inputPath,
+            OutputFile = outputPath,
+            BuildEngine = new MockBuildEngine()
+        };
+
+        // Act
+        var result = task.Execute();
+
+        // Assert
+        result.ShouldBeTrue();
+
+        // Output file should have been regenerated
+        var outputContent = fileSystem.File.ReadAllText(outputPath);
+        outputContent.ShouldNotBe("/* old CSS */");
+        outputContent.ShouldContain("bg-blue-500");
+        outputContent.ShouldContain("text-white");
+    }
 }
