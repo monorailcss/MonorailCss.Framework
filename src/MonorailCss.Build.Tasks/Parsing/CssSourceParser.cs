@@ -172,7 +172,17 @@ internal partial class CssSourceParser
         foreach (Match match in matches)
         {
             var name = match.Groups[1].Value.Trim();
-            var selector = match.Groups[2].Value.Trim();
+
+            // The regex matches "@custom-variant name (" so the opening paren is at match.Index + match.Length - 1
+            var openParenIndex = match.Index + match.Length - 1;
+
+            if (openParenIndex >= cssSource.Length || cssSource[openParenIndex] != '(')
+            {
+                continue;
+            }
+
+            // Parse balanced parentheses to find the matching closing paren
+            var selector = ExtractBalancedParentheses(cssSource, openParenIndex);
 
             if (!string.IsNullOrEmpty(name) && !string.IsNullOrEmpty(selector))
             {
@@ -183,6 +193,46 @@ internal partial class CssSourceParser
                 });
             }
         }
+    }
+
+    /// <summary>
+    /// Extracts content within balanced parentheses starting at the given index.
+    /// Handles nested parentheses correctly.
+    /// </summary>
+    /// <param name="source">The source string.</param>
+    /// <param name="startIndex">The index of the opening parenthesis.</param>
+    /// <returns>The content inside the outermost parentheses, or empty string if parsing fails.</returns>
+    private string ExtractBalancedParentheses(string source, int startIndex)
+    {
+        if (startIndex >= source.Length || source[startIndex] != '(')
+        {
+            return string.Empty;
+        }
+
+        var depth = 0;
+        var start = startIndex + 1; // Start after the opening paren
+
+        for (var i = startIndex; i < source.Length; i++)
+        {
+            var c = source[i];
+
+            if (c == '(')
+            {
+                depth++;
+            }
+            else if (c == ')')
+            {
+                depth--;
+                if (depth == 0)
+                {
+                    // Found the matching closing paren
+                    return source[start..i].Trim();
+                }
+            }
+        }
+
+        // Unbalanced parentheses
+        return string.Empty;
     }
 
     /// <summary>
@@ -357,7 +407,7 @@ internal partial class CssSourceParser
     [GeneratedRegex("""@source\s+inline\s*\(\s*["']([^"']+)["']\s*\)""", RegexOptions.Compiled | RegexOptions.IgnoreCase)]
     private static partial Regex SourceInlineRegexDefinition();
 
-    // Matches @custom-variant name (selector)
-    [GeneratedRegex(@"@custom-variant\s+([\w-]+)\s*\(\s*([^)]+)\s*\)", RegexOptions.Compiled | RegexOptions.IgnoreCase)]
+    // Matches @custom-variant name - captures just the name, selector is parsed separately with balanced paren handling
+    [GeneratedRegex(@"@custom-variant\s+([\w-]+)\s*\(", RegexOptions.Compiled | RegexOptions.IgnoreCase)]
     private static partial Regex CustomVariantRegexDefinition();
 }

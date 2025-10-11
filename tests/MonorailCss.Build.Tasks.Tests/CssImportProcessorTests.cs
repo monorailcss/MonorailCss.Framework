@@ -1,4 +1,3 @@
-using Microsoft.Build.Framework;
 using MonorailCss.Build.Tasks.Parsing;
 using Shouldly;
 using System.IO.Abstractions.TestingHelpers;
@@ -538,8 +537,10 @@ public class CssImportProcessorTests
         result.StaticInlineThemeVariables.Count.ShouldBeGreaterThan(0);
         result.StaticInlineThemeVariables["--color-background"].ShouldBe("var(--lumex-background)");
 
-        // Custom variants
+        // Custom variants - verify dark variant selector is parsed correctly with nested parentheses
         result.SourceConfiguration.CustomVariants.Any(v => v.Name == "dark").ShouldBeTrue();
+        var darkVariant = result.SourceConfiguration.CustomVariants.First(v => v.Name == "dark");
+        darkVariant.Selector.ShouldBe("&:where(.dark, .dark *)"); // Must include ALL nested parentheses!
 
         // Raw CSS from _layout.css, _light.css, _dark.css
         result.RawCssRules.Count.ShouldBeGreaterThan(0);
