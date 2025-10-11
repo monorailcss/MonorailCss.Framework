@@ -720,4 +720,88 @@ public class VariantIntegrationTests
         // (exact ordering depends on implementation details)
         weights.Distinct().Count().ShouldBeGreaterThan(1, "Different variants should have different weights");
     }
+
+    [Fact]
+    public void CustomVariantWithComplexSelector_ShouldApplyCorrectly()
+    {
+        // Test that a custom variant with a complex selector (like dark from @custom-variant)
+        // can be registered and applied correctly
+        var customRegistry = new VariantRegistry();
+        var theme = new MonorailCss.Theme.Theme();
+        customRegistry.RegisterBuiltInVariants(theme);
+
+        // Register a custom "scrollbar" variant with & reference
+        var scrollbarVariant = new MonorailCss.Variants.BuiltIn.CustomSelectorVariant(
+            "scrollbar",
+            "(&::-webkit-scrollbar)",
+            490);
+        customRegistry.Register(scrollbarVariant);
+
+        _parser.TryParseCandidate("scrollbar:w-2", out var candidate);
+        candidate.ShouldNotBeNull();
+
+        var result = customRegistry.ApplyVariants("w-2", candidate.Variants);
+
+        // The selector should have the custom variant applied
+        result.Selector.Value.ShouldContain("::-webkit-scrollbar");
+    }
+
+    [Fact]
+    public void CustomVariantCanOverrideBuiltIn_WithDarkExample()
+    {
+        // Test that a custom variant can override a built-in variant
+        // This simulates @custom-variant dark (&:where(.dark, .dark *))
+        var customRegistry = new VariantRegistry();
+        var theme = new MonorailCss.Theme.Theme();
+        customRegistry.RegisterBuiltInVariants(theme);
+
+        // Override the dark variant with a custom implementation
+        var customDarkVariant = new MonorailCss.Variants.BuiltIn.CustomSelectorVariant(
+            "dark",
+            "(&:where(.dark, .dark *))",
+            400);
+        customRegistry.Register(customDarkVariant, overwrite: true);
+
+        _parser.TryParseCandidate("dark:bg-gray-900", out var candidate);
+        candidate.ShouldNotBeNull();
+
+        var result = customRegistry.ApplyVariants("bg-gray-900", candidate.Variants);
+
+        // Should have the custom dark variant selector pattern
+        result.Selector.Value.ShouldContain(":where(.dark, .dark *)");
+    }
+
+    [Fact]
+    public void BuiltInVariantsStillWorkAfterCustomVariantOverride()
+    {
+        // Verify that overriding one variant doesn't break others
+        var customRegistry = new VariantRegistry();
+        var theme = new MonorailCss.Theme.Theme();
+        customRegistry.RegisterBuiltInVariants(theme);
+
+        // Override dark variant
+        var customDarkVariant = new MonorailCss.Variants.BuiltIn.CustomSelectorVariant(
+            "dark",
+            "(&:where(.dark, .dark *))",
+            400);
+        customRegistry.Register(customDarkVariant, overwrite: true);
+
+        // Test that hover still works
+        _parser.TryParseCandidate("hover:bg-red-500", out var hoverCandidate);
+        hoverCandidate.ShouldNotBeNull();
+        var hoverResult = customRegistry.ApplyVariants("bg-red-500", hoverCandidate.Variants);
+        hoverResult.Selector.Value.ShouldContain(":hover");
+
+        // Test that lg still works
+        _parser.TryParseCandidate("lg:text-xl", out var lgCandidate);
+        lgCandidate.ShouldNotBeNull();
+        var lgResult = customRegistry.ApplyVariants("text-xl", lgCandidate.Variants);
+        lgResult.Wrappers.Any(w => w.Name == "media" && w.Params.Contains("1024px")).ShouldBeTrue();
+
+        // Test that focus still works
+        _parser.TryParseCandidate("focus:ring-2", out var focusCandidate);
+        focusCandidate.ShouldNotBeNull();
+        var focusResult = customRegistry.ApplyVariants("ring-2", focusCandidate.Variants);
+        focusResult.Selector.Value.ShouldContain(":focus");
+    }
 }

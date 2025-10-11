@@ -68,7 +68,7 @@ public class CssFramework
         {
             foreach (var customVariant in settings.CustomVariants)
             {
-                var variant = new Variants.BuiltIn.PseudoElementVariant(
+                var variant = new Variants.BuiltIn.CustomSelectorVariant(
                     customVariant.Name,
                     customVariant.Selector,
                     customVariant.Weight);
