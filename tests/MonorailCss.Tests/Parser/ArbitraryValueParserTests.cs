@@ -211,6 +211,32 @@ public class ArbitraryValueParserTests
         processed.ShouldBe("theme(--spacing,default value)");
     }
 
+    [Theory]
+    [InlineData("var(--navbar-height)", "var(--navbar-height)")]
+    [InlineData("var(--sidebar-width)", "var(--sidebar-width)")]
+    [InlineData("var(--my-color,#ff0000)", "var(--my-color,#ff0000)")]
+    [InlineData("var(--spacing,1rem)", "var(--spacing,1rem)")]
+    public void Parse_BracketValue_WithVarFunction_ParsesCorrectly(string input, string expected)
+    {
+        var result = _parser.Parse(input, ArbitraryValueType.Brackets);
+
+        result.IsValid.ShouldBeTrue();
+        result.Value.ShouldBe(expected);
+    }
+
+    [Theory]
+    [InlineData("calc(100vh-var(--navbar-height))", "calc(100vh - var(--navbar-height))")]
+    [InlineData("min(100%,var(--max-width))", "min(100%, var(--max-width))")]
+    [InlineData("max(50vw,var(--min-width))", "max(50vw, var(--min-width))")]
+    [InlineData("clamp(10rem,var(--size),20rem)", "clamp(10rem, var(--size), 20rem)")]
+    public void Parse_BracketValue_WithNestedVarInMathFunctions_ParsesCorrectly(string input, string expected)
+    {
+        var result = _parser.Parse(input, ArbitraryValueType.Brackets);
+
+        result.IsValid.ShouldBeTrue();
+        result.Value.ShouldBe(expected);
+    }
+
     #endregion
 
     #region Invalid Cases Tests

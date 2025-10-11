@@ -119,8 +119,16 @@ internal abstract class BaseSizingUtility : IUtility
         // Handle arbitrary values
         if (value.Kind == ValueKind.Arbitrary)
         {
-            // Check if it looks like a length/percentage value using DataTypeInference
             var arbitrary = value.Value;
+
+            // Allow CSS functions (var(), calc(), min(), max(), clamp(), etc.)
+            if (IsCssFunction(arbitrary))
+            {
+                sizing = arbitrary;
+                return true;
+            }
+
+            // Check if it looks like a length/percentage value using DataTypeInference
             var inferredType = DataTypeInference.InferDataType(arbitrary, [DataType.Length, DataType.Percentage, DataType.Number]);
 
             if (inferredType is DataType.Length or DataType.Percentage or DataType.Number)
@@ -282,6 +290,23 @@ internal abstract class BaseSizingUtility : IUtility
         // Handle values like "0", "4", "0.5", "1.5", etc.
         return double.TryParse(value, NumberStyles.Number,
             CultureInfo.InvariantCulture, out _);
+    }
+
+    /// <summary>
+    /// Checks if a value is a CSS function (var, calc, min, max, clamp, etc.).
+    /// </summary>
+    private static bool IsCssFunction(string value)
+    {
+        if (!value.Contains('('))
+        {
+            return false;
+        }
+
+        return value.StartsWith("var(") ||
+               value.Contains("calc(") ||
+               value.Contains("min(") ||
+               value.Contains("max(") ||
+               value.Contains("clamp(");
     }
 
     /// <summary>

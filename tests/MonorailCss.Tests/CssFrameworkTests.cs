@@ -572,4 +572,49 @@ public class CssFrameworkTests
         result.IsFullyProcessed.ShouldBeFalse();
         result.SuccessRate.ShouldBe(2.0 / 3.0);
     }
+
+    [Fact]
+    public void Process_ShouldHandleVarFunctionsInArbitraryValues()
+    {
+        // Act
+        var css = _framework.Process("h-[var(--navbar-height)] w-[var(--sidebar-width)]");
+
+        // Assert - Verify var() functions are preserved in CSS output
+        css.ShouldContain(".h-\\[var\\(--navbar-height\\)\\]");
+        css.ShouldContain("height: var(--navbar-height)");
+
+        css.ShouldContain(".w-\\[var\\(--sidebar-width\\)\\]");
+        css.ShouldContain("width: var(--sidebar-width)");
+    }
+
+    [Fact]
+    public void Process_ShouldHandleComplexCssFunctionsInArbitraryValues()
+    {
+        // Act
+        var css = _framework.Process("h-[calc(100vh-var(--navbar-height))] max-w-[min(100%,var(--max-width))] min-h-[clamp(10rem,var(--size),20rem)]");
+
+        // Assert - Verify complex CSS functions with var() are processed correctly
+        css.ShouldContain(".h-\\[calc\\(100vh-var\\(--navbar-height\\)\\)\\]");
+        css.ShouldContain("height: calc(100vh - var(--navbar-height))");
+
+        css.ShouldContain(".max-w-\\[min\\(100\\%\\,var\\(--max-width\\)\\)\\]");
+        css.ShouldContain("max-width: min(100%, var(--max-width))");
+
+        css.ShouldContain(".min-h-\\[clamp\\(10rem\\,var\\(--size\\)\\,20rem\\)\\]");
+        css.ShouldContain("min-height: clamp(10rem, var(--size), 20rem)");
+    }
+
+    [Fact]
+    public void Process_ShouldHandleVarFunctionsWithFallbacks()
+    {
+        // Act
+        var css = _framework.Process("h-[var(--navbar-height,64px)] w-[var(--sidebar-width,200px)]");
+
+        // Assert - Verify var() functions with fallbacks are preserved
+        css.ShouldContain(".h-\\[var\\(--navbar-height\\,64px\\)\\]");
+        css.ShouldContain("height: var(--navbar-height,64px)");
+
+        css.ShouldContain(".w-\\[var\\(--sidebar-width\\,200px\\)\\]");
+        css.ShouldContain("width: var(--sidebar-width,200px)");
+    }
 }

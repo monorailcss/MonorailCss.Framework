@@ -592,6 +592,49 @@ public class CandidateParserTests
         functionalUtility.Value.Value.ShouldBe(expectedValue);
     }
 
+    [Theory]
+    [InlineData("h-[var(--navbar-height)]", "h", "var(--navbar-height)")]
+    [InlineData("w-[var(--sidebar-width)]", "w", "var(--sidebar-width)")]
+    [InlineData("max-w-[var(--max-width)]", "max-w", "var(--max-width)")]
+    [InlineData("min-h-[var(--min-height)]", "min-h", "var(--min-height)")]
+    public void TryParseCandidate_WithVarFunction_ParsesCorrectly(string input, string expectedRoot, string expectedValue)
+    {
+        // Arrange & Act
+        var result = _parser.TryParseCandidate(input, out var candidate);
+
+        // Assert
+        result.ShouldBeTrue();
+        candidate.ShouldNotBeNull();
+        candidate.ShouldBeOfType<FunctionalUtility>();
+
+        var functionalUtility = (FunctionalUtility)candidate;
+        functionalUtility.Root.ShouldBe(expectedRoot);
+        functionalUtility.Value.ShouldNotBeNull();
+        functionalUtility.Value.Kind.ShouldBe(ValueKind.Arbitrary);
+        functionalUtility.Value.Value.ShouldBe(expectedValue);
+    }
+
+    [Theory]
+    [InlineData("h-[calc(100vh-var(--navbar-height))]", "h", "calc(100vh - var(--navbar-height))")]
+    [InlineData("w-[min(100%,var(--max-width))]", "w", "min(100%, var(--max-width))")]
+    [InlineData("max-h-[clamp(10rem,var(--size),20rem)]", "max-h", "clamp(10rem, var(--size), 20rem)")]
+    public void TryParseCandidate_WithVarInsideMathFunctions_ParsesCorrectly(string input, string expectedRoot, string expectedValue)
+    {
+        // Arrange & Act
+        var result = _parser.TryParseCandidate(input, out var candidate);
+
+        // Assert
+        result.ShouldBeTrue();
+        candidate.ShouldNotBeNull();
+        candidate.ShouldBeOfType<FunctionalUtility>();
+
+        var functionalUtility = (FunctionalUtility)candidate;
+        functionalUtility.Root.ShouldBe(expectedRoot);
+        functionalUtility.Value.ShouldNotBeNull();
+        functionalUtility.Value.Kind.ShouldBe(ValueKind.Arbitrary);
+        functionalUtility.Value.Value.ShouldBe(expectedValue);
+    }
+
     #endregion
 
     #region Fraction Value Tests
