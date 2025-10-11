@@ -80,24 +80,28 @@ public partial class ProcessCssTask : Microsoft.Build.Utilities.Task
         "**/*.mdx"
     ];
 
-    // Regex patterns for extracting class names from content
-    [GeneratedRegex(@"class\s*=\s*[""']([^""']*)[""']", RegexOptions.IgnoreCase)]
-    private static partial Regex ClassAttributeRegex();
+    // Universal regex patterns for extracting all string literals from any language
+    // These patterns extract strings from C#, TypeScript, JavaScript, C++, and other languages
 
-    [GeneratedRegex(@"className\s*=\s*[""']([^""']*)[""']", RegexOptions.IgnoreCase)]
-    private static partial Regex ClassNameAttributeRegex();
+    // Double-quoted strings: "string" (most languages)
+    [GeneratedRegex(@"""([^""\\]*(\\.[^""\\]*)*)""", RegexOptions.None)]
+    private static partial Regex DoubleQuotedStringRegex();
 
-    [GeneratedRegex(@":class\s*=\s*[""']([^""']*)[""']", RegexOptions.IgnoreCase)]
-    private static partial Regex VueClassAttributeRegex();
+    // Single-quoted strings: 'string' (JavaScript, TypeScript, C++, etc.)
+    [GeneratedRegex(@"'([^'\\]*(\\.[^'\\]*)*)'", RegexOptions.None)]
+    private static partial Regex SingleQuotedStringRegex();
 
-    [GeneratedRegex(@"@class\s*\(\s*[""']([^""']*)[""']\s*\)", RegexOptions.IgnoreCase)]
-    private static partial Regex BlazorClassAttributeRegex();
+    // Backtick strings: `string` (JavaScript/TypeScript template literals)
+    [GeneratedRegex(@"`([^`\\]*(\\.[^`\\]*)*)`", RegexOptions.None)]
+    private static partial Regex BacktickStringRegex();
 
-    [GeneratedRegex(@"classList\s*=\s*\{([^}]*)\}", RegexOptions.IgnoreCase | RegexOptions.Singleline)]
-    private static partial Regex ClassListObjectRegex();
+    // Verbatim strings: @"string" (C#)
+    [GeneratedRegex(@"@""([^""]*(""""[^""]*)*)""", RegexOptions.None)]
+    private static partial Regex VerbatimStringRegex();
 
-    [GeneratedRegex(@"[""']([^""']*)[""']", RegexOptions.IgnoreCase)]
-    private static partial Regex StringLiteralRegex();
+    // Raw string literals: """string""" (C# 11+, Python)
+    [GeneratedRegex(@"[""""""]([^""]*?)[""""""]", RegexOptions.Singleline)]
+    private static partial Regex RawStringRegex();
 
     /// <summary>
     /// Executes the task to process CSS utilities.
@@ -576,53 +580,67 @@ public partial class ProcessCssTask : Microsoft.Build.Utilities.Task
     }
 
     /// <summary>
-    /// Extracts class names from content using various patterns.
+    /// Extracts class names from content by scanning all string literals.
+    /// This universal approach works with any language (C#, TypeScript, JavaScript, C++, etc.)
+    /// and extracts utility classes from all string contexts (variables, parameters, attributes, etc.)
     /// </summary>
     private IEnumerable<string> ExtractClassNames(string content)
     {
-        var classNames = new HashSet<string>();
+        var stringContents = new HashSet<string>();
 
-        // Extract from class="..." attributes
-        var matches = ClassAttributeRegex().Matches(content);
+        // Extract double-quoted strings: "string"
+        var matches = DoubleQuotedStringRegex().Matches(content);
         foreach (Match match in matches)
         {
-            classNames.Add(match.Groups[1].Value);
-        }
-
-        // Extract from className="..." attributes (React/JSX)
-        matches = ClassNameAttributeRegex().Matches(content);
-        foreach (Match match in matches)
-        {
-            classNames.Add(match.Groups[1].Value);
-        }
-
-        // Extract from :class="..." attributes (Vue)
-        matches = VueClassAttributeRegex().Matches(content);
-        foreach (Match match in matches)
-        {
-            classNames.Add(match.Groups[1].Value);
-        }
-
-        // Extract from @class(...) directives (Blazor)
-        matches = BlazorClassAttributeRegex().Matches(content);
-        foreach (Match match in matches)
-        {
-            classNames.Add(match.Groups[1].Value);
-        }
-
-        // Extract from classList objects
-        matches = ClassListObjectRegex().Matches(content);
-        foreach (Match match in matches)
-        {
-            var objectContent = match.Groups[1].Value;
-            var stringMatches = StringLiteralRegex().Matches(objectContent);
-            foreach (Match stringMatch in stringMatches)
+            if (match.Groups[1].Success)
             {
-                classNames.Add(stringMatch.Groups[1].Value);
+                stringContents.Add(match.Groups[1].Value);
             }
         }
 
-        return classNames;
+        // Extract single-quoted strings: 'string'
+        matches = SingleQuotedStringRegex().Matches(content);
+        foreach (Match match in matches)
+        {
+            if (match.Groups[1].Success)
+            {
+                stringContents.Add(match.Groups[1].Value);
+            }
+        }
+
+        // Extract backtick strings: `string`
+        matches = BacktickStringRegex().Matches(content);
+        foreach (Match match in matches)
+        {
+            if (match.Groups[1].Success)
+            {
+                stringContents.Add(match.Groups[1].Value);
+            }
+        }
+
+        // Extract verbatim strings: @"string"
+        matches = VerbatimStringRegex().Matches(content);
+        foreach (Match match in matches)
+        {
+            if (match.Groups[1].Success)
+            {
+                // Handle escaped double quotes in verbatim strings ("")
+                var verbatimContent = match.Groups[1].Value.Replace("\"\"", "\"");
+                stringContents.Add(verbatimContent);
+            }
+        }
+
+        // Extract raw string literals: """string"""
+        matches = RawStringRegex().Matches(content);
+        foreach (Match match in matches)
+        {
+            if (match.Groups[1].Success)
+            {
+                stringContents.Add(match.Groups[1].Value);
+            }
+        }
+
+        return stringContents;
     }
 
     /// <summary>
