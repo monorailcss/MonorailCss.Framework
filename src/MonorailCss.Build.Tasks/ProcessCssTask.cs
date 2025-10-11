@@ -141,19 +141,23 @@ public partial class ProcessCssTask : Microsoft.Build.Utilities.Task
                 rootDir = _fileSystem.Directory.GetCurrentDirectory();
             }
 
-            // Parse the input CSS file first to get source configuration
+            // Parse the input CSS file and process all @import directives recursively
             var baseTheme = new MonorailCss.Theme.Theme();
             var baseApplies = ImmutableDictionary<string, string>.Empty;
             var customUtilities = ImmutableList<MonorailCss.Parser.Custom.UtilityDefinition>.Empty;
             var customVariants = ImmutableList<CustomVariantDefinition>.Empty;
             var sourceConfiguration = new SourceConfiguration();
+            var rawCssContent = string.Empty;
 
             if (_fileSystem.File.Exists(InputFile))
             {
-                var cssContent = _fileSystem.File.ReadAllText(InputFile);
-                var parser = new CssThemeParser();
-                var parsedData = parser.Parse(cssContent);
-                Log.LogMessage(MessageImportance.Low, $"Parsed theme from: {InputFile}");
+                Log.LogMessage(MessageImportance.Low, $"Processing CSS file with imports: {InputFile}");
+
+                // Use CssImportProcessor to recursively process all imports
+                var importProcessor = new CssImportProcessor(_fileSystem, Log);
+                var parsedData = importProcessor.ProcessImports(InputFile);
+
+                Log.LogMessage(MessageImportance.Low, $"Processed {parsedData.ImportedFiles.Count} CSS file(s) including imports");
 
                 // Apply regular theme variables
                 if (parsedData.ThemeVariables.Any())
@@ -238,6 +242,31 @@ public partial class ProcessCssTask : Microsoft.Build.Utilities.Task
                     }
                 }
 
+                // Log imported files
+                if (parsedData.ImportedFiles.Any())
+                {
+                    Log.LogMessage(MessageImportance.Low, $"Imported {parsedData.ImportedFiles.Count} file(s):");
+                    foreach (var importedFile in parsedData.ImportedFiles)
+                    {
+                        Log.LogMessage(MessageImportance.Low, $"  - {importedFile}");
+                    }
+                }
+
+                // Collect raw CSS content from imported files
+                if (parsedData.RawCssRules.Any())
+                {
+                    var rawCssBuilder = new System.Text.StringBuilder();
+                    foreach (var rule in parsedData.RawCssRules)
+                    {
+                        if (!string.IsNullOrWhiteSpace(rule.Content))
+                        {
+                            rawCssBuilder.AppendLine(rule.Content);
+                        }
+                    }
+                    rawCssContent = rawCssBuilder.ToString();
+                    Log.LogMessage(MessageImportance.Low, $"Collected {rawCssContent.Length} characters of raw CSS from imports");
+                }
+
                 // Get source configuration
                 sourceConfiguration = parsedData.SourceConfiguration;
             }
@@ -270,6 +299,13 @@ public partial class ProcessCssTask : Microsoft.Build.Utilities.Task
             // Process the utilities
             var combinedUtilities = string.Join(" ", utilities);
             var generatedCss = framework.Process(combinedUtilities);
+
+            // Prepend raw CSS content from imports (font-face, keyframes, selectors, etc.)
+            if (!string.IsNullOrWhiteSpace(rawCssContent))
+            {
+                generatedCss = rawCssContent + Environment.NewLine + Environment.NewLine + generatedCss;
+                Log.LogMessage(MessageImportance.Low, "Prepended raw CSS from imports to output");
+            }
 
             // Ensure output directory exists
             var outputDir = Path.GetDirectoryName(OutputFile);
