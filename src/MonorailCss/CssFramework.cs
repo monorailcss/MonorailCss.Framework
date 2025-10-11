@@ -72,7 +72,10 @@ public class CssFramework
                     customVariant.Name,
                     customVariant.Selector,
                     customVariant.Weight);
-                _variantRegistry.Register(variant);
+
+                // Use overwrite=true to allow custom variants to replace built-in ones
+                // This is useful when importing CSS files that redefine variants like 'dark'
+                _variantRegistry.Register(variant, overwrite: true);
             }
         }
 
