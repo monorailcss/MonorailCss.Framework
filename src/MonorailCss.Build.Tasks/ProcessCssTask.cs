@@ -61,6 +61,14 @@ public partial class ProcessCssTask : Microsoft.Build.Utilities.Task
     [Required]
     public string OutputFile { get; set; } = string.Empty;
 
+    /// <summary>
+    /// Gets or sets the files written by this task for incremental build tracking.
+    /// This property allows MSBuild to properly track generated files for Clean operations
+    /// and prevents duplicate file registration in the Static Web Assets system.
+    /// </summary>
+    [Output]
+    public ITaskItem[]? FileWrites { get; set; }
+
     // Default content patterns for common web frameworks
     private static readonly string[] _defaultContentPatterns =
     [
@@ -244,6 +252,9 @@ public partial class ProcessCssTask : Microsoft.Build.Utilities.Task
             _fileSystem.File.WriteAllText(OutputFile, generatedCss);
 
             Log.LogMessage(MessageImportance.High, $"MonorailCss: Generated {OutputFile} ({_fileSystem.FileInfo.New(OutputFile).Length / 1024.0:F1} KB)");
+
+            // Track the generated file for MSBuild incremental builds and Clean
+            FileWrites = new ITaskItem[] { new Microsoft.Build.Utilities.TaskItem(OutputFile) };
 
             return true;
         }
