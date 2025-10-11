@@ -32,13 +32,6 @@
       InputFile="%(MonorailCss.Identity)"
       OutputFile="%(MonorailCss.OutputFile)" />
 
-    <!-- Add generated files to Content if in wwwroot -->
-    <ItemGroup>
-      <Content Include="%(MonorailCss.OutputFile)"
-               Condition="Exists('%(MonorailCss.OutputFile)') AND $([System.String]::Copy('%(MonorailCss.OutputFile)').Contains('wwwroot'))">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </Content>
-    </ItemGroup>
   </Target>
 
   <!-- Clean target to remove generated files -->
