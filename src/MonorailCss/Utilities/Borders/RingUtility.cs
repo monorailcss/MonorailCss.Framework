@@ -107,7 +107,7 @@ internal class RingUtility : IUtility
         results = null;
 
         // Register default values for ring properties
-        propertyRegistry.Register("--tw-ring-inset", "*", false, string.Empty);
+        propertyRegistry.Register("--tw-ring-inset", "*", false, null);
         propertyRegistry.Register("--tw-ring-offset-width", "<length>", false, "0px");
         propertyRegistry.Register("--tw-ring-offset-color", "<color>", false, "#fff");
         propertyRegistry.Register("--tw-ring-color", "<color>", false, "rgb(59 130 246 / 0.5)"); // blue-500 with 50% opacity

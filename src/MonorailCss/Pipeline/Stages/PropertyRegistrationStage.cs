@@ -14,48 +14,48 @@ internal partial class PropertyRegistrationStage : IPipelineStage
     // Only register @property for Tailwind properties that actually need them
     // Based on Tailwind v4 actual behavior - only properties used for animations,
     // type safety, or complex composition get @property declarations
-    private static readonly Dictionary<string, (string Syntax, bool Inherits, string Initial)> _knownProperties = new()
+    private static readonly Dictionary<string, (string Syntax, bool Inherits, string? Initial)> _knownProperties = new()
     {
         // Transform properties - needed for animation and composition
         ["--tw-translate-x"] = ("*", false, "0"),
         ["--tw-translate-y"] = ("*", false, "0"),
         ["--tw-translate-z"] = ("*", false, "0"),
         ["--tw-rotate"] = ("<angle>", false, "0deg"),
-        ["--tw-rotate-x"] = ("*", false, string.Empty),
-        ["--tw-rotate-y"] = ("*", false, string.Empty),
-        ["--tw-rotate-z"] = ("*", false, string.Empty),
-        ["--tw-skew-x"] = ("*", false, string.Empty),
-        ["--tw-skew-y"] = ("*", false, string.Empty),
+        ["--tw-rotate-x"] = ("*", false, null),
+        ["--tw-rotate-y"] = ("*", false, null),
+        ["--tw-rotate-z"] = ("*", false, null),
+        ["--tw-skew-x"] = ("*", false, null),
+        ["--tw-skew-y"] = ("*", false, null),
         ["--tw-scale-x"] = ("*", false, "1"),
         ["--tw-scale-y"] = ("*", false, "1"),
         ["--tw-scale-z"] = ("*", false, "1"),
 
         // Filter properties - needed for filter stack composition
-        ["--tw-blur"] = ("*", false, string.Empty),
-        ["--tw-brightness"] = ("*", false, string.Empty),
-        ["--tw-contrast"] = ("*", false, string.Empty),
-        ["--tw-grayscale"] = ("*", false, string.Empty),
-        ["--tw-hue-rotate"] = ("*", false, string.Empty),
-        ["--tw-invert"] = ("*", false, string.Empty),
-        ["--tw-saturate"] = ("*", false, string.Empty),
-        ["--tw-sepia"] = ("*", false, string.Empty),
-        ["--tw-drop-shadow"] = ("*", false, string.Empty),
+        ["--tw-blur"] = ("*", false, null),
+        ["--tw-brightness"] = ("*", false, null),
+        ["--tw-contrast"] = ("*", false, null),
+        ["--tw-grayscale"] = ("*", false, null),
+        ["--tw-hue-rotate"] = ("*", false, null),
+        ["--tw-invert"] = ("*", false, null),
+        ["--tw-saturate"] = ("*", false, null),
+        ["--tw-sepia"] = ("*", false, null),
+        ["--tw-drop-shadow"] = ("*", false, null),
 
         // Backdrop filter properties - needed for backdrop-filter stack
-        ["--tw-backdrop-blur"] = ("*", false, string.Empty),
-        ["--tw-backdrop-brightness"] = ("*", false, string.Empty),
-        ["--tw-backdrop-contrast"] = ("*", false, string.Empty),
-        ["--tw-backdrop-grayscale"] = ("*", false, string.Empty),
-        ["--tw-backdrop-hue-rotate"] = ("*", false, string.Empty),
-        ["--tw-backdrop-invert"] = ("*", false, string.Empty),
-        ["--tw-backdrop-opacity"] = ("*", false, string.Empty),
-        ["--tw-backdrop-saturate"] = ("*", false, string.Empty),
-        ["--tw-backdrop-sepia"] = ("*", false, string.Empty),
+        ["--tw-backdrop-blur"] = ("*", false, null),
+        ["--tw-backdrop-brightness"] = ("*", false, null),
+        ["--tw-backdrop-contrast"] = ("*", false, null),
+        ["--tw-backdrop-grayscale"] = ("*", false, null),
+        ["--tw-backdrop-hue-rotate"] = ("*", false, null),
+        ["--tw-backdrop-invert"] = ("*", false, null),
+        ["--tw-backdrop-opacity"] = ("*", false, null),
+        ["--tw-backdrop-saturate"] = ("*", false, null),
+        ["--tw-backdrop-sepia"] = ("*", false, null),
 
         // Shadow properties - needed for shadow stack composition
         ["--tw-shadow"] = ("*", false, "0 0 #0000"),
         ["--tw-shadow-colored"] = ("*", false, "0 0 #0000"),
-        ["--tw-ring-inset"] = ("*", false, string.Empty),
+        ["--tw-ring-inset"] = ("*", false, null),
         ["--tw-ring-color"] = ("<color>", false, "currentColor"),
         ["--tw-ring-offset-width"] = ("<length>", false, "0px"),
         ["--tw-ring-offset-color"] = ("<color>", false, "#fff"),
@@ -63,9 +63,9 @@ internal partial class PropertyRegistrationStage : IPipelineStage
         ["--tw-ring-shadow"] = ("*", false, "0 0 #0000"),
         ["--tw-inset-shadow"] = ("*", false, "0 0 #0000"),
         ["--tw-inset-ring-shadow"] = ("*", false, "0 0 #0000"),
-        ["--tw-shadow-color"] = ("*", false, string.Empty),
-        ["--tw-inset-shadow-color"] = ("*", false, string.Empty),
-        ["--tw-text-shadow-color"] = ("*", false, string.Empty),
+        ["--tw-shadow-color"] = ("*", false, null),
+        ["--tw-inset-shadow-color"] = ("*", false, null),
+        ["--tw-text-shadow-color"] = ("*", false, null),
 
         // Gradient properties - needed for gradient composition and type safety
         ["--tw-gradient-from"] = ("<color>", false, "#0000"),
@@ -85,36 +85,36 @@ internal partial class PropertyRegistrationStage : IPipelineStage
         // Layout and spacing properties
         ["--tw-border-style"] = ("*", false, "solid"),
         ["--tw-outline-style"] = ("*", false, "solid"),
-        ["--tw-contain-layout"] = ("*", false, string.Empty),
-        ["--tw-contain-paint"] = ("*", false, string.Empty),
-        ["--tw-contain-size"] = ("*", false, string.Empty),
-        ["--tw-contain-style"] = ("*", false, string.Empty),
+        ["--tw-contain-layout"] = ("*", false, null),
+        ["--tw-contain-paint"] = ("*", false, null),
+        ["--tw-contain-size"] = ("*", false, null),
+        ["--tw-contain-style"] = ("*", false, null),
         ["--tw-divide-x-reverse"] = ("*", false, "0"),
         ["--tw-divide-y-reverse"] = ("*", false, "0"),
         ["--tw-space-x-reverse"] = ("*", false, "0"),
         ["--tw-space-y-reverse"] = ("*", false, "0"),
 
         // Animation properties
-        ["--tw-duration"] = ("*", false, string.Empty),
-        ["--tw-ease"] = ("*", false, string.Empty),
+        ["--tw-duration"] = ("*", false, null),
+        ["--tw-ease"] = ("*", false, null),
 
         // Touch and scroll properties
-        ["--tw-pan-x"] = ("*", false, string.Empty),
-        ["--tw-pan-y"] = ("*", false, string.Empty),
-        ["--tw-pinch-zoom"] = ("*", false, string.Empty),
+        ["--tw-pan-x"] = ("*", false, null),
+        ["--tw-pan-y"] = ("*", false, null),
+        ["--tw-pinch-zoom"] = ("*", false, null),
         ["--tw-scroll-snap-strictness"] = ("*", false, "proximity"),
 
         // Content property - needed for before/after content
-        ["--tw-content"] = ("*", false, string.Empty),
+        ["--tw-content"] = ("*", false, null),
 
         // Typography properties - needed for font features
-        ["--tw-leading"] = ("*", false, string.Empty),
-        ["--tw-ordinal"] = ("*", false, string.Empty),
-        ["--tw-slashed-zero"] = ("*", false, string.Empty),
-        ["--tw-numeric-figure"] = ("*", false, string.Empty),
-        ["--tw-numeric-fraction"] = ("*", false, string.Empty),
-        ["--tw-numeric-spacing"] = ("*", false, string.Empty),
-        ["--tw-font-weight"] = ("*", false, string.Empty),
+        ["--tw-leading"] = ("*", false, null),
+        ["--tw-ordinal"] = ("*", false, null),
+        ["--tw-slashed-zero"] = ("*", false, null),
+        ["--tw-numeric-figure"] = ("*", false, null),
+        ["--tw-numeric-fraction"] = ("*", false, null),
+        ["--tw-numeric-spacing"] = ("*", false, null),
+        ["--tw-font-weight"] = ("*", false, null),
 
         // Mask gradient properties - needed for mask composition
         ["--tw-mask-linear"] = ("*", false, "linear-gradient(#fff, #fff)"),

@@ -30,28 +30,28 @@ internal abstract class BaseFilterUtility : BaseFunctionalUtility
         if (IsBackdropFilter)
         {
             // Register backdrop filter variables
-            propertyRegistry.Register("--tw-backdrop-blur", "*", false, string.Empty);
-            propertyRegistry.Register("--tw-backdrop-brightness", "*", false, string.Empty);
-            propertyRegistry.Register("--tw-backdrop-contrast", "*", false, string.Empty);
-            propertyRegistry.Register("--tw-backdrop-grayscale", "*", false, string.Empty);
-            propertyRegistry.Register("--tw-backdrop-hue-rotate", "*", false, string.Empty);
-            propertyRegistry.Register("--tw-backdrop-invert", "*", false, string.Empty);
-            propertyRegistry.Register("--tw-backdrop-opacity", "*", false, string.Empty);
-            propertyRegistry.Register("--tw-backdrop-saturate", "*", false, string.Empty);
-            propertyRegistry.Register("--tw-backdrop-sepia", "*", false, string.Empty);
+            propertyRegistry.Register("--tw-backdrop-blur", "*", false, null);
+            propertyRegistry.Register("--tw-backdrop-brightness", "*", false, null);
+            propertyRegistry.Register("--tw-backdrop-contrast", "*", false, null);
+            propertyRegistry.Register("--tw-backdrop-grayscale", "*", false, null);
+            propertyRegistry.Register("--tw-backdrop-hue-rotate", "*", false, null);
+            propertyRegistry.Register("--tw-backdrop-invert", "*", false, null);
+            propertyRegistry.Register("--tw-backdrop-opacity", "*", false, null);
+            propertyRegistry.Register("--tw-backdrop-saturate", "*", false, null);
+            propertyRegistry.Register("--tw-backdrop-sepia", "*", false, null);
         }
         else
         {
             // Register regular filter variables
-            propertyRegistry.Register("--tw-blur", "*", false, string.Empty);
-            propertyRegistry.Register("--tw-brightness", "*", false, string.Empty);
-            propertyRegistry.Register("--tw-contrast", "*", false, string.Empty);
-            propertyRegistry.Register("--tw-grayscale", "*", false, string.Empty);
-            propertyRegistry.Register("--tw-hue-rotate", "*", false, string.Empty);
-            propertyRegistry.Register("--tw-invert", "*", false, string.Empty);
-            propertyRegistry.Register("--tw-saturate", "*", false, string.Empty);
-            propertyRegistry.Register("--tw-sepia", "*", false, string.Empty);
-            propertyRegistry.Register("--tw-drop-shadow", "*", false, string.Empty);
+            propertyRegistry.Register("--tw-blur", "*", false, null);
+            propertyRegistry.Register("--tw-brightness", "*", false, null);
+            propertyRegistry.Register("--tw-contrast", "*", false, null);
+            propertyRegistry.Register("--tw-grayscale", "*", false, null);
+            propertyRegistry.Register("--tw-hue-rotate", "*", false, null);
+            propertyRegistry.Register("--tw-invert", "*", false, null);
+            propertyRegistry.Register("--tw-saturate", "*", false, null);
+            propertyRegistry.Register("--tw-sepia", "*", false, null);
+            propertyRegistry.Register("--tw-drop-shadow", "*", false, null);
         }
     }
 

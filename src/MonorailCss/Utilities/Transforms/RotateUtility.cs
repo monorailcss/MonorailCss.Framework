@@ -175,11 +175,11 @@ internal class RotateUtility : BaseFunctionalUtility
     public bool TryCompile(Candidate candidate, Theme.Theme theme, CssPropertyRegistry propertyRegistry, out ImmutableList<AstNode>? results)
     {
         // Register CSS variables for rotate
-        propertyRegistry.Register("--tw-rotate-x", "*", false, string.Empty);
-        propertyRegistry.Register("--tw-rotate-y", "*", false, string.Empty);
-        propertyRegistry.Register("--tw-rotate-z", "*", false, string.Empty);
-        propertyRegistry.Register("--tw-skew-x", "*", false, string.Empty);
-        propertyRegistry.Register("--tw-skew-y", "*", false, string.Empty);
+        propertyRegistry.Register("--tw-rotate-x", "*", false, null);
+        propertyRegistry.Register("--tw-rotate-y", "*", false, null);
+        propertyRegistry.Register("--tw-rotate-z", "*", false, null);
+        propertyRegistry.Register("--tw-skew-x", "*", false, null);
+        propertyRegistry.Register("--tw-skew-y", "*", false, null);
 
         // Call the base implementation
         return TryCompile(candidate, theme, out results);

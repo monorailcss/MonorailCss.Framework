@@ -52,9 +52,9 @@ internal class TouchActionUtility : BaseStaticUtility
     public bool TryCompile(Candidate candidate, Theme.Theme theme, CssPropertyRegistry propertyRegistry, out ImmutableList<AstNode>? results)
     {
         // Register CSS variables for touch actions
-        propertyRegistry.Register("--tw-pan-x", "*", false, string.Empty);
-        propertyRegistry.Register("--tw-pan-y", "*", false, string.Empty);
-        propertyRegistry.Register("--tw-pinch-zoom", "*", false, string.Empty);
+        propertyRegistry.Register("--tw-pan-x", "*", false, null);
+        propertyRegistry.Register("--tw-pan-y", "*", false, null);
+        propertyRegistry.Register("--tw-pinch-zoom", "*", false, null);
 
         // Call the base implementation
         return TryCompile(candidate, theme, out results);

@@ -36,7 +36,7 @@ internal class DropShadowUtility : IUtility
     public bool TryCompile(Candidate candidate, Theme.Theme theme, CssPropertyRegistry propertyRegistry, out ImmutableList<AstNode>? results)
     {
         // Register the drop-shadow custom property
-        propertyRegistry.Register("--tw-drop-shadow", "*", false, string.Empty);
+        propertyRegistry.Register("--tw-drop-shadow", "*", false, null);
 
         // Call the base implementation
         return TryCompile(candidate, theme, out results);

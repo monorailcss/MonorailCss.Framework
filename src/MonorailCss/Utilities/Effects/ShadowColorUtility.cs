@@ -143,7 +143,7 @@ internal class ShadowColorUtility : BaseColorUtility
     public bool TryCompile(Candidate candidate, Theme.Theme theme, CssPropertyRegistry propertyRegistry, out ImmutableList<AstNode>? results)
     {
         // Register the shadow color property to match Tailwind CSS
-        propertyRegistry.Register("--tw-shadow-color", "*", false, string.Empty);
+        propertyRegistry.Register("--tw-shadow-color", "*", false, null);
 
         // Call the overridden TryCompile implementation
         return TryCompile(candidate, theme, out results);
