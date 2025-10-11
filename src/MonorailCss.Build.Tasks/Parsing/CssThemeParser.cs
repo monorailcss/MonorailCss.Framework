@@ -42,6 +42,9 @@ internal partial class CssThemeParser
     /// </summary>
     public record ParseResult(
         ImmutableDictionary<string, string> ThemeVariables,
+        ImmutableDictionary<string, string> InlineThemeVariables,
+        ImmutableDictionary<string, string> StaticThemeVariables,
+        ImmutableDictionary<string, string> StaticInlineThemeVariables,
         ImmutableDictionary<string, string> ComponentRules,
         ImmutableList<ParsedUtilityDefinition> UtilityDefinitions,
         SourceConfiguration SourceConfiguration);
@@ -50,12 +53,15 @@ internal partial class CssThemeParser
     /// Parses CSS source and extracts theme variables, component rules, and source configuration.
     /// </summary>
     /// <param name="cssSource">The CSS source string to parse.</param>
-    /// <returns>Parsed theme variables, component rules, utilities, and source configuration.</returns>
+    /// <returns>Parsed theme variables, inline theme variables, static theme variables, static inline theme variables, component rules, utilities, and source configuration.</returns>
     public ParseResult Parse(string cssSource)
     {
         if (string.IsNullOrWhiteSpace(cssSource))
         {
             return new ParseResult(
+                ImmutableDictionary<string, string>.Empty,
+                ImmutableDictionary<string, string>.Empty,
+                ImmutableDictionary<string, string>.Empty,
                 ImmutableDictionary<string, string>.Empty,
                 ImmutableDictionary<string, string>.Empty,
                 ImmutableList<ParsedUtilityDefinition>.Empty,
@@ -65,8 +71,8 @@ internal partial class CssThemeParser
         // Remove comments to simplify parsing
         cssSource = RemoveComments(cssSource);
 
-        // Extract theme variables from @theme blocks
-        var themeVariables = ExtractThemeVariables(cssSource);
+        // Extract theme variables from @theme blocks (regular, inline, static, and static inline)
+        var (themeVariables, inlineThemeVariables, staticThemeVariables, staticInlineThemeVariables) = ExtractThemeVariables(cssSource);
 
         // Extract component rules with @apply directives
         var componentRules = ExtractComponentRules(cssSource);
@@ -78,7 +84,7 @@ internal partial class CssThemeParser
         var sourceParser = new CssSourceParser();
         var sourceConfiguration = sourceParser.Parse(cssSource);
 
-        return new ParseResult(themeVariables, componentRules, utilities, sourceConfiguration);
+        return new ParseResult(themeVariables, inlineThemeVariables, staticThemeVariables, staticInlineThemeVariables, componentRules, utilities, sourceConfiguration);
     }
 
     private string RemoveComments(string css)
@@ -135,27 +141,112 @@ internal partial class CssThemeParser
         return sb.ToString();
     }
 
-    private ImmutableDictionary<string, string> ExtractThemeVariables(string css)
+    private (
+        ImmutableDictionary<string, string> Regular,
+        ImmutableDictionary<string, string> Inline,
+        ImmutableDictionary<string, string> Static,
+        ImmutableDictionary<string, string> StaticInline) ExtractThemeVariables(string css)
     {
-        var variables = ImmutableDictionary.CreateBuilder<string, string>();
+        var regularVariables = ImmutableDictionary.CreateBuilder<string, string>();
+        var inlineVariables = ImmutableDictionary.CreateBuilder<string, string>();
+        var staticVariables = ImmutableDictionary.CreateBuilder<string, string>();
+        var staticInlineVariables = ImmutableDictionary.CreateBuilder<string, string>();
 
-        var themeMatches = _themeBlockRegex.Matches(css);
-        foreach (Match themeMatch in themeMatches)
+        // Manually parse @theme blocks to handle nested braces
+        var i = 0;
+        while (i < css.Length)
         {
-            var themeContent = themeMatch.Groups[1].Value;
-
-            var variableMatches = _themeVariableRegex.Matches(themeContent);
-            foreach (Match varMatch in variableMatches)
+            // Look for "@theme"
+            var themeIndex = css.IndexOf("@theme", i, StringComparison.OrdinalIgnoreCase);
+            if (themeIndex == -1)
             {
-                var varName = varMatch.Groups[1].Value.Trim();
-                var varValue = varMatch.Groups[3].Value.Trim(); // Group 3 is the value, Group 2 is the variable name without --
-
-                // Store the variable (last one wins if duplicates)
-                variables[varName] = varValue;
+                break;
             }
+
+            // Parse modifiers (static, inline, or both)
+            var modifiersStart = themeIndex + 6; // length of "@theme"
+            var openBraceIndex = css.IndexOf('{', modifiersStart);
+            if (openBraceIndex == -1)
+            {
+                break;
+            }
+
+            var modifiersText = css.Substring(modifiersStart, openBraceIndex - modifiersStart).Trim();
+            var isStatic = modifiersText.Contains("static", StringComparison.OrdinalIgnoreCase);
+            var isInline = modifiersText.Contains("inline", StringComparison.OrdinalIgnoreCase);
+
+            // Find matching closing brace using balanced brace counting
+            var braceDepth = 1;
+            var contentStart = openBraceIndex + 1;
+            var j = contentStart;
+
+            while (j < css.Length && braceDepth > 0)
+            {
+                if (css[j] == '{')
+                {
+                    braceDepth++;
+                }
+                else if (css[j] == '}')
+                {
+                    braceDepth--;
+                }
+
+                j++;
+            }
+
+            if (braceDepth == 0)
+            {
+                // Extract the content (excluding nested @keyframes and other nested rules)
+                var themeContent = css.Substring(contentStart, j - contentStart - 1);
+
+                // Extract theme variables (skip @keyframes blocks)
+                ExtractVariablesFromContent(themeContent, isStatic, isInline, regularVariables, inlineVariables, staticVariables, staticInlineVariables);
+            }
+
+            i = j;
         }
 
-        return variables.ToImmutable();
+        return (
+            regularVariables.ToImmutable(),
+            inlineVariables.ToImmutable(),
+            staticVariables.ToImmutable(),
+            staticInlineVariables.ToImmutable());
+    }
+
+    private void ExtractVariablesFromContent(
+        string content,
+        bool isStatic,
+        bool isInline,
+        ImmutableDictionary<string, string>.Builder regularVariables,
+        ImmutableDictionary<string, string>.Builder inlineVariables,
+        ImmutableDictionary<string, string>.Builder staticVariables,
+        ImmutableDictionary<string, string>.Builder staticInlineVariables)
+    {
+        // Parse each line for CSS custom properties
+        var variableMatches = _themeVariableRegex.Matches(content);
+        foreach (Match varMatch in variableMatches)
+        {
+            var varName = varMatch.Groups[1].Value.Trim();
+            var varValue = varMatch.Groups[3].Value.Trim();
+
+            // Store in the appropriate collection based on modifiers
+            if (isStatic && isInline)
+            {
+                staticInlineVariables[varName] = varValue;
+            }
+            else if (isStatic)
+            {
+                staticVariables[varName] = varValue;
+            }
+            else if (isInline)
+            {
+                inlineVariables[varName] = varValue;
+            }
+            else
+            {
+                regularVariables[varName] = varValue;
+            }
+        }
     }
 
     private ImmutableDictionary<string, string> ExtractComponentRules(string css)
@@ -248,7 +339,7 @@ internal partial class CssThemeParser
         return utilities;
     }
 
-    [GeneratedRegex(@"@theme\s*\{([^}]*)\}", RegexOptions.Compiled | RegexOptions.Singleline)]
+    [GeneratedRegex(@"@theme\s*(inline)?\s*\{([^}]*)\}", RegexOptions.Compiled | RegexOptions.Singleline | RegexOptions.IgnoreCase)]
     private static partial Regex ThemeBlockRegexDefinition();
     [GeneratedRegex(@"(--([\w-]+))\s*:\s*([^;]+);", RegexOptions.Compiled)]
     private static partial Regex ThemeVariableRegexDefinition();

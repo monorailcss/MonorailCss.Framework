@@ -324,6 +324,150 @@ public class Theme
         };
     }
 
+    /// <summary>
+    /// Resolves a value by expanding any var() references to their actual values.
+    /// This is used for @theme inline blocks in Tailwind CSS 4.1.
+    /// </summary>
+    /// <param name="value">The value to resolve (may contain var() references).</param>
+    /// <param name="maxDepth">Maximum recursion depth to prevent infinite loops (default: 10).</param>
+    /// <returns>The resolved value with all var() references expanded, or the original value if resolution fails.</returns>
+    public string ResolveInlineValue(string value, int maxDepth = 10)
+    {
+        if (maxDepth <= 0)
+        {
+            // Prevent infinite recursion
+            return value;
+        }
+
+        if (string.IsNullOrWhiteSpace(value) || !value.Contains("var("))
+        {
+            return value;
+        }
+
+        // Manually parse var() to handle nested parentheses correctly
+        var result = value;
+        var changed = true;
+
+        // Keep resolving until no more changes occur or max depth reached
+        while (changed && maxDepth > 0)
+        {
+            changed = false;
+            var newResult = new System.Text.StringBuilder();
+            var i = 0;
+
+            while (i < result.Length)
+            {
+                // Look for "var("
+                if (i <= result.Length - 4 && result.Substring(i, 4) == "var(")
+                {
+                    // Find the matching closing parenthesis
+                    var start = i + 4;
+                    var depth = 1;
+                    var j = start;
+
+                    while (j < result.Length && depth > 0)
+                    {
+                        if (result[j] == '(')
+                        {
+                            depth++;
+                        }
+                        else if (result[j] == ')')
+                        {
+                            depth--;
+                        }
+
+                        j++;
+                    }
+
+                    if (depth == 0)
+                    {
+                        // Extract the content inside var(...)
+                        var content = result.Substring(start, j - start - 1);
+
+                        // Split by comma to separate variable name from fallback
+                        var commaIndex = FindTopLevelComma(content);
+                        var varName = commaIndex >= 0 ? content.Substring(0, commaIndex).Trim() : content.Trim();
+                        var fallback = commaIndex >= 0 ? content.Substring(commaIndex + 1).Trim() : null;
+
+                        // Look up the variable in the theme
+                        if (_values.TryGetValue(varName, out var varValue))
+                        {
+                            newResult.Append(varValue);
+                            changed = true;
+                        }
+                        else if (fallback != null)
+                        {
+                            newResult.Append(fallback);
+                            changed = true;
+                        }
+                        else
+                        {
+                            // Keep the var() reference as-is
+                            newResult.Append(result.Substring(i, j - i));
+                        }
+
+                        i = j;
+                    }
+                    else
+                    {
+                        // Malformed var(), just copy it
+                        newResult.Append(result[i]);
+                        i++;
+                    }
+                }
+                else
+                {
+                    newResult.Append(result[i]);
+                    i++;
+                }
+            }
+
+            result = newResult.ToString();
+            maxDepth--;
+        }
+
+        return result;
+    }
+
+    /// <summary>
+    /// Finds the first comma at the top level (not inside nested parentheses).
+    /// </summary>
+    private static int FindTopLevelComma(string content)
+    {
+        var depth = 0;
+        for (var i = 0; i < content.Length; i++)
+        {
+            if (content[i] == '(')
+            {
+                depth++;
+            }
+            else if (content[i] == ')')
+            {
+                depth--;
+            }
+            else if (content[i] == ',' && depth == 0)
+            {
+                return i;
+            }
+        }
+
+        return -1;
+    }
+
+    /// <summary>
+    /// Adds a key-value pair to the theme with inline variable resolution.
+    /// Values containing var() references will be resolved to their actual values.
+    /// This is used for @theme inline blocks in Tailwind CSS 4.1.
+    /// </summary>
+    /// <param name="key">The key representing the design token to be added.</param>
+    /// <param name="value">The value associated with the design token (may contain var() references).</param>
+    /// <returns>A new instance of the <see cref="Theme"/> class with the resolved key-value pair added.</returns>
+    public Theme AddInline(string key, string value)
+    {
+        var resolvedValue = ResolveInlineValue(value);
+        return Add(key, resolvedValue);
+    }
+
     private string PrefixKey(string key)
     {
         if (string.IsNullOrEmpty(Prefix) || !key.StartsWith("--"))

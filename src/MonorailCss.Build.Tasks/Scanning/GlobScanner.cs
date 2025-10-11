@@ -137,7 +137,8 @@ internal partial class GlobScanner
             foreach (var subDir in _fileSystem.Directory.GetDirectories(directory))
             {
                 var dirName = Path.GetFileName(subDir);
-                if (!excludeDirs.Contains(dirName, StringComparer.OrdinalIgnoreCase))
+
+                if (!excludeDirs.Contains(dirName))
                 {
                     files.AddRange(GetAllFiles(subDir, excludeDirs));
                 }

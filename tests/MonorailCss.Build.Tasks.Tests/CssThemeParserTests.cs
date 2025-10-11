@@ -383,6 +383,366 @@ public class CssThemeParserTests
         result.UtilityDefinitions.ShouldBeEmpty();
     }
 
+    [Fact]
+    public void Parse_ThemeInlineBlock_ParsesSeparately()
+    {
+        // Arrange - @theme and @theme inline blocks
+        const string css = """
+            @theme {
+                --color-brand-500: oklch(0.72 0.11 178);
+                --font-inter: "Inter", sans-serif;
+            }
+
+            @theme inline {
+                --font-sans: var(--font-inter);
+                --color-primary: var(--color-brand-500);
+            }
+            """;
+
+        // Act
+        var result = _parser.Parse(css);
+
+        // Assert - Regular theme variables
+        result.ThemeVariables.Count.ShouldBe(2);
+        result.ThemeVariables["--color-brand-500"].ShouldBe("oklch(0.72 0.11 178)");
+        result.ThemeVariables["--font-inter"].ShouldBe("\"Inter\", sans-serif");
+
+        // Assert - Inline theme variables
+        result.InlineThemeVariables.Count.ShouldBe(2);
+        result.InlineThemeVariables["--font-sans"].ShouldBe("var(--font-inter)");
+        result.InlineThemeVariables["--color-primary"].ShouldBe("var(--color-brand-500)");
+    }
+
+    [Fact]
+    public void Parse_MultipleThemeInlineBlocks_MergesAll()
+    {
+        // Arrange - Multiple @theme inline blocks
+        const string css = """
+            @theme inline {
+                --font-sans: var(--font-inter);
+            }
+
+            @theme inline {
+                --color-primary: var(--color-brand-500);
+                --color-secondary: var(--color-brand-300);
+            }
+            """;
+
+        // Act
+        var result = _parser.Parse(css);
+
+        // Assert - All inline variables should be merged
+        result.InlineThemeVariables.Count.ShouldBe(3);
+        result.InlineThemeVariables["--font-sans"].ShouldBe("var(--font-inter)");
+        result.InlineThemeVariables["--color-primary"].ShouldBe("var(--color-brand-500)");
+        result.InlineThemeVariables["--color-secondary"].ShouldBe("var(--color-brand-300)");
+    }
+
+    [Fact]
+    public void Parse_ThemeInlineCaseInsensitive_ParsesCorrectly()
+    {
+        // Arrange - @theme INLINE with different casing
+        const string css = """
+            @theme INLINE {
+                --font-sans: var(--font-inter);
+            }
+
+            @theme Inline {
+                --color-primary: var(--color-brand-500);
+            }
+            """;
+
+        // Act
+        var result = _parser.Parse(css);
+
+        // Assert - Should handle case-insensitive "inline" keyword
+        result.InlineThemeVariables.Count.ShouldBe(2);
+        result.InlineThemeVariables["--font-sans"].ShouldBe("var(--font-inter)");
+        result.InlineThemeVariables["--color-primary"].ShouldBe("var(--color-brand-500)");
+    }
+
+    [Fact]
+    public void Parse_ThemeInlineWithFallback_PreservesVarSyntax()
+    {
+        // Arrange - @theme inline with var() fallback values
+        const string css = """
+            @theme inline {
+                --color-accent: var(--color-user-accent, var(--color-brand-500));
+                --spacing-unit: var(--custom-spacing, 0.25rem);
+            }
+            """;
+
+        // Act
+        var result = _parser.Parse(css);
+
+        // Assert - Should preserve the entire var() syntax including fallbacks
+        result.InlineThemeVariables.Count.ShouldBe(2);
+        result.InlineThemeVariables["--color-accent"].ShouldBe("var(--color-user-accent, var(--color-brand-500))");
+        result.InlineThemeVariables["--spacing-unit"].ShouldBe("var(--custom-spacing, 0.25rem)");
+    }
+
+    [Fact]
+    public void Parse_OnlyThemeInlineNoRegular_ParsesCorrectly()
+    {
+        // Arrange - Only @theme inline, no regular @theme
+        const string css = """
+            @theme inline {
+                --color-primary: var(--color-brand-500);
+            }
+            """;
+
+        // Act
+        var result = _parser.Parse(css);
+
+        // Assert
+        result.ThemeVariables.ShouldBeEmpty();
+        result.InlineThemeVariables.Count.ShouldBe(1);
+        result.InlineThemeVariables["--color-primary"].ShouldBe("var(--color-brand-500)");
+    }
+
+    [Fact]
+    public void Parse_ThemeStaticInlineBlock_ParsesSeparately()
+    {
+        // Arrange - @theme static inline block (combined modifiers)
+        const string css = """
+            @theme static inline {
+                --color-background: var(--lumex-background);
+                --color-foreground: var(--lumex-foreground);
+                --color-primary: var(--lumex-primary);
+            }
+            """;
+
+        // Act
+        var result = _parser.Parse(css);
+
+        // Assert - Should be in StaticInlineThemeVariables
+        result.StaticInlineThemeVariables.Count.ShouldBe(3);
+        result.StaticInlineThemeVariables["--color-background"].ShouldBe("var(--lumex-background)");
+        result.StaticInlineThemeVariables["--color-foreground"].ShouldBe("var(--lumex-foreground)");
+        result.StaticInlineThemeVariables["--color-primary"].ShouldBe("var(--lumex-primary)");
+
+        // Other collections should be empty
+        result.ThemeVariables.ShouldBeEmpty();
+        result.InlineThemeVariables.ShouldBeEmpty();
+        result.StaticThemeVariables.ShouldBeEmpty();
+    }
+
+    [Fact]
+    public void Parse_ThemeStaticBlock_ParsesSeparately()
+    {
+        // Arrange - @theme static block
+        const string css = """
+            @theme static {
+                --color-background: #ffffff;
+                --color-foreground: #000000;
+            }
+            """;
+
+        // Act
+        var result = _parser.Parse(css);
+
+        // Assert - Should be in StaticThemeVariables
+        result.StaticThemeVariables.Count.ShouldBe(2);
+        result.StaticThemeVariables["--color-background"].ShouldBe("#ffffff");
+        result.StaticThemeVariables["--color-foreground"].ShouldBe("#000000");
+
+        // Other collections should be empty
+        result.ThemeVariables.ShouldBeEmpty();
+        result.InlineThemeVariables.ShouldBeEmpty();
+        result.StaticInlineThemeVariables.ShouldBeEmpty();
+    }
+
+    [Fact]
+    public void Parse_ThemeStaticInlineWithNestedKeyframes_ParsesCorrectly()
+    {
+        // Arrange - Real-world LumexUI pattern with nested @keyframes
+        const string css = """
+            @theme static inline {
+                --color-primary: var(--lumex-primary);
+                --animate-enter: enter 150ms ease-out normal both;
+
+                @keyframes enter {
+                    0% {
+                        opacity: 0;
+                        transform: translateZ(0) scale(0.85);
+                    }
+
+                    100% {
+                        opacity: 1;
+                        transform: translateZ(0) scale(1);
+                    }
+                }
+
+                @keyframes shimmer {
+                    100% {
+                        translate: 100%;
+                    }
+                }
+            }
+            """;
+
+        // Act
+        var result = _parser.Parse(css);
+
+        // Assert - Variables should be extracted correctly
+        result.StaticInlineThemeVariables.Count.ShouldBe(2);
+        result.StaticInlineThemeVariables["--color-primary"].ShouldBe("var(--lumex-primary)");
+        result.StaticInlineThemeVariables["--animate-enter"].ShouldBe("enter 150ms ease-out normal both");
+
+        // Note: @keyframes are not extracted as variables, they remain in the CSS
+        // The important part is that the balanced brace parsing doesn't break
+    }
+
+    [Fact]
+    public void Parse_AllThemeModifierTypes_ParsesSeparately()
+    {
+        // Arrange - All 4 theme modifier combinations
+        const string css = """
+            @theme {
+                --regular-var: value1;
+            }
+
+            @theme inline {
+                --inline-var: var(--regular-var);
+            }
+
+            @theme static {
+                --static-var: value2;
+            }
+
+            @theme static inline {
+                --static-inline-var: var(--static-var);
+            }
+            """;
+
+        // Act
+        var result = _parser.Parse(css);
+
+        // Assert - Each should be in its own collection
+        result.ThemeVariables.Count.ShouldBe(1);
+        result.ThemeVariables["--regular-var"].ShouldBe("value1");
+
+        result.InlineThemeVariables.Count.ShouldBe(1);
+        result.InlineThemeVariables["--inline-var"].ShouldBe("var(--regular-var)");
+
+        result.StaticThemeVariables.Count.ShouldBe(1);
+        result.StaticThemeVariables["--static-var"].ShouldBe("value2");
+
+        result.StaticInlineThemeVariables.Count.ShouldBe(1);
+        result.StaticInlineThemeVariables["--static-inline-var"].ShouldBe("var(--static-var)");
+    }
+
+    [Fact]
+    public void Parse_ThemeStaticInlineCaseInsensitive_ParsesCorrectly()
+    {
+        // Arrange - Different casing combinations
+        const string css = """
+            @theme STATIC INLINE {
+                --var1: var(--source1);
+            }
+
+            @theme Static Inline {
+                --var2: var(--source2);
+            }
+
+            @theme inline static {
+                --var3: var(--source3);
+            }
+            """;
+
+        // Act
+        var result = _parser.Parse(css);
+
+        // Assert - All should be parsed as static inline
+        result.StaticInlineThemeVariables.Count.ShouldBe(3);
+        result.StaticInlineThemeVariables["--var1"].ShouldBe("var(--source1)");
+        result.StaticInlineThemeVariables["--var2"].ShouldBe("var(--source2)");
+        result.StaticInlineThemeVariables["--var3"].ShouldBe("var(--source3)");
+    }
+
+    [Fact]
+    public void Parse_LumexUIThemeFile_ExtractsAllVariables()
+    {
+        // Arrange - Simplified version of actual LumexUI _theme.css structure
+        const string css = """
+            @theme static inline {
+                /* Colors */
+                --color-background: var(--lumex-background);
+                --color-foreground: var(--lumex-foreground);
+                --color-primary-500: var(--lumex-primary-500);
+                --color-primary: var(--lumex-primary);
+
+                /* Typography */
+                --text-small: var(--lumex-text-small);
+                --text-medium: var(--lumex-text-medium);
+
+                /* Border radius */
+                --radius-small: var(--lumex-radius-small);
+                --radius-medium: var(--lumex-radius-medium);
+
+                /* Transitions (with var() references) */
+                --transition-colors: color, background-color, border-color, text-decoration-color, fill, stroke, --tw-gradient-from, --tw-gradient-via, --tw-gradient-to;
+                --transition-property-colors-opacity: var(--transition-colors), opacity;
+
+                /* Animations */
+                --animate-enter: enter 150ms ease-out normal both;
+                --animate-shimmer: shimmer 2s infinite;
+
+                @keyframes enter {
+                    0% {
+                        opacity: 0;
+                        transform: translateZ(0) scale(0.85);
+                    }
+                    100% {
+                        opacity: 1;
+                        transform: translateZ(0) scale(1);
+                    }
+                }
+
+                @keyframes shimmer {
+                    100% {
+                        translate: 100%;
+                    }
+                }
+            }
+            """;
+
+        // Act
+        var result = _parser.Parse(css);
+
+        // Assert - All variables should be extracted
+        result.StaticInlineThemeVariables.Count.ShouldBe(12);
+
+        // Verify color variables
+        result.StaticInlineThemeVariables["--color-background"].ShouldBe("var(--lumex-background)");
+        result.StaticInlineThemeVariables["--color-foreground"].ShouldBe("var(--lumex-foreground)");
+        result.StaticInlineThemeVariables["--color-primary-500"].ShouldBe("var(--lumex-primary-500)");
+        result.StaticInlineThemeVariables["--color-primary"].ShouldBe("var(--lumex-primary)");
+
+        // Verify typography
+        result.StaticInlineThemeVariables["--text-small"].ShouldBe("var(--lumex-text-small)");
+        result.StaticInlineThemeVariables["--text-medium"].ShouldBe("var(--lumex-text-medium)");
+
+        // Verify border radius
+        result.StaticInlineThemeVariables["--radius-small"].ShouldBe("var(--lumex-radius-small)");
+        result.StaticInlineThemeVariables["--radius-medium"].ShouldBe("var(--lumex-radius-medium)");
+
+        // Verify transitions (complex value with commas)
+        result.StaticInlineThemeVariables["--transition-colors"]
+            .ShouldBe("color, background-color, border-color, text-decoration-color, fill, stroke, --tw-gradient-from, --tw-gradient-via, --tw-gradient-to");
+        result.StaticInlineThemeVariables["--transition-property-colors-opacity"]
+            .ShouldBe("var(--transition-colors), opacity");
+
+        // Verify animations
+        result.StaticInlineThemeVariables["--animate-enter"].ShouldBe("enter 150ms ease-out normal both");
+        result.StaticInlineThemeVariables["--animate-shimmer"].ShouldBe("shimmer 2s infinite");
+
+        // Other collections should be empty
+        result.ThemeVariables.ShouldBeEmpty();
+        result.InlineThemeVariables.ShouldBeEmpty();
+        result.StaticThemeVariables.ShouldBeEmpty();
+    }
+
     private static ImmutableList<MonorailCss.Parser.Custom.UtilityDefinition> ConvertToUtilityDefinitions(
         ImmutableList<ParsedUtilityDefinition> parsed)
     {

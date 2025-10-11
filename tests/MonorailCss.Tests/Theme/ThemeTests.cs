@@ -398,4 +398,180 @@ public class ThemeTests
         theme.ResolveValue("--color-base-500", []).ShouldBe("var(--color-slate-500)");
         theme.ResolveValue("--color-base-300", []).ShouldBe("var(--color-slate-300)"); // References non-existent color
     }
+
+    [Fact]
+    public void ResolveInlineValue_WithSimpleVariableReference_ResolvesCorrectly()
+    {
+        // Arrange
+        var theme = MonorailCss.Theme.Theme.CreateEmpty()
+            .Add("--color-brand-500", "oklch(0.72 0.11 178)")
+            .Add("--font-inter", "\"Inter\", sans-serif");
+
+        // Act
+        var resolvedColor = theme.ResolveInlineValue("var(--color-brand-500)");
+        var resolvedFont = theme.ResolveInlineValue("var(--font-inter)");
+
+        // Assert
+        resolvedColor.ShouldBe("oklch(0.72 0.11 178)");
+        resolvedFont.ShouldBe("\"Inter\", sans-serif");
+    }
+
+    [Fact]
+    public void ResolveInlineValue_WithNestedVariableReferences_ResolvesRecursively()
+    {
+        // Arrange
+        var theme = MonorailCss.Theme.Theme.CreateEmpty()
+            .Add("--color-brand-500", "oklch(0.72 0.11 178)")
+            .Add("--color-primary", "var(--color-brand-500)");
+
+        // Act
+        var resolved = theme.ResolveInlineValue("var(--color-primary)");
+
+        // Assert
+        resolved.ShouldBe("oklch(0.72 0.11 178)");
+    }
+
+    [Fact]
+    public void ResolveInlineValue_WithMultipleLevelsOfNesting_ResolvesAll()
+    {
+        // Arrange
+        var theme = MonorailCss.Theme.Theme.CreateEmpty()
+            .Add("--base-color", "#3b82f6")
+            .Add("--brand-color", "var(--base-color)")
+            .Add("--primary-color", "var(--brand-color)");
+
+        // Act
+        var resolved = theme.ResolveInlineValue("var(--primary-color)");
+
+        // Assert
+        resolved.ShouldBe("#3b82f6");
+    }
+
+    [Fact]
+    public void ResolveInlineValue_WithFallbackValue_UsesFallbackWhenVariableNotFound()
+    {
+        // Arrange
+        var theme = MonorailCss.Theme.Theme.CreateEmpty()
+            .Add("--color-default", "#000000");
+
+        // Act
+        var resolved = theme.ResolveInlineValue("var(--color-nonexistent, #ff0000)");
+
+        // Assert
+        resolved.ShouldBe("#ff0000");
+    }
+
+    [Fact]
+    public void ResolveInlineValue_WithNestedFallback_ResolvesCorrectly()
+    {
+        // Arrange
+        var theme = MonorailCss.Theme.Theme.CreateEmpty()
+            .Add("--color-brand-500", "#3b82f6");
+
+        // Act
+        var resolved = theme.ResolveInlineValue("var(--color-user-accent, var(--color-brand-500))");
+
+        // Assert - Should use the nested fallback
+        resolved.ShouldBe("#3b82f6");
+    }
+
+    [Fact]
+    public void ResolveInlineValue_WithMultipleVariablesInValue_ResolvesAllReferences()
+    {
+        // Arrange
+        var theme = MonorailCss.Theme.Theme.CreateEmpty()
+            .Add("--spacing-x", "1rem")
+            .Add("--spacing-y", "0.5rem");
+
+        // Act
+        var resolved = theme.ResolveInlineValue("var(--spacing-x) var(--spacing-y)");
+
+        // Assert
+        resolved.ShouldBe("1rem 0.5rem");
+    }
+
+    [Fact]
+    public void ResolveInlineValue_WithNoVariableReferences_ReturnsOriginalValue()
+    {
+        // Arrange
+        var theme = MonorailCss.Theme.Theme.CreateEmpty();
+
+        // Act
+        var resolved = theme.ResolveInlineValue("#3b82f6");
+
+        // Assert
+        resolved.ShouldBe("#3b82f6");
+    }
+
+    [Fact]
+    public void ResolveInlineValue_WithNonexistentVariableAndNoFallback_LeavesVarReference()
+    {
+        // Arrange
+        var theme = MonorailCss.Theme.Theme.CreateEmpty();
+
+        // Act
+        var resolved = theme.ResolveInlineValue("var(--color-nonexistent)");
+
+        // Assert - Should leave the var() reference as-is since no fallback
+        resolved.ShouldBe("var(--color-nonexistent)");
+    }
+
+    [Fact]
+    public void ResolveInlineValue_WithMaxDepthExceeded_PreventInfiniteRecursion()
+    {
+        // Arrange - Create a circular reference
+        var theme = MonorailCss.Theme.Theme.CreateEmpty()
+            .Add("--color-a", "var(--color-b)")
+            .Add("--color-b", "var(--color-a)");
+
+        // Act
+        var resolved = theme.ResolveInlineValue("var(--color-a)", maxDepth: 3);
+
+        // Assert - Should stop after max depth
+        // After 3 iterations: var(--color-a) -> var(--color-b) -> var(--color-a) -> stops
+        resolved.ShouldNotBeNull();
+        resolved.ShouldContain("var("); // Should still contain a var() reference
+    }
+
+    [Fact]
+    public void AddInline_WithVariableReference_ResolvesAndAdds()
+    {
+        // Arrange
+        var theme = MonorailCss.Theme.Theme.CreateEmpty()
+            .Add("--font-inter", "\"Inter\", sans-serif");
+
+        // Act
+        var updatedTheme = theme.AddInline("--font-sans", "var(--font-inter)");
+
+        // Assert
+        updatedTheme.ResolveValue("--font-sans", []).ShouldBe("\"Inter\", sans-serif");
+    }
+
+    [Fact]
+    public void AddInline_WithNestedReferences_ResolvesAllLevels()
+    {
+        // Arrange
+        var theme = MonorailCss.Theme.Theme.CreateEmpty()
+            .Add("--base-color", "#3b82f6")
+            .Add("--brand-color", "var(--base-color)");
+
+        // Act
+        var updatedTheme = theme.AddInline("--primary-color", "var(--brand-color)");
+
+        // Assert
+        updatedTheme.ResolveValue("--primary-color", []).ShouldBe("#3b82f6");
+    }
+
+    [Fact]
+    public void AddInline_WithoutVariableReference_AddsDirectly()
+    {
+        // Arrange
+        var theme = MonorailCss.Theme.Theme.CreateEmpty();
+
+        // Act
+        var updatedTheme = theme.AddInline("--color-primary", "#3b82f6");
+
+        // Assert
+        updatedTheme.ResolveValue("--color-primary", []).ShouldBe("#3b82f6");
+    }
 }

@@ -155,13 +155,43 @@ public partial class ProcessCssTask : Microsoft.Build.Utilities.Task
                 var parsedData = parser.Parse(cssContent);
                 Log.LogMessage(MessageImportance.Low, $"Parsed theme from: {InputFile}");
 
-                // Apply theme variables
+                // Apply regular theme variables
                 if (parsedData.ThemeVariables.Any())
                 {
                     Log.LogMessage(MessageImportance.Low, $"Found {parsedData.ThemeVariables.Count} theme variables");
                     foreach (var (key, value) in parsedData.ThemeVariables)
                     {
                         baseTheme = baseTheme.Add(key, value);
+                    }
+                }
+
+                // Apply inline theme variables with resolution
+                if (parsedData.InlineThemeVariables.Any())
+                {
+                    Log.LogMessage(MessageImportance.Low, $"Found {parsedData.InlineThemeVariables.Count} inline theme variables");
+                    foreach (var (key, value) in parsedData.InlineThemeVariables)
+                    {
+                        baseTheme = baseTheme.AddInline(key, value);
+                    }
+                }
+
+                // Apply static theme variables (treated as regular variables for now)
+                if (parsedData.StaticThemeVariables.Any())
+                {
+                    Log.LogMessage(MessageImportance.Low, $"Found {parsedData.StaticThemeVariables.Count} static theme variables");
+                    foreach (var (key, value) in parsedData.StaticThemeVariables)
+                    {
+                        baseTheme = baseTheme.Add(key, value);
+                    }
+                }
+
+                // Apply static inline theme variables with resolution
+                if (parsedData.StaticInlineThemeVariables.Any())
+                {
+                    Log.LogMessage(MessageImportance.Low, $"Found {parsedData.StaticInlineThemeVariables.Count} static inline theme variables");
+                    foreach (var (key, value) in parsedData.StaticInlineThemeVariables)
+                    {
+                        baseTheme = baseTheme.AddInline(key, value);
                     }
                 }
 
