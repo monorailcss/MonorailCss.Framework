@@ -71,19 +71,19 @@ public partial class ProcessCssTask : Microsoft.Build.Utilities.Task
 
     /// <summary>
     /// Gets or sets the build configuration (e.g., "Debug", "Release").
-    /// Used to resolve {Configuration} placeholders in @source paths.
+    /// Used to resolve $(Configuration) placeholders in @source paths.
     /// </summary>
     public string? Configuration { get; set; }
 
     /// <summary>
     /// Gets or sets the target framework (e.g., "net9.0", "net8.0").
-    /// Used to resolve {TargetFramework} placeholders in @source paths.
+    /// Used to resolve $(TargetFramework) placeholders in @source paths.
     /// </summary>
     public string? TargetFramework { get; set; }
 
     /// <summary>
     /// Gets or sets the runtime identifier (e.g., "win-x64", "linux-x64").
-    /// Used to resolve {RuntimeIdentifier} placeholders in @source paths.
+    /// Used to resolve $(RuntimeIdentifier) placeholders in @source paths.
     /// </summary>
     public string? RuntimeIdentifier { get; set; }
 

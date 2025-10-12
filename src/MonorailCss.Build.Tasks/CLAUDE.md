@@ -57,7 +57,7 @@ Uses regex patterns to extract class names from various frameworks:
 
 **SourceConfiguration.cs**: DTOs representing parsed source directives including include/exclude paths, inline utilities, and base path configuration.
 
-**PathPlaceholderResolver.cs**: Resolves dynamic placeholders in file paths using MSBuild properties. Supports `{Configuration}`, `{TargetFramework}`, and `{RuntimeIdentifier}` placeholders with case-insensitive matching. Enables build-configuration-agnostic `@source` paths.
+**PathPlaceholderResolver.cs**: Resolves dynamic placeholders in file paths using MSBuild properties. Supports `$(Configuration)`, `$(TargetFramework)`, and `$(RuntimeIdentifier)` placeholders with case-insensitive matching. Enables build-configuration-agnostic `@source` paths.
 
 ### Scanning (`Scanning/`)
 
@@ -112,9 +112,9 @@ Typically consumed via NuGet package. The task is automatically invoked during b
 **DLL scanning with placeholders**:
 ```css
 @import "tailwindcss" source(none);
-@source "../bin/{Configuration}/{TargetFramework}/MyComponentLibrary.dll";
+@source "../bin/$(Configuration)/$(TargetFramework)/MyComponentLibrary.dll";
 /* Scans DLL for utilities, with placeholders resolved at build time */
-/* Placeholders: {Configuration}, {TargetFramework}, {RuntimeIdentifier} */
+/* Placeholders: $(Configuration), $(TargetFramework), $(RuntimeIdentifier) */
 ```
 
 **Safelisting utilities**:
@@ -158,24 +158,28 @@ Typically consumed via NuGet package. The task is automatically invoked during b
 `@source` paths can contain placeholders that are resolved at build time using MSBuild properties. This eliminates the need to hardcode build-specific paths like `Debug` or `Release`.
 
 **Supported Placeholders:**
-- `{Configuration}` - Resolves to "Debug", "Release", or custom configuration
-- `{TargetFramework}` - Resolves to "net9.0", "net8.0", etc.
-- `{RuntimeIdentifier}` - Resolves to "win-x64", "linux-x64", etc. (optional)
+- `$(Configuration)` - Resolves to "Debug", "Release", or custom configuration
+- `$(TargetFramework)` - Resolves to "net9.0", "net8.0", etc.
+- `$(RuntimeIdentifier)` - Resolves to "win-x64", "linux-x64", etc. (optional)
 
 **Example:**
 ```css
-@source "../bin/{Configuration}/{TargetFramework}/LumexUI.dll";
+@source "../bin/$(Configuration)/$(TargetFramework)/LumexUI.dll";
 ```
 
 At build time, this resolves to:
 - Debug: `../bin/Debug/net9.0/LumexUI.dll`
 - Release: `../bin/Release/net9.0/LumexUI.dll`
 
+**Why `$(PropertyName)` syntax?**
+We use MSBuild's standard `$(PropertyName)` syntax instead of `{PropertyName}` to avoid conflicts with glob brace expansion patterns like `{Pages,Components}` or `{razor,cs}`. This allows both MSBuild placeholders and glob patterns to coexist without ambiguity.
+
 **Features:**
-- Case-insensitive: `{configuration}`, `{Configuration}`, and `{CONFIGURATION}` all work
+- Case-insensitive: `$(configuration)`, `$(Configuration)`, and `$(CONFIGURATION)` all work
 - Partial resolution: If a placeholder value is not available, it remains unchanged (a warning is logged)
 - Works with all path types: DLL files, directories, and glob patterns
 - Works with `@source not` exclusions as well
+- No conflict with glob brace expansion: `{a,b,c}` is preserved for glob matching
 
 **Technical Details:**
 The placeholders are resolved in `ProcessCssTask` using values passed from MSBuild via the `MonorailCss.Build.Tasks.targets` file. The resolution is handled by `PathPlaceholderResolver` before any path normalization or file system operations.
