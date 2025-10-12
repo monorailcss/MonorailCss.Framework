@@ -21,7 +21,7 @@ jobs:
         fetch-depth: 0
 
     - name: Install .NET
-      uses: actions/setup-dotnet@v4
+      uses: actions/setup-dotnet@v5
       with:
         global-json-file: global.json
     - name: Build, Test (Debug & Release), Publish (main only)
