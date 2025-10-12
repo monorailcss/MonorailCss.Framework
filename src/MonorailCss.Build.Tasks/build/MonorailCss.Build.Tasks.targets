@@ -28,9 +28,13 @@
 
     <!-- Execute the ProcessCssTask for each input file -->
     <!-- Use @source and @import directives in your CSS file to configure source scanning -->
+    <!-- Pass MSBuild properties to enable placeholder resolution in @source paths -->
     <ProcessCssTask
       InputFile="%(MonorailCss.Identity)"
-      OutputFile="%(MonorailCss.OutputFile)" />
+      OutputFile="%(MonorailCss.OutputFile)"
+      Configuration="$(Configuration)"
+      TargetFramework="$(TargetFramework)"
+      RuntimeIdentifier="$(RuntimeIdentifier)" />
 
   </Target>
 

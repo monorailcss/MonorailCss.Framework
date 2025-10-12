@@ -69,6 +69,24 @@ public partial class ProcessCssTask : Microsoft.Build.Utilities.Task
     [Output]
     public ITaskItem[]? FileWrites { get; set; }
 
+    /// <summary>
+    /// Gets or sets the build configuration (e.g., "Debug", "Release").
+    /// Used to resolve {Configuration} placeholders in @source paths.
+    /// </summary>
+    public string? Configuration { get; set; }
+
+    /// <summary>
+    /// Gets or sets the target framework (e.g., "net9.0", "net8.0").
+    /// Used to resolve {TargetFramework} placeholders in @source paths.
+    /// </summary>
+    public string? TargetFramework { get; set; }
+
+    /// <summary>
+    /// Gets or sets the runtime identifier (e.g., "win-x64", "linux-x64").
+    /// Used to resolve {RuntimeIdentifier} placeholders in @source paths.
+    /// </summary>
+    public string? RuntimeIdentifier { get; set; }
+
     // Default content patterns for common web frameworks
     private static readonly string[] _defaultContentPatterns =
     [
@@ -353,9 +371,16 @@ public partial class ProcessCssTask : Microsoft.Build.Utilities.Task
         var excludePaths = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         foreach (var exclude in config.ExcludeSources)
         {
-            var resolvedPath = Path.IsPathRooted(exclude.Path)
-                ? exclude.Path
-                : Path.GetFullPath(Path.Combine(rootDir, exclude.Path));
+            // Resolve placeholders in the path
+            var pathWithResolvedPlaceholders = PathPlaceholderResolver.ResolvePlaceholders(
+                exclude.Path,
+                Configuration,
+                TargetFramework,
+                RuntimeIdentifier);
+
+            var resolvedPath = Path.IsPathRooted(pathWithResolvedPlaceholders)
+                ? pathWithResolvedPlaceholders
+                : Path.GetFullPath(Path.Combine(rootDir, pathWithResolvedPlaceholders));
             excludePaths.Add(resolvedPath);
             Log.LogMessage(MessageImportance.Low, $"Excluding: {resolvedPath}");
         }
@@ -366,9 +391,29 @@ public partial class ProcessCssTask : Microsoft.Build.Utilities.Task
             Log.LogMessage(MessageImportance.Normal, $"Processing {config.IncludeSources.Count} explicit source(s)");
             foreach (var source in config.IncludeSources)
             {
-                var resolvedPath = Path.IsPathRooted(source.Path)
-                    ? source.Path
-                    : Path.GetFullPath(Path.Combine(rootDir, source.Path));
+                // Resolve placeholders in the path
+                var pathWithResolvedPlaceholders = PathPlaceholderResolver.ResolvePlaceholders(
+                    source.Path,
+                    Configuration,
+                    TargetFramework,
+                    RuntimeIdentifier);
+
+                // Log if placeholders were resolved
+                if (pathWithResolvedPlaceholders != source.Path)
+                {
+                    Log.LogMessage(MessageImportance.Low,
+                        $"Resolved placeholders: {source.Path} -> {pathWithResolvedPlaceholders}");
+                }
+
+                // Warn if unresolved placeholders remain
+                if (PathPlaceholderResolver.ContainsPlaceholders(pathWithResolvedPlaceholders))
+                {
+                    Log.LogWarning($"Path contains unresolved placeholders: {pathWithResolvedPlaceholders}");
+                }
+
+                var resolvedPath = Path.IsPathRooted(pathWithResolvedPlaceholders)
+                    ? pathWithResolvedPlaceholders
+                    : Path.GetFullPath(Path.Combine(rootDir, pathWithResolvedPlaceholders));
 
                 if (source.IsDll)
                 {

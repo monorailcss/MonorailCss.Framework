@@ -57,6 +57,8 @@ Uses regex patterns to extract class names from various frameworks:
 
 **SourceConfiguration.cs**: DTOs representing parsed source directives including include/exclude paths, inline utilities, and base path configuration.
 
+**PathPlaceholderResolver.cs**: Resolves dynamic placeholders in file paths using MSBuild properties. Supports `{Configuration}`, `{TargetFramework}`, and `{RuntimeIdentifier}` placeholders with case-insensitive matching. Enables build-configuration-agnostic `@source` paths.
+
 ### Scanning (`Scanning/`)
 
 **GlobScanner.cs**: Handles glob pattern matching for file system scanning. Supports:
@@ -107,11 +109,12 @@ Typically consumed via NuGet package. The task is automatically invoked during b
 /* Auto-detect, but skip legacy folder */
 ```
 
-**DLL scanning** (placeholder):
+**DLL scanning with placeholders**:
 ```css
 @import "tailwindcss" source(none);
-@source "../dist/MyComponentLibrary.dll";
-/* Scans DLL for utilities (not yet implemented) */
+@source "../bin/{Configuration}/{TargetFramework}/MyComponentLibrary.dll";
+/* Scans DLL for utilities, with placeholders resolved at build time */
+/* Placeholders: {Configuration}, {TargetFramework}, {RuntimeIdentifier} */
 ```
 
 **Safelisting utilities**:
@@ -149,6 +152,33 @@ Typically consumed via NuGet package. The task is automatically invoked during b
 
 /* Use in markup: class="bordered-link" */
 ```
+
+### Path Placeholders
+
+`@source` paths can contain placeholders that are resolved at build time using MSBuild properties. This eliminates the need to hardcode build-specific paths like `Debug` or `Release`.
+
+**Supported Placeholders:**
+- `{Configuration}` - Resolves to "Debug", "Release", or custom configuration
+- `{TargetFramework}` - Resolves to "net9.0", "net8.0", etc.
+- `{RuntimeIdentifier}` - Resolves to "win-x64", "linux-x64", etc. (optional)
+
+**Example:**
+```css
+@source "../bin/{Configuration}/{TargetFramework}/LumexUI.dll";
+```
+
+At build time, this resolves to:
+- Debug: `../bin/Debug/net9.0/LumexUI.dll`
+- Release: `../bin/Release/net9.0/LumexUI.dll`
+
+**Features:**
+- Case-insensitive: `{configuration}`, `{Configuration}`, and `{CONFIGURATION}` all work
+- Partial resolution: If a placeholder value is not available, it remains unchanged (a warning is logged)
+- Works with all path types: DLL files, directories, and glob patterns
+- Works with `@source not` exclusions as well
+
+**Technical Details:**
+The placeholders are resolved in `ProcessCssTask` using values passed from MSBuild via the `MonorailCss.Build.Tasks.targets` file. The resolution is handled by `PathPlaceholderResolver` before any path normalization or file system operations.
 
 ## Unsupported Directives
 
