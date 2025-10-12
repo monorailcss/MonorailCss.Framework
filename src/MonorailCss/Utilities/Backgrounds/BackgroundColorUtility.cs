@@ -11,4 +11,14 @@ internal class BackgroundColorUtility : BaseColorUtility
     protected override string Pattern => "bg";
     protected override string CssProperty => "background-color";
     protected override string[] ColorNamespaces => NamespaceResolver.BackgroundColorChain;
+
+    public Documentation.UtilityMetadata GetMetadata()
+    {
+        return new Documentation.UtilityMetadata(
+            "BackgroundColorUtility",
+            "Backgrounds",
+            "Sets the background color of an element",
+            supportsModifiers: true,
+            supportsArbitraryValues: true);
+    }
 }

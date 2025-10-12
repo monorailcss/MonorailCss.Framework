@@ -13,7 +13,10 @@
       "WebFetch(domain:raw.githubusercontent.com)",
       "Bash(node:*)",
       "Bash(dotnet clean:*)",
-      "Bash(dotnet pack:*)"
+      "Bash(dotnet pack:*)",
+      "Bash(powershell:*)",
+      "Bash(dotnet new:*)",
+      "Bash(dotnet sln:*)"
     ],
     "deny": [],
     "ask": []

@@ -195,4 +195,56 @@ internal abstract class BaseFunctionalUtility : IUtility
     /// Must be implemented by derived classes to handle specific CSS properties.
     /// </summary>
     protected abstract ImmutableList<AstNode> GenerateDeclarations(string pattern, string value, bool important);
+
+    /// <summary>
+    /// Returns examples of this functional utility with theme-aware values.
+    /// Default implementation generates examples from patterns and theme keys.
+    /// Override to provide custom examples with descriptions.
+    /// </summary>
+    public virtual IEnumerable<Documentation.UtilityExample> GetExamples(Theme.Theme theme)
+    {
+        var examples = new List<Documentation.UtilityExample>();
+
+        foreach (var pattern in Patterns)
+        {
+            // If there's a default value, show the bare pattern
+            if (DefaultValue != null)
+            {
+                examples.Add(new Documentation.UtilityExample(
+                    pattern,
+                    $"Apply {pattern} with default value"));
+            }
+
+            // Show examples with theme values
+            foreach (var themeKey in ThemeKeys.Take(1))
+            {
+                var themeValues = theme.KeysInNamespace(themeKey)
+                    .Select(key => key.Replace($"{themeKey}-", string.Empty))
+                    .Take(3)
+                    .ToArray();
+
+                foreach (var value in themeValues)
+                {
+                    examples.Add(new Documentation.UtilityExample(
+                        $"{pattern}-{value}",
+                        $"Apply {pattern} with {themeKey} value '{value}'"));
+                }
+            }
+
+            // Show arbitrary value support
+            examples.Add(new Documentation.UtilityExample(
+                $"{pattern}-[value]",
+                $"Apply {pattern} with arbitrary value"));
+
+            // Show negative support if available
+            if (SupportsNegative)
+            {
+                examples.Add(new Documentation.UtilityExample(
+                    $"-{pattern}-[value]",
+                    $"Apply negative {pattern} with arbitrary value"));
+            }
+        }
+
+        return examples.Take(10);
+    }
 }

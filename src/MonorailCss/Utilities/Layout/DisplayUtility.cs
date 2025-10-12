@@ -34,4 +34,31 @@ internal class DisplayUtility : BaseStaticUtility
             { "none", ("display", "none") },
             { "hidden", ("display", "none") },
         }.ToImmutableDictionary();
+
+    public override IEnumerable<Documentation.UtilityExample> GetExamples(Theme.Theme theme)
+    {
+        return new[]
+        {
+            new Documentation.UtilityExample("block", "Display as a block element", "display: block"),
+            new Documentation.UtilityExample("inline", "Display as an inline element", "display: inline"),
+            new Documentation.UtilityExample("flex", "Display as a flex container", "display: flex"),
+            new Documentation.UtilityExample("inline-flex", "Display as an inline flex container", "display: inline-flex"),
+            new Documentation.UtilityExample("grid", "Display as a grid container", "display: grid"),
+            new Documentation.UtilityExample("inline-grid", "Display as an inline grid container", "display: inline-grid"),
+            new Documentation.UtilityExample("table", "Display as a table element", "display: table"),
+            new Documentation.UtilityExample("hidden", "Hide the element", "display: none"),
+            new Documentation.UtilityExample("contents", "Display only contents (remove wrapper)", "display: contents"),
+            new Documentation.UtilityExample("flow-root", "Create a new block formatting context", "display: flow-root"),
+        };
+    }
+
+    public Documentation.UtilityMetadata GetMetadata()
+    {
+        return new Documentation.UtilityMetadata(
+            "DisplayUtility",
+            "Layout",
+            "Controls the display type of an element",
+            supportsModifiers: false,
+            supportsArbitraryValues: false);
+    }
 }

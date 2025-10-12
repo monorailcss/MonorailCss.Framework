@@ -67,4 +67,21 @@ public interface IUtility
     /// </summary>
     /// <returns>An array of strings representing the functional roots handled by the utility.</returns>
     string[] GetFunctionalRoots() => [];
+
+    /// <summary>
+    /// Returns examples of this utility with theme-aware values.
+    /// Override this method to provide custom examples for your utility.
+    /// Default implementation returns an empty array.
+    /// </summary>
+    /// <param name="theme">The theme to use for generating examples with actual theme values.</param>
+    /// <returns>An enumerable of utility examples showing how to use this utility.</returns>
+    IEnumerable<Documentation.UtilityExample> GetExamples(Theme.Theme theme) => [];
+
+    /// <summary>
+    /// Returns metadata about this utility, including name, category, and description.
+    /// Override this method to provide custom metadata for your utility.
+    /// Default implementation generates metadata from the utility type.
+    /// </summary>
+    /// <returns>Metadata describing this utility.</returns>
+    Documentation.UtilityMetadata GetMetadata() => Documentation.UtilityMetadata.FromUtilityType(GetType());
 }

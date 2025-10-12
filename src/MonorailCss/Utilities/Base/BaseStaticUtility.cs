@@ -51,4 +51,19 @@ internal abstract class BaseStaticUtility : IUtility
     {
         return StaticValues.Keys;
     }
+
+    /// <summary>
+    /// Returns examples of this static utility based on its static values.
+    /// Default implementation returns the first 10 utility class names.
+    /// Override to provide custom examples with descriptions.
+    /// </summary>
+    public virtual IEnumerable<Documentation.UtilityExample> GetExamples(Theme.Theme theme)
+    {
+        return StaticValues
+            .Take(10)
+            .Select(kvp => new Documentation.UtilityExample(
+                kvp.Key,
+                $"Set {kvp.Value.Property} to {kvp.Value.Value}",
+                $"{kvp.Value.Property}: {kvp.Value.Value}"));
+    }
 }

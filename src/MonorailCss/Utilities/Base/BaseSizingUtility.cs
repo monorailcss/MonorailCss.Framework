@@ -334,4 +334,50 @@ internal abstract class BaseSizingUtility : IUtility
         Height,
         Both,
     }
+
+    /// <summary>
+    /// Returns examples of this sizing utility with theme-aware values.
+    /// Default implementation shows examples with common sizing values.
+    /// Override to provide custom sizing examples.
+    /// </summary>
+    public virtual IEnumerable<Documentation.UtilityExample> GetExamples(Theme.Theme theme)
+    {
+        var examples = new List<Documentation.UtilityExample>();
+
+        foreach (var pattern in Patterns.Take(1))
+        {
+            // Special keywords (limited to most common)
+            var keywords = new[] { "auto", "full", "screen" };
+            foreach (var keyword in keywords)
+            {
+                examples.Add(new Documentation.UtilityExample(
+                    $"{pattern}-{keyword}",
+                    $"Set {pattern} to {GetSpecialSizingValue(keyword)}"));
+            }
+
+            // Numeric spacing values (limited to most common)
+            var numericValues = new[] { "0", "4", "8" };
+            foreach (var value in numericValues)
+            {
+                examples.Add(new Documentation.UtilityExample(
+                    $"{pattern}-{value}",
+                    $"Set {pattern} to {value} spacing units"));
+            }
+
+            // Fractions
+            examples.Add(new Documentation.UtilityExample(
+                $"{pattern}-1/2",
+                $"Set {pattern} to 50%"));
+            examples.Add(new Documentation.UtilityExample(
+                $"{pattern}-1/3",
+                $"Set {pattern} to 33.33%"));
+
+            // Arbitrary values
+            examples.Add(new Documentation.UtilityExample(
+                $"{pattern}-[100px]",
+                $"Set {pattern} with arbitrary value"));
+        }
+
+        return examples.Take(10);
+    }
 }

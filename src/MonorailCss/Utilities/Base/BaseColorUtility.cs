@@ -90,4 +90,55 @@ internal abstract class BaseColorUtility : IUtility
     {
         return new Declaration(CssProperty, color, important);
     }
+
+    /// <summary>
+    /// Returns examples of this color utility with theme-aware color values.
+    /// Default implementation shows examples with common color shades (50, 500, 900).
+    /// Override to provide custom color examples.
+    /// </summary>
+    public virtual IEnumerable<Documentation.UtilityExample> GetExamples(Theme.Theme theme)
+    {
+        var examples = new List<Documentation.UtilityExample>();
+
+        // Show examples with common color shades from each color in theme
+        var commonColors = new[] { "red", "blue", "green", "gray" };
+        var commonShades = new[] { "50", "500", "900" };
+
+        foreach (var colorName in commonColors)
+        {
+            foreach (var shade in commonShades)
+            {
+                var themeKey = $"--color-{colorName}-{shade}";
+                if (theme.ContainsKey(themeKey))
+                {
+                    examples.Add(new Documentation.UtilityExample(
+                        $"{Pattern}-{colorName}-{shade}",
+                        $"Set {CssProperty} to {colorName} shade {shade}"));
+
+                    // Only show one shade per color to keep examples concise
+                    break;
+                }
+            }
+        }
+
+        // Show special colors
+        if (theme.ContainsKey("--color-transparent"))
+        {
+            examples.Add(new Documentation.UtilityExample(
+                $"{Pattern}-transparent",
+                $"Set {CssProperty} to transparent"));
+        }
+
+        // Show arbitrary value support
+        examples.Add(new Documentation.UtilityExample(
+            $"{Pattern}-[#ff0000]",
+            $"Set {CssProperty} with arbitrary color value"));
+
+        // Show opacity modifier support
+        examples.Add(new Documentation.UtilityExample(
+            $"{Pattern}-red-500/50",
+            $"Set {CssProperty} to red-500 with 50% opacity"));
+
+        return examples.Take(10);
+    }
 }
