@@ -1,7 +1,0 @@
-﻿<Project>
-  <!-- MonorailCss Build Tasks Properties -->
-  <PropertyGroup>
-    <!-- Enable/disable MonorailCss processing (default: true) -->
-    <MonorailCssEnabled Condition="'$(MonorailCssEnabled)' == ''">true</MonorailCssEnabled>
-  </PropertyGroup>
-</Project>
