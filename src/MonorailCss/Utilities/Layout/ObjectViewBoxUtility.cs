@@ -5,8 +5,7 @@ using MonorailCss.Utilities.Base;
 namespace MonorailCss.Utilities.Layout;
 
 /// <summary>
-/// Handles object-view-box utilities (object-view-box-[inset(10%)]).
-/// Maps to the CSS object-view-box property.
+/// Utilities for controlling the view box of a replaced element.
 /// </summary>
 internal class ObjectViewBoxUtility : BaseFunctionalUtility
 {

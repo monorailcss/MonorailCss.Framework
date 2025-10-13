@@ -4,9 +4,7 @@ using MonorailCss.Utilities.Base;
 namespace MonorailCss.Utilities.Transforms;
 
 /// <summary>
-/// Utility for static perspective values.
-/// Handles: perspective-none
-/// CSS: perspective property with none keyword.
+/// Utilities for controlling the perspective of 3D transformed elements.
 /// </summary>
 internal class PerspectiveStaticUtility : BaseStaticUtility
 {

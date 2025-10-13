@@ -7,7 +7,7 @@ using MonorailCss.Utilities.Base;
 namespace MonorailCss.Utilities.Spacing;
 
 /// <summary>
-/// Utility for reversing vertical spacing direction (space-y-reverse).
+/// Utilities for reversing the vertical space between child elements.
 /// </summary>
 internal class SpaceYReverseUtility : BaseStaticUtility
 {

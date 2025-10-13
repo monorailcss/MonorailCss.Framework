@@ -6,9 +6,7 @@ using MonorailCss.Utilities.Base;
 namespace MonorailCss.Utilities.Interactivity;
 
 /// <summary>
-/// Utility for accent-color values.
-/// Handles: accent-auto, accent-inherit, accent-current, accent-transparent, accent-red-500, accent-blue-600/50, etc.
-/// CSS: accent-color: auto, accent-color: inherit, accent-color: var(--color-red-500), etc.
+/// Utilities for controlling the accent color of form controls.
 /// </summary>
 internal class AccentColorUtility : BaseColorUtility
 {

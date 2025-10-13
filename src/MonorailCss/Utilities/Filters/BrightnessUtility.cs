@@ -8,9 +8,7 @@ using MonorailCss.Utilities.Base;
 namespace MonorailCss.Utilities.Filters;
 
 /// <summary>
-/// Utility for brightness filter values.
-/// Handles: brightness-0, brightness-50, brightness-75, brightness-90, brightness-95, brightness-100, brightness-105, brightness-110, brightness-125, brightness-150, brightness-200, brightness-*
-/// CSS: --tw-brightness and filter property with CSS variable system.
+/// Utilities for controlling the brightness filter of an element.
 /// </summary>
 internal class BrightnessUtility : BaseFilterUtility
 {

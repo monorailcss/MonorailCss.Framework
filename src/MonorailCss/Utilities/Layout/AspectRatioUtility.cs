@@ -7,9 +7,7 @@ using MonorailCss.Utilities.Base;
 namespace MonorailCss.Utilities.Layout;
 
 /// <summary>
-/// Utility for aspect-ratio values.
-/// Handles: aspect-auto, aspect-square, aspect-video, aspect-[16/9], aspect-[4/3], etc.
-/// CSS: aspect-ratio: auto, aspect-ratio: 1 / 1, aspect-ratio: 16 / 9, aspect-ratio: 4 / 3.
+/// Utilities for controlling the aspect ratio of an element.
 /// </summary>
 internal class AspectRatioUtility : BaseFunctionalUtility
 {

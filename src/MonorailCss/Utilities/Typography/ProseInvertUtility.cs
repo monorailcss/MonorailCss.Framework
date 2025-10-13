@@ -5,8 +5,7 @@ using MonorailCss.Candidates;
 namespace MonorailCss.Utilities.Typography;
 
 /// <summary>
-/// Handles prose-invert utility.
-/// Only remaps CSS variables for dark mode/inverted colors.
+/// Utilities for inverting the colors of prose content.
 /// </summary>
 internal class ProseInvertUtility : IUtility
 {
@@ -89,5 +88,18 @@ internal class ProseInvertUtility : IUtility
         }
 
         return declarations;
+    }
+
+    /// <summary>
+    /// Returns examples of prose invert utility.
+    /// </summary>
+    public IEnumerable<Documentation.UtilityExample> GetExamples(Theme.Theme theme)
+    {
+        var examples = new List<Documentation.UtilityExample>
+        {
+            new("prose-invert", "Invert prose colors for dark backgrounds"),
+        };
+
+        return examples;
     }
 }

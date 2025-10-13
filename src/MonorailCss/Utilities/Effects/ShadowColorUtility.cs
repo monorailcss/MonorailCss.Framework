@@ -10,10 +10,7 @@ using MonorailCss.Utilities.Base;
 namespace MonorailCss.Utilities.Effects;
 
 /// <summary>
-/// Utility for shadow color values.
-/// Handles: shadow-inherit, shadow-current, shadow-transparent, shadow-red-500, shadow-blue-600/50, etc.
-/// CSS: --tw-shadow-color: inherit, --tw-shadow-color: oklch(63.7% 0.237 25.331), etc.
-/// Note: Uses raw OKLCH values to match Tailwind CSS output, not CSS variables.
+/// Utilities for controlling the color of box shadows.
 /// </summary>
 internal class ShadowColorUtility : BaseColorUtility
 {

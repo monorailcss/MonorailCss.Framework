@@ -8,9 +8,7 @@ using MonorailCss.Utilities.Resolvers;
 namespace MonorailCss.Utilities.Backgrounds;
 
 /// <summary>
-/// Handles gradient via utilities (via-*).
-/// Sets the middle color for gradients using CSS variables.
-/// CSS: --tw-gradient-via: color; --tw-gradient-via-stops: ...; --tw-gradient-stops: ...
+/// Utilities for controlling the middle color of gradient color stops.
 /// </summary>
 internal class GradientViaUtility : IUtility
 {
@@ -65,5 +63,22 @@ internal class GradientViaUtility : IUtility
     private bool TryResolveColor(CandidateValue value, Theme.Theme theme, [NotNullWhen(true)] out string? color)
     {
         return ValueResolver.TryResolveColor(value, theme, GetNamespaces(), out color);
+    }
+
+    /// <summary>
+    /// Returns examples of gradient via utilities with theme-aware color values.
+    /// </summary>
+    public IEnumerable<Documentation.UtilityExample> GetExamples(Theme.Theme theme)
+    {
+        var examples = new List<Documentation.UtilityExample>
+        {
+            new("via-purple-500", "Set gradient middle color to purple-500"),
+            new("via-pink-600", "Set gradient middle color to pink-600"),
+            new("via-indigo-400", "Set gradient middle color to indigo-400"),
+            new("via-yellow-500/50", "Set gradient middle color to yellow-500 with 50% opacity"),
+            new("via-[#ff00ff]", "Set gradient middle color with arbitrary hex value"),
+        };
+
+        return examples;
     }
 }

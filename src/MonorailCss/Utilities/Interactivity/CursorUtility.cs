@@ -6,9 +6,7 @@ using MonorailCss.Utilities.Base;
 namespace MonorailCss.Utilities.Interactivity;
 
 /// <summary>
-/// Utility for cursor property values.
-/// Handles: cursor-auto, cursor-pointer, cursor-[url(hand.cur),_pointer], etc.
-/// CSS: cursor: auto, cursor: pointer, cursor: url(hand.cur), pointer.
+/// Utilities for controlling the cursor style when hovering over an element.
 /// </summary>
 internal class CursorUtility : BaseFunctionalUtility
 {

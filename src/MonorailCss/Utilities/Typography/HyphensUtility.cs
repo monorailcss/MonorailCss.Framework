@@ -6,8 +6,7 @@ using MonorailCss.Utilities.Base;
 namespace MonorailCss.Utilities.Typography;
 
 /// <summary>
-/// Handles hyphens utilities (hyphens-none, hyphens-manual, hyphens-auto).
-/// Includes vendor prefixes for WebKit compatibility.
+/// Utilities for controlling how words should be hyphenated.
 /// </summary>
 internal class HyphensUtility : BaseStaticUtility
 {

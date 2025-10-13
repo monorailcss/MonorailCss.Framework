@@ -6,7 +6,7 @@ using MonorailCss.Utilities.Base;
 namespace MonorailCss.Utilities.Typography;
 
 /// <summary>
-/// Handles word-break utilities (break-normal, break-words, break-all, break-keep).
+/// Utilities for controlling word breaks.
 /// </summary>
 internal class WordBreakUtility : BaseStaticUtility
 {

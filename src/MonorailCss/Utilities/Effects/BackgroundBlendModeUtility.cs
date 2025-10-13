@@ -4,8 +4,7 @@ using MonorailCss.Utilities.Base;
 namespace MonorailCss.Utilities.Effects;
 
 /// <summary>
-/// Handles background blend mode utilities (bg-blend-normal, bg-blend-multiply, etc.).
-/// Maps to the CSS background-blend-mode property with all 16 supported blend modes.
+/// Utilities for controlling how an element's background image blends with its background color.
 /// </summary>
 internal class BackgroundBlendModeUtility : BaseStaticUtility
 {

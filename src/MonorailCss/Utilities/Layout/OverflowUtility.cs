@@ -4,7 +4,7 @@ using MonorailCss.Utilities.Base;
 namespace MonorailCss.Utilities.Layout;
 
 /// <summary>
-/// Handles overflow utilities (overflow-auto, overflow-hidden, etc.).
+/// Utilities for controlling how an element handles content that is too large for the container.
 /// </summary>
 internal class OverflowUtility : BaseStaticUtility
 {

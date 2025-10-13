@@ -6,7 +6,7 @@ using MonorailCss.Utilities.Base;
 namespace MonorailCss.Utilities.Sizing;
 
 /// <summary>
-/// Handles max-width utilities (max-w-*).
+/// Utilities for controlling the maximum width of an element.
 /// </summary>
 internal class MaxWidthUtility : BaseSizingUtility
 {

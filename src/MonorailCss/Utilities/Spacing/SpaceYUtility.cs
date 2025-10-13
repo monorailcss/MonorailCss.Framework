@@ -8,7 +8,7 @@ using MonorailCss.Utilities.Base;
 namespace MonorailCss.Utilities.Spacing;
 
 /// <summary>
-/// Utility for vertical spacing between child elements (space-y-*).
+/// Utilities for controlling the vertical space between child elements.
 /// </summary>
 internal class SpaceYUtility : BaseSpacingUtility
 {

@@ -4,8 +4,7 @@ using MonorailCss.Utilities.Base;
 namespace MonorailCss.Utilities.Backgrounds;
 
 /// <summary>
-/// Handles background clip utilities (bg-clip-text, bg-clip-border, bg-clip-padding, bg-clip-content).
-/// Maps to the CSS background-clip property.
+/// Utilities for controlling the clipping area of background images and colors.
 /// </summary>
 internal class BackgroundClipUtility : BaseStaticUtility
 {

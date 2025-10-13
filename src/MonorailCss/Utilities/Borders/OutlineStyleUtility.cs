@@ -7,8 +7,7 @@ using MonorailCss.Utilities.Base;
 namespace MonorailCss.Utilities.Borders;
 
 /// <summary>
-/// Handles outline style utilities (outline-none, outline-dashed, etc.).
-/// Maps to the CSS outline-style property and manages CSS custom properties.
+/// Utilities for controlling the style of an element's outline.
 /// </summary>
 internal class OutlineStyleUtility : BaseStaticUtility
 {

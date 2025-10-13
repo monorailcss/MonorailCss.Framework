@@ -4,8 +4,7 @@ using MonorailCss.Utilities.Base;
 namespace MonorailCss.Utilities.Tables;
 
 /// <summary>
-/// Handles caption side utilities (caption-top, caption-bottom).
-/// Maps to the CSS caption-side property for table caption elements.
+/// Utilities for controlling the placement of a table caption.
 /// </summary>
 internal class CaptionSideUtility : BaseStaticUtility
 {

@@ -8,9 +8,7 @@ using MonorailCss.Utilities.Base;
 namespace MonorailCss.Utilities.Filters;
 
 /// <summary>
-/// Utility for contrast filter values.
-/// Handles: contrast-0, contrast-50, contrast-75, contrast-100, contrast-125, contrast-150, contrast-200, contrast-*
-/// CSS: --tw-contrast and filter property with CSS variable system.
+/// Utilities for controlling the contrast filter of an element.
 /// </summary>
 internal class ContrastUtility : BaseFilterUtility
 {

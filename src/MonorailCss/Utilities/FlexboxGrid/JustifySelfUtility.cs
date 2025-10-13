@@ -4,7 +4,7 @@ using MonorailCss.Utilities.Base;
 namespace MonorailCss.Utilities.FlexboxGrid;
 
 /// <summary>
-/// Handles justify self utilities (justify-self-auto, justify-self-start, justify-self-end, justify-self-center, justify-self-stretch).
+/// Utilities for controlling how an individual grid item is aligned along its inline axis.
 /// </summary>
 internal class JustifySelfUtility : BaseStaticUtility
 {

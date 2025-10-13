@@ -6,9 +6,7 @@ using MonorailCss.Utilities.Base;
 namespace MonorailCss.Utilities.Typography;
 
 /// <summary>
-/// Utility for text-decoration-thickness values.
-/// Handles: decoration-auto, decoration-from-font, decoration-0, decoration-1, decoration-2, decoration-4, decoration-8, etc.
-/// CSS: text-decoration-thickness: auto, text-decoration-thickness: from-font, text-decoration-thickness: 0px, text-decoration-thickness: 1px.
+/// Utilities for controlling the thickness of text decorations.
 /// </summary>
 internal class TextDecorationThicknessUtility : BaseFunctionalUtility
 {

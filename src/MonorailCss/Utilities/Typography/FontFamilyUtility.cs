@@ -5,9 +5,7 @@ using MonorailCss.Utilities.Base;
 namespace MonorailCss.Utilities.Typography;
 
 /// <summary>
-/// Utility for font-family values.
-/// Handles: font-sans, font-serif, font-mono, font-*
-/// CSS: font-family: var(--font-sans), font-family: var(--font-serif), etc.
+/// Utilities for controlling the font family of an element.
 /// </summary>
 internal class FontFamilyUtility : BaseFunctionalUtility
 {

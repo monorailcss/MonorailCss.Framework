@@ -9,12 +9,7 @@ using MonorailCss.Utilities.Base;
 namespace MonorailCss.Utilities.Borders;
 
 /// <summary>
-/// Handles ring-offset-width utilities.
-///
-/// Width patterns: ring-offset-0, ring-offset-1, ring-offset-2, ring-offset-4, ring-offset-8
-/// Arbitrary: ring-offset-[10px]
-///
-/// Sets the --tw-ring-offset-width CSS variable.
+/// Utilities for controlling the width of ring offset shadows.
 /// </summary>
 internal class RingOffsetWidthUtility : BaseSpacingUtility
 {

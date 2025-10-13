@@ -6,9 +6,7 @@ using MonorailCss.Utilities.Base;
 namespace MonorailCss.Utilities.TransitionsAnimation;
 
 /// <summary>
-/// Utility for animation values.
-/// Handles: animate-none, animate-spin, animate-ping, animate-pulse, animate-bounce, animate-*
-/// CSS: animation: none, animation: var(--animate-spin), etc.
+/// Utilities for controlling CSS animations.
 /// </summary>
 internal class AnimationUtility : BaseFunctionalUtility
 {

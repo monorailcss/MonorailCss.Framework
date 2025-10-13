@@ -6,8 +6,7 @@ using MonorailCss.Utilities.Base;
 namespace MonorailCss.Utilities.Typography;
 
 /// <summary>
-/// Handles font variant numeric utilities with CSS custom property composition system.
-/// Uses CSS variables to allow multiple utilities to work together composably.
+/// Utilities for controlling the variant of numbers.
 /// </summary>
 internal class FontVariantNumericUtility : BaseStaticUtility
 {

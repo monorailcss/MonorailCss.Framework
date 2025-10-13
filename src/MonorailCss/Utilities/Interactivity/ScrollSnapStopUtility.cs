@@ -4,9 +4,7 @@ using MonorailCss.Utilities.Base;
 namespace MonorailCss.Utilities.Interactivity;
 
 /// <summary>
-/// Utility for scroll-snap-stop values.
-/// Handles: snap-normal, snap-always
-/// CSS: scroll-snap-stop property with normal and always values.
+/// Utilities for controlling whether you can skip past possible snap positions.
 /// </summary>
 internal class ScrollSnapStopUtility : BaseStaticUtility
 {

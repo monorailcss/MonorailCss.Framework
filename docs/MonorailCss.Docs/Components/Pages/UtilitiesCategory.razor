@@ -1,0 +1,138 @@
+@page "/utilities/{CategorySlug}"
+@using MonorailCss.Documentation
+@using MonorailCss.Docs.Services
+@inject UtilityContentService UtilityService
+@layout MainLayout
+
+<Breadcrumbs Items="@_breadcrumbs" />
+
+@if (_categoryName == null || _utilities == null)
+{
+    <div class="text-center py-12 text-base-500 dark:text-base-400">
+        Loading category...
+    </div>
+}
+else if (!_utilities.Any())
+{
+    <div class="text-center py-12">
+        <h1 class="text-2xl font-bold text-base-900 dark:text-base-100 mb-2">Category Not Found</h1>
+        <p class="text-base-600 dark:text-base-400 mb-6">
+            The category "@CategorySlug" does not exist.
+        </p>
+        <a href="/utilities" class="inline-block px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg transition-colors">
+            Back to Utilities
+        </a>
+    </div>
+}
+else
+{
+    <div class="mb-8">
+        <h1 class="text-4xl font-bold mb-4 bg-gradient-to-r from-primary-600 to-cyan-600 dark:from-primary-400 dark:to-cyan-400 bg-clip-text text-transparent">
+            @_categoryName Utilities
+        </h1>
+        <p class="text-lg text-base-600 dark:text-base-400">
+            Reference for @_categoryName utility classes in MonorailCSS.
+        </p>
+    </div>
+
+    <div class="space-y-4">
+        @foreach (var utility in _utilities.OrderBy(u => u.Metadata.Name))
+        {
+            var utilitySlug = ToSlug(utility.Metadata.Name);
+            var utilityTitle = utility.Metadata.Name.Replace("Utility", "");
+            var examples = utility.Examples.Take(4).ToList();
+
+            <a href="/utilities/@CategorySlug/@utilitySlug"
+               class="block p-6 border border-base-200 dark:border-base-800 rounded-lg hover:border-primary-500 dark:hover:border-primary-500 transition-colors bg-white dark:bg-base-900 hover:shadow-md">
+                <div class="flex items-start justify-between mb-3">
+                    <div>
+                        <h2 class="text-2xl font-semibold text-base-900 dark:text-base-100 mb-2">
+                            @utilityTitle
+                        </h2>
+                        @if (!string.IsNullOrEmpty(utility.Metadata.Description))
+                        {
+                            <p class="text-sm text-base-600 dark:text-base-400">
+                                @utility.Metadata.Description
+                            </p>
+                        }
+                    </div>
+                    <svg class="w-5 h-5 text-base-400 dark:text-base-600 flex-shrink-0 ml-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                    </svg>
+                </div>
+
+                @if (examples.Any())
+                {
+                    <div class="flex flex-wrap gap-2 mt-4">
+                        @foreach (var example in examples)
+                        {
+                            <code class="text-sm px-3 py-1.5 bg-base-100 dark:bg-base-800 text-base-700 dark:text-base-300 rounded border border-base-200 dark:border-base-700">
+                                @example.ClassName
+                            </code>
+                        }
+                        @if (utility.Examples.Length > 4)
+                        {
+                            <span class="text-sm px-3 py-1.5 text-base-500 dark:text-base-400">
+                                +@(utility.Examples.Length - 4) more
+                            </span>
+                        }
+                    </div>
+                }
+
+                @if (utility.ThemeNamespaces.Any())
+                {
+                    <div class="mt-4 flex flex-wrap items-center gap-2">
+                        <span class="text-xs font-medium text-base-500 dark:text-base-400">Theme:</span>
+                        @foreach (var ns in utility.ThemeNamespaces)
+                        {
+                            <span class="text-xs px-2 py-1 bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200 rounded">
+                                @ns
+                            </span>
+                        }
+                    </div>
+                }
+            </a>
+        }
+    </div>
+}
+
+@code {
+    [Parameter]
+    public string CategorySlug { get; set; } = string.Empty;
+
+    private string? _categoryName;
+    private List<UtilityDocumentation>? _utilities;
+    private List<Breadcrumbs.BreadcrumbItem> _breadcrumbs = [];
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadCategoryAsync();
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        await LoadCategoryAsync();
+    }
+
+    private async Task LoadCategoryAsync()
+    {
+        _categoryName = await UtilityService.GetCategoryNameFromSlugAsync(CategorySlug);
+        _utilities = await UtilityService.GetUtilitiesByCategoryAsync(CategorySlug);
+
+        _breadcrumbs =
+        [
+            new Breadcrumbs.BreadcrumbItem { Title = "Home", Url = "/" },
+            new Breadcrumbs.BreadcrumbItem { Title = "Utilities", Url = "/utilities" },
+            new Breadcrumbs.BreadcrumbItem { Title = _categoryName ?? CategorySlug, IsCurrent = true },
+        ];
+    }
+
+    private static string ToSlug(string text)
+    {
+        return text
+            .Replace("Utility", "")
+            .ToLowerInvariant()
+            .Replace(" ", "-")
+            .Replace("_", "-");
+    }
+}

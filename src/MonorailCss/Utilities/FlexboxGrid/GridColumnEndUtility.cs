@@ -6,9 +6,7 @@ using MonorailCss.Utilities.Base;
 namespace MonorailCss.Utilities.FlexboxGrid;
 
 /// <summary>
-/// Utility for grid column end values.
-/// Handles: col-end-1, col-end-2, col-end-auto, etc.
-/// CSS: grid-column-end: 1, grid-column-end: auto.
+/// Utilities for controlling how elements end within grid columns.
 /// </summary>
 internal class GridColumnEndUtility : BaseFunctionalUtility
 {

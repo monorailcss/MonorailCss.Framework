@@ -9,9 +9,7 @@ using MonorailCss.Utilities.Base;
 namespace MonorailCss.Utilities.Transforms;
 
 /// <summary>
-/// Utility for rotate transform values.
-/// Handles: rotate-*, rotate-x-*, rotate-y-*, -rotate-*, -rotate-x-*, -rotate-y-*
-/// CSS: Uses modern rotate property for 2D, transform with variables for 3D.
+/// Utilities for controlling the rotation of an element.
 /// </summary>
 internal class RotateUtility : BaseFunctionalUtility
 {

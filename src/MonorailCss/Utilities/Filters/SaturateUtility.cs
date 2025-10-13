@@ -8,9 +8,7 @@ using MonorailCss.Utilities.Base;
 namespace MonorailCss.Utilities.Filters;
 
 /// <summary>
-/// Utility for saturate filter values.
-/// Handles: saturate-0, saturate-50, saturate-100, saturate-150, saturate-200, saturate-*
-/// CSS: --tw-saturate and filter property with CSS variable system.
+/// Utilities for controlling the saturate filter of an element.
 /// </summary>
 internal class SaturateUtility : BaseFilterUtility
 {

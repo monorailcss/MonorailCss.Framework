@@ -4,7 +4,7 @@ using MonorailCss.Utilities.Base;
 namespace MonorailCss.Utilities.Layout;
 
 /// <summary>
-/// Handles object-position utilities (object-bottom, object-center, object-left, etc.).
+/// Utilities for controlling how a replaced element's content should be positioned within its container.
 /// </summary>
 internal class ObjectPositionUtility : BaseStaticUtility
 {

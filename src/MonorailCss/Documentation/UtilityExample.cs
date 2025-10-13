@@ -37,8 +37,10 @@ public class UtilityExample
     public string? GeneratedCss { get; }
 
     /// <summary>
-    /// Creates a new example with just a class name (description will be auto-generated).
+    /// Creates a new utility example with a class name, where the description is automatically generated.
     /// </summary>
+    /// <param name="className">The utility class name (e.g., "bg-red-500", "flex", "w-full").</param>
+    /// <returns>A new instance of <see cref="UtilityExample"/> with an auto-generated description.</returns>
     public static UtilityExample FromClassName(string className)
     {
         return new UtilityExample(className, $"Apply {className} utility");

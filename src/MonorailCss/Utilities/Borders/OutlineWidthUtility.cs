@@ -7,12 +7,7 @@ using MonorailCss.Utilities.Base;
 namespace MonorailCss.Utilities.Borders;
 
 /// <summary>
-/// Handles outline-width utilities.
-///
-/// Width patterns: outline-0, outline-1, outline-2, outline-4, outline-8
-///
-/// Maps to CSS outline-width property using spacing theme values.
-/// Also sets the outline-style using CSS custom property.
+/// Utilities for controlling the width of an element's outline.
 /// </summary>
 internal class OutlineWidthUtility : BaseSpacingUtility
 {

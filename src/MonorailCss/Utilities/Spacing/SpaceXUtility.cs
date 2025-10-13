@@ -7,7 +7,7 @@ using MonorailCss.Utilities.Base;
 namespace MonorailCss.Utilities.Spacing;
 
 /// <summary>
-/// Utility for horizontal spacing between child elements (space-x-*).
+/// Utilities for controlling the horizontal space between child elements.
 /// </summary>
 internal class SpaceXUtility : BaseSpacingUtility
 {

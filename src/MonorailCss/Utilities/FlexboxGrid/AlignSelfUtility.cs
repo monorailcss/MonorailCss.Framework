@@ -4,7 +4,7 @@ using MonorailCss.Utilities.Base;
 namespace MonorailCss.Utilities.FlexboxGrid;
 
 /// <summary>
-/// Handles align-self utilities (self-center, self-start, etc.).
+/// Utilities for controlling how an individual flex or grid item is positioned along its container's cross axis.
 /// </summary>
 internal class AlignSelfUtility : BaseStaticUtility
 {

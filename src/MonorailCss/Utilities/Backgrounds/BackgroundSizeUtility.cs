@@ -6,9 +6,7 @@ using MonorailCss.Utilities.Base;
 namespace MonorailCss.Utilities.Backgrounds;
 
 /// <summary>
-/// Utility for background-size values.
-/// Handles: bg-auto, bg-cover, bg-contain, bg-[length:200px_100px]
-/// CSS: background-size: auto, background-size: cover, background-size: contain, background-size: 200px 100px.
+/// Utilities for controlling the size of background images.
 /// </summary>
 internal class BackgroundSizeUtility : BaseFunctionalUtility
 {

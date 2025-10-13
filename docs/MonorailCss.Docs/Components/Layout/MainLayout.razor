@@ -1,0 +1,64 @@
+@using MyLittleContentEngine.Services.Content.TableOfContents
+@inherits LayoutComponentBase
+@inject ITableOfContentService TableOfContentService
+@inject NavigationManager NavigationManager
+
+<div class="min-h-screen bg-base-50 dark:bg-base-950 flex flex-col">
+    <SharedHeader HasTableOfContents="true" />
+
+    <!-- Main Content Area -->
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8 flex-1">
+        <div class="flex flex-col lg:flex-row gap-8">
+            <!-- Sidebar -->
+            <aside class="hidden lg:block lg:w-64 xl:w-72 shrink-0">
+                <div class="sticky top-16 overflow-y-auto max-h-[calc(100vh-4rem)] pr-4 -mr-4">
+                    <div class="py-8">
+                        <TableOfContentsNavigation TableOfContents="_toc" />
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Mobile Sidebar Overlay -->
+            <div id="sidebar-overlay" class="lg:hidden fixed inset-0 z-40 hidden bg-base-50/50 backdrop-blur">
+                <div id="sidebar-panel" class="fixed inset-y-0 top-16 left-0 w-80 bg-base-50 dark:bg-base-900 shadow-xl overflow-y-auto">
+                    <div class="p-4">
+                        <button id="sidebar-close" class="mb-4 p-2 rounded-md hover:bg-base-100 dark:hover:bg-base-800 transition-colors">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                            </svg>
+                        </button>
+                        <TableOfContentsNavigation TableOfContents="_toc" />
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <main class="flex-1 min-w-0 py-8">
+                <div class="bg-white dark:bg-base-900 rounded-lg shadow-sm border border-base-200 dark:border-base-800">
+                    <div class="p-6 lg:p-8">
+                        @Body
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <SharedFooter />
+</div>
+
+
+@code{
+    private ImmutableList<NavigationTreeItem>? _toc;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var currentPath = NavigationManager.ToAbsoluteUri(NavigationManager.Uri).AbsolutePath;
+
+
+        // Get the table of contents for the current section
+        _toc = (await TableOfContentService.GetNavigationTocAsync(currentPath)).First().Items.ToImmutableList();
+
+
+        await base.OnInitializedAsync();
+    }
+}

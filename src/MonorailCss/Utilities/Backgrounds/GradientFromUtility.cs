@@ -8,9 +8,7 @@ using MonorailCss.Utilities.Resolvers;
 namespace MonorailCss.Utilities.Backgrounds;
 
 /// <summary>
-/// Handles gradient from utilities (from-*).
-/// Sets the starting color for gradients using CSS variables.
-/// CSS: --tw-gradient-from: color; --tw-gradient-stops: ...
+/// Utilities for controlling the starting color of gradient color stops.
 /// </summary>
 internal class GradientFromUtility : IUtility
 {
@@ -62,5 +60,22 @@ internal class GradientFromUtility : IUtility
     private bool TryResolveColor(CandidateValue value, Theme.Theme theme, [NotNullWhen(true)] out string? color)
     {
         return ValueResolver.TryResolveColor(value, theme, GetNamespaces(), out color);
+    }
+
+    /// <summary>
+    /// Returns examples of gradient from utilities with theme-aware color values.
+    /// </summary>
+    public IEnumerable<Documentation.UtilityExample> GetExamples(Theme.Theme theme)
+    {
+        var examples = new List<Documentation.UtilityExample>
+        {
+            new("from-red-500", "Set gradient starting color to red-500"),
+            new("from-blue-600", "Set gradient starting color to blue-600"),
+            new("from-green-400", "Set gradient starting color to green-400"),
+            new("from-purple-500/50", "Set gradient starting color to purple-500 with 50% opacity"),
+            new("from-[#ff0000]", "Set gradient starting color with arbitrary hex value"),
+        };
+
+        return examples;
     }
 }

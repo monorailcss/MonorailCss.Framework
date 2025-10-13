@@ -10,9 +10,7 @@ using MonorailCss.Utilities.Resolvers;
 namespace MonorailCss.Utilities.Typography;
 
 /// <summary>
-/// Unified text utility that handles both font-size and text color, matching Tailwind's behavior.
-/// Handles: text-{color}, text-{size}, text-[arbitrary]
-/// CSS: color for colors, font-size (and optionally line-height) for sizes.
+/// Utilities for controlling the text color and font size of an element.
 /// </summary>
 internal class TextUtility : IUtility
 {
@@ -294,5 +292,26 @@ internal class TextUtility : IUtility
         }
 
         return false;
+    }
+
+    /// <summary>
+    /// Returns examples of text utilities.
+    /// </summary>
+    public IEnumerable<Documentation.UtilityExample> GetExamples(Theme.Theme theme)
+    {
+        var examples = new List<Documentation.UtilityExample>
+        {
+            new("text-sm", "Set font size to small (0.875rem)"),
+            new("text-base", "Set font size to base (1rem)"),
+            new("text-lg", "Set font size to large (1.125rem)"),
+            new("text-xl", "Set font size to extra large (1.25rem)"),
+            new("text-red-500", "Set text color to red-500"),
+            new("text-blue-600", "Set text color to blue-600"),
+            new("text-red-500/50", "Set text color to red-500 with 50% opacity"),
+            new("text-[14px]", "Set font size with arbitrary value"),
+            new("text-[#ff0000]", "Set text color with arbitrary hex value"),
+        };
+
+        return examples;
     }
 }

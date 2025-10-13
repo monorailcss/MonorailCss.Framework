@@ -7,9 +7,7 @@ using MonorailCss.Css;
 namespace MonorailCss.Utilities.Typography;
 
 /// <summary>
-/// Utility for CSS content property.
-/// Handles: content-none, content-['text'], content-[url('/image.png')], content-[attr(data-content)], etc.
-/// CSS: content: none; --tw-content: value; content: var(--tw-content).
+/// Utilities for controlling the content of the before and after pseudo-elements.
 /// </summary>
 internal class ContentUtility : IUtility
 {
@@ -131,5 +129,22 @@ internal class ContentUtility : IUtility
         var processed = value.Replace("_", " ");
 
         return processed;
+    }
+
+    /// <summary>
+    /// Returns examples of content utilities.
+    /// </summary>
+    public IEnumerable<Documentation.UtilityExample> GetExamples(Theme.Theme theme)
+    {
+        var examples = new List<Documentation.UtilityExample>
+        {
+            new("content-none", "Remove content from pseudo-elements"),
+            new("content-['Hello']", "Set content to text 'Hello' for pseudo-elements"),
+            new("content-['★']", "Set content to star character for pseudo-elements"),
+            new("content-[attr(data-content)]", "Use attribute value as content"),
+            new("content-[url('/icon.svg')]", "Use image URL as content"),
+        };
+
+        return examples;
     }
 }

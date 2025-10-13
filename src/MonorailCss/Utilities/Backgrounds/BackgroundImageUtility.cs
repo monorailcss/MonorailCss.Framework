@@ -6,9 +6,7 @@ using MonorailCss.Utilities.Base;
 namespace MonorailCss.Utilities.Backgrounds;
 
 /// <summary>
-/// Utility for background-image values.
-/// Handles: bg-none, bg-gradient-to-*, bg-radial, bg-conic, bg-[url(...)], bg-[linear-gradient(...)]
-/// CSS: background-image: none, background-image: linear-gradient(...), background-image: radial-gradient(...), background-image: conic-gradient(...), background-image: url(...)
+/// Utilities for controlling the background image and gradient direction of an element.
 /// </summary>
 internal class BackgroundImageUtility : BaseFunctionalUtility
 {

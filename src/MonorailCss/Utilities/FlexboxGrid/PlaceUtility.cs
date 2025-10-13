@@ -4,7 +4,7 @@ using MonorailCss.Utilities.Base;
 namespace MonorailCss.Utilities.FlexboxGrid;
 
 /// <summary>
-/// Handles place utilities (place-content-*, place-items-*, place-self-*).
+/// Utilities for controlling how items are justified and aligned at the same time.
 /// </summary>
 internal class PlaceUtility : BaseStaticUtility
 {

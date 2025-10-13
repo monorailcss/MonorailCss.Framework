@@ -4,9 +4,7 @@ using MonorailCss.Utilities.Base;
 namespace MonorailCss.Utilities.Layout;
 
 /// <summary>
-/// Utility for CSS container query properties.
-/// Handles: @container, @container-normal
-/// CSS: container-type: inline-size for basic container query support.
+/// Utilities for creating container query names.
 /// </summary>
 internal class ContainerQueryUtility : BaseStaticUtility
 {

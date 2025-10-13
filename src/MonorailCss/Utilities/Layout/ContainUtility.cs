@@ -6,9 +6,7 @@ using MonorailCss.Utilities.Base;
 namespace MonorailCss.Utilities.Layout;
 
 /// <summary>
-/// Utility for CSS containment properties using CSS variables.
-/// Handles: contain-none, contain-strict, contain-content, contain-size, contain-inline-size, contain-layout, contain-style, contain-paint
-/// CSS: Sets --tw-contain-* variables and contain property with variable composition.
+/// Utilities for controlling the containment of an element's layout, style, and paint.
 /// </summary>
 internal class ContainUtility : BaseStaticUtility
 {

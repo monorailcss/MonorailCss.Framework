@@ -8,9 +8,7 @@ using MonorailCss.Utilities.Base;
 namespace MonorailCss.Utilities.Filters;
 
 /// <summary>
-/// Utility for backdrop sepia filter values.
-/// Handles: backdrop-sepia, backdrop-sepia-0, backdrop-sepia-*
-/// CSS: --tw-backdrop-sepia and backdrop-filter property with CSS variable system.
+/// Utilities for controlling the backdrop sepia filter of an element.
 /// </summary>
 internal class BackdropSepiaUtility : BaseFilterUtility
 {

@@ -6,7 +6,7 @@ using MonorailCss.Utilities.Base;
 namespace MonorailCss.Utilities.Sizing;
 
 /// <summary>
-/// Handles max-height utilities (max-h-*).
+/// Utilities for controlling the maximum height of an element.
 /// </summary>
 internal class MaxHeightUtility : BaseSizingUtility
 {

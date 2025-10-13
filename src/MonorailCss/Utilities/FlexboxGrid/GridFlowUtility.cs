@@ -4,8 +4,7 @@ using MonorailCss.Utilities.Base;
 namespace MonorailCss.Utilities.FlexboxGrid;
 
 /// <summary>
-/// Handles grid-flow utilities (grid-flow-row, grid-flow-col, grid-flow-dense, etc.).
-/// Maps to the CSS grid-auto-flow property.
+/// Utilities for controlling how elements in a grid are auto-placed.
 /// </summary>
 internal class GridFlowUtility : BaseStaticUtility
 {

@@ -6,7 +6,7 @@ using MonorailCss.Utilities.Base;
 namespace MonorailCss.Utilities.Sizing;
 
 /// <summary>
-/// Handles min-height utilities (min-h-*).
+/// Utilities for controlling the minimum height of an element.
 /// </summary>
 internal class MinHeightUtility : BaseSizingUtility
 {

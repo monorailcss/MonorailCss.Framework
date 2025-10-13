@@ -4,7 +4,7 @@ using MonorailCss.Utilities.Base;
 namespace MonorailCss.Utilities.Layout;
 
 /// <summary>
-/// Handles break utilities for page break control (break-before-*, break-after-*, break-inside-*).
+/// Utilities for controlling how a column or page break should behave.
 /// </summary>
 internal class BreakUtility : BaseStaticUtility
 {

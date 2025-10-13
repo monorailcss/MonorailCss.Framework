@@ -4,7 +4,7 @@ using MonorailCss.Utilities.Base;
 namespace MonorailCss.Utilities.Interactivity;
 
 /// <summary>
-/// Handles color-scheme utilities (scheme-normal, scheme-dark, scheme-light, etc.).
+/// Utilities for controlling the preferred color scheme of an element.
 /// </summary>
 internal class ColorSchemeUtility : BaseStaticUtility
 {

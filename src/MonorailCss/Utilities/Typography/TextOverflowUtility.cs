@@ -6,8 +6,7 @@ using MonorailCss.Utilities.Base;
 namespace MonorailCss.Utilities.Typography;
 
 /// <summary>
-/// Handles text overflow utilities (truncate, text-ellipsis, text-clip).
-/// The truncate utility sets multiple properties for complete text truncation.
+/// Utilities for controlling how text overflow is handled.
 /// </summary>
 internal class TextOverflowUtility : BaseStaticUtility
 {

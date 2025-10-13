@@ -4,8 +4,7 @@ using MonorailCss.Utilities.Base;
 namespace MonorailCss.Utilities.Tables;
 
 /// <summary>
-/// Handles table layout utilities (table-auto, table-fixed).
-/// Maps to the CSS table-layout property for table elements.
+/// Utilities for controlling the table layout algorithm.
 /// </summary>
 internal class TableLayoutUtility : BaseStaticUtility
 {

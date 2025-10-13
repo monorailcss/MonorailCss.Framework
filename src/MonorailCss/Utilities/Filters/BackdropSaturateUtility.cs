@@ -8,9 +8,7 @@ using MonorailCss.Utilities.Base;
 namespace MonorailCss.Utilities.Filters;
 
 /// <summary>
-/// Utility for backdrop saturate filter values.
-/// Handles: backdrop-saturate-0, backdrop-saturate-50, backdrop-saturate-100, backdrop-saturate-150, backdrop-saturate-200, backdrop-saturate-*
-/// CSS: --tw-backdrop-saturate and backdrop-filter property with CSS variable system.
+/// Utilities for controlling the backdrop saturate filter of an element.
 /// </summary>
 internal class BackdropSaturateUtility : BaseFilterUtility
 {

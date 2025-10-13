@@ -4,8 +4,7 @@ using MonorailCss.Utilities.Base;
 namespace MonorailCss.Utilities.Borders;
 
 /// <summary>
-/// Handles ring-inset utility.
-/// Sets rings to render as inset rather than outset.
+/// Utilities for making ring shadows render as inset rather than outset.
 /// </summary>
 internal class RingInsetUtility : BaseStaticUtility
 {

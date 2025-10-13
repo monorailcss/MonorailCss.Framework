@@ -7,12 +7,7 @@ using MonorailCss.Utilities.Base;
 namespace MonorailCss.Utilities.Borders;
 
 /// <summary>
-/// Handles divide color utilities for child element borders.
-///
-/// Color patterns: divide-{color}, divide-{color}/{opacity}
-///
-/// All utilities apply styles to child elements using :where(&amp; &gt; :not(:last-child)) selector.
-/// Inherits from BaseColorUtility for automatic opacity modifier support.
+/// Utilities for controlling the border color between elements.
 /// </summary>
 internal class DivideColorUtility : BaseColorUtility
 {

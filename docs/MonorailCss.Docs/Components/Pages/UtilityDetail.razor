@@ -1,0 +1,186 @@
+@page "/utilities/{CategorySlug}/{UtilitySlug}"
+@using MonorailCss.Documentation
+@using MonorailCss.Docs.Services
+@inject UtilityContentService UtilityService
+@inject CssFramework CssFramework
+@layout MainLayout
+
+<Breadcrumbs Items="@_breadcrumbs" />
+
+@if (_utility == null)
+{
+    <div class="text-center py-12 text-base-500 dark:text-base-400">
+        Loading utility...
+    </div>
+}
+else if (_utility == null || _categoryName == null)
+{
+    <div class="text-center py-12">
+        <h1 class="text-2xl font-bold text-base-900 dark:text-primary-50 mb-2">Utility Not Found</h1>
+        <p class="text-base-600 dark:text-base-400 mb-6">
+            The utility "@UtilitySlug" does not exist in category "@CategorySlug".
+        </p>
+        <a href="/utilities/@CategorySlug" class="inline-block px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg transition-colors mr-2">
+            Back to @CategorySlug
+        </a>
+        <a href="/utilities" class="inline-block px-4 py-2 border border-base-300 dark:border-base-700 hover:bg-base-100 dark:hover:bg-base-800 text-base-900 dark:text-base-100 rounded-lg transition-colors">
+            All Utilities
+        </a>
+    </div>
+}
+else
+{
+    var utilityTitle = _utility.Metadata.Name.Replace("Utility", "");
+    var examples = _utility.Examples.ToList();
+
+    <div class="mb-8">
+        <h1 class="text-4xl font-bold mb-4 text-base-900 dark:text-primary-50">
+            @utilityTitle
+        </h1>
+        @if (!string.IsNullOrEmpty(_utility.Metadata.Description))
+        {
+            <p class="text-lg text-base-600 dark:text-base-400">
+                @_utility.Metadata.Description
+            </p>
+        }
+    </div>
+
+    <div class="space-y-8">
+
+
+        <!-- Examples Section -->
+        @if (examples.Any())
+        {
+            <div class="border border-base-200 dark:border-base-800 rounded-lg overflow-hidden bg-white dark:bg-base-900">
+                <div class="px-6 py-4 border-b border-base-200 dark:border-base-800">
+                    <h2 class="text-xl font-semibold text-base-900 dark:text-base-100">Examples</h2>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead>
+                            <tr class="border-b border-base-200 dark:border-base-800">
+                                <th class="px-6 py-3 text-left text-xs font-medium text-base-500 dark:text-base-400 uppercase tracking-wider bg-base-50 dark:bg-base-800">
+                                    Class
+                                </th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-base-500 dark:text-base-400 uppercase tracking-wider bg-base-50 dark:bg-base-800">
+                                    Style
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-base-200 dark:divide-base-800">
+                            @foreach (var example in examples)
+                            {
+                                var generatedCss = GetGeneratedCss(example.ClassName);
+
+                                <tr>
+                                    <td class="px-2 py-1 lg:px-6 lg:py-2 whitespace-nowrap">
+                                        <code class="text-xs font-mono text-primary-600 dark:text-primary-400 bg-primary-50 dark:bg-primary-950 px-2 py-1 rounded">
+                                            @example.ClassName
+                                        </code>
+                                    </td>
+                                    <td class="px-2 py-2 lg:px-6 lg:py-2">
+
+                                        @if (!string.IsNullOrEmpty(generatedCss))
+                                        {
+                                            <pre class="text-xs font-mono text-base-700 dark:text-base-300 bg-base-50 dark:bg-base-800 p-1 rounded border border-base-200 dark:border-base-700 overflow-x-auto"><code>@generatedCss</code></pre>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="border border-base-200 dark:border-base-800 rounded-lg p-6 bg-white dark:bg-base-900 text-center">
+                <p class="text-base-500 dark:text-base-400">No examples available for this utility.</p>
+            </div>
+        }
+
+        <!-- Usage Notes -->
+        <div class="border border-primary-200 dark:border-primary-900 bg-primary-50 dark:bg-primary-950 rounded-lg p-6">
+            <h2 class="text-lg font-semibold text-primary-900 dark:text-primary-100 mb-3 flex items-center">
+                <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path>
+                </svg>
+                Usage
+            </h2>
+            <div class="text-sm text-primary-900 dark:text-primary-100 space-y-2">
+                <p>
+                    This utility can be used in your HTML by applying the class name to any element:
+                </p>
+                <pre class="bg-white dark:bg-base-900 border border-primary-200 dark:border-primary-800 rounded px-3 py-2 overflow-x-auto"><code class="text-base-800 dark:text-base-200">
+
+                </code></pre>
+
+                @if (_utility.Metadata.SupportsModifiers)
+                {
+                    <p class="pt-2">
+                        You can combine this utility with modifiers like <code class="px-1.5 py-0.5 bg-white dark:bg-base-900 border border-primary-200 dark:border-primary-800 rounded text-xs">hover:</code>,
+                        <code class="px-1.5 py-0.5 bg-white dark:bg-base-900 border border-primary-200 dark:border-primary-800 rounded text-xs">focus:</code>,
+                        or responsive breakpoints like <code class="px-1.5 py-0.5 bg-white dark:bg-base-900 border border-primary-200 dark:border-primary-800 rounded text-xs">md:</code>.
+                    </p>
+                }
+
+                @if (_utility.Metadata.SupportsArbitraryValues)
+                {
+                    <p class="pt-2">
+                        This utility supports arbitrary values using square bracket notation, allowing you to use custom values beyond the theme defaults.
+                    </p>
+                }
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public string CategorySlug { get; set; } = string.Empty;
+
+    [Parameter]
+    public string UtilitySlug { get; set; } = string.Empty;
+
+    private string? _categoryName;
+    private UtilityDocumentation? _utility;
+    private List<Breadcrumbs.BreadcrumbItem> _breadcrumbs = [];
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadUtilityAsync();
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        await LoadUtilityAsync();
+    }
+
+    private async Task LoadUtilityAsync()
+    {
+        _categoryName = await UtilityService.GetCategoryNameFromSlugAsync(CategorySlug);
+        _utility = await UtilityService.GetUtilityAsync(CategorySlug, UtilitySlug);
+
+        var utilityTitle = _utility?.Metadata.Name.Replace("Utility", "") ?? UtilitySlug;
+
+        _breadcrumbs =
+        [
+            new Breadcrumbs.BreadcrumbItem { Title = "Home", Url = "/" },
+            new Breadcrumbs.BreadcrumbItem { Title = "Utilities", Url = "/utilities" },
+            new Breadcrumbs.BreadcrumbItem { Title = _categoryName ?? CategorySlug, Url = $"/utilities/{CategorySlug}" },
+            new Breadcrumbs.BreadcrumbItem { Title = utilityTitle, IsCurrent = true },
+        ];
+    }
+
+    private string GetGeneratedCss(string className)
+    {
+        try
+        {
+            return CssFramework.CompileUtilityClass(className) ?? string.Empty;
+        }
+        catch (Exception)
+        {
+            return string.Empty;
+        }
+    }
+}

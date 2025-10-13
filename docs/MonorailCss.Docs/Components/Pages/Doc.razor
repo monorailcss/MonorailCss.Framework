@@ -1,0 +1,110 @@
+@page "/{*slug}"
+@inject IMarkdownContentService<DocFrontMatter> ContentService
+@layout MainLayout
+
+@if (Content != null)
+{
+    <PageTitle>@Content.FrontMatter.Title - MonorailCss</PageTitle>
+
+    <article class="max-w-7xl mx-auto">
+        <!-- Article Header -->
+        <header class="mb-8 pb-8 border-b border-base-200 dark:border-base-700">
+            <Breadcrumbs Items="@BreadcrumbItems" />
+
+            <h1 class="text-4xl lg:text-5xl font-extrabold text-base-900 dark:text-primary-50 mb-4 text-pretty">
+                @Content.FrontMatter.Title
+            </h1>
+
+            @if (!string.IsNullOrEmpty(Content.FrontMatter.Description))
+            {
+                <p class="text-xl text-base-600 dark:text-base-400 text-pretty">
+                    @Content.FrontMatter.Description
+                </p>
+            }
+
+            @if (Content.FrontMatter.Tags.Any())
+            {
+                <div class="flex flex-wrap gap-2 mt-4">
+                    @foreach (var tag in Content.FrontMatter.Tags)
+                    {
+                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-primary-100 dark:bg-primary-900 text-primary-800 dark:text-primary-200">
+                            @tag
+                        </span>
+                    }
+                </div>
+            }
+        </header>
+
+        <!-- Content with Outline -->
+        <div class="lg:flex lg:gap-8">
+            <!-- Main Content -->
+            <div class="flex-1 min-w-0">
+                <div class="prose dark:prose-invert max-w-full prose-headings:scroll-m-20">
+                    @((MarkupString)HtmlContent)
+                </div>
+            </div>
+
+            <!-- Outline Navigation (Desktop) -->
+            @if (Outline is { Length: > 0 })
+            {
+                <aside class="hidden xl:block w-64 shrink-0">
+                    <div class="sticky top-24">
+                        <h3 class="text-sm font-semibold text-base-900 dark:text-base-100 uppercase tracking-wider mb-3">
+                            On this page
+                        </h3>
+                        <div class="text-sm">
+                            <OutlineNavigation Outline="@Outline" />
+                        </div>
+                    </div>
+                </aside>
+            }
+        </div>
+    </article>
+}
+else
+{
+    <div class="text-center py-12">
+        <svg class="w-16 h-16 mx-auto text-base-400 dark:text-base-600 mb-4" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+        </svg>
+        <h2 class="text-2xl font-bold text-base-900 dark:text-base-100 mb-2">Page Not Found</h2>
+        <p class="text-base-600 dark:text-base-400 mb-6">The documentation page you're looking for doesn't exist.</p>
+        <a href="/" class="inline-flex items-center px-4 py-2 bg-primary-600 dark:bg-primary-500 text-white rounded-lg hover:bg-primary-700 dark:hover:bg-primary-600 transition-colors">
+            <svg class="w-5 h-5 mr-2" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+            </svg>
+            Back to Documentation
+        </a>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public string? Slug { get; set; }
+
+    private MarkdownContentPage<DocFrontMatter>? Content { get; set; }
+    private string HtmlContent { get; set; } = string.Empty;
+    private OutlineEntry[]? Outline { get; set; }
+    private List<Breadcrumbs.BreadcrumbItem>? BreadcrumbItems { get; set; }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (!string.IsNullOrEmpty(Slug))
+        {
+            var result = await ContentService.GetRenderedContentPageByUrlOrDefault($"/{Slug}");
+            Content = result?.Page;
+            HtmlContent = result?.HtmlContent ?? string.Empty;
+            Outline = result?.Page.Outline;
+
+            // Generate breadcrumbs
+            if (Content != null)
+            {
+                BreadcrumbItems =
+                [
+                    new Breadcrumbs.BreadcrumbItem { Title = "Home", Url = "/", IsCurrent = false },
+                    new Breadcrumbs.BreadcrumbItem { Title = Content.FrontMatter.Title, Url = null, IsCurrent = true },
+                ];
+            }
+        }
+    }
+}

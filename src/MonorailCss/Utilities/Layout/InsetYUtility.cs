@@ -6,7 +6,7 @@ using MonorailCss.Utilities.Base;
 namespace MonorailCss.Utilities.Layout;
 
 /// <summary>
-/// Handles inset-y utilities for vertical inset.
+/// Utilities for controlling the vertical placement of positioned elements.
 /// </summary>
 internal class InsetYUtility : BaseFractionAwareSpacingUtility
 {

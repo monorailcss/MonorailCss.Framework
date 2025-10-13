@@ -6,10 +6,7 @@ using MonorailCss.Utilities.Base;
 namespace MonorailCss.Utilities.Interactivity;
 
 /// <summary>
-/// Utility for scroll-margin values.
-/// Handles: scroll-m-0, scroll-m-px, scroll-m-0.5, scroll-m-1, scroll-m-2, scroll-m-4, scroll-m-8, -scroll-m-4, scroll-m-[2rem], etc.
-/// Also handles directional variants: scroll-mx-*, scroll-my-*, scroll-mt-*, scroll-mr-*, scroll-mb-*, scroll-ml-*, scroll-ms-*, scroll-me-*
-/// CSS: scroll-margin: 0, scroll-margin: 1px, scroll-margin: var(--spacing-1), scroll-margin: -var(--spacing-4), etc.
+/// Utilities for controlling the scroll offset around items in a snap container.
 /// </summary>
 internal class ScrollMarginUtility : BaseSpacingUtility
 {

@@ -1,0 +1,129 @@
+@page "/utilities"
+@using MonorailCss.Documentation
+@using MonorailCss.Docs.Services
+@inject UtilityContentService UtilityService
+@layout MainLayout
+
+<Breadcrumbs Items="@_breadcrumbs" />
+
+<div class="mb-8">
+    <h1 class="text-4xl font-bold mb-4 bg-gradient-to-r from-primary-600 to-cyan-600 dark:from-primary-400 dark:to-cyan-400 bg-clip-text text-transparent">
+        Utilities Reference
+    </h1>
+    <p class="text-lg text-base-600 dark:text-base-400">
+        Complete reference of all MonorailCSS utility classes organized by category.
+    </p>
+</div>
+
+@if (_categories == null)
+{
+    <div class="text-center py-12 text-base-500 dark:text-base-400">
+        Loading utilities...
+    </div>
+}
+else if (!_categories.Any())
+{
+    <div class="text-center py-12 text-base-500 dark:text-base-400">
+        No utilities found.
+    </div>
+}
+else
+{
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        @foreach (var (category, utilities) in _categories.OrderBy(c => c.Key))
+        {
+            var categorySlug = ToSlug(category);
+            var utilityCount = utilities.Count;
+
+            <a href="/utilities/@categorySlug"
+               class="block p-6 border border-base-200 dark:border-base-800 rounded-lg hover:border-primary-500 dark:hover:border-primary-500 transition-colors bg-white dark:bg-base-900 hover:shadow-md">
+                <div class="flex items-start justify-between mb-3">
+                    <h2 class="text-xl font-semibold text-base-900 dark:text-base-100">
+                        @category
+                    </h2>
+                    <span class="px-2.5 py-0.5 text-xs font-medium rounded-full bg-primary-100 dark:bg-primary-900 text-primary-800 dark:text-primary-200">
+                        @utilityCount
+                    </span>
+                </div>
+
+                <p class="text-sm text-base-600 dark:text-base-400 mb-4">
+                    @GetCategoryDescription(utilities)
+                </p>
+
+                <div class="flex flex-wrap gap-2">
+                    @foreach (var utility in utilities.Take(3))
+                    {
+                        <code class="text-xs px-2 py-1 bg-base-100 dark:bg-base-800 text-base-700 dark:text-base-300 rounded">
+                            @GetUtilityExample(utility)
+                        </code>
+                    }
+                    @if (utilities.Count > 3)
+                    {
+                        <span class="text-xs px-2 py-1 text-base-500 dark:text-base-400">
+                            +@(utilities.Count - 3) more
+                        </span>
+                    }
+                </div>
+            </a>
+        }
+    </div>
+}
+
+@code {
+    private Dictionary<string, List<UtilityDocumentation>>? _categories;
+    private List<Breadcrumbs.BreadcrumbItem> _breadcrumbs = [];
+
+    protected override async Task OnInitializedAsync()
+    {
+        _categories = await UtilityService.GetAllCategoriesAsync();
+
+        _breadcrumbs =
+        [
+            new Breadcrumbs.BreadcrumbItem { Title = "Home", Url = "/" },
+            new Breadcrumbs.BreadcrumbItem { Title = "Utilities", IsCurrent = true },
+        ];
+    }
+
+    private static string ToSlug(string text)
+    {
+        return text
+            .Replace("Utility", "")
+            .ToLowerInvariant()
+            .Replace(" ", "-")
+            .Replace("_", "-");
+    }
+
+    private static string GetCategoryDescription(List<UtilityDocumentation> utilities)
+    {
+        if (utilities.Count == 0) return "No utilities in this category.";
+
+        var firstUtility = utilities.First();
+        var description = firstUtility.Metadata.Description;
+
+        if (string.IsNullOrEmpty(description))
+        {
+            return $"Utilities for controlling {utilities.First().Metadata.Category.ToLowerInvariant()}.";
+        }
+
+        // Take first sentence or first 100 characters
+        var firstSentence = description.Split('.').FirstOrDefault() ?? description;
+        return firstSentence.Length > 100
+            ? firstSentence.Substring(0, 97) + "..."
+            : firstSentence + ".";
+    }
+
+    private static string GetUtilityExample(UtilityDocumentation utility)
+    {
+        var examples = utility.Examples;
+        if (examples.Any())
+        {
+            return examples.First().ClassName;
+        }
+
+        // Fallback to utility name as lowercase
+        return utility.Metadata.Name
+            .Replace("Utility", "")
+            .ToLowerInvariant()
+            .Replace(" ", "-");
+    }
+}

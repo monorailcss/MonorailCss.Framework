@@ -4,9 +4,7 @@ using MonorailCss.Utilities.Base;
 namespace MonorailCss.Utilities.Typography;
 
 /// <summary>
-/// Utility for text-decoration-color values.
-/// Handles: decoration-inherit, decoration-current, decoration-transparent, decoration-red-500, decoration-blue-600/50, etc.
-/// CSS: text-decoration-color: inherit, text-decoration-color: var(--color-red-500), etc.
+/// Utilities for controlling the color of text decorations.
 /// </summary>
 internal class TextDecorationColorUtility : BaseColorUtility
 {

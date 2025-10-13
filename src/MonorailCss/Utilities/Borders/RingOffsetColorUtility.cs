@@ -5,10 +5,7 @@ using MonorailCss.Utilities.Base;
 namespace MonorailCss.Utilities.Borders;
 
 /// <summary>
-/// Utility for ring-offset-color values.
-/// Handles: ring-offset-red-500, ring-offset-blue-600, ring-offset-[#123456], ring-offset-transparent, ring-offset-current
-/// CSS: Sets --tw-ring-offset-color CSS variable
-/// Supports opacity modifiers: ring-offset-red-500/50.
+/// Utilities for controlling the color of ring offset shadows.
 /// </summary>
 internal class RingOffsetColorUtility : BaseColorUtility
 {

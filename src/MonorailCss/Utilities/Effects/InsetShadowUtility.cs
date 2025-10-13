@@ -6,7 +6,7 @@ using MonorailCss.Css;
 namespace MonorailCss.Utilities.Effects;
 
 /// <summary>
-/// Handles inset shadow utilities.
+/// Utilities for controlling the inset shadow of an element.
 /// </summary>
 internal class InsetShadowUtility : IUtility
 {
@@ -40,5 +40,18 @@ internal class InsetShadowUtility : IUtility
 
         // Call the base implementation
         return TryCompile(candidate, theme, out results);
+    }
+
+    /// <summary>
+    /// Returns examples of inset shadow utilities.
+    /// </summary>
+    public IEnumerable<Documentation.UtilityExample> GetExamples(Theme.Theme theme)
+    {
+        var examples = new List<Documentation.UtilityExample>
+        {
+            new("inset-shadow-none", "Remove inset shadow"),
+        };
+
+        return examples;
     }
 }

@@ -10,13 +10,7 @@ using MonorailCss.Utilities.Resolvers;
 namespace MonorailCss.Utilities.Borders;
 
 /// <summary>
-/// Unified outline utility that handles both outline width and outline color, matching Tailwind's behavior.
-///
-/// Width patterns: outline, outline-0, outline-1, outline-2, outline-4, outline-8, outline-[2px]
-/// Color patterns: outline-red-500, outline-blue-600, outline-transparent, outline-[#ff0000]
-///
-/// Uses data type inference to determine if a value is a width or color.
-/// Supports opacity modifiers for colors: outline-red-500/50.
+/// Utilities for controlling the width and color of an element's outline.
 /// </summary>
 internal class OutlineUtility : IUtility
 {
@@ -191,5 +185,24 @@ internal class OutlineUtility : IUtility
         // Outline color only sets the color property
         return ImmutableList.Create<AstNode>(
             new Declaration("outline-color", value, important));
+    }
+
+    /// <summary>
+    /// Returns examples of outline utilities.
+    /// </summary>
+    public IEnumerable<Documentation.UtilityExample> GetExamples(Theme.Theme theme)
+    {
+        var examples = new List<Documentation.UtilityExample>
+        {
+            new("outline", "Apply 1px outline with default style"),
+            new("outline-2", "Apply 2px outline"),
+            new("outline-4", "Apply 4px outline"),
+            new("outline-red-500", "Set outline color to red-500"),
+            new("outline-blue-600", "Set outline color to blue-600"),
+            new("outline-red-500/50", "Set outline color to red-500 with 50% opacity"),
+            new("outline-[3px]", "Apply outline with arbitrary width"),
+        };
+
+        return examples;
     }
 }

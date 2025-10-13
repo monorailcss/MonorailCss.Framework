@@ -6,9 +6,7 @@ using MonorailCss.Utilities.Base;
 namespace MonorailCss.Utilities.Layout;
 
 /// <summary>
-/// Utility for z-index values.
-/// Handles: z-auto, z-0, z-10, z-50, -z-10, z-[100], etc.
-/// CSS: z-index: auto, z-index: 0, z-index: 10, z-index: 50, z-index: -10, z-index: 100.
+/// Utilities for controlling the stack order of an element.
 /// </summary>
 internal class ZIndexUtility : BaseFunctionalUtility
 {

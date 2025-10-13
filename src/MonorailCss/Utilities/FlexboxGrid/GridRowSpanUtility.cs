@@ -6,9 +6,7 @@ using MonorailCss.Utilities.Base;
 namespace MonorailCss.Utilities.FlexboxGrid;
 
 /// <summary>
-/// Utility for grid row span values.
-/// Handles: row-span-1, row-span-2, row-span-full, etc.
-/// CSS: grid-row: span 1 / span 1, grid-row: 1 / -1.
+/// Utilities for controlling how elements span across grid rows.
 /// </summary>
 internal class GridRowSpanUtility : BaseFunctionalUtility
 {

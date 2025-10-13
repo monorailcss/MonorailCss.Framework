@@ -4,7 +4,7 @@ using MonorailCss.Utilities.Base;
 namespace MonorailCss.Utilities.Backgrounds;
 
 /// <summary>
-/// Handles background-color utilities (bg-*).
+/// Utilities for controlling the background color of an element.
 /// </summary>
 internal class BackgroundColorUtility : BaseColorUtility
 {

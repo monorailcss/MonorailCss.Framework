@@ -8,9 +8,7 @@ using MonorailCss.Utilities.Base;
 namespace MonorailCss.Utilities.Filters;
 
 /// <summary>
-/// Utility for backdrop grayscale filter values.
-/// Handles: backdrop-grayscale, backdrop-grayscale-0, backdrop-grayscale-*
-/// CSS: --tw-backdrop-grayscale and backdrop-filter property with CSS variable system.
+/// Utilities for controlling the backdrop grayscale filter of an element.
 /// </summary>
 internal class BackdropGrayscaleUtility : BaseFilterUtility
 {

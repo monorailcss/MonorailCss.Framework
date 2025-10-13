@@ -8,12 +8,7 @@ using MonorailCss.Utilities.Resolvers;
 namespace MonorailCss.Utilities.Borders;
 
 /// <summary>
-/// Handles divide width utilities for child element borders.
-///
-/// Width patterns: divide-x, divide-x-*, divide-y, divide-y-*
-///
-/// Supports bare patterns (divide-x, divide-y) with default 1px width.
-/// All utilities apply styles to child elements using :where(&amp; &gt; :not(:last-child)) selector.
+/// Utilities for controlling the border width between elements.
 /// </summary>
 internal class DivideUtility : IUtility
 {
@@ -155,5 +150,23 @@ internal class DivideUtility : IUtility
         }
 
         return ImmutableList.Create<AstNode>(new NestedRule(childSelector, declarations.ToImmutableList()));
+    }
+
+    /// <summary>
+    /// Returns examples of divide utilities.
+    /// </summary>
+    public IEnumerable<Documentation.UtilityExample> GetExamples(Theme.Theme theme)
+    {
+        var examples = new List<Documentation.UtilityExample>
+        {
+            new("divide-x", "Add 1px horizontal border between child elements"),
+            new("divide-x-2", "Add 2px horizontal border between child elements"),
+            new("divide-x-4", "Add 4px horizontal border between child elements"),
+            new("divide-y", "Add 1px vertical border between child elements"),
+            new("divide-y-2", "Add 2px vertical border between child elements"),
+            new("divide-x-[3px]", "Add horizontal border with arbitrary width between child elements"),
+        };
+
+        return examples;
     }
 }

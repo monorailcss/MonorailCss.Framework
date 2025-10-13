@@ -7,9 +7,7 @@ using MonorailCss.Utilities.Base;
 namespace MonorailCss.Utilities.Typography;
 
 /// <summary>
-/// Utility for vertical-align values.
-/// Handles: align-baseline, align-top, align-middle, align-bottom, align-text-top, align-text-bottom, align-sub, align-super, align-[2px], etc.
-/// CSS: vertical-align: baseline, vertical-align: top, vertical-align: middle, vertical-align: 2px, etc.
+/// Utilities for controlling the vertical alignment of an inline or table-cell box.
 /// </summary>
 internal class VerticalAlignUtility : BaseFunctionalUtility
 {

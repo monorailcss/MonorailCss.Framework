@@ -6,9 +6,7 @@ using MonorailCss.Utilities.Base;
 namespace MonorailCss.Utilities.Typography;
 
 /// <summary>
-/// Utility for text-indent values.
-/// Handles: indent-0, indent-px, indent-0.5, indent-1, indent-2, indent-4, indent-8, -indent-4, indent-[2rem], etc.
-/// CSS: text-indent: 0, text-indent: 1px, text-indent: var(--spacing-1), text-indent: -var(--spacing-4), etc.
+/// Utilities for controlling the indentation of text.
 /// </summary>
 internal class TextIndentUtility : BaseSpacingUtility
 {

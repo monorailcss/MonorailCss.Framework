@@ -7,9 +7,7 @@ using MonorailCss.Utilities.Base;
 namespace MonorailCss.Utilities.Typography;
 
 /// <summary>
-/// Utility for letter-spacing values.
-/// Handles: tracking-tighter, tracking-tight, tracking-normal, tracking-wide, tracking-wider, tracking-widest
-/// CSS: letter-spacing: -0.05em, letter-spacing: -0.025em, letter-spacing: 0em, letter-spacing: 0.025em, letter-spacing: 0.05em, letter-spacing: 0.1em.
+/// Utilities for controlling the tracking (letter spacing) of an element.
 /// </summary>
 internal class LetterSpacingUtility : BaseFunctionalUtility
 {

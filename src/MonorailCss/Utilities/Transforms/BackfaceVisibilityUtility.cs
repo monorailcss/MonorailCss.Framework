@@ -4,9 +4,7 @@ using MonorailCss.Utilities.Base;
 namespace MonorailCss.Utilities.Transforms;
 
 /// <summary>
-/// Utility for backface-visibility values.
-/// Handles: backface-visible, backface-hidden
-/// CSS: backface-visibility property with visible and hidden values.
+/// Utilities for controlling the visibility of an element's back face when rotated.
 /// </summary>
 internal class BackfaceVisibilityUtility : BaseStaticUtility
 {

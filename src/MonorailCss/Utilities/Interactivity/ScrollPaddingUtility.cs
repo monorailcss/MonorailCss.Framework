@@ -6,10 +6,7 @@ using MonorailCss.Utilities.Base;
 namespace MonorailCss.Utilities.Interactivity;
 
 /// <summary>
-/// Utility for scroll-padding values.
-/// Handles: scroll-p-0, scroll-p-px, scroll-p-0.5, scroll-p-1, scroll-p-2, scroll-p-4, scroll-p-8, scroll-p-[2rem], etc.
-/// Also handles directional variants: scroll-px-*, scroll-py-*, scroll-pt-*, scroll-pr-*, scroll-pb-*, scroll-pl-*, scroll-ps-*, scroll-pe-*
-/// CSS: scroll-padding: 0, scroll-padding: 1px, scroll-padding: var(--spacing-1), etc.
+/// Utilities for controlling an element's scroll offset within a snap container.
 /// </summary>
 internal class ScrollPaddingUtility : BaseSpacingUtility
 {

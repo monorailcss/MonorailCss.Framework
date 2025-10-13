@@ -7,8 +7,7 @@ using MonorailCss.Utilities.Base;
 namespace MonorailCss.Utilities.Borders;
 
 /// <summary>
-/// Utility for reversing vertical divide direction (divide-y-reverse).
-/// Sets --tw-divide-y-reverse: 1 on child elements.
+/// Utilities for reversing the direction of vertical borders between elements.
 /// </summary>
 internal class DivideYReverseUtility : BaseStaticUtility
 {

@@ -10,15 +10,7 @@ using MonorailCss.Utilities.Resolvers;
 namespace MonorailCss.Utilities.Borders;
 
 /// <summary>
-/// Handles both border width and border color utilities with unified logic.
-///
-/// Width patterns: border, border-0, border-2, border-4, etc.
-/// Color patterns: border-red-500, border-blue-600, border-transparent, etc.
-///
-/// Supports all directional variants:
-/// - border-x-*, border-y-* (horizontal/vertical using logical properties)
-/// - border-t-*, border-r-*, border-b-*, border-l-* (individual sides)
-/// - border-s-*, border-e-* (logical start/end properties).
+/// Utilities for controlling the width and color of an element's borders.
 /// </summary>
 internal class BorderUtility : IUtility
 {
@@ -339,5 +331,26 @@ internal class BorderUtility : IUtility
         }
 
         return declarations.ToImmutableList();
+    }
+
+    /// <summary>
+    /// Returns examples of border utilities.
+    /// </summary>
+    public IEnumerable<Documentation.UtilityExample> GetExamples(Theme.Theme theme)
+    {
+        var examples = new List<Documentation.UtilityExample>
+        {
+            new("border", "Apply 1px border on all sides"),
+            new("border-2", "Apply 2px border on all sides"),
+            new("border-4", "Apply 4px border on all sides"),
+            new("border-red-500", "Set border color to red-500"),
+            new("border-blue-600", "Set border color to blue-600"),
+            new("border-t-4", "Apply 4px border on top"),
+            new("border-x-2", "Apply 2px border on left and right (horizontal)"),
+            new("border-red-500/50", "Set border color to red-500 with 50% opacity"),
+            new("border-[3px]", "Apply border with arbitrary width"),
+        };
+
+        return examples;
     }
 }

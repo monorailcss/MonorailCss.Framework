@@ -6,8 +6,7 @@ using MonorailCss.Css;
 namespace MonorailCss.Utilities.Borders;
 
 /// <summary>
-/// Handles the outline-hidden utility specifically.
-/// Maps to CSS outline-style: none with forced-colors media query support.
+/// Utilities for hiding the outline of an element while maintaining accessibility.
 /// </summary>
 internal class OutlineHiddenUtility : IUtility
 {
@@ -55,5 +54,18 @@ internal class OutlineHiddenUtility : IUtility
 
         // Call the base implementation
         return TryCompile(candidate, theme, out results);
+    }
+
+    /// <summary>
+    /// Returns examples of outline-hidden utility.
+    /// </summary>
+    public IEnumerable<Documentation.UtilityExample> GetExamples(Theme.Theme theme)
+    {
+        var examples = new List<Documentation.UtilityExample>
+        {
+            new("outline-hidden", "Hide outline but maintain accessibility with forced-colors support"),
+        };
+
+        return examples;
     }
 }

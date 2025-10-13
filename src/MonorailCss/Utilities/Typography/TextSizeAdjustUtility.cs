@@ -6,9 +6,7 @@ using MonorailCss.Utilities.Base;
 namespace MonorailCss.Utilities.Typography;
 
 /// <summary>
-/// Utility for text-size-adjust values.
-/// Handles: text-size-adjust-none, text-size-adjust-auto, text-size-adjust-[120%]
-/// CSS: text-size-adjust: none, text-size-adjust: auto, text-size-adjust: 120%.
+/// Utilities for controlling the size adjustment of text on mobile devices.
 /// </summary>
 internal class TextSizeAdjustUtility : BaseFunctionalUtility
 {

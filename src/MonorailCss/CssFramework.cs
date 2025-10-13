@@ -334,6 +334,49 @@ public class CssFramework
         return Process(combined);
     }
 
+    /// <summary>
+    /// Compiles a single utility class and returns just its CSS declarations
+    /// without pipeline processing, layers, or preflight. Useful for documentation and debugging.
+    /// </summary>
+    /// <param name="className">The single utility class name to compile (e.g., "bg-red-500", "hover:text-blue-600").</param>
+    /// <returns>The raw CSS declarations for this utility class, or null if the class is invalid.</returns>
+    public string? CompileUtilityClass(string className)
+    {
+        if (string.IsNullOrWhiteSpace(className))
+        {
+            return null;
+        }
+
+        // Parse className into Candidate
+        if (!_parser.TryParseCandidate(className, out var candidate))
+        {
+            return null;
+        }
+
+        var propertyRegistry = new CssPropertyRegistry();
+
+        // Try static utilities first (faster lookup)
+        if (candidate is StaticUtility staticUtility &&
+            UtilityRegistry.StaticUtilitiesLookup.TryGetValue(staticUtility.Root, out var staticUtil))
+        {
+            if (staticUtil.TryCompile(candidate, _settings.Theme, propertyRegistry, out var astNodes) && astNodes != null)
+            {
+                return string.Join("\n", astNodes.Select(node => node.ToCss()));
+            }
+        }
+
+        // Try each registered utility
+        foreach (var utility in UtilityRegistry.RegisteredUtilities)
+        {
+            if (utility.TryCompile(candidate, _settings.Theme, propertyRegistry, out var astNodes) && astNodes != null)
+            {
+                return string.Join("\n", astNodes.Select(node => node.ToCss()));
+            }
+        }
+
+        return null; // Class couldn't be compiled
+    }
+
     private static void EnsureFontVariables(Dictionary<string, string> variables, Theme.Theme theme)
     {
         // Always include font-sans and font-mono

@@ -4,7 +4,7 @@ using MonorailCss.Utilities.Base;
 namespace MonorailCss.Utilities.Typography;
 
 /// <summary>
-/// Handles list style image utilities (list-image-none).
+/// Utilities for controlling the marker images for list items.
 /// </summary>
 internal class ListStyleImageUtility : BaseStaticUtility
 {

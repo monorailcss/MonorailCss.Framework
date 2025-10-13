@@ -7,9 +7,7 @@ using MonorailCss.Utilities.Base;
 namespace MonorailCss.Utilities.FlexboxGrid;
 
 /// <summary>
-/// Utility for flex-grow values.
-/// Handles: grow, flex-grow (default to 1), grow-0, flex-grow-0, grow-*, flex-grow-*
-/// CSS: flex-grow: 1, flex-grow: 0, flex-grow: custom-value.
+/// Utilities for controlling how flex items grow.
 /// </summary>
 internal class FlexGrowUtility : BaseFunctionalUtility
 {

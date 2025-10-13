@@ -85,7 +85,7 @@ public class UtilityDocumentationEngine
             BaseFunctionalUtility => "Functional",
             BaseColorUtility => "Color",
             BaseSizingUtility => "Sizing",
-            _ => "Custom"
+            _ => "Custom",
         };
     }
 

@@ -6,7 +6,7 @@ using MonorailCss.Utilities.Base;
 namespace MonorailCss.Utilities.Layout;
 
 /// <summary>
-/// Handles inset utilities (inset-*, top-*, right-*, bottom-*, left-*, start-*, end-*).
+/// Utilities for controlling the placement of positioned elements.
 /// </summary>
 internal class InsetUtility : BaseFractionAwareSpacingUtility
 {

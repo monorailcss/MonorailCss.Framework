@@ -8,9 +8,7 @@ using MonorailCss.Utilities.Base;
 namespace MonorailCss.Utilities.Filters;
 
 /// <summary>
-/// Utility for backdrop brightness filter values.
-/// Handles: backdrop-brightness-0, backdrop-brightness-50, backdrop-brightness-75, backdrop-brightness-90, backdrop-brightness-95, backdrop-brightness-100, backdrop-brightness-105, backdrop-brightness-110, backdrop-brightness-125, backdrop-brightness-150, backdrop-brightness-200, backdrop-brightness-*
-/// CSS: --tw-backdrop-brightness and backdrop-filter property with CSS variable system.
+/// Utilities for controlling the backdrop brightness filter of an element.
 /// </summary>
 internal class BackdropBrightnessUtility : BaseFilterUtility
 {

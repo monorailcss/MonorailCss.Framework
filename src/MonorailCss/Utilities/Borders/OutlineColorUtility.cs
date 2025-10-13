@@ -4,11 +4,7 @@ using MonorailCss.Utilities.Base;
 namespace MonorailCss.Utilities.Borders;
 
 /// <summary>
-/// Handles outline-color utilities.
-///
-/// Color patterns: outline-red-500, outline-blue-600, outline-transparent, etc.
-///
-/// Maps to CSS outline-color property with opacity support.
+/// Utilities for controlling the color of an element's outline.
 /// </summary>
 internal class OutlineColorUtility : BaseColorUtility
 {

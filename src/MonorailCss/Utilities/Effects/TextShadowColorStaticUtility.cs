@@ -4,7 +4,7 @@ using MonorailCss.Utilities.Base;
 namespace MonorailCss.Utilities.Effects;
 
 /// <summary>
-/// Handles static text shadow color utilities (text-shadow-current, text-shadow-inherit, text-shadow-transparent, text-shadow-initial).
+/// Utilities for controlling the color of text shadows using special color keywords.
 /// </summary>
 internal class TextShadowColorStaticUtility : BaseStaticUtility
 {

@@ -4,7 +4,7 @@ using MonorailCss.Utilities.Base;
 namespace MonorailCss.Utilities.Accessibility;
 
 /// <summary>
-/// Handles forced color adjust utilities (forced-color-adjust-auto, forced-color-adjust-none).
+/// Utilities for controlling color adjustments in forced colors mode.
 /// </summary>
 internal class ForcedColorAdjustUtility : BaseStaticUtility
 {

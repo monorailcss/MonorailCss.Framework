@@ -4,7 +4,7 @@ using MonorailCss.Utilities.Base;
 namespace MonorailCss.Utilities.Effects;
 
 /// <summary>
-/// Handles inset shadow color utilities.
+/// Utilities for controlling the color of inset shadows.
 /// </summary>
 internal class InsetShadowColorUtility : BaseStaticUtility
 {

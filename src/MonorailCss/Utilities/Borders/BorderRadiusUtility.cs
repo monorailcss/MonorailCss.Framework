@@ -7,13 +7,7 @@ using MonorailCss.Utilities.Resolvers;
 namespace MonorailCss.Utilities.Borders;
 
 /// <summary>
-/// Handles border radius utilities for rounding corners.
-///
-/// Global patterns: rounded, rounded-none, rounded-sm, rounded-md, rounded-lg, etc.
-/// Directional patterns: rounded-t-*, rounded-r-*, rounded-b-*, rounded-l-* (2 corners each)
-/// Individual corner patterns: rounded-tl-*, rounded-tr-*, rounded-bl-*, rounded-br-*
-/// Logical corner patterns: rounded-ss-*, rounded-se-*, rounded-ee-*, rounded-es-*
-/// Arbitrary values: rounded-[10px], rounded-t-[5px], etc.
+/// Utilities for controlling the border radius of an element.
 /// </summary>
 internal class BorderRadiusUtility : IUtility
 {
@@ -142,5 +136,26 @@ internal class BorderRadiusUtility : IUtility
         }
 
         return declarations.ToImmutableList();
+    }
+
+    /// <summary>
+    /// Returns examples of border radius utilities.
+    /// </summary>
+    public IEnumerable<Documentation.UtilityExample> GetExamples(Theme.Theme theme)
+    {
+        var examples = new List<Documentation.UtilityExample>
+        {
+            new("rounded", "Apply 0.25rem border radius on all corners"),
+            new("rounded-none", "Remove border radius from all corners"),
+            new("rounded-sm", "Apply small border radius"),
+            new("rounded-md", "Apply medium border radius"),
+            new("rounded-lg", "Apply large border radius"),
+            new("rounded-full", "Apply circular border radius"),
+            new("rounded-t-md", "Apply medium border radius to top corners"),
+            new("rounded-tl-lg", "Apply large border radius to top-left corner"),
+            new("rounded-[12px]", "Apply border radius with arbitrary value"),
+        };
+
+        return examples;
     }
 }

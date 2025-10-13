@@ -6,7 +6,7 @@ using MonorailCss.Utilities.Base;
 namespace MonorailCss.Utilities.Spacing;
 
 /// <summary>
-/// Handles padding utilities (p-*, px-*, py-*, pt-*, pr-*, pb-*, pl-*, ps-*, pe-*).
+/// Utilities for controlling the padding of an element.
 /// </summary>
 internal class PaddingUtility : BaseSpacingUtility
 {

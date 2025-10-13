@@ -4,9 +4,7 @@ using MonorailCss.Utilities.Base;
 namespace MonorailCss.Utilities.Backgrounds;
 
 /// <summary>
-/// Handles gradient to position utilities (to-0% through to-100%).
-/// Sets the ending position for gradient color stops.
-/// CSS: --tw-gradient-to-position: value.
+/// Utilities for controlling the ending position of gradient color stops.
 /// </summary>
 internal class GradientToPositionUtility : BaseStaticUtility
 {

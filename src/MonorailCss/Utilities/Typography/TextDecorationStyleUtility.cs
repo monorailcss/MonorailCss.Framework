@@ -4,7 +4,7 @@ using MonorailCss.Utilities.Base;
 namespace MonorailCss.Utilities.Typography;
 
 /// <summary>
-/// Handles text-decoration-style utilities (decoration-solid, decoration-dashed, etc.).
+/// Utilities for controlling the style of text decorations.
 /// </summary>
 internal class TextDecorationStyleUtility : BaseStaticUtility
 {

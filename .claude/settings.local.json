@@ -16,7 +16,13 @@
       "Bash(dotnet pack:*)",
       "Bash(powershell:*)",
       "Bash(dotnet new:*)",
-      "Bash(dotnet sln:*)"
+      "Bash(dotnet sln:*)",
+      "WebFetch(domain:phil-scott-78.github.io)",
+      "Bash(dotnet add package:*)",
+      "WebFetch(domain:github.com)",
+      "Read(//b/MyLittleContentEngine/examples/Spectre.Console/Components/Layout/**)",
+      "Read(//b/MyLittleContentEngine/examples/Spectre.Console/Components/**)",
+      "Read(//b/MyLittleContentEngine/examples/Spectre.Console/**)"
     ],
     "deny": [],
     "ask": []

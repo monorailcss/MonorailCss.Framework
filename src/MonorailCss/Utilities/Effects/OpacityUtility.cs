@@ -6,9 +6,7 @@ using MonorailCss.Utilities.Base;
 namespace MonorailCss.Utilities.Effects;
 
 /// <summary>
-/// Utility for opacity values.
-/// Handles: opacity-0, opacity-25, opacity-50, opacity-75, opacity-100, etc.
-/// CSS: opacity: 0, opacity: 0.25, opacity: 0.5, opacity: 0.75, opacity: 1.
+/// Utilities for controlling the opacity of an element.
 /// </summary>
 internal class OpacityUtility : BaseFunctionalUtility
 {

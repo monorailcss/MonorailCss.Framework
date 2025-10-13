@@ -8,9 +8,7 @@ using MonorailCss.Utilities.Base;
 namespace MonorailCss.Utilities.Filters;
 
 /// <summary>
-/// Utility for grayscale filter values.
-/// Handles: grayscale, grayscale-0, grayscale-*
-/// CSS: --tw-grayscale and filter property with CSS variable system.
+/// Utilities for controlling the grayscale filter of an element.
 /// </summary>
 internal class GrayscaleUtility : BaseFilterUtility
 {

@@ -9,9 +9,7 @@ using MonorailCss.Utilities.Base;
 namespace MonorailCss.Utilities.Transforms;
 
 /// <summary>
-/// Utility for skew transform values.
-/// Handles: skew-*, skew-x-*, skew-y-*, -skew-*, -skew-x-*, -skew-y-*
-/// CSS: Uses transform property with CSS variables --tw-skew-x and --tw-skew-y.
+/// Utilities for controlling the skew of an element.
 /// </summary>
 internal class SkewUtility : BaseFunctionalUtility
 {

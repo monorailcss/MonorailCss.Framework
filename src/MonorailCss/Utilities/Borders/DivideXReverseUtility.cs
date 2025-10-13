@@ -7,8 +7,7 @@ using MonorailCss.Utilities.Base;
 namespace MonorailCss.Utilities.Borders;
 
 /// <summary>
-/// Utility for reversing horizontal divide direction (divide-x-reverse).
-/// Sets --tw-divide-x-reverse: 1 on child elements.
+/// Utilities for reversing the direction of horizontal borders between elements.
 /// </summary>
 internal class DivideXReverseUtility : BaseStaticUtility
 {

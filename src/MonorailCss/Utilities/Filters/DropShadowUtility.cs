@@ -6,7 +6,7 @@ using MonorailCss.Css;
 namespace MonorailCss.Utilities.Filters;
 
 /// <summary>
-/// Handles drop shadow utilities including drop-shadow-none.
+/// Utilities for controlling the drop shadow filter of an element.
 /// </summary>
 internal class DropShadowUtility : IUtility
 {
@@ -40,5 +40,18 @@ internal class DropShadowUtility : IUtility
 
         // Call the base implementation
         return TryCompile(candidate, theme, out results);
+    }
+
+    /// <summary>
+    /// Returns examples of drop shadow utilities.
+    /// </summary>
+    public IEnumerable<Documentation.UtilityExample> GetExamples(Theme.Theme theme)
+    {
+        var examples = new List<Documentation.UtilityExample>
+        {
+            new("drop-shadow-none", "Remove drop shadow filter"),
+        };
+
+        return examples;
     }
 }

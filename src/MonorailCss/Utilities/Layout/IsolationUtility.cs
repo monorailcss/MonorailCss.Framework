@@ -4,7 +4,7 @@ using MonorailCss.Utilities.Base;
 namespace MonorailCss.Utilities.Layout;
 
 /// <summary>
-/// Handles isolation utilities (isolate, isolation-auto).
+/// Utilities for controlling whether an element should create a new stacking context.
 /// </summary>
 internal class IsolationUtility : BaseStaticUtility
 {

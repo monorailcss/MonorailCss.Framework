@@ -7,9 +7,7 @@ using MonorailCss.Utilities.Base;
 namespace MonorailCss.Utilities.Interactivity;
 
 /// <summary>
-/// Utility for scroll-snap strictness CSS variables.
-/// Handles: snap-mandatory, snap-proximity
-/// CSS: --tw-scroll-snap-strictness variable setting.
+/// Utilities for controlling how strictly snap points are enforced in a snap container.
 /// </summary>
 internal class ScrollSnapStrictnessUtility : BaseStaticUtility
 {

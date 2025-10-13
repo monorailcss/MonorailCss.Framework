@@ -8,9 +8,7 @@ using MonorailCss.Utilities.Base;
 namespace MonorailCss.Utilities.Filters;
 
 /// <summary>
-/// Utility for blur filter values.
-/// Handles: blur-none, blur-sm, blur, blur-md, blur-lg, blur-xl, blur-2xl, blur-3xl, blur-*
-/// CSS: --tw-blur and filter property with CSS variable system.
+/// Utilities for controlling the blur filter of an element.
 /// </summary>
 internal class BlurUtility : BaseFilterUtility
 {

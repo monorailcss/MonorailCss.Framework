@@ -8,9 +8,7 @@ using MonorailCss.Utilities.Base;
 namespace MonorailCss.Utilities.Filters;
 
 /// <summary>
-/// Utility for invert filter values.
-/// Handles: invert, invert-0, invert-*
-/// CSS: --tw-invert and filter property with CSS variable system.
+/// Utilities for controlling the invert filter of an element.
 /// </summary>
 internal class InvertUtility : BaseFilterUtility
 {

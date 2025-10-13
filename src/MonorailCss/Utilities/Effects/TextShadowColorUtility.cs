@@ -9,10 +9,7 @@ using MonorailCss.Utilities.Base;
 namespace MonorailCss.Utilities.Effects;
 
 /// <summary>
-/// Utility for text shadow color values.
-/// Handles: text-shadow-inherit, text-shadow-current, text-shadow-transparent, text-shadow-red-500, text-shadow-blue-600/50, etc.
-/// CSS: --tw-text-shadow-color: inherit, --tw-text-shadow-color: oklch(63.7% 0.237 25.331), etc.
-/// Note: Uses raw OKLCH values to match Tailwind CSS output, not CSS variables.
+/// Utilities for controlling the color of text shadows.
 /// </summary>
 internal class TextShadowColorUtility : BaseColorUtility
 {

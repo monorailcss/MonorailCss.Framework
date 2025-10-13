@@ -10,12 +10,7 @@ using MonorailCss.Utilities.Resolvers;
 namespace MonorailCss.Utilities.Borders;
 
 /// <summary>
-/// Unified inset-ring utility that handles both ring width and ring color for inset rings.
-///
-/// Width patterns: inset-ring, inset-ring-0, inset-ring-1, inset-ring-2, inset-ring-4, inset-ring-8
-/// Color patterns: inset-ring-red-500, inset-ring-transparent, inset-ring-current, inset-ring-inherit
-///
-/// Creates inset box shadows instead of regular outset shadows.
+/// Utilities for controlling the width and color of inset ring shadows.
 /// </summary>
 internal class InsetRingUtility : IUtility
 {
@@ -206,5 +201,24 @@ internal class InsetRingUtility : IUtility
         // Inset ring color sets the --tw-inset-ring-color variable
         return ImmutableList.Create<AstNode>(
             new Declaration("--tw-inset-ring-color", value, important));
+    }
+
+    /// <summary>
+    /// Returns examples of inset ring utilities.
+    /// </summary>
+    public IEnumerable<Documentation.UtilityExample> GetExamples(Theme.Theme theme)
+    {
+        var examples = new List<Documentation.UtilityExample>
+        {
+            new("inset-ring", "Apply 1px inset ring with default color"),
+            new("inset-ring-2", "Apply 2px inset ring"),
+            new("inset-ring-4", "Apply 4px inset ring"),
+            new("inset-ring-red-500", "Set inset ring color to red-500"),
+            new("inset-ring-blue-600", "Set inset ring color to blue-600"),
+            new("inset-ring-red-500/50", "Set inset ring color to red-500 with 50% opacity"),
+            new("inset-ring-[3px]", "Apply inset ring with arbitrary width"),
+        };
+
+        return examples;
     }
 }

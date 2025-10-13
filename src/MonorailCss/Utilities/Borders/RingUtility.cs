@@ -10,13 +10,7 @@ using MonorailCss.Utilities.Resolvers;
 namespace MonorailCss.Utilities.Borders;
 
 /// <summary>
-/// Unified ring utility that handles both ring width and ring color, matching Tailwind's behavior.
-///
-/// Width patterns: ring, ring-0, ring-1, ring-2, ring-4, ring-8, ring-[10px]
-/// Color patterns: ring-red-500, ring-blue-600, ring-transparent, ring-[#ff0000]
-///
-/// Uses data type inference to determine if a value is a width or color.
-/// Supports opacity modifiers for colors: ring-red-500/50.
+/// Utilities for controlling the width and color of ring shadows.
 /// </summary>
 internal class RingUtility : IUtility
 {
@@ -265,5 +259,25 @@ internal class RingUtility : IUtility
         // Ring color sets the --tw-ring-color variable
         return ImmutableList.Create<AstNode>(
             new Declaration("--tw-ring-color", value, important));
+    }
+
+    /// <summary>
+    /// Returns examples of ring utilities.
+    /// </summary>
+    public IEnumerable<Documentation.UtilityExample> GetExamples(Theme.Theme theme)
+    {
+        var examples = new List<Documentation.UtilityExample>
+        {
+            new("ring", "Apply 3px ring with default color"),
+            new("ring-2", "Apply 2px ring"),
+            new("ring-4", "Apply 4px ring"),
+            new("ring-red-500", "Set ring color to red-500"),
+            new("ring-blue-600", "Set ring color to blue-600"),
+            new("ring-red-500/50", "Set ring color to red-500 with 50% opacity"),
+            new("ring-[3px]", "Apply ring with arbitrary width"),
+            new("ring-[#ff0000]", "Set ring color with arbitrary hex value"),
+        };
+
+        return examples;
     }
 }

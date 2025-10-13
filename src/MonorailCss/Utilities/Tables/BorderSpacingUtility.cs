@@ -7,15 +7,7 @@ using MonorailCss.Utilities.Base;
 namespace MonorailCss.Utilities.Tables;
 
 /// <summary>
-/// Handles border spacing utilities for table elements (border-spacing-*, border-spacing-x-*, border-spacing-y-*).
-///
-/// The CSS border-spacing property sets the distance between the borders of adjacent table cells.
-/// Only applies when border-collapse is separate (not collapse).
-///
-/// Patterns:
-/// - border-spacing-* - Sets both horizontal and vertical spacing
-/// - border-spacing-x-* - Sets only horizontal spacing
-/// - border-spacing-y-* - Sets only vertical spacing.
+/// Utilities for controlling the spacing between table borders.
 /// </summary>
 internal class BorderSpacingUtility : BaseSpacingUtility
 {

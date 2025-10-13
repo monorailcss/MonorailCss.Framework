@@ -7,9 +7,7 @@ using MonorailCss.Utilities.Base;
 namespace MonorailCss.Utilities.FlexboxGrid;
 
 /// <summary>
-/// Utility for grid-template-rows values.
-/// Handles: grid-rows-none, grid-rows-subgrid, grid-rows-1, grid-rows-2, grid-rows-6, grid-rows-[...], etc.
-/// CSS: grid-template-rows: none, grid-template-rows: subgrid, grid-template-rows: repeat(1, minmax(0, 1fr)).
+/// Utilities for specifying the rows in a grid layout.
 /// </summary>
 internal class GridTemplateRowsUtility : BaseFunctionalUtility
 {

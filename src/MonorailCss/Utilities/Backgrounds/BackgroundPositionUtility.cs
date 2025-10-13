@@ -6,9 +6,7 @@ using MonorailCss.Utilities.Base;
 namespace MonorailCss.Utilities.Backgrounds;
 
 /// <summary>
-/// Utility for background-position values.
-/// Handles: bg-top, bg-center, bg-bottom, bg-left, bg-right, bg-top-left, bg-[50%], bg-[center_top]
-/// CSS: background-position: top, background-position: center, background-position: left top, background-position: 50%.
+/// Utilities for controlling the position of background images.
 /// </summary>
 internal class BackgroundPositionUtility : BaseFunctionalUtility
 {

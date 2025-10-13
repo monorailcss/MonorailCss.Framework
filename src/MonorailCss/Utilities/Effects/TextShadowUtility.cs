@@ -7,9 +7,7 @@ using MonorailCss.Utilities.Base;
 namespace MonorailCss.Utilities.Effects;
 
 /// <summary>
-/// Utility for text shadow values.
-/// Handles: text-shadow-sm, text-shadow-md, text-shadow-lg, text-shadow-none, text-shadow-[arbitrary]
-/// CSS: text-shadow property with CSS variable support.
+/// Utilities for controlling the text shadow of an element.
 /// </summary>
 internal class TextShadowUtility : BaseFunctionalUtility
 {

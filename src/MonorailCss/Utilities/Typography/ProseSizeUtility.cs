@@ -5,9 +5,7 @@ using MonorailCss.Candidates;
 namespace MonorailCss.Utilities.Typography;
 
 /// <summary>
-/// Handles prose size variant utilities.
-/// Supports: prose-sm, prose-base, prose-lg, prose-xl, prose-2xl
-/// Does NOT set max-width, only typography scaling.
+/// Utilities for controlling the size of prose content.
 /// </summary>
 internal class ProseSizeUtility : IUtility
 {
@@ -420,5 +418,22 @@ internal class ProseSizeUtility : IUtility
         }
 
         return merged.Values.ToImmutableList();
+    }
+
+    /// <summary>
+    /// Returns examples of prose size utilities.
+    /// </summary>
+    public IEnumerable<Documentation.UtilityExample> GetExamples(Theme.Theme theme)
+    {
+        var examples = new List<Documentation.UtilityExample>
+        {
+            new("prose-sm", "Apply small prose typography scaling"),
+            new("prose-base", "Apply base prose typography scaling"),
+            new("prose-lg", "Apply large prose typography scaling"),
+            new("prose-xl", "Apply extra large prose typography scaling"),
+            new("prose-2xl", "Apply 2xl prose typography scaling"),
+        };
+
+        return examples;
     }
 }

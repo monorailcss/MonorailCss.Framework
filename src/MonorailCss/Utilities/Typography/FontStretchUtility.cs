@@ -6,9 +6,7 @@ using MonorailCss.Utilities.Base;
 namespace MonorailCss.Utilities.Typography;
 
 /// <summary>
-/// Utility for font-stretch values.
-/// Handles: font-stretch-normal, font-stretch-ultra-condensed, font-stretch-condensed, etc.
-/// CSS: font-stretch: normal, font-stretch: ultra-condensed, font-stretch: condensed.
+/// Utilities for controlling the font stretch of an element.
 /// </summary>
 internal class FontStretchUtility : BaseFunctionalUtility
 {

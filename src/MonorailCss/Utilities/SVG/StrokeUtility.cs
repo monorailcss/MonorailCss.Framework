@@ -8,12 +8,7 @@ using MonorailCss.Utilities.Resolvers;
 namespace MonorailCss.Utilities.SVG;
 
 /// <summary>
-/// Handles SVG stroke utilities with dual functionality:
-/// - Static values: stroke-none, stroke-current
-/// - Stroke color: stroke-red-500, stroke-blue-600, etc.
-/// - Stroke width: stroke-0, stroke-1, stroke-2, etc.
-///
-/// Similar to BorderUtility, determines value type and handles accordingly.
+/// Utilities for controlling the stroke color and width of SVG elements.
 /// </summary>
 internal class StrokeUtility : IUtility
 {
@@ -111,5 +106,25 @@ internal class StrokeUtility : IUtility
 
         result = baseColor;
         return true;
+    }
+
+    /// <summary>
+    /// Returns examples of SVG stroke utilities.
+    /// </summary>
+    public IEnumerable<Documentation.UtilityExample> GetExamples(Theme.Theme theme)
+    {
+        var examples = new List<Documentation.UtilityExample>
+        {
+            new("stroke-none", "Remove SVG stroke"),
+            new("stroke-current", "Set SVG stroke to currentColor"),
+            new("stroke-0", "Set SVG stroke width to 0"),
+            new("stroke-1", "Set SVG stroke width to 1"),
+            new("stroke-2", "Set SVG stroke width to 2"),
+            new("stroke-red-500", "Set SVG stroke color to red-500"),
+            new("stroke-blue-600", "Set SVG stroke color to blue-600"),
+            new("stroke-red-500/50", "Set SVG stroke color to red-500 with 50% opacity"),
+        };
+
+        return examples;
     }
 }

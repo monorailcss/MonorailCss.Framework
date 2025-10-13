@@ -4,7 +4,7 @@ using MonorailCss.Utilities.Base;
 namespace MonorailCss.Utilities.Layout;
 
 /// <summary>
-/// Handles position utilities (static, absolute, relative, etc.).
+/// Utilities for controlling how an element is positioned in the DOM.
 /// </summary>
 internal class PositionUtility : BaseStaticUtility
 {

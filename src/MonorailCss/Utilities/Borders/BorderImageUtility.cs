@@ -5,8 +5,7 @@ using MonorailCss.Utilities.Base;
 namespace MonorailCss.Utilities.Borders;
 
 /// <summary>
-/// Handles border image utilities (border-image-none, border-image-[url(...)]).
-/// Maps to the CSS border-image property.
+/// Utilities for controlling the border image of an element.
 /// </summary>
 internal class BorderImageUtility : BaseFunctionalUtility
 {

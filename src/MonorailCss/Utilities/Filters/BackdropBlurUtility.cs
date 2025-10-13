@@ -8,9 +8,7 @@ using MonorailCss.Utilities.Base;
 namespace MonorailCss.Utilities.Filters;
 
 /// <summary>
-/// Utility for backdrop blur filter values.
-/// Handles: backdrop-blur-none, backdrop-blur-sm, backdrop-blur, backdrop-blur-md, backdrop-blur-lg, backdrop-blur-xl, backdrop-blur-2xl, backdrop-blur-3xl, backdrop-blur-*
-/// CSS: --tw-backdrop-blur and backdrop-filter property with CSS variable system.
+/// Utilities for controlling the backdrop blur filter of an element.
 /// </summary>
 internal class BackdropBlurUtility : BaseFilterUtility
 {

@@ -7,9 +7,7 @@ using MonorailCss.Utilities.Base;
 namespace MonorailCss.Utilities.Interactivity;
 
 /// <summary>
-/// Utility for touch-action values with CSS variable support.
-/// Handles: touch-auto, touch-none, touch-manipulation, touch-pan-x, touch-pan-y, etc.
-/// CSS: touch-action property with CSS variables for pan and zoom combinations.
+/// Utilities for controlling how an element can be scrolled and zoomed on touchscreens.
 /// </summary>
 internal class TouchActionUtility : BaseStaticUtility
 {

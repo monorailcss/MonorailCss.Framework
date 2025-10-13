@@ -4,8 +4,7 @@ using MonorailCss.Utilities.Base;
 namespace MonorailCss.Utilities.Backgrounds;
 
 /// <summary>
-/// Handles background attachment utilities (bg-fixed, bg-local, bg-scroll).
-/// Maps to the CSS background-attachment property.
+/// Utilities for controlling how background images behave when scrolling.
 /// </summary>
 internal class BackgroundAttachmentUtility : BaseStaticUtility
 {

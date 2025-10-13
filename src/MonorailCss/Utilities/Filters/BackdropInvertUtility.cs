@@ -8,9 +8,7 @@ using MonorailCss.Utilities.Base;
 namespace MonorailCss.Utilities.Filters;
 
 /// <summary>
-/// Utility for backdrop invert filter values.
-/// Handles: backdrop-invert, backdrop-invert-0, backdrop-invert-*
-/// CSS: --tw-backdrop-invert and backdrop-filter property with CSS variable system.
+/// Utilities for controlling the backdrop invert filter of an element.
 /// </summary>
 internal class BackdropInvertUtility : BaseFilterUtility
 {

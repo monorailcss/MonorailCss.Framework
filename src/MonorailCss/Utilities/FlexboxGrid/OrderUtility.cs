@@ -6,10 +6,7 @@ using MonorailCss.Utilities.Base;
 namespace MonorailCss.Utilities.FlexboxGrid;
 
 /// <summary>
-/// Functional utility for flex order values.
-/// Handles: order-1, order-12, -order-1, etc.
-/// CSS: order: 1, order: 12, order: -1
-/// Note: order-first, order-last, order-none are handled by OrderStaticUtility.
+/// Utilities for controlling the order of flex and grid items.
 /// </summary>
 internal class OrderUtility : BaseFunctionalUtility
 {

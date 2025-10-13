@@ -6,9 +6,7 @@ using MonorailCss.Utilities.Base;
 namespace MonorailCss.Utilities.FlexboxGrid;
 
 /// <summary>
-/// Utility for grid-auto-columns values.
-/// Handles: auto-cols-auto, auto-cols-min, auto-cols-max, auto-cols-fr, auto-cols-[...], etc.
-/// CSS: grid-auto-columns: auto, grid-auto-columns: min-content, grid-auto-columns: max-content, grid-auto-columns: minmax(0, 1fr).
+/// Utilities for controlling the size of implicitly-created grid columns.
 /// </summary>
 internal class GridAutoColumnsUtility : BaseFunctionalUtility
 {

@@ -4,9 +4,7 @@ using MonorailCss.Utilities.Base;
 namespace MonorailCss.Utilities.Transforms;
 
 /// <summary>
-/// Utility for perspective-origin values.
-/// Handles: perspective-origin-center, perspective-origin-top, perspective-origin-top-right, etc.
-/// CSS: perspective-origin property with keyword values.
+/// Utilities for controlling the origin point of the 3D perspective.
 /// </summary>
 internal class PerspectiveOriginUtility : BaseStaticUtility
 {

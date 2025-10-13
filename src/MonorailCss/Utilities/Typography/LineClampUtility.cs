@@ -6,9 +6,7 @@ using MonorailCss.Utilities.Base;
 namespace MonorailCss.Utilities.Typography;
 
 /// <summary>
-/// Utility for line-clamp values.
-/// Handles: line-clamp-none, line-clamp-1, line-clamp-2, line-clamp-3, line-clamp-6, line-clamp-[...], etc.
-/// CSS: Multiple properties including -webkit-line-clamp, overflow, display, -webkit-box-orient.
+/// Utilities for clamping text to a specific number of lines.
 /// </summary>
 internal class LineClampUtility : BaseFunctionalUtility
 {

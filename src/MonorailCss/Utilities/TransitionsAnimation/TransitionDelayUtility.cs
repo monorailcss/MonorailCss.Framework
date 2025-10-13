@@ -6,9 +6,7 @@ using MonorailCss.Utilities.Base;
 namespace MonorailCss.Utilities.TransitionsAnimation;
 
 /// <summary>
-/// Utility for transition delay values.
-/// Handles: delay-75, delay-100, delay-150, delay-200, delay-300, delay-500, delay-700, delay-1000, delay-*
-/// CSS: transition-delay: 75ms, transition-delay: 100ms, etc.
+/// Utilities for controlling the delay of CSS transitions.
 /// </summary>
 internal class TransitionDelayUtility : BaseFunctionalUtility
 {

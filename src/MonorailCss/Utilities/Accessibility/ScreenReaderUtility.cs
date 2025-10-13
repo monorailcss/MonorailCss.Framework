@@ -6,8 +6,7 @@ using MonorailCss.Utilities.Base;
 namespace MonorailCss.Utilities.Accessibility;
 
 /// <summary>
-/// Handles screen reader utilities (sr-only, not-sr-only).
-/// The sr-only class hides content visually while keeping it accessible to screen readers.
+/// Utilities for controlling the visibility of content to screen readers.
 /// </summary>
 internal class ScreenReaderUtility : BaseStaticUtility
 {

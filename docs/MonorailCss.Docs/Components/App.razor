@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <link rel="stylesheet" href="/styles.css" />
+    <script src="/_content/MyLittleContentEngine.UI/scripts.js" defer></script>
+
+    <script>
+        // Dark mode initialization - prevents flash
+        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark')
+        } else {
+            document.documentElement.classList.remove('dark')
+        }
+    </script>
+
+    <HeadOutlet />
+</head>
+<body data-sidebar-open="false" class="bg-white dark:bg-base-900 text-base-900 dark:text-base-100 transition-colors duration-200 data-[sidebar-open=true]:overflow-hidden">
+    <Routes />
+</body>
+</html>

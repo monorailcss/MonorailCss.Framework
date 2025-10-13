@@ -5,7 +5,7 @@ using MonorailCss.Candidates;
 namespace MonorailCss.Utilities.Effects;
 
 /// <summary>
-/// Handles drop shadow color utilities.
+/// Utilities for controlling the color of drop shadow filters.
 /// </summary>
 internal class DropShadowColorUtility : IUtility
 {
@@ -44,5 +44,20 @@ internal class DropShadowColorUtility : IUtility
         }
 
         return false;
+    }
+
+    /// <summary>
+    /// Returns examples of drop shadow color utilities.
+    /// </summary>
+    public IEnumerable<Documentation.UtilityExample> GetExamples(Theme.Theme theme)
+    {
+        var examples = new List<Documentation.UtilityExample>
+        {
+            new("drop-shadow-current", "Set drop shadow color to currentColor"),
+            new("drop-shadow-inherit", "Set drop shadow color to inherit"),
+            new("drop-shadow-transparent", "Set drop shadow color to transparent"),
+        };
+
+        return examples;
     }
 }

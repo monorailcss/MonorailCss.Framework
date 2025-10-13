@@ -4,7 +4,7 @@ using MonorailCss.Utilities.Base;
 namespace MonorailCss.Utilities.TransitionsAnimation;
 
 /// <summary>
-/// Handles transition-behavior utilities (transition-normal, transition-discrete).
+/// Utilities for controlling the behavior of CSS transitions.
 /// </summary>
 internal class TransitionBehaviorUtility : BaseStaticUtility
 {

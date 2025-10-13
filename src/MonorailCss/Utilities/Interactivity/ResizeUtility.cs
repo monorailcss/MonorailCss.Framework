@@ -4,7 +4,7 @@ using MonorailCss.Utilities.Base;
 namespace MonorailCss.Utilities.Interactivity;
 
 /// <summary>
-/// Handles resize utilities (resize-none, resize, resize-x, resize-y).
+/// Utilities for controlling how an element can be resized.
 /// </summary>
 internal class ResizeUtility : BaseStaticUtility
 {

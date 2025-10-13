@@ -4,9 +4,7 @@ using MonorailCss.Utilities.Base;
 namespace MonorailCss.Utilities.Backgrounds;
 
 /// <summary>
-/// Handles gradient via position utilities (via-0% through via-100%).
-/// Sets the middle position for gradient color stops.
-/// CSS: --tw-gradient-via-position: value.
+/// Utilities for controlling the middle position of gradient color stops.
 /// </summary>
 internal class GradientViaPositionUtility : BaseStaticUtility
 {

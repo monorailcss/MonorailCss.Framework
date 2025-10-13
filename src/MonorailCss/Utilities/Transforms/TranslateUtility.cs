@@ -10,9 +10,7 @@ using MonorailCss.Utilities.Resolvers;
 namespace MonorailCss.Utilities.Transforms;
 
 /// <summary>
-/// Utility for translate transform values.
-/// Handles: translate-*, translate-x-*, translate-y-*, translate-z-*, -translate-*, -translate-x-*, -translate-y-*, -translate-z-*
-/// CSS: Uses modern translate property with CSS variables --tw-translate-x and --tw-translate-y.
+/// Utilities for controlling the translation of an element.
 /// </summary>
 internal class TranslateUtility : BaseSpacingUtility
 {

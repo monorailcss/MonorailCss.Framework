@@ -4,9 +4,7 @@ using MonorailCss.Utilities.Base;
 namespace MonorailCss.Utilities.Interactivity;
 
 /// <summary>
-/// Utility for scroll-snap-align values.
-/// Handles: snap-start, snap-end, snap-center, snap-align-none
-/// CSS: scroll-snap-align property with alignment keywords.
+/// Utilities for controlling the scroll snap alignment of an element.
 /// </summary>
 internal class ScrollSnapAlignUtility : BaseStaticUtility
 {

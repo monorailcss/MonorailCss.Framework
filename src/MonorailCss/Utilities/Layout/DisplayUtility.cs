@@ -4,7 +4,7 @@ using MonorailCss.Utilities.Base;
 namespace MonorailCss.Utilities.Layout;
 
 /// <summary>
-/// Handles display utilities (block, flex, grid, etc.).
+/// Utilities for controlling the display box type of an element.
 /// </summary>
 internal class DisplayUtility : BaseStaticUtility
 {

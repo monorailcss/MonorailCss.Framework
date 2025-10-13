@@ -8,9 +8,7 @@ using MonorailCss.Utilities.Base;
 namespace MonorailCss.Utilities.Filters;
 
 /// <summary>
-/// Utility for backdrop contrast filter values.
-/// Handles: backdrop-contrast-0, backdrop-contrast-50, backdrop-contrast-75, backdrop-contrast-100, backdrop-contrast-125, backdrop-contrast-150, backdrop-contrast-200, backdrop-contrast-*
-/// CSS: --tw-backdrop-contrast and backdrop-filter property with CSS variable system.
+/// Utilities for controlling the backdrop contrast filter of an element.
 /// </summary>
 internal class BackdropContrastUtility : BaseFilterUtility
 {

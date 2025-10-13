@@ -7,9 +7,7 @@ using MonorailCss.Utilities.Base;
 namespace MonorailCss.Utilities.FlexboxGrid;
 
 /// <summary>
-/// Utility for flex-basis values.
-/// Handles: basis-auto, basis-full, basis-4, basis-1/2, basis-px, basis-[200px], etc.
-/// CSS: flex-basis: auto, flex-basis: 100%, flex-basis: var(--spacing-4), flex-basis: 50%.
+/// Utilities for controlling the initial size of flex items.
 /// </summary>
 internal class FlexBasisUtility : BaseFractionAwareSpacingUtility
 {

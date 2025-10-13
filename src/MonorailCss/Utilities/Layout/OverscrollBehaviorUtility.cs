@@ -4,7 +4,7 @@ using MonorailCss.Utilities.Base;
 namespace MonorailCss.Utilities.Layout;
 
 /// <summary>
-/// Handles overscroll behavior utilities (overscroll-auto, overscroll-contain, overscroll-none, overscroll-x-*, overscroll-y-*).
+/// Utilities for controlling how the browser behaves when reaching the boundary of a scrolling area.
 /// </summary>
 internal class OverscrollBehaviorUtility : BaseStaticUtility
 {

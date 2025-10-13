@@ -4,9 +4,7 @@ using MonorailCss.Utilities.Base;
 namespace MonorailCss.Utilities.FlexboxGrid;
 
 /// <summary>
-/// Static utility for flex order special values.
-/// Handles: order-first, order-last, order-none
-/// CSS: order: -9999, order: 9999, order: 0.
+/// Utilities for controlling the order of flex and grid items.
 /// </summary>
 internal class OrderStaticUtility : BaseStaticUtility
 {

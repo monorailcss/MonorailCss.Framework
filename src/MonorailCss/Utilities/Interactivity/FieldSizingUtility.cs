@@ -4,8 +4,7 @@ using MonorailCss.Utilities.Base;
 namespace MonorailCss.Utilities.Interactivity;
 
 /// <summary>
-/// Handles field-sizing utilities (field-sizing-content, field-sizing-fixed).
-/// Maps to the CSS field-sizing property for modern form field sizing control.
+/// Utilities for controlling how form field heights are determined.
 /// </summary>
 internal class FieldSizingUtility : BaseStaticUtility
 {

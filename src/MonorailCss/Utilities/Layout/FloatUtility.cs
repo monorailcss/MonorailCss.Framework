@@ -4,7 +4,7 @@ using MonorailCss.Utilities.Base;
 namespace MonorailCss.Utilities.Layout;
 
 /// <summary>
-/// Handles float utilities (float-left, float-right, etc.).
+/// Utilities for controlling the wrapping of content around an element.
 /// </summary>
 internal class FloatUtility : BaseStaticUtility
 {

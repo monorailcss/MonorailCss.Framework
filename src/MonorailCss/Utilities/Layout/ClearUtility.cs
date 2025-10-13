@@ -4,7 +4,7 @@ using MonorailCss.Utilities.Base;
 namespace MonorailCss.Utilities.Layout;
 
 /// <summary>
-/// Handles clear utilities (clear-left, clear-right, etc.).
+/// Utilities for controlling the wrapping of content around an element.
 /// </summary>
 internal class ClearUtility : BaseStaticUtility
 {

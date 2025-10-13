@@ -4,7 +4,7 @@ using MonorailCss.Utilities.Base;
 namespace MonorailCss.Utilities.FlexboxGrid;
 
 /// <summary>
-/// Handles flex-direction utilities (flex-row, flex-col, etc.).
+/// Utilities for controlling the direction of flex items.
 /// </summary>
 internal class FlexDirectionUtility : BaseStaticUtility
 {

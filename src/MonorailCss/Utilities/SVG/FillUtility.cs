@@ -8,10 +8,7 @@ using MonorailCss.Utilities.Resolvers;
 namespace MonorailCss.Utilities.SVG;
 
 /// <summary>
-/// Handles SVG fill utilities.
-/// Static values: fill-none, fill-current
-/// Color values: fill-red-500, fill-blue-600, fill-[#123456], etc.
-/// Supports color values with opacity modifiers.
+/// Utilities for controlling the fill color of SVG elements.
 /// </summary>
 internal class FillUtility : IUtility
 {
@@ -67,5 +64,23 @@ internal class FillUtility : IUtility
     private bool TryResolveColor(CandidateValue value, Theme.Theme theme, [NotNullWhen(true)] out string? color)
     {
         return ValueResolver.TryResolveColor(value, theme, NamespaceResolver.FillColorChain, out color);
+    }
+
+    /// <summary>
+    /// Returns examples of SVG fill utilities.
+    /// </summary>
+    public IEnumerable<Documentation.UtilityExample> GetExamples(Theme.Theme theme)
+    {
+        var examples = new List<Documentation.UtilityExample>
+        {
+            new("fill-none", "Remove SVG fill"),
+            new("fill-current", "Set SVG fill to currentColor"),
+            new("fill-red-500", "Set SVG fill color to red-500"),
+            new("fill-blue-600", "Set SVG fill color to blue-600"),
+            new("fill-red-500/50", "Set SVG fill color to red-500 with 50% opacity"),
+            new("fill-[#ff0000]", "Set SVG fill with arbitrary hex color"),
+        };
+
+        return examples;
     }
 }

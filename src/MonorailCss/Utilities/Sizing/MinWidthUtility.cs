@@ -6,7 +6,7 @@ using MonorailCss.Utilities.Base;
 namespace MonorailCss.Utilities.Sizing;
 
 /// <summary>
-/// Handles min-width utilities (min-w-*).
+/// Utilities for controlling the minimum width of an element.
 /// </summary>
 internal class MinWidthUtility : BaseSizingUtility
 {

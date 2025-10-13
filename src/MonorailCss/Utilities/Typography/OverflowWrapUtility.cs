@@ -4,9 +4,7 @@ using MonorailCss.Utilities.Base;
 namespace MonorailCss.Utilities.Typography;
 
 /// <summary>
-/// Handles overflow-wrap utilities.
-/// Handles: wrap-normal, wrap-anywhere, wrap-break-word.
-/// CSS: overflow-wrap: normal, overflow-wrap: anywhere, overflow-wrap: break-word.
+/// Utilities for controlling how words should break within an element.
 /// </summary>
 internal class OverflowWrapUtility : BaseStaticUtility
 {

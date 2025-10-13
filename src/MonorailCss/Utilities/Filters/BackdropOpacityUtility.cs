@@ -8,9 +8,7 @@ using MonorailCss.Utilities.Base;
 namespace MonorailCss.Utilities.Filters;
 
 /// <summary>
-/// Utility for backdrop opacity filter values.
-/// Handles: backdrop-opacity-0, backdrop-opacity-5, backdrop-opacity-10, ..., backdrop-opacity-100, backdrop-opacity-*
-/// CSS: --tw-backdrop-opacity and backdrop-filter property with CSS variable system.
+/// Utilities for controlling the backdrop opacity filter of an element.
 /// </summary>
 internal class BackdropOpacityUtility : BaseFilterUtility
 {

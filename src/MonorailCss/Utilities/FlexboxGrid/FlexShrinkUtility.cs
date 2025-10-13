@@ -7,9 +7,7 @@ using MonorailCss.Utilities.Base;
 namespace MonorailCss.Utilities.FlexboxGrid;
 
 /// <summary>
-/// Utility for flex-shrink values.
-/// Handles: shrink, flex-shrink (default to 1), shrink-0, flex-shrink-0, shrink-*, flex-shrink-*
-/// CSS: flex-shrink: 1, flex-shrink: 0, flex-shrink: custom-value.
+/// Utilities for controlling how flex items shrink.
 /// </summary>
 internal class FlexShrinkUtility : BaseFunctionalUtility
 {

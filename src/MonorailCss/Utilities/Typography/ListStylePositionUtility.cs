@@ -4,8 +4,7 @@ using MonorailCss.Utilities.Base;
 namespace MonorailCss.Utilities.Typography;
 
 /// <summary>
-/// Handles list style position utilities (list-inside, list-outside).
-/// Maps to the CSS list-style-position property for list elements.
+/// Utilities for controlling the position of bullets/numbers in lists.
 /// </summary>
 internal class ListStylePositionUtility : BaseStaticUtility
 {

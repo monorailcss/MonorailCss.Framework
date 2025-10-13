@@ -6,8 +6,7 @@ using MonorailCss.Utilities.Base;
 namespace MonorailCss.Utilities.Layout;
 
 /// <summary>
-/// Handles box decoration break utilities (box-decoration-slice, box-decoration-clone).
-/// These require both webkit-prefixed and standard properties.
+/// Utilities for controlling how element fragments are rendered across multiple lines, columns, or pages.
 /// </summary>
 internal class BoxDecorationBreakUtility : BaseStaticUtility
 {

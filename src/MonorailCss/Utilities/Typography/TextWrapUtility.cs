@@ -4,7 +4,7 @@ using MonorailCss.Utilities.Base;
 namespace MonorailCss.Utilities.Typography;
 
 /// <summary>
-/// Handles text-wrap utilities (text-wrap, text-nowrap, text-balance, text-pretty).
+/// Utilities for controlling how text wraps within an element.
 /// </summary>
 internal class TextWrapUtility : BaseStaticUtility
 {

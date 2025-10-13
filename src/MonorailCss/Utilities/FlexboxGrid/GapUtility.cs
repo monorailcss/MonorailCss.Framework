@@ -6,7 +6,7 @@ using MonorailCss.Utilities.Base;
 namespace MonorailCss.Utilities.FlexboxGrid;
 
 /// <summary>
-/// Handles gap utilities (gap-*, gap-x-*, gap-y-*).
+/// Utilities for controlling gutters between grid and flexbox items.
 /// </summary>
 internal class GapUtility : BaseSpacingUtility
 {

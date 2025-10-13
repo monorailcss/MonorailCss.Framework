@@ -6,9 +6,7 @@ using MonorailCss.Utilities.Base;
 namespace MonorailCss.Utilities.FlexboxGrid;
 
 /// <summary>
-/// Utility for grid column start values.
-/// Handles: col-start-1, col-start-2, col-start-auto, etc.
-/// CSS: grid-column-start: 1, grid-column-start: auto.
+/// Utilities for controlling how elements start within grid columns.
 /// </summary>
 internal class GridColumnStartUtility : BaseFunctionalUtility
 {

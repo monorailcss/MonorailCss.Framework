@@ -4,8 +4,7 @@ using MonorailCss.Utilities.Base;
 namespace MonorailCss.Utilities.Typography;
 
 /// <summary>
-/// Handles list style type utilities (list-none, list-disc, list-decimal).
-/// Maps to the CSS list-style-type property for list elements.
+/// Utilities for controlling the bullet/number style of a list.
 /// </summary>
 internal class ListStyleTypeUtility : BaseStaticUtility
 {

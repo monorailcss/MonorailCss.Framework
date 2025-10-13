@@ -6,8 +6,7 @@ using MonorailCss.Utilities.Base;
 namespace MonorailCss.Utilities.Interactivity;
 
 /// <summary>
-/// Handles user-select utilities (select-none, select-text, select-all, select-auto).
-/// Includes vendor prefixes for WebKit browsers.
+/// Utilities for controlling whether the user can select text.
 /// </summary>
 internal class UserSelectUtility : BaseStaticUtility
 {

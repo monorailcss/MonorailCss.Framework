@@ -5,9 +5,7 @@ using MonorailCss.Candidates;
 namespace MonorailCss.Utilities.Typography;
 
 /// <summary>
-/// Handles prose color theme utilities.
-/// Supports: prose-{color} for various color themes
-/// Only sets CSS color variables, no typography or layout changes.
+/// Utilities for controlling the color of prose content.
 /// </summary>
 internal class ProseColorUtility : IUtility
 {
@@ -119,5 +117,22 @@ internal class ProseColorUtility : IUtility
         }
 
         return value;
+    }
+
+    /// <summary>
+    /// Returns examples of prose color utilities.
+    /// </summary>
+    public IEnumerable<Documentation.UtilityExample> GetExamples(Theme.Theme theme)
+    {
+        var examples = new List<Documentation.UtilityExample>
+        {
+            new("prose-slate", "Apply slate color theme to prose"),
+            new("prose-gray", "Apply gray color theme to prose"),
+            new("prose-zinc", "Apply zinc color theme to prose"),
+            new("prose-red", "Apply red color theme to prose links"),
+            new("prose-blue", "Apply blue color theme to prose links"),
+        };
+
+        return examples;
     }
 }

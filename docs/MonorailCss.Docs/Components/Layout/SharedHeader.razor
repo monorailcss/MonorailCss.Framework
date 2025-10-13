@@ -1,0 +1,75 @@
+@inject NavigationManager NavigationManager
+
+<header class="sticky top-0 h-16 z-50 w-full border-b border-base-200 dark:border-base-800 bg-white/95 dark:bg-base-900/95 backdrop-blur supports-[backdrop-filter]:bg-white/60 dark:supports-[backdrop-filter]:bg-base-900/60">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center justify-between h-16">
+            <!-- Left side - Sidebar toggle and Logo -->
+            <div class="flex items-center space-x-3">
+                <!-- Sidebar toggle button (only visible when sidebar exists) -->
+                @if (HasTableOfContents)
+                {
+                    <button id="sidebar-toggle" class="lg:hidden p-2 rounded-md text-base-600 dark:text-base-400 hover:bg-base-100 dark:hover:bg-base-800 transition-colors" aria-label="Toggle sidebar">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                        </svg>
+                    </button>
+                }
+
+                <!-- Logo and Title -->
+                <a href="/" class="flex items-center space-x-2">
+                    <span class="text-2xl font-bold bg-gradient-to-r from-primary-600 to-tertiary-one-600 dark:from-primary-400 dark:to-tertiary-one-400 bg-clip-text text-transparent">
+                        MonorailCss
+                    </span>
+                </a>
+            </div>
+
+            <!-- Navigation -->
+            <nav class="hidden md:flex items-center space-x-1">
+                <a href="/" class="px-3 py-2 rounded-md text-sm font-medium @(IsHomePage ? "bg-base-100 dark:bg-base-800 text-base-900 dark:text-base-100" : "text-base-600 dark:text-base-400 hover:text-base-900 dark:hover:text-base-100 hover:bg-base-100 dark:hover:bg-base-800") transition-colors">
+                    Documentation
+                </a>
+                <a href="https://github.com/phil-scott-78/MonorailCss" target="_blank" rel="noopener noreferrer" class="px-3 py-2 rounded-md text-sm font-medium text-base-600 dark:text-base-400 hover:text-base-900 dark:hover:text-base-100 hover:bg-base-100 dark:hover:bg-base-800 transition-colors">
+                    GitHub
+                </a>
+            </nav>
+
+            <!-- Right side actions -->
+            <div class="flex items-center space-x-2">
+                <!-- Dark mode toggle button -->
+                <button data-theme-toggle class="p-2 rounded-md text-base-600 dark:text-base-400 hover:bg-base-100 dark:hover:bg-base-800 transition-colors" aria-label="Toggle theme">
+                    <svg class="w-5 h-5 hidden dark:block" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                    </svg>
+                    <svg class="w-5 h-5 block dark:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
+                    </svg>
+                </button>
+
+                <!-- Mobile menu button -->
+                <button id="mobile-menu-button" class="md:hidden p-2 rounded-md text-base-600 dark:text-base-400 hover:bg-base-100 dark:hover:bg-base-800 transition-colors" aria-label="Toggle menu">
+                    <svg viewBox="0 0 16 16" fill="currentColor" class="w-4 h-4">
+                        <path d="M8 2a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM8 6.5a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM9.5 12.5a1.5 1.5 0 1 0-3 0 1.5 1.5 0 0 0 3 0Z"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mobile Navigation -->
+    <nav id="mobile-menu" data-expanded="false" class="md:hidden data-[expanded=false]:hidden bg-base-50 dark:bg-base-950 border-b border-base-200 dark:border-base-800 shadow-md">
+        <div class="px-2 pt-2 pb-3 space-y-1">
+            <a href="/" class="block px-3 py-2 rounded-md text-base font-medium @(IsHomePage ? "bg-base-100 dark:bg-base-800 text-base-900 dark:text-base-100" : "text-base-600 dark:text-base-400 hover:text-base-900 dark:hover:text-base-100 hover:bg-base-100 dark:hover:bg-base-800") transition-colors">
+                Documentation
+            </a>
+            <a href="https://github.com/phil-scott-78/MonorailCss" target="_blank" rel="noopener noreferrer" class="block px-3 py-2 rounded-md text-base font-medium text-base-600 dark:text-base-400 hover:text-base-900 dark:hover:text-base-100 hover:bg-base-100 dark:hover:bg-base-800 transition-colors">
+                GitHub
+            </a>
+        </div>
+    </nav>
+</header>
+
+@code {
+    [Parameter] public bool HasTableOfContents { get; set; }
+
+    private bool IsHomePage => NavigationManager.Uri.TrimEnd('/').EndsWith(NavigationManager.BaseUri.TrimEnd('/'));
+}

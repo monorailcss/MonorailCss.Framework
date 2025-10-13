@@ -5,9 +5,7 @@ using MonorailCss.Candidates;
 namespace MonorailCss.Utilities.Effects;
 
 /// <summary>
-/// Unified mask utility that handles all mask-related CSS properties including:
-/// mask-clip, mask-composite, mask-image, mask-mode, mask-origin, mask-position,
-/// mask-repeat, mask-size, mask-type, and gradient utilities (linear, radial, conic).
+/// Utilities for controlling how an element is masked or clipped using mask images and gradients.
 /// </summary>
 internal class MaskUtility : IUtility
 {
@@ -633,5 +631,25 @@ internal class MaskUtility : IUtility
         }
 
         return false;
+    }
+
+    /// <summary>
+    /// Returns examples of mask utilities.
+    /// </summary>
+    public IEnumerable<Documentation.UtilityExample> GetExamples(Theme.Theme theme)
+    {
+        var examples = new List<Documentation.UtilityExample>
+        {
+            new("mask-none", "Remove mask image"),
+            new("mask-linear", "Apply linear gradient mask"),
+            new("mask-radial", "Apply radial gradient mask"),
+            new("mask-radial-at-center", "Apply radial gradient mask at center"),
+            new("mask-center", "Set mask position to center"),
+            new("mask-repeat", "Repeat mask image"),
+            new("mask-no-repeat", "Do not repeat mask image"),
+            new("mask-cover", "Cover element with mask"),
+        };
+
+        return examples;
     }
 }

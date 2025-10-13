@@ -8,9 +8,7 @@ using MonorailCss.Utilities.Base;
 namespace MonorailCss.Utilities.Typography;
 
 /// <summary>
-/// Utility for font-weight values.
-/// Handles: font-thin, font-light, font-normal, font-medium, font-semibold, font-bold, font-extrabold, font-black, font-*
-/// CSS: font-weight: 100, font-weight: 300, font-weight: 400, font-weight: 500, font-weight: 600, font-weight: 700, font-weight: 800, font-weight: 900.
+/// Utilities for controlling the font weight of an element.
 /// </summary>
 internal class FontWeightUtility : BaseFunctionalUtility
 {

@@ -4,7 +4,7 @@ using MonorailCss.Utilities.Base;
 namespace MonorailCss.Utilities.FlexboxGrid;
 
 /// <summary>
-/// Handles justify-content utilities (justify-center, justify-between, etc.).
+/// Utilities for controlling how flex and grid items are positioned along a container's main axis.
 /// </summary>
 internal class JustifyContentUtility : BaseStaticUtility
 {

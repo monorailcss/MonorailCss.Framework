@@ -4,7 +4,7 @@ using MonorailCss.Utilities.Base;
 namespace MonorailCss.Utilities.Typography;
 
 /// <summary>
-/// Handles text-transform utilities (uppercase, lowercase, etc.).
+/// Utilities for controlling the transformation of text.
 /// </summary>
 internal class TextTransformUtility : BaseStaticUtility
 {

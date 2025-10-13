@@ -6,9 +6,7 @@ using MonorailCss.Core;
 namespace MonorailCss.Utilities.FlexboxGrid;
 
 /// <summary>
-/// Utility for flex shorthand property values.
-/// Handles: flex-auto, flex-initial, flex-none, flex-1, flex-[2], flex-[1_1_0%], etc.
-/// CSS: flex: auto, flex: initial, flex: none, flex: 1, flex: 2, flex: 1 1 0%.
+/// Utilities for controlling how flex items both grow and shrink.
 /// </summary>
 internal class FlexUtility : IUtility
 {
@@ -187,5 +185,24 @@ internal class FlexUtility : IUtility
 
         fractionValue = $"calc({numerator}/{denominator} * 100%)";
         return true;
+    }
+
+    /// <summary>
+    /// Returns examples of flex utilities.
+    /// </summary>
+    public IEnumerable<Documentation.UtilityExample> GetExamples(Theme.Theme theme)
+    {
+        var examples = new List<Documentation.UtilityExample>
+        {
+            new("flex-auto", "Allow flex item to grow and shrink as needed"),
+            new("flex-initial", "Allow flex item to shrink but not grow"),
+            new("flex-none", "Prevent flex item from growing or shrinking"),
+            new("flex-1", "Allow flex item to grow and shrink equally (flex: 1)"),
+            new("flex-2", "Set flex grow factor to 2"),
+            new("flex-[2]", "Set flex value with arbitrary number"),
+            new("flex-[1_1_0%]", "Set flex with custom grow, shrink, and basis values"),
+        };
+
+        return examples;
     }
 }

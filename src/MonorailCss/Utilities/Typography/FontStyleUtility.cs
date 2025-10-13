@@ -4,7 +4,7 @@ using MonorailCss.Utilities.Base;
 namespace MonorailCss.Utilities.Typography;
 
 /// <summary>
-/// Handles font-style utilities (italic, not-italic).
+/// Utilities for controlling the style of text.
 /// </summary>
 internal class FontStyleUtility : BaseStaticUtility
 {

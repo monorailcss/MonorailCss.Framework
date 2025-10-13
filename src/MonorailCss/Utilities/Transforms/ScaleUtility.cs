@@ -9,9 +9,7 @@ using MonorailCss.Utilities.Base;
 namespace MonorailCss.Utilities.Transforms;
 
 /// <summary>
-/// Utility for scale transform values.
-/// Handles: scale-*, scale-x-*, scale-y-*, -scale-*, -scale-x-*, -scale-y-*
-/// CSS: Uses modern scale property with CSS variables --tw-scale-x and --tw-scale-y.
+/// Utilities for controlling the scale of an element.
 /// </summary>
 internal class ScaleUtility : BaseFunctionalUtility
 {

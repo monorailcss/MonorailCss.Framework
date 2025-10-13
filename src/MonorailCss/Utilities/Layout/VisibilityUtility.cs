@@ -4,7 +4,7 @@ using MonorailCss.Utilities.Base;
 namespace MonorailCss.Utilities.Layout;
 
 /// <summary>
-/// Handles visibility utilities (visible, invisible, collapse).
+/// Utilities for controlling the visibility of an element.
 /// </summary>
 internal class VisibilityUtility : BaseStaticUtility
 {

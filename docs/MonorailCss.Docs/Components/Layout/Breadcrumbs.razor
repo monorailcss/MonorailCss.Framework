@@ -1,0 +1,39 @@
+@if (Items != null && Items.Any())
+{
+    <nav class="flex items-center text-xs md:text-sm text-base-600 dark:text-base-400 mb-4">
+        @foreach (var (breadcrumb, index) in Items.Select((b, i) => (b, i)))
+        {
+            @if (index > 0)
+            {
+                <svg class="w-4 h-4 mx-1 lg:mx-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                </svg>
+            }
+
+            @if (breadcrumb.IsCurrent)
+            {
+                <span class="text-base-900 dark:text-base-100 text-pretty">@breadcrumb.Title</span>
+            }
+            else if (string.IsNullOrEmpty(breadcrumb.Url))
+            {
+                <span class="text-pretty">@breadcrumb.Title</span>
+            }
+            else
+            {
+                <a href="@breadcrumb.Url" class="hover:text-base-900 dark:hover:text-base-100 transition-colors text-pretty">@breadcrumb.Title</a>
+            }
+        }
+    </nav>
+}
+
+@code {
+    [Parameter]
+    public List<BreadcrumbItem>? Items { get; set; }
+
+    public class BreadcrumbItem
+    {
+        public string Title { get; set; } = string.Empty;
+        public string? Url { get; set; }
+        public bool IsCurrent { get; set; }
+    }
+}

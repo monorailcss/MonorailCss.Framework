@@ -4,8 +4,7 @@ using MonorailCss.Utilities.Base;
 namespace MonorailCss.Utilities.Backgrounds;
 
 /// <summary>
-/// Handles background origin utilities (bg-origin-border, bg-origin-padding, bg-origin-content).
-/// Maps to the CSS background-origin property.
+/// Utilities for controlling the origin position of background images.
 /// </summary>
 internal class BackgroundOriginUtility : BaseStaticUtility
 {

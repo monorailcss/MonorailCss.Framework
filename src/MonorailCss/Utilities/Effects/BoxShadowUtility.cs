@@ -6,9 +6,7 @@ using MonorailCss.Utilities.Base;
 namespace MonorailCss.Utilities.Effects;
 
 /// <summary>
-/// Utility for box shadow values.
-/// Handles: shadow-sm, shadow, shadow-md, shadow-lg, shadow-xl, shadow-2xl, shadow-inner, shadow-none
-/// CSS: --tw-shadow and box-shadow with full CSS variable system.
+/// Utilities for controlling the box shadow of an element.
 /// </summary>
 internal class BoxShadowUtility : BaseFunctionalUtility
 {

@@ -4,9 +4,7 @@ using MonorailCss.Utilities.Base;
 namespace MonorailCss.Utilities.Transforms;
 
 /// <summary>
-/// Utility for transform base values.
-/// Handles: transform, transform-cpu, transform-gpu
-/// Sets up the base transform property with CSS variables for individual transform functions.
+/// Utilities for controlling the transformation of an element.
 /// </summary>
 internal class TransformUtility : BaseStaticUtility
 {

@@ -8,9 +8,7 @@ using MonorailCss.Utilities.Base;
 namespace MonorailCss.Utilities.Filters;
 
 /// <summary>
-/// Utility for backdrop hue-rotate filter values.
-/// Handles: backdrop-hue-rotate-0, backdrop-hue-rotate-15, backdrop-hue-rotate-30, backdrop-hue-rotate-60, backdrop-hue-rotate-90, backdrop-hue-rotate-180, -backdrop-hue-rotate-*, backdrop-hue-rotate-*
-/// CSS: --tw-backdrop-hue-rotate and backdrop-filter property with CSS variable system.
+/// Utilities for controlling the backdrop hue rotation filter of an element.
 /// </summary>
 internal class BackdropHueRotateUtility : BaseFilterUtility
 {

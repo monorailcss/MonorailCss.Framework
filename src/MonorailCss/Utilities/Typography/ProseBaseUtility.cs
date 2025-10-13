@@ -5,8 +5,7 @@ using MonorailCss.Candidates;
 namespace MonorailCss.Utilities.Typography;
 
 /// <summary>
-/// Handles the base prose typography utility.
-/// Only handles: prose (with max-width: 65ch).
+/// Utilities for applying beautiful typographic defaults to HTML.
 /// </summary>
 internal class ProseBaseUtility : IUtility
 {
@@ -594,5 +593,18 @@ internal class ProseBaseUtility : IUtility
         }
 
         return merged.Values.ToImmutableList();
+    }
+
+    /// <summary>
+    /// Returns examples of prose base utilities.
+    /// </summary>
+    public IEnumerable<Documentation.UtilityExample> GetExamples(Theme.Theme theme)
+    {
+        var examples = new List<Documentation.UtilityExample>
+        {
+            new("prose", "Apply prose typography styles with 65ch max-width"),
+        };
+
+        return examples;
     }
 }

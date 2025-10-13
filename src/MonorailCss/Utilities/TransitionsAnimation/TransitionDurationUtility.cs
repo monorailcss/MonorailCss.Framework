@@ -8,10 +8,7 @@ using MonorailCss.Utilities.Base;
 namespace MonorailCss.Utilities.TransitionsAnimation;
 
 /// <summary>
-/// Utility for transition duration values.
-/// Handles: duration-75, duration-100, duration-150, duration-200, duration-300, duration-500, duration-700, duration-1000, duration-*
-/// CSS: transition-duration: 75ms, transition-duration: 100ms, etc.
-/// Also sets --tw-duration CSS custom property.
+/// Utilities for controlling the duration of CSS transitions.
 /// </summary>
 internal class TransitionDurationUtility : BaseFunctionalUtility
 {

@@ -6,9 +6,7 @@ using MonorailCss.Utilities.Base;
 namespace MonorailCss.Utilities.TransitionsAnimation;
 
 /// <summary>
-/// Utility for will-change property values.
-/// Handles: will-change-auto, will-change-scroll, will-change-contents, will-change-transform, will-change-*
-/// CSS: will-change: auto, will-change: scroll-position, will-change: contents, will-change: transform, etc.
+/// Utilities for optimizing upcoming animations of elements.
 /// </summary>
 internal class WillChangeUtility : BaseFunctionalUtility
 {

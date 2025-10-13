@@ -4,9 +4,7 @@ using MonorailCss.Utilities.Base;
 namespace MonorailCss.Utilities.Transforms;
 
 /// <summary>
-/// Utility for transform-origin values.
-/// Handles: origin-center, origin-top, origin-top-right, origin-right, origin-bottom-right, origin-bottom, origin-bottom-left, origin-left, origin-top-left, origin-*
-/// CSS: transform-origin property with keyword values.
+/// Utilities for controlling the origin point of an element's transforms.
 /// </summary>
 internal class TransformOriginUtility : BaseStaticUtility
 {

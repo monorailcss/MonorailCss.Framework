@@ -4,7 +4,7 @@ using MonorailCss.Utilities.Base;
 namespace MonorailCss.Utilities.Layout;
 
 /// <summary>
-/// Handles object-fit utilities (object-contain, object-cover, object-fill, object-none, object-scale-down).
+/// Utilities for controlling how a replaced element's content should be resized.
 /// </summary>
 internal class ObjectFitUtility : BaseStaticUtility
 {

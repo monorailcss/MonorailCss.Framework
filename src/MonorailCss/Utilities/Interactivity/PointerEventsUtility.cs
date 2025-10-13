@@ -4,7 +4,7 @@ using MonorailCss.Utilities.Base;
 namespace MonorailCss.Utilities.Interactivity;
 
 /// <summary>
-/// Handles pointer-events utilities (pointer-events-auto, pointer-events-none).
+/// Utilities for controlling whether an element responds to pointer events.
 /// </summary>
 internal class PointerEventsUtility : BaseStaticUtility
 {

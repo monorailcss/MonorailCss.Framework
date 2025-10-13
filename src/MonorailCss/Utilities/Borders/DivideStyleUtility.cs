@@ -6,11 +6,7 @@ using MonorailCss.Utilities.Base;
 namespace MonorailCss.Utilities.Borders;
 
 /// <summary>
-/// Handles divide style utilities for child element borders.
-///
-/// Style patterns: divide-solid, divide-dashed, divide-dotted, divide-double, divide-none
-///
-/// All utilities apply styles to child elements using :where(&amp; &gt; :not(:last-child)) selector.
+/// Utilities for controlling the border style between elements.
 /// </summary>
 internal class DivideStyleUtility : BaseStaticUtility
 {

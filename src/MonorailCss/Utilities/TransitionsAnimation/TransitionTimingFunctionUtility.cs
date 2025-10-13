@@ -8,10 +8,7 @@ using MonorailCss.Utilities.Base;
 namespace MonorailCss.Utilities.TransitionsAnimation;
 
 /// <summary>
-/// Utility for transition timing function values.
-/// Handles: ease-linear, ease-in, ease-out, ease-in-out, ease-*
-/// CSS: transition-timing-function: linear, transition-timing-function: cubic-bezier(...), etc.
-/// Also sets --tw-ease CSS custom property.
+/// Utilities for controlling the easing of CSS transitions.
 /// </summary>
 internal class TransitionTimingFunctionUtility : BaseFunctionalUtility
 {

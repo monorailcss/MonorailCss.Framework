@@ -4,7 +4,7 @@ using MonorailCss.Utilities.Base;
 namespace MonorailCss.Utilities.FlexboxGrid;
 
 /// <summary>
-/// Handles align content utilities (content-normal, content-center, content-start, content-end, content-between, content-around, content-evenly, content-baseline, content-stretch).
+/// Utilities for controlling how rows are positioned in multi-row flex and grid containers.
 /// </summary>
 internal class AlignContentUtility : BaseStaticUtility
 {

@@ -4,8 +4,7 @@ using MonorailCss.Utilities.Base;
 namespace MonorailCss.Utilities.Interactivity;
 
 /// <summary>
-/// Handles scroll behavior utilities (scroll-auto, scroll-smooth).
-/// Maps to the CSS scroll-behavior property for smooth scrolling.
+/// Utilities for controlling the scroll behavior of an element.
 /// </summary>
 internal class ScrollBehaviorUtility : BaseStaticUtility
 {

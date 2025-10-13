@@ -4,9 +4,7 @@ using MonorailCss.Utilities.Base;
 namespace MonorailCss.Utilities.Transforms;
 
 /// <summary>
-/// Utility for transform-box values.
-/// Handles: transform-content, transform-border, transform-fill, transform-stroke, transform-view
-/// CSS: transform-box property with content-box, border-box, fill-box, stroke-box, and view-box values.
+/// Utilities for controlling the box model used for transforms.
 /// </summary>
 internal class TransformBoxUtility : BaseStaticUtility
 {

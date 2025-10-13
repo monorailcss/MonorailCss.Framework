@@ -4,7 +4,7 @@ using MonorailCss.Utilities.Base;
 namespace MonorailCss.Utilities.Layout;
 
 /// <summary>
-/// Handles box-sizing utilities (box-border, box-content).
+/// Utilities for controlling how the browser calculates an element's total size.
 /// </summary>
 internal class BoxSizingUtility : BaseStaticUtility
 {

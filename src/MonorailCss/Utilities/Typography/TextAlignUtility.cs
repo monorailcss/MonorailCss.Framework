@@ -4,7 +4,7 @@ using MonorailCss.Utilities.Base;
 namespace MonorailCss.Utilities.Typography;
 
 /// <summary>
-/// Handles text-align utilities (text-left, text-center, etc.).
+/// Utilities for controlling the alignment of text.
 /// </summary>
 internal class TextAlignUtility : BaseStaticUtility
 {

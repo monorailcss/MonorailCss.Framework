@@ -4,7 +4,7 @@ using MonorailCss.Utilities.Base;
 namespace MonorailCss.Utilities.Typography;
 
 /// <summary>
-/// Handles whitespace utilities (whitespace-normal, whitespace-nowrap, etc.).
+/// Utilities for controlling how whitespace and line breaks are handled.
 /// </summary>
 internal class WhitespaceUtility : BaseStaticUtility
 {

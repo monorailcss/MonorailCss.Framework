@@ -8,9 +8,7 @@ using MonorailCss.Utilities.Base;
 namespace MonorailCss.Utilities.Filters;
 
 /// <summary>
-/// Utility for sepia filter values.
-/// Handles: sepia, sepia-0, sepia-*
-/// CSS: --tw-sepia and filter property with CSS variable system.
+/// Utilities for controlling the sepia filter of an element.
 /// </summary>
 internal class SepiaUtility : BaseFilterUtility
 {

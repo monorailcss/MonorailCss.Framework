@@ -7,9 +7,7 @@ using MonorailCss.Utilities.Base;
 namespace MonorailCss.Utilities.Interactivity;
 
 /// <summary>
-/// Utility for scroll-snap-type values with CSS variable support.
-/// Handles: snap-none, snap-x, snap-y, snap-both
-/// CSS: scroll-snap-type property with CSS variable for strictness.
+/// Utilities for controlling how strictly snap points are enforced in a snap container.
 /// </summary>
 internal class ScrollSnapTypeUtility : BaseStaticUtility
 {

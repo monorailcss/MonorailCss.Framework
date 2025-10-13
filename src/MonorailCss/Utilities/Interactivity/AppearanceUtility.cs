@@ -4,7 +4,7 @@ using MonorailCss.Utilities.Base;
 namespace MonorailCss.Utilities.Interactivity;
 
 /// <summary>
-/// Handles appearance utilities (appearance-none, appearance-auto).
+/// Utilities for suppressing native form control styling.
 /// </summary>
 internal class AppearanceUtility : BaseStaticUtility
 {

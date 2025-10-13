@@ -6,8 +6,7 @@ using MonorailCss.Utilities.Base;
 namespace MonorailCss.Utilities.Typography;
 
 /// <summary>
-/// Handles font smoothing utilities (antialiased, subpixel-antialiased).
-/// These require vendor-prefixed properties for cross-browser support.
+/// Utilities for controlling the font smoothing of an element.
 /// </summary>
 internal class FontSmoothingUtility : BaseStaticUtility
 {

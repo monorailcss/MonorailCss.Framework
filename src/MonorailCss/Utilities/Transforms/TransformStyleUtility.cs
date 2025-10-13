@@ -4,9 +4,7 @@ using MonorailCss.Utilities.Base;
 namespace MonorailCss.Utilities.Transforms;
 
 /// <summary>
-/// Utility for transform-style values.
-/// Handles: transform-flat, transform-3d
-/// CSS: transform-style property with flat and preserve-3d values.
+/// Utilities for controlling how child elements are rendered in 3D space.
 /// </summary>
 internal class TransformStyleUtility : BaseStaticUtility
 {

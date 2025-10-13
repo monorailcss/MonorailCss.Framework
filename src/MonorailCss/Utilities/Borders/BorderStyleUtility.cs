@@ -6,8 +6,7 @@ using MonorailCss.Utilities.Base;
 namespace MonorailCss.Utilities.Borders;
 
 /// <summary>
-/// Handles border style utilities (border-solid, border-dashed, border-dotted, etc.).
-/// Sets both --tw-border-style CSS variable and border-style property.
+/// Utilities for controlling the style of an element's borders.
 /// </summary>
 internal class BorderStyleUtility : BaseStaticUtility
 {

@@ -4,8 +4,7 @@ using MonorailCss.Utilities.Base;
 namespace MonorailCss.Utilities.Effects;
 
 /// <summary>
-/// Handles mix blend mode utilities (mix-blend-normal, mix-blend-multiply, etc.).
-/// Maps to the CSS mix-blend-mode property with all 16 supported blend modes.
+/// Utilities for controlling how an element blends with its background.
 /// </summary>
 internal class MixBlendModeUtility : BaseStaticUtility
 {

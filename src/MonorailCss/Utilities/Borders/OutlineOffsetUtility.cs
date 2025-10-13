@@ -6,12 +6,7 @@ using MonorailCss.Utilities.Base;
 namespace MonorailCss.Utilities.Borders;
 
 /// <summary>
-/// Handles outline-offset utilities.
-///
-/// Offset patterns: outline-offset-0, outline-offset-1, outline-offset-2, etc.
-/// Negative patterns: -outline-offset-1, -outline-offset-2, etc.
-///
-/// Maps to CSS outline-offset property using literal px values.
+/// Utilities for controlling the offset of an element's outline.
 /// </summary>
 internal class OutlineOffsetUtility : BaseFunctionalUtility
 {

@@ -5,9 +5,7 @@ using MonorailCss.Utilities.Base;
 namespace MonorailCss.Utilities.Layout;
 
 /// <summary>
-/// Utility for CSS columns property values.
-/// Handles: columns-auto, columns-1 through columns-12, columns-3xs through columns-7xl
-/// CSS: columns: auto, columns: 1, columns: 2, ..., columns: var(--container-sm), etc.
+/// Utilities for controlling the number of columns within an element.
 /// </summary>
 internal class ColumnsUtility : BaseFunctionalUtility
 {

@@ -6,7 +6,7 @@ using MonorailCss.Utilities.Base;
 namespace MonorailCss.Utilities.Sizing;
 
 /// <summary>
-/// Handles size utilities (size-*) that set both width and height.
+/// Utilities for controlling the width and height of an element simultaneously.
 /// </summary>
 internal class SizeUtility : BaseSizingUtility
 {

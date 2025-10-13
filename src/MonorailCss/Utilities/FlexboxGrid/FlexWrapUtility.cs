@@ -4,7 +4,7 @@ using MonorailCss.Utilities.Base;
 namespace MonorailCss.Utilities.FlexboxGrid;
 
 /// <summary>
-/// Handles flex-wrap utilities (flex-wrap, flex-nowrap, flex-wrap-reverse).
+/// Utilities for controlling how flex items wrap.
 /// </summary>
 internal class FlexWrapUtility : BaseStaticUtility
 {

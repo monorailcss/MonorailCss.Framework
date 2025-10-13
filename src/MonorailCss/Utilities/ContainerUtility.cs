@@ -6,9 +6,7 @@ using MonorailCss.Utilities.Base;
 namespace MonorailCss.Utilities;
 
 /// <summary>
-/// Utility for CSS container layout with responsive max-widths.
-/// Handles: container
-/// CSS: width: 100% with progressive max-width constraints at breakpoints.
+/// Utilities for creating responsive container widths with automatic max-width constraints.
 /// </summary>
 internal class ContainerUtility : BaseStaticUtility
 {

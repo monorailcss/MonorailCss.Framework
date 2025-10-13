@@ -4,8 +4,7 @@ using MonorailCss.Utilities.Base;
 namespace MonorailCss.Utilities.Backgrounds;
 
 /// <summary>
-/// Handles background repeat utilities (bg-repeat, bg-no-repeat, bg-repeat-x, etc.).
-/// Maps to the CSS background-repeat property.
+/// Utilities for controlling how background images repeat.
 /// </summary>
 internal class BackgroundRepeatUtility : BaseStaticUtility
 {

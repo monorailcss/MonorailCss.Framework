@@ -4,8 +4,7 @@ using MonorailCss.Utilities.Base;
 namespace MonorailCss.Utilities.Tables;
 
 /// <summary>
-/// Handles border collapse utilities (border-collapse, border-separate).
-/// Maps to the CSS border-collapse property for table elements.
+/// Utilities for controlling whether table borders should collapse or be separated.
 /// </summary>
 internal class BorderCollapseUtility : BaseStaticUtility
 {

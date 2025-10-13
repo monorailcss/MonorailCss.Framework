@@ -8,9 +8,7 @@ using MonorailCss.Utilities.Base;
 namespace MonorailCss.Utilities.Filters;
 
 /// <summary>
-/// Utility for hue-rotate filter values.
-/// Handles: hue-rotate-0, hue-rotate-15, hue-rotate-30, hue-rotate-60, hue-rotate-90, hue-rotate-180, hue-rotate-*, -hue-rotate-*
-/// CSS: --tw-hue-rotate and filter property with CSS variable system.
+/// Utilities for controlling the hue rotation filter of an element.
 /// </summary>
 internal class HueRotateUtility : BaseFilterUtility
 {

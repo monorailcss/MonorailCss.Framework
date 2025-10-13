@@ -6,7 +6,7 @@ using MonorailCss.Utilities.Base;
 namespace MonorailCss.Utilities.Spacing;
 
 /// <summary>
-/// Handles margin utilities (m-*, mx-*, my-*, mt-*, mr-*, mb-*, ml-*, ms-*, me-*).
+/// Utilities for controlling the margin of an element.
 /// </summary>
 internal class MarginUtility : BaseSpacingUtility
 {

@@ -6,9 +6,7 @@ using MonorailCss.Utilities.Base;
 namespace MonorailCss.Utilities.TransitionsAnimation;
 
 /// <summary>
-/// Utility for transition property values.
-/// Handles: transition, transition-none, transition-all, transition-colors, transition-opacity, transition-shadow, transition-transform
-/// CSS: transition-property: [various], plus timing function and duration.
+/// Utilities for controlling which CSS properties transition.
 /// </summary>
 internal class TransitionUtility : BaseFunctionalUtility
 {

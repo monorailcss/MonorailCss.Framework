@@ -4,7 +4,7 @@ using MonorailCss.Utilities.Base;
 namespace MonorailCss.Utilities.Typography;
 
 /// <summary>
-/// Handles text-decoration utilities (underline, line-through, etc.).
+/// Utilities for controlling the decoration of text.
 /// </summary>
 internal class TextDecorationUtility : BaseStaticUtility
 {

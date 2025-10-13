@@ -6,9 +6,7 @@ using MonorailCss.Utilities.Base;
 namespace MonorailCss.Utilities.FlexboxGrid;
 
 /// <summary>
-/// Utility for grid row auto values.
-/// Handles: row-auto
-/// CSS: grid-row: auto.
+/// Utilities for setting grid items to automatically span rows.
 /// </summary>
 internal class GridRowAutoUtility : BaseFunctionalUtility
 {

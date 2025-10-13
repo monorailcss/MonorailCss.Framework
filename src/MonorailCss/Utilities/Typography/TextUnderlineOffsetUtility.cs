@@ -6,9 +6,7 @@ using MonorailCss.Utilities.Base;
 namespace MonorailCss.Utilities.Typography;
 
 /// <summary>
-/// Handles text underline offset utilities.
-/// Maps underline-offset-* to text-underline-offset CSS property with specific pixel values.
-/// Supports negative values: -underline-offset-1, -underline-offset-2, etc.
+/// Utilities for controlling the offset of text underlines.
 /// </summary>
 internal class TextUnderlineOffsetUtility : BaseFunctionalUtility
 {

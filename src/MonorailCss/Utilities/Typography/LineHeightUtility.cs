@@ -7,9 +7,7 @@ using MonorailCss.Utilities.Base;
 namespace MonorailCss.Utilities.Typography;
 
 /// <summary>
-/// Utility for line-height values.
-/// Handles: leading-none, leading-tight, leading-normal, leading-loose, leading-3, leading-4, leading-5, etc.
-/// CSS: line-height: 1, line-height: 1.25, line-height: 1.5, line-height: 2, line-height: 0.75rem, etc.
+/// Utilities for controlling the leading (line height) of an element.
 /// </summary>
 internal class LineHeightUtility : BaseFunctionalUtility
 {

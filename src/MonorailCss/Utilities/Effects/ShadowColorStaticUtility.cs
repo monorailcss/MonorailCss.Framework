@@ -4,7 +4,7 @@ using MonorailCss.Utilities.Base;
 namespace MonorailCss.Utilities.Effects;
 
 /// <summary>
-/// Handles static shadow color utilities (shadow-current, shadow-inherit, shadow-transparent, shadow-initial).
+/// Utilities for controlling the color of box shadows using special color keywords.
 /// </summary>
 internal class ShadowColorStaticUtility : BaseStaticUtility
 {
