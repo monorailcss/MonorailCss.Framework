@@ -6,13 +6,13 @@
 
 <Breadcrumbs Items="@_breadcrumbs" />
 
-@if (_categoryName == null || _utilities == null)
+@if (_categoryName == null || _properties == null)
 {
     <div class="text-center py-12 text-base-500 dark:text-base-400">
         Loading category...
     </div>
 }
-else if (!_utilities.Any())
+else if (!_properties.Any())
 {
     <div class="text-center py-12">
         <h1 class="text-2xl font-bold text-base-900 dark:text-base-100 mb-2">Category Not Found</h1>
@@ -31,28 +31,49 @@ else
             @_categoryName Utilities
         </h1>
         <p class="text-lg text-base-600 dark:text-base-400">
-            Reference for @_categoryName utility classes in MonorailCSS.
+            Browse CSS properties available in the @_categoryName category. Each property can be controlled by one or more utility classes.
         </p>
     </div>
 
     <div class="space-y-4">
-        @foreach (var utility in _utilities.OrderBy(u => u.Metadata.Name))
+        @foreach (var (property, utilities) in _properties.OrderBy(p => p.Key))
         {
-            var utilitySlug = ToSlug(utility.Metadata.Name);
-            var utilityTitle = utility.Metadata.Name.Replace("Utility", "");
-            var examples = utility.Examples.Take(4).ToList();
+            var propertySlug = ToSlug(property);
+            var propertyDisplayName = GetPropertyDisplayName(property);
+            var examples = utilities.SelectMany(u => u.Examples).Take(4).ToList();
 
-            <a href="/utilities/@CategorySlug/@utilitySlug"
+            <a href="/utilities/@CategorySlug/@propertySlug"
                class="block p-6 border border-base-200 dark:border-base-800 rounded-lg hover:border-primary-500 dark:hover:border-primary-500 transition-colors bg-white dark:bg-base-900 hover:shadow-md">
                 <div class="flex items-start justify-between mb-3">
-                    <div>
+                    <div class="flex-grow">
                         <h2 class="text-2xl font-semibold text-base-900 dark:text-base-100 mb-2">
-                            @utilityTitle
+                            @propertyDisplayName
                         </h2>
-                        @if (!string.IsNullOrEmpty(utility.Metadata.Description))
+                        <p class="text-sm text-base-500 dark:text-base-400 mb-2">
+                            CSS Property: <code class="px-2 py-0.5 bg-base-100 dark:bg-base-800 rounded text-xs">@property</code>
+                        </p>
+
+                        @if (utilities.Count > 1)
                         {
-                            <p class="text-sm text-base-600 dark:text-base-400">
-                                @utility.Metadata.Description
+                            <p class="text-xs text-base-500 dark:text-base-400">
+                                Controlled by @utilities.Count utilities:
+                                @foreach (var util in utilities)
+                                {
+                                    <span class="inline-block px-2 py-0.5 bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200 rounded text-xs mr-1">
+                                        @util.Metadata.Name.Replace("Utility", "")
+                                    </span>
+                                }
+                            </p>
+                        }
+
+                        @* Show first utility description if available *@
+                        @{
+                            var firstUtilityWithDescription = utilities.FirstOrDefault(u => !string.IsNullOrEmpty(u.Metadata.Description));
+                        }
+                        @if (firstUtilityWithDescription != null)
+                        {
+                            <p class="text-sm text-base-600 dark:text-base-400 mt-2">
+                                @firstUtilityWithDescription.Metadata.Description
                             </p>
                         }
                     </div>
@@ -70,20 +91,29 @@ else
                                 @example.ClassName
                             </code>
                         }
-                        @if (utility.Examples.Length > 4)
+                        @{
+                            var totalExamples = utilities.Sum(u => u.Examples.Length);
+                        }
+                        @if (totalExamples > 4)
                         {
                             <span class="text-sm px-3 py-1.5 text-base-500 dark:text-base-400">
-                                +@(utility.Examples.Length - 4) more
+                                +@(totalExamples - 4) more
                             </span>
                         }
                     </div>
                 }
 
-                @if (utility.ThemeNamespaces.Any())
+                @{
+                    var themeNamespaces = utilities
+                        .SelectMany(u => u.ThemeNamespaces)
+                        .Distinct()
+                        .ToList();
+                }
+                @if (themeNamespaces.Any())
                 {
                     <div class="mt-4 flex flex-wrap items-center gap-2">
                         <span class="text-xs font-medium text-base-500 dark:text-base-400">Theme:</span>
-                        @foreach (var ns in utility.ThemeNamespaces)
+                        @foreach (var ns in themeNamespaces)
                         {
                             <span class="text-xs px-2 py-1 bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200 rounded">
                                 @ns
@@ -101,7 +131,7 @@ else
     public string CategorySlug { get; set; } = string.Empty;
 
     private string? _categoryName;
-    private List<UtilityDocumentation>? _utilities;
+    private Dictionary<string, List<UtilityDocumentation>>? _properties;
     private List<Breadcrumbs.BreadcrumbItem> _breadcrumbs = [];
 
     protected override async Task OnInitializedAsync()
@@ -117,7 +147,7 @@ else
     private async Task LoadCategoryAsync()
     {
         _categoryName = await UtilityService.GetCategoryNameFromSlugAsync(CategorySlug);
-        _utilities = await UtilityService.GetUtilitiesByCategoryAsync(CategorySlug);
+        _properties = await UtilityService.GetPropertiesByCategoryAsync(CategorySlug);
 
         _breadcrumbs =
         [
@@ -134,5 +164,21 @@ else
             .ToLowerInvariant()
             .Replace(" ", "-")
             .Replace("_", "-");
+    }
+
+    private static string GetPropertyDisplayName(string property)
+    {
+        // For properties like "background-color", convert to "Background Color"
+        // For utility names (fallback), clean them up
+        if (property.EndsWith("Utility"))
+        {
+            return property.Replace("Utility", "");
+        }
+
+        // Convert CSS property names to title case
+        var words = property.Split('-')
+            .Where(word => !string.IsNullOrEmpty(word))
+            .Select(word => char.ToUpperInvariant(word[0]) + word.Substring(1));
+        return string.Join(" ", words);
     }
 }

@@ -84,4 +84,22 @@ public interface IUtility
     /// </summary>
     /// <returns>Metadata describing this utility.</returns>
     Documentation.UtilityMetadata GetMetadata() => Documentation.UtilityMetadata.FromUtilityType(GetType());
+
+    /// <summary>
+    /// Returns the CSS properties that this utility documents.
+    /// This is used for organizing documentation by CSS property rather than by utility name.
+    /// Override this method to customize which CSS properties this utility is grouped under in documentation.
+    /// Default implementation returns null, which triggers automatic property extraction from compiled CSS.
+    /// </summary>
+    /// <returns>
+    /// An array of CSS property names (e.g., ["background-color"], ["background-image"]).
+    /// Return null to use automatic property extraction from generated CSS.
+    /// </returns>
+    /// <example>
+    /// Example override for gradient utilities to group them under background-image:
+    /// <code>
+    /// string[]? GetDocumentedProperties() => ["background-image"];
+    /// </code>
+    /// </example>
+    string[]? GetDocumentedProperties() => null;
 }

@@ -78,4 +78,9 @@ internal class GradientToUtility : IUtility
 
         return examples;
     }
+
+    /// <summary>
+    /// This utility contributes to the background-image CSS property via gradients.
+    /// </summary>
+    public string[]? GetDocumentedProperties() => ["background-image"];
 }

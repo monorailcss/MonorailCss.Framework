@@ -13,4 +13,9 @@ internal class GradientViaNoneUtility : BaseStaticUtility
         {
             ["via-none"] = ("--tw-gradient-via-stops", "initial"),
         });
+
+    /// <summary>
+    /// This utility contributes to the background-image CSS property via gradients.
+    /// </summary>
+    public string[]? GetDocumentedProperties() => ["background-image"];
 }

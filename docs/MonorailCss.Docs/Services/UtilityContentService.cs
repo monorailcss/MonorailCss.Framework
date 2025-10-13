@@ -7,17 +7,17 @@ using MyLittleContentEngine.Services.Content.TableOfContents;
 namespace MonorailCss.Docs.Services;
 
 /// <summary>
-/// Custom content service that generates documentation pages for MonorailCSS utilities.
+/// Custom content service that generates documentation pages for MonorailCSS utilities, organized by CSS property.
 /// </summary>
 public class UtilityContentService : IContentService
 {
-    private readonly Lazy<Dictionary<string, List<UtilityDocumentation>>> _utilitiesByCategory;
+    private readonly Lazy<Dictionary<string, Dictionary<string, List<UtilityDocumentation>>>> _utilitiesByProperty;
 
     public UtilityContentService()
     {
         var theme = new MonorailCss.Theme.Theme();
-        _utilitiesByCategory = new Lazy<Dictionary<string, List<UtilityDocumentation>>>(() =>
-            UtilityDocumentationEngine.GenerateDocumentationByCategory(theme));
+        _utilitiesByProperty = new Lazy<Dictionary<string, Dictionary<string, List<UtilityDocumentation>>>>(() =>
+            UtilityDocumentationEngine.GenerateDocumentationByProperty(theme));
     }
 
     public int SearchPriority => 10;
@@ -38,8 +38,8 @@ public class UtilityContentService : IContentService
                 })
         };
 
-        // Add category pages and individual utility pages
-        foreach (var (category, utilities) in _utilitiesByCategory.Value)
+        // Add category pages and individual CSS property pages
+        foreach (var (category, propertiesDict) in _utilitiesByProperty.Value)
         {
             var categorySlug = ToSlug(category);
 
@@ -54,17 +54,19 @@ public class UtilityContentService : IContentService
                     Order = 101
                 }));
 
-            // Individual utility pages
-            foreach (var utility in utilities)
+            // Individual CSS property pages
+            foreach (var (property, utilities) in propertiesDict)
             {
-                var utilitySlug = ToSlug(utility.Metadata.Name);
+                var propertySlug = ToSlug(property);
+                var propertyDisplayName = GetPropertyDisplayName(property);
+
                 pages.Add(new PageToGenerate(
-                    Url: $"/utilities/{categorySlug}/{utilitySlug}",
-                    OutputFile: $"utilities/{categorySlug}/{utilitySlug}.html",
+                    Url: $"/utilities/{categorySlug}/{propertySlug}",
+                    OutputFile: $"utilities/{categorySlug}/{propertySlug}.html",
                     Metadata: new Metadata
                     {
-                        Title = $"{utility.Metadata.Name.Replace("Utility", "")}",
-                        Description = utility.Metadata.Description,
+                        Title = propertyDisplayName,
+                        Description = $"Utilities for controlling the {property} CSS property",
                         Order = 102
                     }));
             }
@@ -87,7 +89,7 @@ public class UtilityContentService : IContentService
 
         // Add category entries
         var order = 0;
-        foreach (var (category, utilities) in _utilitiesByCategory.Value.OrderBy(x => x.Key))
+        foreach (var (category, propertiesDict) in _utilitiesByProperty.Value.OrderBy(x => x.Key))
         {
             var categorySlug = ToSlug(category);
 
@@ -98,18 +100,18 @@ public class UtilityContentService : IContentService
                 HierarchyParts: ["Utilities", category]
             ));
 
-            // Add individual utility entries
-            var utilityOrder = 0;
-            foreach (var utility in utilities.OrderBy(u => u.Metadata.Name))
+            // Add individual CSS property entries
+            var propertyOrder = 0;
+            foreach (var (property, utilities) in propertiesDict.OrderBy(p => p.Key))
             {
-                var utilitySlug = ToSlug(utility.Metadata.Name);
-                var utilityTitle = utility.Metadata.Name.Replace("Utility", "");
+                var propertySlug = ToSlug(property);
+                var propertyDisplayName = GetPropertyDisplayName(property);
 
                 entries.Add(new ContentTocItem(
-                    Title: utilityTitle,
-                    Url: $"/utilities/{categorySlug}/{utilitySlug}",
-                    Order: utilityOrder++,
-                    HierarchyParts: ["Utilities", category, utilityTitle]
+                    Title: propertyDisplayName,
+                    Url: $"/utilities/{categorySlug}/{propertySlug}",
+                    Order: propertyOrder++,
+                    HierarchyParts: ["Utilities", category, propertyDisplayName]
                 ));
             }
         }
@@ -119,7 +121,7 @@ public class UtilityContentService : IContentService
 
     public Task<ImmutableList<CrossReference>> GetCrossReferencesAsync()
     {
-        // Could add cross-references between related utilities in the future
+        // Could add cross-references between related properties in the future
         return Task.FromResult(ImmutableList<CrossReference>.Empty);
     }
 
@@ -132,44 +134,52 @@ public class UtilityContentService : IContentService
     // Data access methods for Razor pages to use
 
     /// <summary>
-    /// Gets all utility categories with their utilities.
+    /// Gets all utility categories with their properties and utilities.
     /// </summary>
-    public Task<Dictionary<string, List<UtilityDocumentation>>> GetAllCategoriesAsync()
+    public Task<Dictionary<string, Dictionary<string, List<UtilityDocumentation>>>> GetAllCategoriesAsync()
     {
-        return Task.FromResult(_utilitiesByCategory.Value);
+        return Task.FromResult(_utilitiesByProperty.Value);
     }
 
     /// <summary>
-    /// Gets utilities for a specific category.
+    /// Gets CSS properties and their utilities for a specific category.
     /// </summary>
-    public Task<List<UtilityDocumentation>?> GetUtilitiesByCategoryAsync(string category)
+    public Task<Dictionary<string, List<UtilityDocumentation>>?> GetPropertiesByCategoryAsync(string category)
     {
-        var normalizedCategory = _utilitiesByCategory.Value.Keys
+        var normalizedCategory = _utilitiesByProperty.Value.Keys
             .FirstOrDefault(k => ToSlug(k) == category.ToLowerInvariant());
 
-        if (normalizedCategory != null && _utilitiesByCategory.Value.TryGetValue(normalizedCategory, out var utilities))
+        if (normalizedCategory != null && _utilitiesByProperty.Value.TryGetValue(normalizedCategory, out var properties))
         {
-            return Task.FromResult<List<UtilityDocumentation>?>(utilities);
+            return Task.FromResult<Dictionary<string, List<UtilityDocumentation>>?>(properties);
         }
 
-        return Task.FromResult<List<UtilityDocumentation>?>(null);
+        return Task.FromResult<Dictionary<string, List<UtilityDocumentation>>?>(null);
     }
 
     /// <summary>
-    /// Gets a specific utility by category and name.
+    /// Gets utilities for a specific CSS property within a category.
     /// </summary>
-    public Task<UtilityDocumentation?> GetUtilityAsync(string category, string utilityName)
+    public Task<PropertyUtilities?> GetUtilitiesForPropertyAsync(string category, string property)
     {
-        var normalizedCategory = _utilitiesByCategory.Value.Keys
+        var normalizedCategory = _utilitiesByProperty.Value.Keys
             .FirstOrDefault(k => ToSlug(k) == category.ToLowerInvariant());
 
-        if (normalizedCategory != null && _utilitiesByCategory.Value.TryGetValue(normalizedCategory, out var utilities))
+        if (normalizedCategory != null && _utilitiesByProperty.Value.TryGetValue(normalizedCategory, out var propertiesDict))
         {
-            var utility = utilities.FirstOrDefault(u => ToSlug(u.Metadata.Name) == utilityName.ToLowerInvariant());
-            return Task.FromResult(utility);
+            var normalizedProperty = propertiesDict.Keys
+                .FirstOrDefault(k => ToSlug(k) == property.ToLowerInvariant());
+
+            if (normalizedProperty != null && propertiesDict.TryGetValue(normalizedProperty, out var utilities))
+            {
+                return Task.FromResult<PropertyUtilities?>(new PropertyUtilities(
+                    PropertyName: normalizedProperty,
+                    DisplayName: GetPropertyDisplayName(normalizedProperty),
+                    Utilities: utilities));
+            }
         }
 
-        return Task.FromResult<UtilityDocumentation?>(null);
+        return Task.FromResult<PropertyUtilities?>(null);
     }
 
     /// <summary>
@@ -177,7 +187,7 @@ public class UtilityContentService : IContentService
     /// </summary>
     public Task<string?> GetCategoryNameFromSlugAsync(string categorySlug)
     {
-        var category = _utilitiesByCategory.Value.Keys
+        var category = _utilitiesByProperty.Value.Keys
             .FirstOrDefault(k => ToSlug(k) == categorySlug.ToLowerInvariant());
         return Task.FromResult(category);
     }
@@ -190,4 +200,28 @@ public class UtilityContentService : IContentService
             .Replace(" ", "-")
             .Replace("_", "-");
     }
+
+    private static string GetPropertyDisplayName(string property)
+    {
+        // For properties like "background-color", convert to "Background Color"
+        // For utility names (fallback), clean them up
+        if (property.EndsWith("Utility"))
+        {
+            return property.Replace("Utility", "");
+        }
+
+        // Convert CSS property names to title case
+        var words = property.Split('-')
+            .Where(word => !string.IsNullOrEmpty(word))
+            .Select(word => char.ToUpperInvariant(word[0]) + word.Substring(1));
+        return string.Join(" ", words);
+    }
 }
+
+/// <summary>
+/// Represents utilities grouped by a CSS property.
+/// </summary>
+public record PropertyUtilities(
+    string PropertyName,
+    string DisplayName,
+    List<UtilityDocumentation> Utilities);

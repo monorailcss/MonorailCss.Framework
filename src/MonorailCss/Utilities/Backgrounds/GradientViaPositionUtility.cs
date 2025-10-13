@@ -33,4 +33,9 @@ internal class GradientViaPositionUtility : BaseStaticUtility
             ["via-95%"] = ("--tw-gradient-via-position", "95%"),
             ["via-100%"] = ("--tw-gradient-via-position", "100%"),
         });
+
+    /// <summary>
+    /// This utility contributes to the background-image CSS property via gradients.
+    /// </summary>
+    public string[]? GetDocumentedProperties() => ["background-image"];
 }

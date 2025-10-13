@@ -3,15 +3,15 @@
 @inject ITableOfContentService TableOfContentService
 @inject NavigationManager NavigationManager
 
-<div class="min-h-screen bg-base-50 dark:bg-base-950 flex flex-col">
+<div class="min-h-screen dark:scheme-dark bg-base-50 dark:bg-base-950">
     <SharedHeader HasTableOfContents="true" />
 
     <!-- Main Content Area -->
-    <div class="container mx-auto px-4 sm:px-6 lg:px-8 flex-1">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex flex-col lg:flex-row gap-8">
             <!-- Sidebar -->
             <aside class="hidden lg:block lg:w-64 xl:w-72 shrink-0">
-                <div class="sticky top-16 overflow-y-auto max-h-[calc(100vh-4rem)] pr-4 -mr-4">
+                <div class="sticky self-start top-16 overflow-y-auto max-h-[calc(100vh-4rem)] pr-4 -mr-4">
                     <div class="py-8">
                         <TableOfContentsNavigation TableOfContents="_toc" />
                     </div>

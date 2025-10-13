@@ -11,7 +11,7 @@
         Utilities Reference
     </h1>
     <p class="text-lg text-base-600 dark:text-base-400">
-        Complete reference of all MonorailCSS utility classes organized by category.
+        Complete reference of all MonorailCSS utility classes organized by CSS property within each category.
     </p>
 </div>
 
@@ -30,10 +30,11 @@ else if (!_categories.Any())
 else
 {
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        @foreach (var (category, utilities) in _categories.OrderBy(c => c.Key))
+        @foreach (var (category, propertiesDict) in _categories.OrderBy(c => c.Key))
         {
             var categorySlug = ToSlug(category);
-            var utilityCount = utilities.Count;
+            var propertyCount = propertiesDict.Count;
+            var allUtilities = propertiesDict.Values.SelectMany(u => u).ToList();
 
             <a href="/utilities/@categorySlug"
                class="block p-6 border border-base-200 dark:border-base-800 rounded-lg hover:border-primary-500 dark:hover:border-primary-500 transition-colors bg-white dark:bg-base-900 hover:shadow-md">
@@ -42,25 +43,28 @@ else
                         @category
                     </h2>
                     <span class="px-2.5 py-0.5 text-xs font-medium rounded-full bg-primary-100 dark:bg-primary-900 text-primary-800 dark:text-primary-200">
-                        @utilityCount
+                        @propertyCount
                     </span>
                 </div>
 
                 <p class="text-sm text-base-600 dark:text-base-400 mb-4">
-                    @GetCategoryDescription(utilities)
+                    @GetCategoryDescription(category, allUtilities)
                 </p>
 
                 <div class="flex flex-wrap gap-2">
-                    @foreach (var utility in utilities.Take(3))
+                    @{
+                        var exampleProperties = propertiesDict.Take(3).ToList();
+                    }
+                    @foreach (var (propertyName, _) in exampleProperties)
                     {
                         <code class="text-xs px-2 py-1 bg-base-100 dark:bg-base-800 text-base-700 dark:text-base-300 rounded">
-                            @GetUtilityExample(utility)
+                            @GetPropertyDisplayName(propertyName)
                         </code>
                     }
-                    @if (utilities.Count > 3)
+                    @if (propertiesDict.Count > 3)
                     {
                         <span class="text-xs px-2 py-1 text-base-500 dark:text-base-400">
-                            +@(utilities.Count - 3) more
+                            +@(propertiesDict.Count - 3) more
                         </span>
                     }
                 </div>
@@ -70,7 +74,7 @@ else
 }
 
 @code {
-    private Dictionary<string, List<UtilityDocumentation>>? _categories;
+    private Dictionary<string, Dictionary<string, List<UtilityDocumentation>>>? _categories;
     private List<Breadcrumbs.BreadcrumbItem> _breadcrumbs = [];
 
     protected override async Task OnInitializedAsync()
@@ -93,37 +97,40 @@ else
             .Replace("_", "-");
     }
 
-    private static string GetCategoryDescription(List<UtilityDocumentation> utilities)
+    private static string GetCategoryDescription(string category, List<UtilityDocumentation> utilities)
     {
         if (utilities.Count == 0) return "No utilities in this category.";
 
-        var firstUtility = utilities.First();
-        var description = firstUtility.Metadata.Description;
-
-        if (string.IsNullOrEmpty(description))
+        var firstUtility = utilities.FirstOrDefault(u => !string.IsNullOrEmpty(u.Metadata.Description));
+        if (firstUtility != null)
         {
-            return $"Utilities for controlling {utilities.First().Metadata.Category.ToLowerInvariant()}.";
+            var description = firstUtility.Metadata.Description;
+            // Take first sentence or first 100 characters
+            var firstSentence = description.Split('.').FirstOrDefault() ?? description;
+            return firstSentence.Length > 100
+                ? firstSentence.Substring(0, 97) + "..."
+                : firstSentence + ".";
         }
 
-        // Take first sentence or first 100 characters
-        var firstSentence = description.Split('.').FirstOrDefault() ?? description;
-        return firstSentence.Length > 100
-            ? firstSentence.Substring(0, 97) + "..."
-            : firstSentence + ".";
+        return $"CSS utilities for controlling {category.ToLowerInvariant()} properties.";
     }
 
-    private static string GetUtilityExample(UtilityDocumentation utility)
+    private static string GetPropertyDisplayName(string property)
     {
-        var examples = utility.Examples;
-        if (examples.Any())
+        // For properties like "background-color", convert to "Background Color"
+        // For utility names (fallback), clean them up
+        if (property.EndsWith("Utility"))
         {
-            return examples.First().ClassName;
+            return property.Replace("Utility", "");
         }
 
-        // Fallback to utility name as lowercase
-        return utility.Metadata.Name
-            .Replace("Utility", "")
-            .ToLowerInvariant()
-            .Replace(" ", "-");
+        // Convert CSS property names to title case (abbreviated for display)
+        var words = property.Split('-')
+            .Where(word => !string.IsNullOrEmpty(word))
+            .Select(word => char.ToUpperInvariant(word[0]) + word.Substring(1));
+        var result = string.Join(" ", words);
+
+        // Abbreviate if too long
+        return result.Length > 20 ? result.Substring(0, 17) + "..." : result;
     }
 }
