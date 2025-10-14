@@ -37,10 +37,6 @@ var css = framework.Process("bg-[#1da1f2] text-[14px] w-[500px]");
 
 This allows you to use custom values without extending the theme, perfect for one-off designs or rapid prototyping.
 
-## Utility Priority
-
-Utilities have priorities (0-1000) that determine evaluation order. This ensures that more specific utilities are processed correctly and that the CSS output is optimized.
-
 ## Theme Variable Tracking
 
 MonorailCSS includes a theme optimization system that tracks which CSS custom properties are actually used in your application, allowing you to generate minimal theme CSS files.

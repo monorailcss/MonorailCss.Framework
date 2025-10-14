@@ -24,19 +24,7 @@ public class UtilityContentService : IContentService
 
     public Task<ImmutableList<PageToGenerate>> GetPagesToGenerateAsync()
     {
-        var pages = new List<PageToGenerate>
-        {
-            // Add main utilities index page
-            new(
-                Url: "/utilities",
-                OutputFile: "utilities/index.html",
-                Metadata: new Metadata
-                {
-                    Title = "Utilities Reference",
-                    Description = "Complete reference of all MonorailCSS utility classes",
-                    Order = 100
-                })
-        };
+        var pages = new List<PageToGenerate>();
 
         // Add category pages and individual CSS property pages
         foreach (var (category, propertiesDict) in _utilitiesByProperty.Value)
@@ -45,8 +33,8 @@ public class UtilityContentService : IContentService
 
             // Category page
             pages.Add(new PageToGenerate(
-                Url: $"/utilities/{categorySlug}",
-                OutputFile: $"utilities/{categorySlug}/index.html",
+                Url: $"/{categorySlug}",
+                OutputFile: $"{categorySlug}/index.html",
                 Metadata: new Metadata
                 {
                     Title = $"{category} Utilities",
@@ -61,8 +49,8 @@ public class UtilityContentService : IContentService
                 var propertyDisplayName = GetPropertyDisplayName(property);
 
                 pages.Add(new PageToGenerate(
-                    Url: $"/utilities/{categorySlug}/{propertySlug}",
-                    OutputFile: $"utilities/{categorySlug}/{propertySlug}.html",
+                    Url: $"/{categorySlug}/{propertySlug}",
+                    OutputFile: $"{categorySlug}/{propertySlug}.html",
                     Metadata: new Metadata
                     {
                         Title = propertyDisplayName,
@@ -77,31 +65,23 @@ public class UtilityContentService : IContentService
 
     public Task<ImmutableList<ContentTocItem>> GetContentTocEntriesAsync()
     {
-        var entries = new List<ContentTocItem>
-        {
-            // Create main Utilities section
-            new ContentTocItem(
-                Title: "Utilities Reference",
-                Url: "/utilities",
-                Order: 100,
-                HierarchyParts: ["Utilities"])
-        };
+        var entries = new List<ContentTocItem>();
 
         // Add category entries
-        var order = 0;
+        var order = 1000;
         foreach (var (category, propertiesDict) in _utilitiesByProperty.Value.OrderBy(x => x.Key))
         {
             var categorySlug = ToSlug(category);
 
             entries.Add(new ContentTocItem(
                 Title: category,
-                Url: $"/utilities/{categorySlug}",
-                Order: order++,
-                HierarchyParts: ["Utilities", category]
+                Url: $"/{categorySlug}",
+                Order: order+=100,
+                HierarchyParts: [category]
             ));
 
             // Add individual CSS property entries
-            var propertyOrder = 0;
+            var propertyOrder = order + 1;
             foreach (var (property, utilities) in propertiesDict.OrderBy(p => p.Key))
             {
                 var propertySlug = ToSlug(property);
@@ -109,9 +89,9 @@ public class UtilityContentService : IContentService
 
                 entries.Add(new ContentTocItem(
                     Title: propertyDisplayName,
-                    Url: $"/utilities/{categorySlug}/{propertySlug}",
+                    Url: $"/{categorySlug}/{propertySlug}",
                     Order: propertyOrder++,
-                    HierarchyParts: ["Utilities", category, propertyDisplayName]
+                    HierarchyParts: [category, propertyDisplayName]
                 ));
             }
         }

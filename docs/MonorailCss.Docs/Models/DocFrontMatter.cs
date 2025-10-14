@@ -20,6 +20,7 @@ public class DocFrontMatter : IFrontMatter
         {
             Title = Title,
             Description = Description,
+            Order = Order,
             LastMod = DateTime.MaxValue
         };
     }

@@ -1,0 +1,59 @@
+name: Build and publish documentation to GitHub Pages
+
+on:
+  push:
+    branches: [ "main" ]
+
+env:
+  ASPNETCORE_ENVIRONMENT: Production
+  WEBAPP_PATH: ./docs/MonorailCss.Docs/
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Allow only one concurrent deployment
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+
+      - name: Build solution
+        run: dotnet build --configuration Release
+
+      - name: Run docs project and generate static files
+        run: |
+          dotnet run --project ${{ env.WEBAPP_PATH }} --configuration Release -- build "/MonorailCss.Framework/"
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+
+      - name: Add .nojekyll file
+        run: touch ${{ env.WEBAPP_PATH }}output/.nojekyll
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ${{ env.WEBAPP_PATH }}output
+
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

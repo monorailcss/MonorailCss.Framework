@@ -21,18 +21,6 @@
                     @Content.FrontMatter.Description
                 </p>
             }
-
-            @if (Content.FrontMatter.Tags.Any())
-            {
-                <div class="flex flex-wrap gap-2 mt-4">
-                    @foreach (var tag in Content.FrontMatter.Tags)
-                    {
-                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-primary-100 dark:bg-primary-900 text-primary-800 dark:text-primary-200">
-                            @tag
-                        </span>
-                    }
-                </div>
-            }
         </header>
 
         <!-- Content with Outline -->
