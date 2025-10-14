@@ -66,9 +66,28 @@ public partial class UtilityMetadata
 
     /// <summary>
     /// Gets the primary CSS property this utility documents.
-    /// This is the first property in DocumentedProperties, or empty string if none are specified.
+    /// For utilities with 1-3 properties, this returns the first property.
+    /// For utilities with more than 3 properties, this returns the utility name (to avoid arbitrary property selection).
+    /// Returns empty string if no properties are specified.
     /// </summary>
-    public string PrimaryProperty => DocumentedProperties.Length > 0 ? DocumentedProperties[0] : string.Empty;
+    public string PrimaryProperty
+    {
+        get
+        {
+            if (DocumentedProperties.Length == 0)
+            {
+                return string.Empty;
+            }
+
+            // If a utility has many unrelated properties, use the utility name instead of picking one arbitrarily
+            if (DocumentedProperties.Length > 1)
+            {
+                return Name;
+            }
+
+            return DocumentedProperties[0];
+        }
+    }
 
     /// <summary>
     /// Generates a <see cref="UtilityMetadata"/> instance from a given utility type.

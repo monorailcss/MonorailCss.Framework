@@ -31,18 +31,6 @@ public partial class UtilityContentService : IContentService
         {
             var categorySlug = ToSlug(category);
 
-            // Category page
-            pages.Add(new PageToGenerate(
-                Url: $"/{categorySlug}",
-                OutputFile: $"{categorySlug}/index.html",
-                Metadata: new Metadata
-                {
-                    Title = $"{category} Utilities",
-                    Description = $"Reference for {category} utility classes in MonorailCSS",
-                    Order = 101
-                }));
-
-            // Individual CSS property pages
             foreach (var (property, _) in propertiesDict)
             {
                 var propertySlug = ToSlug(property);
@@ -55,7 +43,6 @@ public partial class UtilityContentService : IContentService
                     {
                         Title = propertyDisplayName,
                         Description = $"Utilities for controlling the {property} CSS property",
-                        Order = 102
                     }));
             }
         }
@@ -102,30 +89,6 @@ public partial class UtilityContentService : IContentService
     {
         // No static assets to copy
         return Task.FromResult(ImmutableList<ContentToCopy>.Empty);
-    }
-
-    /// <summary>
-    /// Gets all utility categories with their properties and utilities.
-    /// </summary>
-    public Task<Dictionary<string, Dictionary<string, List<UtilityDocumentation>>>> GetAllCategoriesAsync()
-    {
-        return Task.FromResult(_utilitiesByProperty.Value);
-    }
-
-    /// <summary>
-    /// Gets CSS properties and their utilities for a specific category.
-    /// </summary>
-    public Task<Dictionary<string, List<UtilityDocumentation>>?> GetPropertiesByCategoryAsync(string category)
-    {
-        var normalizedCategory = _utilitiesByProperty.Value.Keys
-            .FirstOrDefault(k => ToSlug(k) == category.ToLowerInvariant());
-
-        if (normalizedCategory != null && _utilitiesByProperty.Value.TryGetValue(normalizedCategory, out var properties))
-        {
-            return Task.FromResult<Dictionary<string, List<UtilityDocumentation>>?>(properties);
-        }
-
-        return Task.FromResult<Dictionary<string, List<UtilityDocumentation>>?>(null);
     }
 
     /// <summary>
@@ -182,14 +145,18 @@ public partial class UtilityContentService : IContentService
 
     private static string GetPropertyDisplayName(string property)
     {
-        // For properties like "background-color", convert to "Background Color"
-        // For utility names (fallback), clean them up
+        // For utility names (PascalCase with "Utility" suffix), convert to readable format
         if (property.EndsWith("Utility"))
         {
-            return property.Replace("Utility", "");
+            // Remove "Utility" suffix
+            var nameWithoutSuffix = property.Replace("Utility", "");
+
+            // Split PascalCase into words (e.g., "ScreenReader" → "Screen Reader")
+            var withSpaces = SlugifyRegexDefinition().Replace(nameWithoutSuffix, " $1").Trim();
+            return withSpaces;
         }
 
-        // Convert CSS property names to title case
+        // For CSS property names like "background-color", convert to title case
         var words = property.Split('-')
             .Where(word => !string.IsNullOrEmpty(word))
             .Select(word => char.ToUpperInvariant(word[0]) + word.Substring(1));
