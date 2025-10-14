@@ -23,4 +23,6 @@ internal class AlignContentUtility : BaseStaticUtility
             { "content-center-safe", ("align-content", "safe center") },
             { "content-end-safe", ("align-content", "safe flex-end") },
         }.ToImmutableDictionary();
+
+    public string[]? GetDocumentedProperties() => ["align-content"];
 }

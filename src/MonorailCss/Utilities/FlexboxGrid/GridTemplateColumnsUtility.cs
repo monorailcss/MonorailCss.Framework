@@ -124,4 +124,21 @@ internal class GridTemplateColumnsUtility : BaseFunctionalUtility
     {
         return IsValidGridTemplateValue(value.Replace('_', ' '));
     }
+
+    public string[]? GetDocumentedProperties() => ["grid-template-columns"];
+
+    public override IEnumerable<Documentation.UtilityExample> GetExamples(Theme.Theme theme)
+    {
+        return new[]
+        {
+            new Documentation.UtilityExample("grid-cols-1", "Create a grid with 1 column"),
+            new Documentation.UtilityExample("grid-cols-3", "Create a grid with 3 columns"),
+            new Documentation.UtilityExample("grid-cols-6", "Create a grid with 6 columns"),
+            new Documentation.UtilityExample("grid-cols-12", "Create a grid with 12 columns"),
+            new Documentation.UtilityExample("grid-cols-none", "Remove explicit grid columns"),
+            new Documentation.UtilityExample("grid-cols-subgrid", "Use subgrid for grid columns"),
+            new Documentation.UtilityExample("grid-cols-(--my-template)", "Use a custom property for grid columns"),
+            new Documentation.UtilityExample("grid-cols-[200px_minmax(900px,_1fr)_100px]", "Use an arbitrary value for grid columns"),
+        };
+    }
 }

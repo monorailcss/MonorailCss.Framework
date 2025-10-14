@@ -15,4 +15,6 @@ internal class FlexWrapUtility : BaseStaticUtility
             { "flex-nowrap", ("flex-wrap", "nowrap") },
             { "flex-wrap-reverse", ("flex-wrap", "wrap-reverse") },
         }.ToImmutableDictionary();
+
+    public string[]? GetDocumentedProperties() => ["flex-wrap"];
 }

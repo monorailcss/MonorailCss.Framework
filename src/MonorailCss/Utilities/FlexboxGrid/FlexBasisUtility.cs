@@ -64,4 +64,22 @@ internal class FlexBasisUtility : BaseFractionAwareSpacingUtility
         // Fall back to base spacing resolution for numeric values and arbitrary values
         return base.TryResolveSpacing(value, theme, out spacing);
     }
+
+    public string[]? GetDocumentedProperties() => ["flex-basis"];
+
+    public IEnumerable<Documentation.UtilityExample> GetExamples(Theme.Theme theme)
+    {
+        return new[]
+        {
+            new Documentation.UtilityExample("basis-auto", "Set flex basis to auto"),
+            new Documentation.UtilityExample("basis-full", "Set flex basis to 100%"),
+            new Documentation.UtilityExample("basis-1/2", "Set flex basis to 50%"),
+            new Documentation.UtilityExample("basis-1/3", "Set flex basis to 33.333%"),
+            new Documentation.UtilityExample("basis-min", "Set flex basis to min-content"),
+            new Documentation.UtilityExample("basis-max", "Set flex basis to max-content"),
+            new Documentation.UtilityExample("basis-fit", "Set flex basis to fit-content"),
+            new Documentation.UtilityExample("basis-0", "Set flex basis to 0"),
+            new Documentation.UtilityExample("basis-[200px]", "Use an arbitrary value for flex basis"),
+        };
+    }
 }

@@ -19,4 +19,6 @@ internal class JustifyItemsUtility : BaseStaticUtility
             { "justify-items-center-safe", ("justify-items", "safe center") },
             { "justify-items-end-safe", ("justify-items", "safe end") },
         }.ToImmutableDictionary();
+
+    public string[]? GetDocumentedProperties() => ["justify-items"];
 }

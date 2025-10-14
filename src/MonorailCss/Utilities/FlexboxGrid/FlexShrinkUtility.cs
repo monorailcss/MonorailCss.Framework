@@ -56,4 +56,18 @@ internal class FlexShrinkUtility : BaseFunctionalUtility
         return ImmutableList.Create<AstNode>(
             new Declaration("flex-shrink", value, important));
     }
+
+    public string[]? GetDocumentedProperties() => ["flex-shrink"];
+
+    public override IEnumerable<Documentation.UtilityExample> GetExamples(Theme.Theme theme)
+    {
+        return new[]
+        {
+            new Documentation.UtilityExample("shrink", "Allow flex item to shrink (defaults to 1)"),
+            new Documentation.UtilityExample("shrink-0", "Prevent flex item from shrinking"),
+            new Documentation.UtilityExample("flex-shrink", "Allow flex item to shrink"),
+            new Documentation.UtilityExample("flex-shrink-0", "Prevent flex item from shrinking"),
+            new Documentation.UtilityExample("shrink-[2]", "Set flex shrink factor with arbitrary value"),
+        };
+    }
 }

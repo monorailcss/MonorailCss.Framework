@@ -58,4 +58,16 @@ internal class GridRowAutoUtility : BaseFunctionalUtility
         return ImmutableList.Create<AstNode>(
             new Declaration("grid-row", value, important));
     }
+
+    public string[]? GetDocumentedProperties() => ["grid-row"];
+
+    public override IEnumerable<Documentation.UtilityExample> GetExamples(Theme.Theme theme)
+    {
+        return new[]
+        {
+            new Documentation.UtilityExample("row-auto", "Set grid row to auto"),
+            new Documentation.UtilityExample("row-[1_/_3]", "Position element from row line 1 to 3"),
+            new Documentation.UtilityExample("row-[span_2]", "Span 2 rows"),
+        };
+    }
 }

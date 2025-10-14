@@ -67,4 +67,19 @@ internal class GridColumnEndUtility : BaseFunctionalUtility
         return ImmutableList.Create<AstNode>(
             new Declaration("grid-column-end", value, important));
     }
+
+    public string[]? GetDocumentedProperties() => ["grid-column-end"];
+
+    public override IEnumerable<Documentation.UtilityExample> GetExamples(Theme.Theme theme)
+    {
+        return new[]
+        {
+            new Documentation.UtilityExample("col-end-1", "End at column line 1"),
+            new Documentation.UtilityExample("col-end-7", "End at column line 7"),
+            new Documentation.UtilityExample("col-end-13", "End at column line 13"),
+            new Documentation.UtilityExample("col-end-auto", "Auto end column"),
+            new Documentation.UtilityExample("-col-end-1", "End at column line -1 (from end)"),
+            new Documentation.UtilityExample("col-end-[14]", "Use an arbitrary value for column end"),
+        };
+    }
 }

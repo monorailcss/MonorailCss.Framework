@@ -57,4 +57,16 @@ internal class GridColumnAutoUtility : BaseFunctionalUtility
         return ImmutableList.Create<AstNode>(
             new Declaration("grid-column", value, important));
     }
+
+    public string[]? GetDocumentedProperties() => ["grid-column"];
+
+    public override IEnumerable<Documentation.UtilityExample> GetExamples(Theme.Theme theme)
+    {
+        return new[]
+        {
+            new Documentation.UtilityExample("col-auto", "Set grid column to auto"),
+            new Documentation.UtilityExample("col-[1_/_3]", "Position element from column line 1 to 3"),
+            new Documentation.UtilityExample("col-[span_2]", "Span 2 columns"),
+        };
+    }
 }

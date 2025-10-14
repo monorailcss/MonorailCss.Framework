@@ -15,4 +15,6 @@ internal class OrderStaticUtility : BaseStaticUtility
             { "order-last", ("order", "9999") },
             { "order-none", ("order", "0") },
         }.ToImmutableDictionary();
+
+    public string[]? GetDocumentedProperties() => ["order"];
 }
