@@ -412,11 +412,10 @@ public class DynamicCustomUtilityIntegrationTests
             )
         };
 
-        framework.AddUtilities(new[]
-        {
+        framework.AddUtilities([
             new DynamicCustomUtility(thumbDefinition),
-            new DynamicCustomUtility(trackDefinition)
-        });
+            new DynamicCustomUtility(trackDefinition),
+        ]);
 
         // Act
         var result = framework.Process("scrollbar-thumb-red-500 scrollbar-track-gray-200");
@@ -515,11 +514,10 @@ public class DynamicCustomUtilityIntegrationTests
             )
         };
 
-        framework.AddUtilities(new IUtility[]
-        {
+        framework.AddUtilities([
             new StaticCustomUtility(staticDef),
-            new DynamicCustomUtility(dynamicDef)
-        });
+            new DynamicCustomUtility(dynamicDef),
+        ]);
 
         // Act
         var staticResult = framework.Process("scrollbar-none");

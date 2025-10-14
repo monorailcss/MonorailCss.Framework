@@ -12,7 +12,7 @@ internal sealed class TokenExtractor
     {
         if (string.IsNullOrWhiteSpace(input))
         {
-            return Array.Empty<string>();
+            return [];
         }
 
         return input.Split(' ', StringSplitOptions.RemoveEmptyEntries);

@@ -22,5 +22,5 @@ internal class AlignSelfUtility : BaseStaticUtility
             { "self-end-safe", ("align-self", "safe flex-end") },
         }.ToImmutableDictionary();
 
-    public string[]? GetDocumentedProperties() => ["align-self"];
+    public string[] GetDocumentedProperties() => ["align-self"];
 }

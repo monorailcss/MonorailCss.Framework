@@ -68,18 +68,18 @@ internal class GridColumnStartUtility : BaseFunctionalUtility
             new Declaration("grid-column-start", value, important));
     }
 
-    public string[]? GetDocumentedProperties() => ["grid-column-start"];
+    public string[] GetDocumentedProperties() => ["grid-column-start"];
 
     public override IEnumerable<Documentation.UtilityExample> GetExamples(Theme.Theme theme)
     {
-        return new[]
-        {
+        return
+        [
             new Documentation.UtilityExample("col-start-1", "Start at column line 1"),
             new Documentation.UtilityExample("col-start-7", "Start at column line 7"),
             new Documentation.UtilityExample("col-start-13", "Start at column line 13"),
             new Documentation.UtilityExample("col-start-auto", "Auto start column"),
             new Documentation.UtilityExample("-col-start-1", "Start at column line -1 (from end)"),
             new Documentation.UtilityExample("col-start-[14]", "Use an arbitrary value for column start"),
-        };
+        ];
     }
 }

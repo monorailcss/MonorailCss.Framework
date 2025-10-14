@@ -120,18 +120,18 @@ internal class GridAutoColumnsUtility : BaseFunctionalUtility
         return IsValidGridAutoValue(value.Replace('_', ' '));
     }
 
-    public string[]? GetDocumentedProperties() => ["grid-auto-columns"];
+    public string[] GetDocumentedProperties() => ["grid-auto-columns"];
 
     public override IEnumerable<Documentation.UtilityExample> GetExamples(Theme.Theme theme)
     {
-        return new[]
-        {
+        return
+        [
             new Documentation.UtilityExample("auto-cols-auto", "Set grid auto columns to auto"),
             new Documentation.UtilityExample("auto-cols-min", "Set grid auto columns to min-content"),
             new Documentation.UtilityExample("auto-cols-max", "Set grid auto columns to max-content"),
             new Documentation.UtilityExample("auto-cols-fr", "Set grid auto columns to minmax(0, 1fr)"),
             new Documentation.UtilityExample("auto-cols-(--my-size)", "Use a custom property for grid auto columns"),
             new Documentation.UtilityExample("auto-cols-[200px]", "Use an arbitrary value for grid auto columns"),
-        };
+        ];
     }
 }

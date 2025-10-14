@@ -55,16 +55,16 @@ internal class OrderUtility : BaseFunctionalUtility
             new Declaration("order", value, important));
     }
 
-    public string[]? GetDocumentedProperties() => ["order"];
+    public string[] GetDocumentedProperties() => ["order"];
 
     public override IEnumerable<Documentation.UtilityExample> GetExamples(Theme.Theme theme)
     {
-        return new[]
-        {
+        return
+        [
             new Documentation.UtilityExample("order-1", "Set order to 1"),
             new Documentation.UtilityExample("order-12", "Set order to 12"),
             new Documentation.UtilityExample("-order-1", "Set order to -1"),
             new Documentation.UtilityExample("order-[13]", "Use an arbitrary value for order"),
-        };
+        ];
     }
 }

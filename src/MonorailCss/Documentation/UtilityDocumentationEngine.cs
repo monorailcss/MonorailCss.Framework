@@ -104,7 +104,7 @@ public class UtilityDocumentationEngine
 
                 if (!categoryDocs.ContainsKey(property))
                 {
-                    categoryDocs[property] = new List<UtilityDocumentation>();
+                    categoryDocs[property] = [];
                 }
 
                 categoryDocs[property].Add(doc);

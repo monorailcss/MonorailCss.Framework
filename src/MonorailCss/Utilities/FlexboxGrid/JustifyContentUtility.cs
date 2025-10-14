@@ -24,5 +24,5 @@ internal class JustifyContentUtility : BaseStaticUtility
             { "justify-end-safe", ("justify-content", "safe flex-end") },
         }.ToImmutableDictionary();
 
-    public string[]? GetDocumentedProperties() => ["justify-content"];
+    public string[] GetDocumentedProperties() => ["justify-content"];
 }

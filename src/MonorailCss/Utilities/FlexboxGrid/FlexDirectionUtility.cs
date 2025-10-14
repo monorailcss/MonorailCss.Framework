@@ -17,5 +17,5 @@ internal class FlexDirectionUtility : BaseStaticUtility
             { "flex-col-reverse", ("flex-direction", "column-reverse") },
         }.ToImmutableDictionary();
 
-    public string[]? GetDocumentedProperties() => ["flex-direction"];
+    public string[] GetDocumentedProperties() => ["flex-direction"];
 }

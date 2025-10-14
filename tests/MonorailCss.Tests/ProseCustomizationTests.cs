@@ -163,7 +163,7 @@ public class ProseCustomizationTests
             Customization = theme =>
             {
                 // Get a color from the theme (assuming we have primary colors)
-                var primaryColor = theme.ResolveValue("500", new[] { "--color-primary" }) ?? "#3b82f6";
+                var primaryColor = theme.ResolveValue("500", ["--color-primary"]) ?? "#3b82f6";
 
                 return ImmutableDictionary<string, ProseElementRules>.Empty
                     .Add("DEFAULT", new ProseElementRules

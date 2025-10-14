@@ -57,17 +57,17 @@ internal class FlexGrowUtility : BaseFunctionalUtility
             new Declaration("flex-grow", value, important));
     }
 
-    public string[]? GetDocumentedProperties() => ["flex-grow"];
+    public string[] GetDocumentedProperties() => ["flex-grow"];
 
     public override IEnumerable<Documentation.UtilityExample> GetExamples(Theme.Theme theme)
     {
-        return new[]
-        {
+        return
+        [
             new Documentation.UtilityExample("grow", "Allow flex item to grow (defaults to 1)"),
             new Documentation.UtilityExample("grow-0", "Prevent flex item from growing"),
             new Documentation.UtilityExample("flex-grow", "Allow flex item to grow"),
             new Documentation.UtilityExample("flex-grow-0", "Prevent flex item from growing"),
             new Documentation.UtilityExample("grow-[2]", "Set flex grow factor with arbitrary value"),
-        };
+        ];
     }
 }

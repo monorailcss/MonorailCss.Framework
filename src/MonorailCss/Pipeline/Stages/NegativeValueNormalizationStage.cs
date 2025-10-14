@@ -14,9 +14,8 @@ namespace MonorailCss.Pipeline.Stages;
 internal partial class NegativeValueNormalizationStage : IPipelineStage
 {
     // Properties that should have negative value normalization applied
-    private static readonly HashSet<string> _negativeCapableProperties = new()
-    {
-        // Spacing properties
+    private static readonly HashSet<string> _negativeCapableProperties =
+    [
         "margin", "margin-top", "margin-right", "margin-bottom", "margin-left",
         "margin-inline", "margin-inline-start", "margin-inline-end",
         "margin-block", "margin-block-start", "margin-block-end",
@@ -44,7 +43,7 @@ internal partial class NegativeValueNormalizationStage : IPipelineStage
         // Other properties that accept negative values
         "text-indent", "letter-spacing", "word-spacing",
         "outline-offset", "text-underline-offset",
-    };
+    ];
 
     public string Name => "Negative Value Normalization";
 

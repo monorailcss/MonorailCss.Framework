@@ -160,7 +160,7 @@ public class DataTypeInferenceTests
     [InlineData("50%", DataType.Percentage)]
     internal void InferDataType_ShouldReturnCorrectType(string value, DataType? expected)
     {
-        var result = DataTypeInference.InferDataType(value, new[] { DataType.Color, DataType.Length, DataType.Percentage });
+        var result = DataTypeInference.InferDataType(value, [DataType.Color, DataType.Length, DataType.Percentage]);
         result.ShouldBe(expected);
     }
 }

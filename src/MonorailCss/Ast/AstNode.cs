@@ -172,7 +172,7 @@ internal record RawCss(string Content) : AstNode
     public override string ToCss(int indentLevel = 0)
     {
         var indent = GetIndent(indentLevel);
-        var lines = Content.Split(new[] { "\r\n", "\r", "\n" }, StringSplitOptions.None);
+        var lines = Content.Split(["\r\n", "\r", "\n"], StringSplitOptions.None);
 
         if (lines.Length == 1)
         {

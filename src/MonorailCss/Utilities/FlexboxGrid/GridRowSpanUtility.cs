@@ -68,18 +68,18 @@ internal class GridRowSpanUtility : BaseFunctionalUtility
             new Declaration("grid-row", value, important));
     }
 
-    public string[]? GetDocumentedProperties() => ["grid-row"];
+    public string[] GetDocumentedProperties() => ["grid-row"];
 
     public override IEnumerable<Documentation.UtilityExample> GetExamples(Theme.Theme theme)
     {
-        return new[]
-        {
+        return
+        [
             new Documentation.UtilityExample("row-span-1", "Span 1 row"),
             new Documentation.UtilityExample("row-span-3", "Span 3 rows"),
             new Documentation.UtilityExample("row-span-6", "Span 6 rows"),
             new Documentation.UtilityExample("row-span-full", "Span all rows"),
             new Documentation.UtilityExample("row-span-auto", "Auto span rows"),
             new Documentation.UtilityExample("row-span-[2]", "Use an arbitrary value for row span"),
-        };
+        ];
     }
 }

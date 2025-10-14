@@ -34,18 +34,18 @@ internal class GapUtility : BaseSpacingUtility
         return declarations.ToImmutableList();
     }
 
-    public string[]? GetDocumentedProperties() => ["gap"];
+    public string[] GetDocumentedProperties() => ["gap"];
 
     public IEnumerable<Documentation.UtilityExample> GetExamples(Theme.Theme theme)
     {
-        return new[]
-        {
+        return
+        [
             new Documentation.UtilityExample("gap-0", "Remove gap between items"),
             new Documentation.UtilityExample("gap-4", "Set gap between items to 1rem"),
             new Documentation.UtilityExample("gap-8", "Set gap between items to 2rem"),
             new Documentation.UtilityExample("gap-x-4", "Set horizontal gap between items"),
             new Documentation.UtilityExample("gap-y-4", "Set vertical gap between items"),
             new Documentation.UtilityExample("gap-[2rem]", "Use an arbitrary value for gap"),
-        };
+        ];
     }
 }

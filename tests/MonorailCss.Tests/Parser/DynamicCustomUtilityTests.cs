@@ -83,7 +83,7 @@ public class DynamicCustomUtilityTests
         var roots = utility.GetFunctionalRoots();
 
         // Assert
-        roots.ShouldBe(new[] { "scrollbar-thumb" });
+        roots.ShouldBe(["scrollbar-thumb"]);
     }
 
     [Fact]

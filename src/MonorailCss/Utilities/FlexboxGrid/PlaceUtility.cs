@@ -42,5 +42,5 @@ internal class PlaceUtility : BaseStaticUtility
             { "place-self-end-safe", ("place-self", "safe end") },
         }.ToImmutableDictionary();
 
-    public string[]? GetDocumentedProperties() => ["place-content", "place-items", "place-self"];
+    public string[] GetDocumentedProperties() => ["place-content", "place-items", "place-self"];
 }

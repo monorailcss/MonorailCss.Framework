@@ -21,5 +21,5 @@ internal class AlignItemsUtility : BaseStaticUtility
             { "items-end-safe", ("align-items", "safe flex-end") },
         }.ToImmutableDictionary();
 
-    public string[]? GetDocumentedProperties() => ["align-items"];
+    public string[] GetDocumentedProperties() => ["align-items"];
 }

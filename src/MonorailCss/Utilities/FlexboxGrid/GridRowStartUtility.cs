@@ -68,18 +68,18 @@ internal class GridRowStartUtility : BaseFunctionalUtility
             new Declaration("grid-row-start", value, important));
     }
 
-    public string[]? GetDocumentedProperties() => ["grid-row-start"];
+    public string[] GetDocumentedProperties() => ["grid-row-start"];
 
     public override IEnumerable<Documentation.UtilityExample> GetExamples(Theme.Theme theme)
     {
-        return new[]
-        {
+        return
+        [
             new Documentation.UtilityExample("row-start-1", "Start at row line 1"),
             new Documentation.UtilityExample("row-start-4", "Start at row line 4"),
             new Documentation.UtilityExample("row-start-7", "Start at row line 7"),
             new Documentation.UtilityExample("row-start-auto", "Auto start row"),
             new Documentation.UtilityExample("-row-start-1", "Start at row line -1 (from end)"),
             new Documentation.UtilityExample("row-start-[8]", "Use an arbitrary value for row start"),
-        };
+        ];
     }
 }

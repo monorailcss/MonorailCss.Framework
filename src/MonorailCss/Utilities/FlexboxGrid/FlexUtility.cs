@@ -206,5 +206,5 @@ internal class FlexUtility : IUtility
         return examples;
     }
 
-    public string[]? GetDocumentedProperties() => ["flex"];
+    public string[] GetDocumentedProperties() => ["flex"];
 }

@@ -53,11 +53,11 @@ internal static partial class DataTypeInference
     };
 
     // Math functions supported in CSS
-    private static readonly HashSet<string> _mathFunctions = new()
-    {
+    private static readonly HashSet<string> _mathFunctions =
+    [
         "calc", "min", "max", "clamp", "mod", "rem", "sin", "cos", "tan",
         "asin", "acos", "atan", "atan2", "pow", "sqrt", "hypot", "log", "exp", "round",
-    };
+    ];
 
     /// <summary>
     /// Infers the data type of a CSS value.

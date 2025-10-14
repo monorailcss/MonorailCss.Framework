@@ -37,8 +37,8 @@ internal class DisplayUtility : BaseStaticUtility
 
     public override IEnumerable<Documentation.UtilityExample> GetExamples(Theme.Theme theme)
     {
-        return new[]
-        {
+        return
+        [
             new Documentation.UtilityExample("block", "Display as a block element", "display: block"),
             new Documentation.UtilityExample("inline", "Display as an inline element", "display: inline"),
             new Documentation.UtilityExample("flex", "Display as a flex container", "display: flex"),
@@ -49,7 +49,7 @@ internal class DisplayUtility : BaseStaticUtility
             new Documentation.UtilityExample("hidden", "Hide the element", "display: none"),
             new Documentation.UtilityExample("contents", "Display only contents (remove wrapper)", "display: contents"),
             new Documentation.UtilityExample("flow-root", "Create a new block formatting context", "display: flow-root"),
-        };
+        ];
     }
 
     public Documentation.UtilityMetadata GetMetadata()

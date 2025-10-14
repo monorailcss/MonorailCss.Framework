@@ -65,12 +65,12 @@ internal class FlexBasisUtility : BaseFractionAwareSpacingUtility
         return base.TryResolveSpacing(value, theme, out spacing);
     }
 
-    public string[]? GetDocumentedProperties() => ["flex-basis"];
+    public string[] GetDocumentedProperties() => ["flex-basis"];
 
     public IEnumerable<Documentation.UtilityExample> GetExamples(Theme.Theme theme)
     {
-        return new[]
-        {
+        return
+        [
             new Documentation.UtilityExample("basis-auto", "Set flex basis to auto"),
             new Documentation.UtilityExample("basis-full", "Set flex basis to 100%"),
             new Documentation.UtilityExample("basis-1/2", "Set flex basis to 50%"),
@@ -80,6 +80,6 @@ internal class FlexBasisUtility : BaseFractionAwareSpacingUtility
             new Documentation.UtilityExample("basis-fit", "Set flex basis to fit-content"),
             new Documentation.UtilityExample("basis-0", "Set flex basis to 0"),
             new Documentation.UtilityExample("basis-[200px]", "Use an arbitrary value for flex basis"),
-        };
+        ];
     }
 }

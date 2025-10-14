@@ -68,18 +68,18 @@ internal class GridColumnSpanUtility : BaseFunctionalUtility
             new Declaration("grid-column", value, important));
     }
 
-    public string[]? GetDocumentedProperties() => ["grid-column"];
+    public string[] GetDocumentedProperties() => ["grid-column"];
 
     public override IEnumerable<Documentation.UtilityExample> GetExamples(Theme.Theme theme)
     {
-        return new[]
-        {
+        return
+        [
             new Documentation.UtilityExample("col-span-1", "Span 1 column"),
             new Documentation.UtilityExample("col-span-6", "Span 6 columns"),
             new Documentation.UtilityExample("col-span-12", "Span 12 columns"),
             new Documentation.UtilityExample("col-span-full", "Span all columns"),
             new Documentation.UtilityExample("col-span-auto", "Auto span columns"),
             new Documentation.UtilityExample("col-span-[2]", "Use an arbitrary value for column span"),
-        };
+        ];
     }
 }

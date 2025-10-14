@@ -1,7 +1,6 @@
 using System.Collections.Immutable;
 using MonorailCss.Ast;
 using MonorailCss.Core;
-using MonorailCss.Documentation;
 using MonorailCss.Utilities.Base;
 
 namespace MonorailCss.Utilities.FlexboxGrid;
@@ -59,15 +58,15 @@ internal class GridRowAutoUtility : BaseFunctionalUtility
             new Declaration("grid-row", value, important));
     }
 
-    public string[]? GetDocumentedProperties() => ["grid-row"];
+    public string[] GetDocumentedProperties() => ["grid-row"];
 
     public override IEnumerable<Documentation.UtilityExample> GetExamples(Theme.Theme theme)
     {
-        return new[]
-        {
+        return
+        [
             new Documentation.UtilityExample("row-auto", "Set grid row to auto"),
             new Documentation.UtilityExample("row-[1_/_3]", "Position element from row line 1 to 3"),
             new Documentation.UtilityExample("row-[span_2]", "Span 2 rows"),
-        };
+        ];
     }
 }

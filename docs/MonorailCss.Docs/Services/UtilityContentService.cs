@@ -9,7 +9,7 @@ namespace MonorailCss.Docs.Services;
 /// <summary>
 /// Custom content service that generates documentation pages for MonorailCSS utilities, organized by CSS property.
 /// </summary>
-public class UtilityContentService : IContentService
+public partial class UtilityContentService : IContentService
 {
     private readonly Lazy<Dictionary<string, Dictionary<string, List<UtilityDocumentation>>>> _utilitiesByProperty;
 
@@ -43,7 +43,7 @@ public class UtilityContentService : IContentService
                 }));
 
             // Individual CSS property pages
-            foreach (var (property, utilities) in propertiesDict)
+            foreach (var (property, _) in propertiesDict)
             {
                 var propertySlug = ToSlug(property);
                 var propertyDisplayName = GetPropertyDisplayName(property);
@@ -73,16 +73,9 @@ public class UtilityContentService : IContentService
         {
             var categorySlug = ToSlug(category);
 
-            entries.Add(new ContentTocItem(
-                Title: category,
-                Url: $"/{categorySlug}",
-                Order: order+=100,
-                HierarchyParts: [category]
-            ));
-
             // Add individual CSS property entries
             var propertyOrder = order + 1;
-            foreach (var (property, utilities) in propertiesDict.OrderBy(p => p.Key))
+            foreach (var (property, _) in propertiesDict.OrderBy(p => p.Key))
             {
                 var propertySlug = ToSlug(property);
                 var propertyDisplayName = GetPropertyDisplayName(property);
@@ -110,8 +103,6 @@ public class UtilityContentService : IContentService
         // No static assets to copy
         return Task.FromResult(ImmutableList<ContentToCopy>.Empty);
     }
-
-    // Data access methods for Razor pages to use
 
     /// <summary>
     /// Gets all utility categories with their properties and utilities.
@@ -174,11 +165,19 @@ public class UtilityContentService : IContentService
 
     private static string ToSlug(string text)
     {
+        // Remove "Utility" suffix first
+        text = text.Replace("Utility", "");
+
+        // Insert hyphens before uppercase letters (except at the start)
+        text = SlugifyRegexDefinition().Replace(text, "-$1");
+
+        // Convert to lowercase and normalize separators
         return text
-            .Replace("Utility", "")
             .ToLowerInvariant()
             .Replace(" ", "-")
-            .Replace("_", "-");
+            .Replace("_", "-")
+            .Replace("--", "-") // Clean up any double hyphens
+            .Trim('-'); // Remove leading/trailing hyphens
     }
 
     private static string GetPropertyDisplayName(string property)
@@ -196,6 +195,9 @@ public class UtilityContentService : IContentService
             .Select(word => char.ToUpperInvariant(word[0]) + word.Substring(1));
         return string.Join(" ", words);
     }
+
+    [System.Text.RegularExpressions.GeneratedRegex("(?<!^)([A-Z])")]
+    private static partial System.Text.RegularExpressions.Regex SlugifyRegexDefinition();
 }
 
 /// <summary>

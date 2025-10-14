@@ -19,8 +19,8 @@ internal sealed class UtilityMatcher
 
     static UtilityMatcher()
     {
-        _multiDashPatterns = new[]
-        {
+        _multiDashPatterns =
+        [
             "space-x", "space-y", "divide-x", "divide-y",
             "translate-x", "translate-y", "-translate-x", "-translate-y",
             "inset-x", "inset-y",
@@ -37,7 +37,7 @@ internal sealed class UtilityMatcher
             "mask-r-from", "mask-r-to",
             "mask-x-from", "mask-x-to",
             "mask-y-from", "mask-y-to",
-        };
+        ];
     }
 
     /// <summary>

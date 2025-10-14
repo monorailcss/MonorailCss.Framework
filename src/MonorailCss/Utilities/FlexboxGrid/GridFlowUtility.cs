@@ -18,5 +18,5 @@ internal class GridFlowUtility : BaseStaticUtility
             { "grid-flow-col-dense", ("grid-auto-flow", "column dense") },
         }.ToImmutableDictionary();
 
-    public string[]? GetDocumentedProperties() => ["grid-auto-flow"];
+    public string[] GetDocumentedProperties() => ["grid-auto-flow"];
 }
