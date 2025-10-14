@@ -126,8 +126,8 @@ else
         _breadcrumbs =
         [
             new Breadcrumbs.BreadcrumbItem { Title = "Home", Url = "/" },
-            new Breadcrumbs.BreadcrumbItem { Title = "Utilities", Url = "/utilities" },
-            new Breadcrumbs.BreadcrumbItem { Title = _categoryName ?? CategorySlug, Url = $"/utilities/{CategorySlug}" },
+            new Breadcrumbs.BreadcrumbItem { Title = "Utilities", Url= string.Empty },
+            new Breadcrumbs.BreadcrumbItem { Title = _categoryName ?? CategorySlug, Url = string.Empty },
             new Breadcrumbs.BreadcrumbItem { Title = propertyTitle, IsCurrent = true },
         ];
     }
