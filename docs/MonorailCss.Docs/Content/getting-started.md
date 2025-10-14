@@ -53,5 +53,4 @@ var css = framework.Process(classes);
 ## Next Steps
 
 - Learn about [customizing the theme](customization)
-- Explore [advanced features](advanced-features)
 - Understand the [architecture](architecture)

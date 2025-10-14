@@ -32,7 +32,7 @@ builder.Services.AddMonorailCss(_ =>
     {
         BaseColorName = () => "brick",
         PrimaryHue = () => 45,
-        ColorSchemeGenerator = i => (i + 90, i + 45, i - 45),
+        ColorSchemeGenerator = i => (i + 1, i + 45, i - 45),
         CustomCssFrameworkSettings = (settings => settings with
         {
             Theme = settings.Theme.AddColorPalette("brick", new Dictionary<string, string>

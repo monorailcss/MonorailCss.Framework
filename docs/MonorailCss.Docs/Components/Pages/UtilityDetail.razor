@@ -1,5 +1,6 @@
 @page "/{CategorySlug}/{PropertySlug}"
 @using MonorailCss.Docs.Services
+@using MonorailCss.Documentation
 @inject UtilityContentService UtilityService
 @inject CssFramework CssFramework
 @layout MainLayout
@@ -75,6 +76,37 @@ else
                 <p class="text-base-500 dark:text-base-400">No examples available for this property.</p>
             </div>
         }
+
+        <!-- Reference Section -->
+        @{
+            var cssProperties = GetCssPropertiesFromExamples(allExamples);
+        }
+        @if (cssProperties.Any())
+        {
+            <div class="space-y-4">
+                <h2 class="text-2xl font-bold text-base-900 dark:text-primary-50">
+                    Reference
+                </h2>
+                <div class="border border-base-200 dark:border-base-800 rounded-lg p-6 bg-white dark:bg-base-900">
+                    <ul class="space-y-2">
+                        @foreach (var property in cssProperties.OrderBy(p => p))
+                        {
+                            <li>
+                                <a href="https://developer.mozilla.org/en-US/docs/Web/CSS/@property"
+                                   class="text-tertiary-one-600 dark:text-tertiary-one-400 hover:underline font-mono text-sm pr-4"
+                                   target="_blank"
+                                   rel="noopener noreferrer">
+                                    @property
+                                </a>
+                                <span class="text-xs text-base-600 dark:text-base-400 ">
+                                    MDN ↗
+                                </span>
+                            </li>
+                        }
+                    </ul>
+                </div>
+            </div>
+        }
     </div>
 }
 
@@ -125,5 +157,39 @@ else
         {
             return string.Empty;
         }
+    }
+
+    private HashSet<string> GetCssPropertiesFromExamples(List<UtilityExample> examples)
+    {
+        var properties = new HashSet<string>();
+
+        foreach (var example in examples)
+        {
+            var css = GetGeneratedCss(example.ClassName);
+            if (string.IsNullOrEmpty(css))
+                continue;
+
+            // Parse CSS to extract property names
+            // CSS format: .class-name { property: value; property2: value2; }
+
+
+
+            var parts = css.Split(';', StringSplitOptions.RemoveEmptyEntries);
+
+            foreach (var part in parts)
+            {
+                var colonIndex = part.IndexOf(':');
+                if (colonIndex > 0)
+                {
+                    var propertyName = part.Substring(0, colonIndex).Trim();
+                    if (!string.IsNullOrEmpty(propertyName) && !propertyName.StartsWith("--"))
+                    {
+                        properties.Add(propertyName);
+                    }
+                }
+            }
+        }
+
+        return properties;
     }
 }
