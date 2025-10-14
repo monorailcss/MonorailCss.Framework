@@ -2,7 +2,6 @@ using System.Collections.Immutable;
 using MonorailCss.Docs.Components;
 using MonorailCss.Docs.Models;
 using MonorailCss.Docs.Services;
-using MonorailCss.Parser.Custom;
 using MonorailCss.Theme;
 using MyLittleContentEngine;
 using MyLittleContentEngine.MonorailCss;
@@ -50,7 +49,6 @@ builder.Services.AddMonorailCss(_ =>
                 { "900", "oklch(0.220 0.010 20)" },
                 { "950", "oklch(0.145 0.008 20)" },
             }.ToImmutableDictionary()),
-            CustomUtilities = ScrollbarUtilityDefinitions(),
         }),
     };
 });
@@ -74,106 +72,3 @@ app.MapRazorComponents<App>();
 app.UseMonorailCss();
 
 await app.RunOrBuildContent(args);
-return;
-
-ImmutableList<UtilityDefinition> ScrollbarUtilityDefinitions()
-{
-    var utilityDefinitions = ImmutableList.Create(
-        // scrollbar-none
-        new UtilityDefinition
-        {
-            Pattern = "scrollbar-none",
-            IsWildcard = false,
-            Declarations = ImmutableList.Create(
-                new CssDeclaration("scrollbar-width", "none")
-            ),
-            NestedSelectors = ImmutableList.Create(
-                new NestedSelector("&::-webkit-scrollbar", ImmutableList.Create(
-                    new CssDeclaration("display", "none")
-                ))
-            )
-        },
-        // scrollbar-thin
-        new UtilityDefinition
-        {
-            Pattern = "scrollbar-thin",
-            IsWildcard = false,
-            Declarations = ImmutableList.Create(
-                new CssDeclaration("scrollbar-width", "thin")
-            )
-        },
-        // scrollbar-width-auto
-        new UtilityDefinition
-        {
-            Pattern = "scrollbar-width-auto",
-            IsWildcard = false,
-            Declarations = ImmutableList.Create(
-                new CssDeclaration("scrollbar-width", "auto")
-            )
-        },
-        // scrollbar-gutter-auto
-        new UtilityDefinition
-        {
-            Pattern = "scrollbar-gutter-auto",
-            IsWildcard = false,
-            Declarations = ImmutableList.Create(
-                new CssDeclaration("scrollbar-gutter", "auto")
-            )
-        },
-        // scrollbar-stable
-        new UtilityDefinition
-        {
-            Pattern = "scrollbar-stable",
-            IsWildcard = false,
-            Declarations = ImmutableList.Create(
-                new CssDeclaration("scrollbar-gutter", "stable")
-            )
-        },
-        // scrollbar-both-edges
-        new UtilityDefinition
-        {
-            Pattern = "scrollbar-both-edges",
-            IsWildcard = false,
-            Declarations = ImmutableList.Create(
-                new CssDeclaration("--tw-scrollbar-gutter-modifier", "both-edges")
-            )
-        },
-        // scrollbar-color-auto
-        new UtilityDefinition
-        {
-            Pattern = "scrollbar-color-auto",
-            IsWildcard = false,
-            Declarations = ImmutableList.Create(
-                new CssDeclaration("scrollbar-color", "auto")
-            )
-        },
-        // scrollbar-color
-        new UtilityDefinition
-        {
-            Pattern = "scrollbar-color",
-            IsWildcard = false,
-            Declarations = ImmutableList.Create(
-                new CssDeclaration("scrollbar-color", "var(--tw-scrollbar-thumb-color) var(--tw-scrollbar-track-color)")
-            )
-        },
-        // scrollbar-thumb-*
-        new UtilityDefinition
-        {
-            Pattern = "scrollbar-thumb-*",
-            IsWildcard = true,
-            Declarations = ImmutableList.Create(
-                new CssDeclaration("--tw-scrollbar-thumb-color", "--value(--color-*)")
-            )
-        },
-        // scrollbar-track-*
-        new UtilityDefinition
-        {
-            Pattern = "scrollbar-track-*",
-            IsWildcard = true,
-            Declarations = ImmutableList.Create(
-                new CssDeclaration("--tw-scrollbar-track-color", "--value(--color-*)")
-            )
-        }
-    );
-    return utilityDefinitions;
-}
