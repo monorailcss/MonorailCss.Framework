@@ -37,7 +37,7 @@ jobs:
           dotnet run --project ${{ env.WEBAPP_PATH }} --configuration Release -- build "/MonorailCss.Framework/"
 
       - name: Setup Pages
-        uses: actions/configure-pages@v4
+        uses: actions/configure-pages@v5
 
       - name: Add .nojekyll file
         run: touch ${{ env.WEBAPP_PATH }}output/.nojekyll
