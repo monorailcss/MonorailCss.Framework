@@ -57,19 +57,19 @@
 
     private async Task RegisterHoverProvider()
     {
-        await BlazorMonaco.Languages.Global.RegisterHoverProviderAsync(Js, "html", async (uri, position, context) =>
+        await BlazorMonaco.Languages.Global.RegisterHoverProviderAsync(Js, "html", async (uri, position, _) =>
         {
             var model = await Global.GetModel(Js, uri);
             if (model == null)
                 return null;
 
-            // Do we have a word we are hovering over? If not bail.
-            var word = await model.GetWordAtPosition(position);
-            if (word == null)
+            // Get the utility class at the current position
+            var utilityClass = await GetUtilityClassAtPosition(model, position);
+            if (utilityClass == null)
                 return null;
 
             var f = new CssFramework(new CssFrameworkSettings() { IncludePreflight = false });
-            var r = f.Process(word.Word);
+            var r = f.Process(utilityClass.ClassName);
             var output = $"```css\n{ExtractLayerContent(r)}\n```";
 
 
@@ -83,11 +83,59 @@
                 {
                     StartLineNumber = position.LineNumber,
                     EndLineNumber = position.LineNumber,
-                    StartColumn = word.StartColumn,
-                    EndColumn = word.EndColumn
+                    StartColumn = utilityClass.StartColumn,
+                    EndColumn = utilityClass.EndColumn
                 },
             };
         });
+    }
+
+    private record UtilityClassLocation(string ClassName, int StartColumn, int EndColumn);
+
+    private async Task<UtilityClassLocation?> GetUtilityClassAtPosition(TextModel model, Position position)
+    {
+        // Get the line content
+        var lineContent = await model.GetLineContent(position.LineNumber);
+        if (string.IsNullOrEmpty(lineContent))
+            return null;
+
+        // Monaco columns are 1-indexed, convert to 0-indexed for string operations
+        var cursorIndex = position.Column - 1;
+
+        // Make sure we're within bounds
+        if (cursorIndex < 0 || cursorIndex > lineContent.Length)
+            return null;
+
+        // Define delimiters that separate utility classes
+        static bool IsDelimiter(char c) => c is ' ' or '\t' or '"' or '\'' or '<' or '>' or '\n' or '\r';
+
+        // If we're on a delimiter, there's no class to extract
+        if (cursorIndex < lineContent.Length && IsDelimiter(lineContent[cursorIndex]))
+            return null;
+
+        // Walk backwards to find the start of the utility class
+        var startIndex = cursorIndex;
+        while (startIndex > 0 && !IsDelimiter(lineContent[startIndex - 1]))
+        {
+            startIndex--;
+        }
+
+        // Walk forwards to find the end of the utility class
+        var endIndex = cursorIndex;
+        while (endIndex < lineContent.Length && !IsDelimiter(lineContent[endIndex]))
+        {
+            endIndex++;
+        }
+
+        // Extract the class name
+        var className = lineContent.Substring(startIndex, endIndex - startIndex);
+
+        // Return null if the extracted string is empty
+        if (string.IsNullOrWhiteSpace(className))
+            return null;
+
+        // Convert back to 1-indexed Monaco columns
+        return new UtilityClassLocation(className, startIndex + 1, endIndex + 1);
     }
 
     private static StandaloneEditorConstructionOptions StandardOptions() => new()
