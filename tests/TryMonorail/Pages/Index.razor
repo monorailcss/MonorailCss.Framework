@@ -1,6 +1,10 @@
 ﻿@page "/"
+@using System.Text
+@using BlazorMonaco
 @using BlazorMonaco.Editor
+@using BlazorMonaco.Languages
 @using MonorailCss
+@using Global = BlazorMonaco.Editor.Global
 @inject IJSRuntime Js
 
 <PageTitle>Try MonorailCss</PageTitle>
@@ -9,7 +13,8 @@
         <div class="flex flex-col h-full">
             @_headerMessage("HTML")
             <div class="flex-auto">
-                <StandaloneCodeEditor @ref="HtmlEditor" Id="htmlEditor" ConstructionOptions="EditorConstructionOptions" OnDidInit="EditorOnInit" OnDidChangeModelContent="ModelChanged"/>
+                <StandaloneCodeEditor @ref="HtmlEditor" Id="htmlEditor" ConstructionOptions="EditorConstructionOptions"
+                                      OnDidInit="EditorOnInit" OnDidChangeModelContent="ModelChanged"/>
             </div>
         </div>
         <div class="flex flex-col h-full border-t border-gray-700">
@@ -42,11 +47,47 @@
         if (firstRender)
         {
             await Js.InvokeVoidAsync("initSplit");
+            await RegisterHoverProvider();
             // bit of a hack to give the preview viewer a chance to add event listeners. probably should have it
             // inform us it is loaded and then we could send it the data, but a task for another day.
             await Task.Delay(50);
             await UpdateView();
         }
+    }
+
+    private async Task RegisterHoverProvider()
+    {
+        await BlazorMonaco.Languages.Global.RegisterHoverProviderAsync(Js, "html", async (uri, position, context) =>
+        {
+            var model = await Global.GetModel(Js, uri);
+            if (model == null)
+                return null;
+
+            // Do we have a word we are hovering over? If not bail.
+            var word = await model.GetWordAtPosition(position);
+            if (word == null)
+                return null;
+
+            var f = new CssFramework(new CssFrameworkSettings() { IncludePreflight = false });
+            var r = f.Process(word.Word);
+            var output = $"```css\n{ExtractLayerContent(r)}\n```";
+
+
+            return new Hover
+            {
+                Contents =
+                [
+                    new MarkdownString { Value = output, SupportThemeIcons = false }
+                ],
+                Range = new BlazorMonaco.Range
+                {
+                    StartLineNumber = position.LineNumber,
+                    EndLineNumber = position.LineNumber,
+                    StartColumn = word.StartColumn,
+                    EndColumn = word.EndColumn
+                },
+            };
+        });
     }
 
     private static StandaloneEditorConstructionOptions StandardOptions() => new()
@@ -127,6 +168,90 @@
         await PreviewViewer.UpdateAsync(htmlContent, $"{css}");
     }
 
+    public static string ExtractLayerContent(string css)
+    {
+        // If no @layer, return the whole string
+        if (!css.Contains("@layer"))
+            return css;
+
+        // Find the @layer utilities block
+        var layerStart = css.IndexOf("@layer utilities", StringComparison.Ordinal);
+        if (layerStart == -1)
+            return css;
+
+        // Find the opening brace
+        var openBraceIndex = css.IndexOf('{', layerStart);
+        if (openBraceIndex == -1)
+            return css;
+
+        // Find the matching closing brace
+        var braceCount = 1;
+        var closeBraceIndex = openBraceIndex + 1;
+
+        while (closeBraceIndex < css.Length && braceCount > 0)
+        {
+            switch (css[closeBraceIndex])
+            {
+                case '{':
+                    braceCount++;
+                    break;
+                case '}':
+                    braceCount--;
+                    break;
+            }
+
+            closeBraceIndex++;
+        }
+
+        if (braceCount != 0)
+            return css; // Malformed CSS
+
+        // Extract content between braces
+        var content = css.Substring(openBraceIndex + 1, closeBraceIndex - openBraceIndex - 2);
+
+        // Remove common leading whitespace
+        return RemoveCommonLeadingWhitespace(content);
+    }
+
+    private static string RemoveCommonLeadingWhitespace(string text)
+    {
+        var lines = text.Split(["\r\n", "\r", "\n"], StringSplitOptions.None);
+
+        // Find minimum leading whitespace (ignoring empty lines)
+        var minLeadingSpaces = int.MaxValue;
+        foreach (var line in lines)
+        {
+            if (string.IsNullOrWhiteSpace(line))
+                continue;
+
+            var leadingSpaces = 0;
+            foreach (var c in line)
+            {
+                if (c is ' ' or '\t')
+                    leadingSpaces++;
+                else
+                    break;
+            }
+
+            minLeadingSpaces = Math.Min(minLeadingSpaces, leadingSpaces);
+        }
+
+        if (minLeadingSpaces is int.MaxValue or 0)
+            return text.Trim('\r', '\n');
+
+        // Remove common leading whitespace from all lines
+        var result = new StringBuilder();
+        foreach (var line in lines)
+        {
+            if (string.IsNullOrWhiteSpace(line))
+                result.AppendLine();
+            else
+                result.AppendLine(line.Substring(Math.Min(minLeadingSpaces, line.Length)));
+        }
+
+        return result.ToString().Trim('\r', '\n');
+    }
+
     private async Task EditorOnInit()
     {
         await Global.DefineTheme(Js, "my-custom-theme", new StandaloneThemeData
@@ -153,6 +278,7 @@
 
         await Global.SetTheme(Js, "my-custom-theme");
 
+
         await HtmlEditor.SetValue(@"
 <!--
     Welcome to Monorail Play. Feel free to edit the HTML below and watch the
@@ -174,3 +300,4 @@
     }
 
 }
+
