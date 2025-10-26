@@ -17,6 +17,18 @@ internal class DivideYReverseUtility : BaseStaticUtility
 
     public bool TryCompile(Candidate candidate, Theme.Theme theme, CssPropertyRegistry propertyRegistry, out ImmutableList<AstNode>? results)
     {
+        results = null;
+
+        if (candidate is not StaticUtility staticUtility)
+        {
+            return false;
+        }
+
+        if (!StaticValues.TryGetValue(staticUtility.Root, out _))
+        {
+            return false;
+        }
+
         // Register CSS variables for vertical divide reverse
         propertyRegistry.Register("--tw-divide-y-reverse", "*", false, "0");
 

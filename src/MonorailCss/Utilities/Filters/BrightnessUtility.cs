@@ -127,6 +127,18 @@ internal class BrightnessUtility : BaseFilterUtility
 
     public bool TryCompile(Candidate candidate, Theme.Theme theme, CssPropertyRegistry propertyRegistry, out ImmutableList<AstNode>? results)
     {
+        results = null;
+
+        if (candidate is not FunctionalUtility functionalUtility)
+        {
+            return false;
+        }
+
+        if (!Patterns.Contains(functionalUtility.Root))
+        {
+            return false;
+        }
+
         // Use shared method to register filter variables
         RegisterFilterVariables(propertyRegistry);
 

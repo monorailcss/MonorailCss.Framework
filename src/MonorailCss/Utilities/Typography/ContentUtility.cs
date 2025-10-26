@@ -61,6 +61,18 @@ internal class ContentUtility : IUtility
 
     public bool TryCompile(Candidate candidate, Theme.Theme theme, CssPropertyRegistry propertyRegistry, out ImmutableList<AstNode>? results)
     {
+        results = null;
+
+        if (candidate is not FunctionalUtility functionalUtility)
+        {
+            return false;
+        }
+
+        if (functionalUtility.Root != "content")
+        {
+            return false;
+        }
+
         // Register the --tw-content CSS property
         propertyRegistry.Register("--tw-content", "*", false, null);
 

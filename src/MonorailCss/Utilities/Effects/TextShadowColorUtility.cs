@@ -74,6 +74,23 @@ internal class TextShadowColorUtility : BaseColorUtility
     /// </summary>
     public bool TryCompile(Candidate candidate, Theme.Theme theme, CssPropertyRegistry propertyRegistry, out ImmutableList<AstNode>? results)
     {
+        results = null;
+
+        if (candidate is not FunctionalUtility functionalUtility)
+        {
+            return false;
+        }
+
+        if (functionalUtility.Root != Pattern)
+        {
+            return false;
+        }
+
+        if (functionalUtility.Value == null)
+        {
+            return false;
+        }
+
         // Register the text shadow color property to match Tailwind CSS
         propertyRegistry.Register("--tw-text-shadow-color", "*", false, null);
 

@@ -100,6 +100,18 @@ internal class OutlineUtility : IUtility
 
     public bool TryCompile(Candidate candidate, Theme.Theme theme, CssPropertyRegistry propertyRegistry, out ImmutableList<AstNode>? results)
     {
+        results = null;
+
+        if (candidate is not FunctionalUtility functionalUtility)
+        {
+            return false;
+        }
+
+        if (functionalUtility.Root != "outline")
+        {
+            return false;
+        }
+
         // Register default values for outline properties
         propertyRegistry.Register("--tw-outline-style", "*", false, "solid");
 

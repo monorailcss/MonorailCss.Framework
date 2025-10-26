@@ -35,6 +35,13 @@ internal class InsetShadowUtility : IUtility
 
     public bool TryCompile(Candidate candidate, Theme.Theme theme, CssPropertyRegistry propertyRegistry, out ImmutableList<AstNode>? results)
     {
+        results = null;
+
+        if (candidate is not StaticUtility { Root: "inset-shadow-none" })
+        {
+            return false;
+        }
+
         // Register the inset-shadow custom property
         propertyRegistry.Register("--tw-inset-shadow", "*", false, "0 0 #0000");
 

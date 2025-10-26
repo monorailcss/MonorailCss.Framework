@@ -100,13 +100,6 @@ internal class RingUtility : IUtility
     {
         results = null;
 
-        // Register default values for ring properties
-        propertyRegistry.Register("--tw-ring-inset", "*", false, null);
-        propertyRegistry.Register("--tw-ring-offset-width", "<length>", false, "0px");
-        propertyRegistry.Register("--tw-ring-offset-color", "<color>", false, "#fff");
-        propertyRegistry.Register("--tw-ring-color", "<color>", false, "rgb(59 130 246 / 0.5)"); // blue-500 with 50% opacity
-        propertyRegistry.Register("--tw-shadow", "*", false, "0 0 transparent");
-
         if (candidate is not FunctionalUtility functionalUtility)
         {
             return false;
@@ -116,6 +109,14 @@ internal class RingUtility : IUtility
         {
             return false;
         }
+
+        // Register default values for ring properties
+        propertyRegistry.Register("--tw-ring-inset", "*", false, null);
+        propertyRegistry.Register("--tw-ring-offset-width", "<length>", false, "0px");
+        propertyRegistry.Register("--tw-ring-offset-color", "*", false, "#fff");
+        propertyRegistry.Register("--tw-ring-color", "*", false, null);
+        propertyRegistry.Register("--tw-ring-shadow", "*", false, "0 0 #0000");
+        propertyRegistry.Register("--tw-ring-offset-shadow", "*", false, "0 0 #0000");
 
         // Handle bare "ring" (default 3px width)
         if (functionalUtility.Value == null)

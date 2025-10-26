@@ -180,10 +180,22 @@ internal class InsetRingUtility : IUtility
 
     public bool TryCompile(Candidate candidate, Theme.Theme theme, CssPropertyRegistry propertyRegistry, out ImmutableList<AstNode>? results)
     {
+        results = null;
+
+        if (candidate is not FunctionalUtility functionalUtility)
+        {
+            return false;
+        }
+
+        if (functionalUtility.Root != "inset-ring")
+        {
+            return false;
+        }
+
         // Register CSS variables for inset ring
-        propertyRegistry.Register("--tw-inset-ring-shadow", "*", false, "0 0 transparent");
-        propertyRegistry.Register("--tw-inset-ring-color", "<color>", false, "currentColor");
-        propertyRegistry.Register("--tw-inset-shadow", "*", false, "0 0 transparent");
+        propertyRegistry.Register("--tw-inset-ring-shadow", "*", false, "0 0 #0000");
+        propertyRegistry.Register("--tw-inset-ring-color", "*", false, null);
+        propertyRegistry.Register("--tw-inset-shadow", "*", false, "0 0 #0000");
 
         return TryCompile(candidate, theme, out results);
     }
