@@ -81,8 +81,8 @@ internal class TransitionUtility : BaseFunctionalUtility
                 // Add timing function and duration for non-none transitions
                 if (kvp.Value.IncludeTimingAndDuration)
                 {
-                    declarations.Add(new Declaration("transition-timing-function", "var(--tw-ease, ease)", important));
-                    declarations.Add(new Declaration("transition-duration", "var(--tw-duration, 0s)", important));
+                    declarations.Add(new Declaration("transition-timing-function", "var(--tw-ease, var(--default-transition-timing-function))", important));
+                    declarations.Add(new Declaration("transition-duration", "var(--tw-duration, var(--default-transition-duration))", important));
                 }
 
                 return declarations.ToImmutableList();
@@ -93,8 +93,8 @@ internal class TransitionUtility : BaseFunctionalUtility
         // Add timing and duration for these as well to match Tailwind behavior
         return ImmutableList.Create<AstNode>(
             new Declaration("transition-property", value, important),
-            new Declaration("transition-timing-function", "var(--tw-ease, ease)", important),
-            new Declaration("transition-duration", "var(--tw-duration, 0s)", important));
+            new Declaration("transition-timing-function", "var(--tw-ease, var(--default-transition-timing-function))", important),
+            new Declaration("transition-duration", "var(--tw-duration, var(--default-transition-duration))", important));
     }
 
     /// <summary>
