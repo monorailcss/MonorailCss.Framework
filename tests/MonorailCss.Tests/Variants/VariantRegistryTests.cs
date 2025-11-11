@@ -15,7 +15,7 @@ public class VariantRegistryTests
         registry.Register(variant);
 
         registry.TryGet("hover", out var retrieved).ShouldBeTrue();
-        retrieved!.ShouldBe(variant);
+        retrieved.ShouldBe(variant);
     }
 
     [Fact]

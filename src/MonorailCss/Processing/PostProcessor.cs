@@ -77,7 +77,18 @@ internal sealed class PostProcessor
         var result = ImmutableList.CreateBuilder<AstNode>();
 
         // Create the style rule with the composed selector
-        var styleRule = new StyleRule(appliedSelector.Selector.Value, nodes);
+        // If the selector has a nested pattern, use NestedRule for CSS nesting
+        AstNode styleRule;
+        if (appliedSelector.Selector.NestedSelector != null)
+        {
+            // Create a nested rule using CSS nesting syntax
+            var nestedRule = new NestedRule(appliedSelector.Selector.NestedSelector, nodes);
+            styleRule = new StyleRule(appliedSelector.Selector.Value, ImmutableList.Create<AstNode>(nestedRule));
+        }
+        else
+        {
+            styleRule = new StyleRule(appliedSelector.Selector.Value, nodes);
+        }
 
         // Wrap with at-rules if any
         // Apply wrappers in reverse order so leftmost variant becomes outermost wrapper
@@ -172,7 +183,17 @@ internal sealed class PostProcessor
                     .Cast<Declaration>().ToImmutableList()
                 : component.BaseDeclarations;
 
-            var baseRule = new StyleRule(appliedSelector.Selector.Value, baseDeclarations.Cast<AstNode>().ToImmutableList());
+            // Handle nested selectors for component rules
+            AstNode baseRule;
+            if (appliedSelector.Selector.NestedSelector != null)
+            {
+                var nestedRule = new NestedRule(appliedSelector.Selector.NestedSelector, baseDeclarations.Cast<AstNode>().ToImmutableList());
+                baseRule = new StyleRule(appliedSelector.Selector.Value, ImmutableList.Create<AstNode>(nestedRule));
+            }
+            else
+            {
+                baseRule = new StyleRule(appliedSelector.Selector.Value, baseDeclarations.Cast<AstNode>().ToImmutableList());
+            }
 
             // Wrap with at-rules if needed
             AstNode currentNode = baseRule;

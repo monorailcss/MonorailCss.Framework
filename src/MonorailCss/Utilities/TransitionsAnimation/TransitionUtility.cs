@@ -20,29 +20,29 @@ internal class TransitionUtility : BaseFunctionalUtility
         new Dictionary<string, TransitionConfig>
         {
             // Default transition - covers most commonly animated properties
-            [string.Empty] = new TransitionConfig(
+            [string.Empty] = new(
                 "color, background-color, border-color, outline-color, text-decoration-color, fill, stroke, --tw-gradient-from, --tw-gradient-via, --tw-gradient-to, opacity, box-shadow, transform, translate, scale, rotate, filter, backdrop-filter",
                 true),
 
             // None - disables transitions
-            ["none"] = new TransitionConfig("none", false),
+            ["none"] = new("none", false),
 
             // All - animates all properties (use sparingly for performance)
-            ["all"] = new TransitionConfig("all", true),
+            ["all"] = new("all", true),
 
             // Colors - color-related properties only
-            ["colors"] = new TransitionConfig(
+            ["colors"] = new(
                 "color, background-color, border-color, outline-color, text-decoration-color, fill, stroke, --tw-gradient-from, --tw-gradient-via, --tw-gradient-to",
                 true),
 
             // Opacity - opacity only
-            ["opacity"] = new TransitionConfig("opacity", true),
+            ["opacity"] = new("opacity", true),
 
             // Shadow - box-shadow only
-            ["shadow"] = new TransitionConfig("box-shadow", true),
+            ["shadow"] = new("box-shadow", true),
 
             // Transform - transform-related properties
-            ["transform"] = new TransitionConfig("transform, translate, scale, rotate", true),
+            ["transform"] = new("transform, translate, scale, rotate", true),
         }.ToImmutableDictionary();
 
     /// <summary>

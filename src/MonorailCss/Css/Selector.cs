@@ -6,6 +6,12 @@ namespace MonorailCss.Css;
 public record Selector(string Value)
 {
     /// <summary>
+    /// Gets the nested selector pattern that should be applied using CSS nesting.
+    /// When present, indicates this selector should generate nested CSS rules.
+    /// </summary>
+    public string? NestedSelector { get; init; }
+
+    /// <summary>
     /// Creates a selector from an escaped class name.
     /// </summary>
     /// <param name="escapedClassName">The escaped class name to use for creating the selector.</param>
@@ -25,6 +31,14 @@ public record Selector(string Value)
     /// <param name="relative">The relative selector string where "&amp;" will be replaced.</param>
     /// <returns>A new <see cref="Selector"/> instance with the updated selector string.</returns>
     public Selector Relativize(string relative) => new(relative.Replace("&", Value));
+
+    /// <summary>
+    /// Creates a selector with CSS nesting pattern for use with combinators (e.g., "&gt;:first-child", "&amp;+.sibling").
+    /// The nested pattern will be rendered using CSS nesting syntax with the &amp; parent selector.
+    /// </summary>
+    /// <param name="nestedPattern">The nested selector pattern containing combinators after &amp;.</param>
+    /// <returns>A new <see cref="Selector"/> instance with the nested selector pattern set.</returns>
+    public Selector AsNestedSelector(string nestedPattern) => new(Value) { NestedSelector = nestedPattern };
 
     /// <summary>
     /// Makes this selector a descendant of the specified ancestor selector.
