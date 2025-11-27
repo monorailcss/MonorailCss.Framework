@@ -8,7 +8,7 @@
 
   <ItemGroup>
     <PackageReference Include="MyLittleContentEngine" Version="0.0.0-alpha.0.191" />
-    <PackageReference Include="MyLittleContentEngine.MonorailCss" Version="0.0.0-alpha.0.191" />
+    <PackageReference Include="MyLittleContentEngine.MonorailCss" Version="0.0.0-alpha.0.228" />
     <PackageReference Include="MyLittleContentEngine.UI" Version="0.0.0-alpha.0.191" />
   </ItemGroup>
 
