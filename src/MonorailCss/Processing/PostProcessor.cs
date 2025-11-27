@@ -238,7 +238,16 @@ internal sealed class PostProcessor
 
         if (child.UseWhereWrapper)
         {
-            selector += $":where({child.ChildSelector})";
+            // When child selector starts with '>' (child combinator), include the parent class
+            // inside the :where() to match Tailwind's output pattern
+            // e.g., .prose :where(.prose > :first-child) instead of .prose :where(> :first-child)
+            var childSelector = child.ChildSelector;
+            if (childSelector.StartsWith(">"))
+            {
+                childSelector = $"{parentSelector} {childSelector}";
+            }
+
+            selector += $":where({childSelector})";
 
             if (child.ExcludeClass != null)
             {
