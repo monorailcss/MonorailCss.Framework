@@ -285,10 +285,7 @@ public static class PreflightCss
                                    @supports (not (-webkit-appearance: -apple-pay-button)) /* Not Safari */ or
                                      (contain-intrinsic-size: 1px) /* Safari 17+ */ {
                                      ::placeholder {
-                                       color: currentcolor;
-                                       @supports (color: color-mix(in lab, red, red)) {
-                                         color: color-mix(in oklab, currentcolor 50%, transparent);
-                                       }
+                                       color: color-mix(in oklab, currentcolor 50%, transparent);
                                      }
                                    }
 
