@@ -181,7 +181,7 @@ public class CssFramework
         // Parse the input into candidates
         var candidates = string.IsNullOrWhiteSpace(classString)
             ? []
-            : _parser.ParseCandidates(classString).ToList();
+            : _parser.ParseCandidates(classString).ToHashSet();
 
         // Process each candidate through the utilities
         foreach (var candidate in candidates)

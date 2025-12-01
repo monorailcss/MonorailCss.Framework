@@ -1,4 +1,5 @@
 using System.Collections.Immutable;
+using System.Text.RegularExpressions;
 using Shouldly;
 
 namespace MonorailCss.Tests;
@@ -7,7 +8,7 @@ namespace MonorailCss.Tests;
 /// End-to-end integration tests for the CssFramework.
 /// These tests verify the complete pipeline from input classes to generated CSS.
 /// </summary>
-public class CssFrameworkTests
+public partial class CssFrameworkTests
 {
     private readonly CssFramework _framework;
 
@@ -38,6 +39,14 @@ public class CssFrameworkTests
         detailed.ProcessedClasses.ShouldBeEmpty();
         detailed.InvalidClasses.ShouldBeEmpty();
         detailed.GeneratedCss.ShouldBe("");
+    }
+
+    [Fact]
+    public void Process_ShouldHandleDuplicates()
+    {
+        var detailed = _framework.ProcessWithDetails("mb-4 mb-4");
+        detailed.ProcessedClasses.ShouldHaveSingleItem();
+        detailed.ProcessedClasses.First().ClassName.ShouldBe("mb-4");
     }
 
     [Fact]
