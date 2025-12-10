@@ -335,11 +335,12 @@ public class CssFramework
     }
 
     /// <summary>
-    /// Compiles a single utility class and returns just its CSS declarations
-    /// without pipeline processing, layers, or preflight. Useful for documentation and debugging.
+    /// Compiles a single utility class and returns its CSS declarations.
+    /// This applies modifier processing (opacity, negative values, !important, variable fallbacks).
+    /// Useful for documentation and debugging purposes.
     /// </summary>
-    /// <param name="className">The single utility class name to compile (e.g., "bg-red-500", "hover:text-blue-600").</param>
-    /// <returns>The raw CSS declarations for this utility class, or null if the class is invalid.</returns>
+    /// <param name="className">The single utility class name to compile (e.g., "bg-red-500", "bg-red-500/50").</param>
+    /// <returns>The CSS declarations for this utility class, or null if the class is invalid.</returns>
     public string? CompileUtilityClass(string className)
     {
         if (string.IsNullOrWhiteSpace(className))
@@ -354,27 +355,59 @@ public class CssFramework
         }
 
         var propertyRegistry = new CssPropertyRegistry();
+        ImmutableList<AstNode>? astNodes = null;
+        string? utilityName = null;
 
         // Try static utilities first (faster lookup)
         if (candidate is StaticUtility staticUtility &&
             UtilityRegistry.StaticUtilitiesLookup.TryGetValue(staticUtility.Root, out var staticUtil))
         {
-            if (staticUtil.TryCompile(candidate, _settings.Theme, propertyRegistry, out var astNodes) && astNodes != null)
+            if (staticUtil.TryCompile(candidate, _settings.Theme, propertyRegistry, out astNodes) && astNodes != null)
             {
-                return string.Join("\n", astNodes.Select(node => node.ToCss()));
+                utilityName = staticUtil.GetType().Name;
             }
         }
 
-        // Try each registered utility
-        foreach (var utility in UtilityRegistry.RegisteredUtilities)
+        // Try functional utilities if static didn't match
+        if (astNodes == null)
         {
-            if (utility.TryCompile(candidate, _settings.Theme, propertyRegistry, out var astNodes) && astNodes != null)
+            foreach (var utility in UtilityRegistry.RegisteredUtilities)
             {
-                return string.Join("\n", astNodes.Select(node => node.ToCss()));
+                if (utility.TryCompile(candidate, _settings.Theme, propertyRegistry, out astNodes) && astNodes != null)
+                {
+                    utilityName = utility.GetType().Name;
+                    break;
+                }
             }
         }
 
-        return null; // Class couldn't be compiled
+        if (astNodes == null)
+        {
+            return null;
+        }
+
+        // Apply pipeline stages for modifiers
+        var processedClass = new ProcessedClass(
+            ClassName: candidate.Raw,
+            UtilityName: utilityName ?? "Unknown",
+            AstNodes: astNodes,
+            Candidate: candidate,
+            Layer: Utilities.UtilityLayer.Utility);
+
+        var processedClasses = new List<ProcessedClass> { processedClass };
+        var context = new PipelineContext();
+        context.Metadata["processedClasses"] = processedClasses;
+
+        // Apply modifier-related stages (these modify processedClasses in context)
+        new ColorModifierStage(_settings.Theme).Process(ImmutableList<AstNode>.Empty, context);
+        new NegativeValueNormalizationStage().Process(ImmutableList<AstNode>.Empty, context);
+        new ImportantFlagStage().Process(ImmutableList<AstNode>.Empty, context);
+
+        // Get the processed nodes and apply VariableFallbackStage (works directly on nodes)
+        var processedNodes = new VariableFallbackStage().Process(processedClasses[0].AstNodes, context);
+
+        // Return the processed AST as CSS
+        return string.Join("\n", processedNodes.Select(node => node.ToCss()));
     }
 
     private static void EnsureFontVariables(Dictionary<string, string> variables, Theme.Theme theme)
