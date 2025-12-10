@@ -103,4 +103,6 @@ internal class TextSizeAdjustUtility : BaseFunctionalUtility
     {
         return IsValidTextSizeAdjustValue(value);
     }
+
+    protected override string GetSampleCssForArbitraryValue(string pattern) => "text-size-adjust: [value]";
 }

@@ -67,7 +67,7 @@ internal class FlexShrinkUtility : BaseFunctionalUtility
             new Documentation.UtilityExample("shrink-0", "Prevent flex item from shrinking"),
             new Documentation.UtilityExample("flex-shrink", "Allow flex item to shrink"),
             new Documentation.UtilityExample("flex-shrink-0", "Prevent flex item from shrinking"),
-            new Documentation.UtilityExample("shrink-[2]", "Set flex shrink factor with arbitrary value"),
+            new Documentation.UtilityExample("shrink-[value]", "Set flex shrink factor with arbitrary value", "flex-shrink: [value]"),
         ];
     }
 }

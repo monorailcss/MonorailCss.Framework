@@ -97,4 +97,6 @@ internal class ColumnsUtility : BaseFunctionalUtility
         return ImmutableList.Create<AstNode>(
             new Declaration("columns", value, important));
     }
+
+    protected override string GetSampleCssForArbitraryValue(string pattern) => "columns: [value]";
 }

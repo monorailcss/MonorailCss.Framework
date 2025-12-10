@@ -62,4 +62,6 @@ internal class OpacityUtility : BaseFunctionalUtility
         return ImmutableList.Create<AstNode>(
             new Declaration("opacity", value, important));
     }
+
+    protected override string GetSampleCssForArbitraryValue(string pattern) => "opacity: [value]";
 }

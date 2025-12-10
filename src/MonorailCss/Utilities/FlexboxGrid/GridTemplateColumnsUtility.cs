@@ -138,7 +138,7 @@ internal class GridTemplateColumnsUtility : BaseFunctionalUtility
             new Documentation.UtilityExample("grid-cols-none", "Remove explicit grid columns"),
             new Documentation.UtilityExample("grid-cols-subgrid", "Use subgrid for grid columns"),
             new Documentation.UtilityExample("grid-cols-(--my-template)", "Use a custom property for grid columns"),
-            new Documentation.UtilityExample("grid-cols-[200px_minmax(900px,_1fr)_100px]", "Use an arbitrary value for grid columns"),
+            new Documentation.UtilityExample("grid-cols-[value]", "Use an arbitrary value for grid columns", "grid-template-columns: [value]"),
         ];
     }
 }

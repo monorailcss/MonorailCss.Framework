@@ -32,4 +32,6 @@ internal class PerspectiveFunctionalUtility : BaseFunctionalUtility
                (value.EndsWith("px") || value.EndsWith("em") || value.EndsWith("rem") ||
                 value.EndsWith("vw") || value.EndsWith("vh") || value.EndsWith("vmin") || value.EndsWith("vmax"));
     }
+
+    protected override string GetSampleCssForArbitraryValue(string pattern) => "perspective: [value]";
 }

@@ -108,4 +108,6 @@ internal class VerticalAlignUtility : BaseFunctionalUtility
     {
         return IsValidVerticalAlignValue(value);
     }
+
+    protected override string GetSampleCssForArbitraryValue(string pattern) => "vertical-align: [value]";
 }

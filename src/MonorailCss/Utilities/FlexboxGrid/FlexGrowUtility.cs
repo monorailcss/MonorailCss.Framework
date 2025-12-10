@@ -67,7 +67,7 @@ internal class FlexGrowUtility : BaseFunctionalUtility
             new Documentation.UtilityExample("grow-0", "Prevent flex item from growing"),
             new Documentation.UtilityExample("flex-grow", "Allow flex item to grow"),
             new Documentation.UtilityExample("flex-grow-0", "Prevent flex item from growing"),
-            new Documentation.UtilityExample("grow-[2]", "Set flex grow factor with arbitrary value"),
+            new Documentation.UtilityExample("grow-[value]", "Set flex grow factor with arbitrary value", "flex-grow: [value]"),
         ];
     }
 }

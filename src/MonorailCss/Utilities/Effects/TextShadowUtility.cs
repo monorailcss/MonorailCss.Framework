@@ -116,4 +116,6 @@ internal class TextShadowUtility : BaseFunctionalUtility
     {
         return IsValidTextShadowValue(value);
     }
+
+    protected override string GetSampleCssForArbitraryValue(string pattern) => "text-shadow: [value]";
 }

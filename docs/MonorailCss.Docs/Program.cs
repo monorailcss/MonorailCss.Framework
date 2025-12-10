@@ -33,7 +33,7 @@ builder.Services.AddMonorailCss(_ =>
         ColorScheme = new AlgorithmicColorScheme()
         {
             PrimaryHue = 45,
-            ColorSchemeGenerator = i => (i + 1, i + 45, i - 45),
+            ColorSchemeGenerator = i => (i + 1, i + 60, i - 60),
             BaseColorName = "brick"
         },
         CustomCssFrameworkSettings = (settings => settings with

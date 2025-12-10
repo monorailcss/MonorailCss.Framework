@@ -64,7 +64,7 @@ internal class OrderUtility : BaseFunctionalUtility
             new Documentation.UtilityExample("order-1", "Set order to 1"),
             new Documentation.UtilityExample("order-12", "Set order to 12"),
             new Documentation.UtilityExample("-order-1", "Set order to -1"),
-            new Documentation.UtilityExample("order-[13]", "Use an arbitrary value for order"),
+            new Documentation.UtilityExample("order-[value]", "Use an arbitrary value for order", "order: [value]"),
         ];
     }
 }

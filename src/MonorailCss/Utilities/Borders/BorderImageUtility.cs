@@ -64,4 +64,6 @@ internal class BorderImageUtility : BaseFunctionalUtility
         // This is a basic validation - real CSS validation would be more complex
         return true;
     }
+
+    protected override string GetSampleCssForArbitraryValue(string pattern) => "border-image: [value]";
 }

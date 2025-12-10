@@ -134,4 +134,6 @@ internal class BackgroundPositionUtility : BaseFunctionalUtility
 
     // Lower priority since this handles arbitrary values that might conflict with other bg-* utilities
     public override UtilityPriority Priority => UtilityPriority.ConstrainedFunctional;
+
+    protected override string GetSampleCssForArbitraryValue(string pattern) => "background-position: [value]";
 }

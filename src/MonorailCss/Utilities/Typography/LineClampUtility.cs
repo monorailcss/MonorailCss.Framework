@@ -84,4 +84,6 @@ internal class LineClampUtility : BaseFunctionalUtility
         // Only allow positive integers
         return int.TryParse(value, out var numValue) && numValue >= 1;
     }
+
+    protected override string GetSampleCssForArbitraryValue(string pattern) => "-webkit-line-clamp: [value]";
 }

@@ -49,7 +49,7 @@ else
                         <tbody class="divide-y divide-base-200 dark:divide-base-800">
                             @foreach (var example in allExamples)
                             {
-                                var generatedCss = GetGeneratedCss(example.ClassName);
+                                var generatedCss = GetGeneratedCss(example);
 
                                 <tr>
                                     <td class="px-2 py-1 lg:px-6 lg:py-2 whitespace-nowrap">
@@ -147,15 +147,23 @@ else
         ];
     }
 
-    private string GetGeneratedCss(string className)
+    private string GetGeneratedCss(UtilityExample example)
     {
         try
         {
-            return CssFramework.CompileUtilityClass(className) ?? string.Empty;
+            var compiled = CssFramework.CompileUtilityClass(example.ClassName);
+            if (!string.IsNullOrEmpty(compiled))
+            {
+                return compiled;
+            }
+
+            // Fall back to the example's pre-defined GeneratedCss (for patterns like opacity-[value])
+            return example.GeneratedCss ?? string.Empty;
         }
         catch (Exception)
         {
-            return string.Empty;
+            // Fall back to the example's pre-defined GeneratedCss
+            return example.GeneratedCss ?? string.Empty;
         }
     }
 
@@ -165,7 +173,7 @@ else
 
         foreach (var example in examples)
         {
-            var css = GetGeneratedCss(example.ClassName);
+            var css = GetGeneratedCss(example);
             if (string.IsNullOrEmpty(css))
                 continue;
 

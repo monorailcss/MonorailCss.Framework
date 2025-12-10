@@ -85,4 +85,6 @@ internal class LetterSpacingUtility : BaseFunctionalUtility
         return ImmutableList.Create<AstNode>(
             new Declaration("letter-spacing", value, important));
     }
+
+    protected override string GetSampleCssForArbitraryValue(string pattern) => "letter-spacing: [value]";
 }

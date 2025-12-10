@@ -79,7 +79,7 @@ internal class GridRowStartUtility : BaseFunctionalUtility
             new Documentation.UtilityExample("row-start-7", "Start at row line 7"),
             new Documentation.UtilityExample("row-start-auto", "Auto start row"),
             new Documentation.UtilityExample("-row-start-1", "Start at row line -1 (from end)"),
-            new Documentation.UtilityExample("row-start-[8]", "Use an arbitrary value for row start"),
+            new Documentation.UtilityExample("row-start-[value]", "Use an arbitrary value for row start", "grid-row-start: [value]"),
         ];
     }
 }

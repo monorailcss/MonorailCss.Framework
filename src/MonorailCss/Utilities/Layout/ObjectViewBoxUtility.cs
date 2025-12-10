@@ -64,4 +64,6 @@ internal class ObjectViewBoxUtility : BaseFunctionalUtility
 
         return false;
     }
+
+    protected override string GetSampleCssForArbitraryValue(string pattern) => "object-view-box: [value]";
 }

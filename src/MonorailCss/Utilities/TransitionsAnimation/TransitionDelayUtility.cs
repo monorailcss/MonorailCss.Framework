@@ -74,4 +74,6 @@ internal class TransitionDelayUtility : BaseFunctionalUtility
 
         return false;
     }
+
+    protected override string GetSampleCssForArbitraryValue(string pattern) => "transition-delay: [value]";
 }

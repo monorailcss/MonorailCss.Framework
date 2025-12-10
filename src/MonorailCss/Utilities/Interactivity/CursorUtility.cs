@@ -104,4 +104,6 @@ internal class CursorUtility : BaseFunctionalUtility
 
     // Standard priority for functional utilities
     public override UtilityPriority Priority => UtilityPriority.StandardFunctional;
+
+    protected override string GetSampleCssForArbitraryValue(string pattern) => "cursor: [value]";
 }

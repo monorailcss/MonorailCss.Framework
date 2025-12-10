@@ -74,4 +74,6 @@ internal class WillChangeUtility : BaseFunctionalUtility
                               v.StartsWith("var(") ||
                               !string.IsNullOrWhiteSpace(v));
     }
+
+    protected override string GetSampleCssForArbitraryValue(string pattern) => "will-change: [value]";
 }

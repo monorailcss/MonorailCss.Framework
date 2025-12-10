@@ -104,4 +104,6 @@ internal class LineHeightUtility : BaseFunctionalUtility
             new Declaration("--tw-leading", value, important),
             new Declaration("line-height", value, important));
     }
+
+    protected override string GetSampleCssForArbitraryValue(string pattern) => "line-height: [value]";
 }

@@ -119,4 +119,6 @@ internal class TransitionUtility : BaseFunctionalUtility
     /// Configuration for a transition type.
     /// </summary>
     private record TransitionConfig(string Properties, bool IncludeTimingAndDuration);
+
+    protected override string GetSampleCssForArbitraryValue(string pattern) => "transition-property: [value]";
 }

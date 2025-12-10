@@ -182,4 +182,6 @@ internal class RotateUtility : BaseFunctionalUtility
         // Call the base implementation
         return TryCompile(candidate, theme, out results);
     }
+
+    protected override string GetSampleCssForArbitraryValue(string pattern) => "rotate: [value]";
 }

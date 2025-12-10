@@ -125,4 +125,6 @@ internal class BoxShadowUtility : BaseFunctionalUtility
     {
         return IsValidBoxShadowValue(value);
     }
+
+    protected override string GetSampleCssForArbitraryValue(string pattern) => "box-shadow: [value]";
 }

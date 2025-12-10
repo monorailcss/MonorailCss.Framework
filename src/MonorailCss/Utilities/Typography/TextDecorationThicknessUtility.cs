@@ -111,4 +111,6 @@ internal class TextDecorationThicknessUtility : BaseFunctionalUtility
     // Override priority to handle potential conflicts with decoration color utilities
     // Note: This utility should have higher priority when both could match "decoration-*"
     public override UtilityPriority Priority => UtilityPriority.ConstrainedFunctional;
+
+    protected override string GetSampleCssForArbitraryValue(string pattern) => "text-decoration-thickness: [value]";
 }

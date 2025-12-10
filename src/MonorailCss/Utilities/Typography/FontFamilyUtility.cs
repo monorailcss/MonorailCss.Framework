@@ -49,4 +49,6 @@ internal class FontFamilyUtility : BaseFunctionalUtility
         return ImmutableList.Create<AstNode>(
             new Declaration("font-family", value, important));
     }
+
+    protected override string GetSampleCssForArbitraryValue(string pattern) => "font-family: [value]";
 }

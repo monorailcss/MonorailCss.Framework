@@ -79,7 +79,7 @@ internal class GridColumnSpanUtility : BaseFunctionalUtility
             new Documentation.UtilityExample("col-span-12", "Span 12 columns"),
             new Documentation.UtilityExample("col-span-full", "Span all columns"),
             new Documentation.UtilityExample("col-span-auto", "Auto span columns"),
-            new Documentation.UtilityExample("col-span-[2]", "Use an arbitrary value for column span"),
+            new Documentation.UtilityExample("col-span-[value]", "Use an arbitrary value for column span", "grid-column: span [value] / span [value]"),
         ];
     }
 }

@@ -182,4 +182,6 @@ internal class ScaleUtility : BaseFunctionalUtility
         // Call the base implementation
         return TryCompile(candidate, theme, out results);
     }
+
+    protected override string GetSampleCssForArbitraryValue(string pattern) => "scale: [value]";
 }

@@ -79,7 +79,7 @@ internal class GridRowEndUtility : BaseFunctionalUtility
             new Documentation.UtilityExample("row-end-7", "End at row line 7"),
             new Documentation.UtilityExample("row-end-auto", "Auto end row"),
             new Documentation.UtilityExample("-row-end-1", "End at row line -1 (from end)"),
-            new Documentation.UtilityExample("row-end-[8]", "Use an arbitrary value for row end"),
+            new Documentation.UtilityExample("row-end-[value]", "Use an arbitrary value for row end", "grid-row-end: [value]"),
         ];
     }
 }

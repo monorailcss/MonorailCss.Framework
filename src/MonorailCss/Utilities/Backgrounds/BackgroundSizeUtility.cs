@@ -133,4 +133,6 @@ internal class BackgroundSizeUtility : BaseFunctionalUtility
 
     // Lower priority since this handles fewer cases than BackgroundImageUtility
     public override UtilityPriority Priority => UtilityPriority.ConstrainedFunctional;
+
+    protected override string GetSampleCssForArbitraryValue(string pattern) => "background-size: [value]";
 }

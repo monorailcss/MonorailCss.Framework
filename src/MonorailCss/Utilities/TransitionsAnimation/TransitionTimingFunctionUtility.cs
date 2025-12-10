@@ -115,4 +115,6 @@ internal class TransitionTimingFunctionUtility : BaseFunctionalUtility
         // Call the base implementation
         return TryCompile(candidate, theme, out results);
     }
+
+    protected override string GetSampleCssForArbitraryValue(string pattern) => "transition-timing-function: [value]";
 }

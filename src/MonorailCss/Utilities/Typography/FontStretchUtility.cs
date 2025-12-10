@@ -123,4 +123,6 @@ internal class FontStretchUtility : BaseFunctionalUtility
     {
         return IsValidFontStretchValue(value);
     }
+
+    protected override string GetSampleCssForArbitraryValue(string pattern) => "font-stretch: [value]";
 }

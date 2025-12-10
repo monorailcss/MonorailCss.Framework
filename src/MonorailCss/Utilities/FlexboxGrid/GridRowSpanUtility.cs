@@ -79,7 +79,7 @@ internal class GridRowSpanUtility : BaseFunctionalUtility
             new Documentation.UtilityExample("row-span-6", "Span 6 rows"),
             new Documentation.UtilityExample("row-span-full", "Span all rows"),
             new Documentation.UtilityExample("row-span-auto", "Auto span rows"),
-            new Documentation.UtilityExample("row-span-[2]", "Use an arbitrary value for row span"),
+            new Documentation.UtilityExample("row-span-[value]", "Use an arbitrary value for row span", "grid-row: span [value] / span [value]"),
         ];
     }
 }

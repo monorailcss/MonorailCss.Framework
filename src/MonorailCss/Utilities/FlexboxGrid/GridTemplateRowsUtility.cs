@@ -138,7 +138,7 @@ internal class GridTemplateRowsUtility : BaseFunctionalUtility
             new Documentation.UtilityExample("grid-rows-none", "Remove explicit grid rows"),
             new Documentation.UtilityExample("grid-rows-subgrid", "Use subgrid for grid rows"),
             new Documentation.UtilityExample("grid-rows-(--my-template)", "Use a custom property for grid rows"),
-            new Documentation.UtilityExample("grid-rows-[200px_minmax(900px,_1fr)_100px]", "Use an arbitrary value for grid rows"),
+            new Documentation.UtilityExample("grid-rows-[value]", "Use an arbitrary value for grid rows", "grid-template-rows: [value]"),
         ];
     }
 }

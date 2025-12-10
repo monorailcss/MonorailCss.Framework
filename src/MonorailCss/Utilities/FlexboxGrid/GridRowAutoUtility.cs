@@ -66,7 +66,7 @@ internal class GridRowAutoUtility : BaseFunctionalUtility
         [
             new Documentation.UtilityExample("row-auto", "Set grid row to auto"),
             new Documentation.UtilityExample("row-[1_/_3]", "Position element from row line 1 to 3"),
-            new Documentation.UtilityExample("row-[span_2]", "Span 2 rows"),
+            new Documentation.UtilityExample("row-[value]", "Set grid row with arbitrary value", "grid-row: [value]"),
         ];
     }
 }

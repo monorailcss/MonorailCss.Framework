@@ -66,4 +66,6 @@ internal class ZIndexUtility : BaseFunctionalUtility
         return ImmutableList.Create<AstNode>(
             new Declaration("z-index", value, important));
     }
+
+    protected override string GetSampleCssForArbitraryValue(string pattern) => "z-index: [value]";
 }

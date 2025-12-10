@@ -51,4 +51,6 @@ internal class OutlineOffsetUtility : BaseFunctionalUtility
         return ImmutableList.Create<AstNode>(
             new Declaration("outline-offset", value, important));
     }
+
+    protected override string GetSampleCssForArbitraryValue(string pattern) => "outline-offset: [value]";
 }

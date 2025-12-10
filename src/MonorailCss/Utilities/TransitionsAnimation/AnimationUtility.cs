@@ -73,4 +73,6 @@ internal class AnimationUtility : BaseFunctionalUtility
                !value.Contains('{') &&
                !value.Contains('}');
     }
+
+    protected override string GetSampleCssForArbitraryValue(string pattern) => "animation: [value]";
 }

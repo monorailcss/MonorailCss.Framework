@@ -131,7 +131,7 @@ internal class GridAutoColumnsUtility : BaseFunctionalUtility
             new Documentation.UtilityExample("auto-cols-max", "Set grid auto columns to max-content"),
             new Documentation.UtilityExample("auto-cols-fr", "Set grid auto columns to minmax(0, 1fr)"),
             new Documentation.UtilityExample("auto-cols-(--my-size)", "Use a custom property for grid auto columns"),
-            new Documentation.UtilityExample("auto-cols-[200px]", "Use an arbitrary value for grid auto columns"),
+            new Documentation.UtilityExample("auto-cols-[value]", "Use an arbitrary value for grid auto columns", "grid-auto-columns: [value]"),
         ];
     }
 }

@@ -79,7 +79,7 @@ internal class GridColumnEndUtility : BaseFunctionalUtility
             new Documentation.UtilityExample("col-end-13", "End at column line 13"),
             new Documentation.UtilityExample("col-end-auto", "Auto end column"),
             new Documentation.UtilityExample("-col-end-1", "End at column line -1 (from end)"),
-            new Documentation.UtilityExample("col-end-[14]", "Use an arbitrary value for column end"),
+            new Documentation.UtilityExample("col-end-[value]", "Use an arbitrary value for column end", "grid-column-end: [value]"),
         ];
     }
 }

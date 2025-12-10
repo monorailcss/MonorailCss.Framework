@@ -92,4 +92,6 @@ internal class TransitionDurationUtility : BaseFunctionalUtility
         // Call the base implementation
         return TryCompile(candidate, theme, out results);
     }
+
+    protected override string GetSampleCssForArbitraryValue(string pattern) => "transition-duration: [value]";
 }

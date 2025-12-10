@@ -66,7 +66,7 @@ internal class GridColumnAutoUtility : BaseFunctionalUtility
         [
             new Documentation.UtilityExample("col-auto", "Set grid column to auto"),
             new Documentation.UtilityExample("col-[1_/_3]", "Position element from column line 1 to 3"),
-            new Documentation.UtilityExample("col-[span_2]", "Span 2 columns"),
+            new Documentation.UtilityExample("col-[value]", "Set grid column with arbitrary value", "grid-column: [value]"),
         ];
     }
 }

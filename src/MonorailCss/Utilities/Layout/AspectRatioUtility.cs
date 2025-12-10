@@ -117,4 +117,6 @@ internal class AspectRatioUtility : BaseFunctionalUtility
     {
         return IsValidAspectRatio(value);
     }
+
+    protected override string GetSampleCssForArbitraryValue(string pattern) => "aspect-ratio: [value]";
 }

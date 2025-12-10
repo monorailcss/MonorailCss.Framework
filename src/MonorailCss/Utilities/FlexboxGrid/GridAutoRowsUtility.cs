@@ -131,7 +131,7 @@ internal class GridAutoRowsUtility : BaseFunctionalUtility
             new Documentation.UtilityExample("auto-rows-max", "Set grid auto rows to max-content"),
             new Documentation.UtilityExample("auto-rows-fr", "Set grid auto rows to minmax(0, 1fr)"),
             new Documentation.UtilityExample("auto-rows-(--my-size)", "Use a custom property for grid auto rows"),
-            new Documentation.UtilityExample("auto-rows-[200px]", "Use an arbitrary value for grid auto rows"),
+            new Documentation.UtilityExample("auto-rows-[value]", "Use an arbitrary value for grid auto rows", "grid-auto-rows: [value]"),
         ];
     }
 }

@@ -136,4 +136,13 @@ internal abstract class BaseFilterUtility : BaseFunctionalUtility
                !value.Contains('{') &&
                !value.Contains('}');
     }
+
+    /// <summary>
+    /// Returns sample CSS output for documentation of arbitrary filter values.
+    /// </summary>
+    protected override string GetSampleCssForArbitraryValue(string pattern)
+    {
+        var varName = IsBackdropFilter ? $"--tw-backdrop-{FilterVariableName}" : $"--tw-{FilterVariableName}";
+        return $"{varName}: [value]";
+    }
 }

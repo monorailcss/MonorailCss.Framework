@@ -52,4 +52,6 @@ internal class TextUnderlineOffsetUtility : BaseFunctionalUtility
         return ImmutableList.Create<AstNode>(
             new Declaration("text-underline-offset", value, important));
     }
+
+    protected override string GetSampleCssForArbitraryValue(string pattern) => "text-underline-offset: [value]";
 }

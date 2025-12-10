@@ -177,4 +177,12 @@ internal class SkewUtility : BaseFunctionalUtility
         // Call the base implementation
         return TryCompile(candidate, theme, out results);
     }
+
+    protected override string GetSampleCssForArbitraryValue(string pattern) =>
+        pattern switch
+        {
+            "skew-x" => "--tw-skew-x: skewX([value])",
+            "skew-y" => "--tw-skew-y: skewY([value])",
+            _ => "--tw-skew-x: skewX([value]); --tw-skew-y: skewY([value])",
+        };
 }

@@ -191,6 +191,13 @@ internal abstract class BaseFunctionalUtility : IUtility
     }
 
     /// <summary>
+    /// Returns sample CSS output for documentation of arbitrary values.
+    /// Override to provide custom sample output (e.g., "opacity: [value]").
+    /// Return null to not show sample output.
+    /// </summary>
+    protected virtual string? GetSampleCssForArbitraryValue(string pattern) => null;
+
+    /// <summary>
     /// Generates CSS declarations based on the utility pattern and resolved value.
     /// Must be implemented by derived classes to handle specific CSS properties.
     /// </summary>
@@ -232,16 +239,21 @@ internal abstract class BaseFunctionalUtility : IUtility
             }
 
             // Show arbitrary value support
+            var sampleCss = GetSampleCssForArbitraryValue(pattern);
             examples.Add(new Documentation.UtilityExample(
                 $"{pattern}-[value]",
-                $"Apply {pattern} with arbitrary value"));
+                $"Apply {pattern} with arbitrary value",
+                sampleCss));
 
             // Show negative support if available
             if (SupportsNegative)
             {
+                var negativeSampleCss = sampleCss != null ? $"calc(-1 * {sampleCss.Split(':').LastOrDefault()?.Trim() ?? "[value]"})" : null;
+                var negativeOutput = sampleCss != null ? $"{sampleCss.Split(':').FirstOrDefault()?.Trim()}: {negativeSampleCss}" : null;
                 examples.Add(new Documentation.UtilityExample(
                     $"-{pattern}-[value]",
-                    $"Apply negative {pattern} with arbitrary value"));
+                    $"Apply negative {pattern} with arbitrary value",
+                    negativeOutput));
             }
         }
 

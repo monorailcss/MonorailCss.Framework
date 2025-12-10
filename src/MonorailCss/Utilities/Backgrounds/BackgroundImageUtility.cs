@@ -292,4 +292,6 @@ internal class BackgroundImageUtility : BaseFunctionalUtility
 
     // Higher priority to handle bg-* patterns before color utilities
     public override UtilityPriority Priority => UtilityPriority.ConstrainedFunctional;
+
+    protected override string GetSampleCssForArbitraryValue(string pattern) => "background-image: [value]";
 }
