@@ -221,4 +221,67 @@ internal abstract class BaseSpacingUtility : IUtility
     {
         return GenerateDeclarations(pattern, value, important);
     }
+
+    /// <summary>
+    /// Returns examples of this spacing utility with theme-aware values.
+    /// </summary>
+    public virtual IEnumerable<Documentation.UtilityExample> GetExamples(Theme.Theme theme)
+    {
+        var examples = new List<Documentation.UtilityExample>();
+
+        // Take first 2 patterns to show variety (e.g., m, mx for margin)
+        foreach (var pattern in Patterns.Take(2))
+        {
+            // Show common numeric spacing values
+            foreach (var value in new[] { "0", "4", "8" })
+            {
+                examples.Add(new Documentation.UtilityExample(
+                    $"{pattern}-{value}",
+                    $"Apply {pattern} with spacing multiplier {value}"));
+            }
+
+            // Show auto (for margin only, but doesn't hurt to include)
+            examples.Add(new Documentation.UtilityExample(
+                $"{pattern}-auto",
+                $"Apply {pattern} with auto value"));
+
+            // Show px (1px)
+            examples.Add(new Documentation.UtilityExample(
+                $"{pattern}-px",
+                $"Apply {pattern} with 1px value"));
+
+            // Show arbitrary value support
+            examples.Add(new Documentation.UtilityExample(
+                $"{pattern}-[value]",
+                $"Apply {pattern} with arbitrary value",
+                $"{GetCssPropertyForPattern(pattern)}: [value]"));
+
+            // Show negative support
+            examples.Add(new Documentation.UtilityExample(
+                $"-{pattern}-4",
+                $"Apply negative {pattern}"));
+        }
+
+        return examples.Take(10);
+    }
+
+    /// <summary>
+    /// Gets the CSS property name for a pattern (for documentation purposes).
+    /// </summary>
+    private string GetCssPropertyForPattern(string pattern)
+    {
+        return pattern switch
+        {
+            "m" or "p" => pattern == "m" ? "margin" : "padding",
+            "mx" or "px" => pattern[0] == 'm' ? "margin-inline" : "padding-inline",
+            "my" or "py" => pattern[0] == 'm' ? "margin-block" : "padding-block",
+            "mt" or "pt" => pattern[0] == 'm' ? "margin-top" : "padding-top",
+            "mr" or "pr" => pattern[0] == 'm' ? "margin-right" : "padding-right",
+            "mb" or "pb" => pattern[0] == 'm' ? "margin-bottom" : "padding-bottom",
+            "ml" or "pl" => pattern[0] == 'm' ? "margin-left" : "padding-left",
+            "ms" or "ps" => pattern[0] == 'm' ? "margin-inline-start" : "padding-inline-start",
+            "me" or "pe" => pattern[0] == 'm' ? "margin-inline-end" : "padding-inline-end",
+            _ => pattern,
+        };
+    }
 }

@@ -67,7 +67,7 @@ internal class FlexBasisUtility : BaseFractionAwareSpacingUtility
 
     public string[] GetDocumentedProperties() => ["flex-basis"];
 
-    public IEnumerable<Documentation.UtilityExample> GetExamples(Theme.Theme theme)
+    public override IEnumerable<Documentation.UtilityExample> GetExamples(Theme.Theme theme)
     {
         return
         [

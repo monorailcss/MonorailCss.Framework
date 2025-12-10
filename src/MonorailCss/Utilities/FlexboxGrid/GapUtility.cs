@@ -36,7 +36,7 @@ internal class GapUtility : BaseSpacingUtility
 
     public string[] GetDocumentedProperties() => ["gap"];
 
-    public IEnumerable<Documentation.UtilityExample> GetExamples(Theme.Theme theme)
+    public override IEnumerable<Documentation.UtilityExample> GetExamples(Theme.Theme theme)
     {
         return
         [
