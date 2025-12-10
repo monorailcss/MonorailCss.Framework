@@ -1,7 +1,7 @@
 @inject NavigationManager NavigationManager
 
 <header class="sticky top-0 h-16 z-50 w-full border-b border-base-200 dark:border-base-800 bg-white/95 dark:bg-base-900/95 backdrop-blur supports-[backdrop-filter]:bg-white/60 dark:supports-[backdrop-filter]:bg-base-900/60">
-    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="max-w-400 mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex items-center justify-between h-16">
             <!-- Left side - Sidebar toggle and Logo -->
             <div class="flex items-center space-x-3">
@@ -35,6 +35,20 @@
 
             <!-- Right side actions -->
             <div class="flex items-center space-x-2">
+                <div class="relative w-8 md:w-32 lg:w-64 bg-base-100 dark:bg-base-800/50 border border-base-200 dark:border-base-700 rounded-full lg:rounded-md ">
+                    <input
+                        id="search-input"
+                        type="text"
+                        class="transition-all text-xs lg:text-sm w-full h-8 lg:h-10 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/50 dark:focus:ring-primary-400/50 focus:border-transparent"
+                        readonly
+                    />
+                    <svg class="transition-all absolute left-2 top-1/2 transform -translate-y-1/2 w-4 h-4 text-base-500 dark:text-base-400 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <path d="M21 21l-4.35-4.35"></path>
+                    </svg>
+                    <div class="transition-all text-xs md:text-sm hidden md:block absolute left-10 top-1/2 transform -translate-y-1/2 text-base-600 dark:text-base-400  pointer-events-none">Search</div>
+                </div>
+
                 <!-- Dark mode toggle button -->
                 <button data-theme-toggle class="p-2 rounded-md text-base-600 dark:text-base-400 hover:bg-base-100 dark:hover:bg-base-800 transition-colors" aria-label="Toggle theme">
                     <svg class="w-5 h-5 hidden dark:block" fill="none" stroke="currentColor" viewBox="0 0 24 24">
