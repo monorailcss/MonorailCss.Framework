@@ -30,9 +30,12 @@ builder.Services.AddMonorailCss(_ =>
 {
     return new MonorailCssOptions()
     {
-        BaseColorName = () => "brick",
-        PrimaryHue = () => 45,
-        ColorSchemeGenerator = i => (i + 1, i + 45, i - 45),
+        ColorScheme = new AlgorithmicColorScheme()
+        {
+            PrimaryHue = 45,
+            ColorSchemeGenerator = i => (i + 1, i + 45, i - 45),
+            BaseColorName = "brick"
+        },
         CustomCssFrameworkSettings = (settings => settings with
         {
             Theme = settings.Theme.AddColorPalette("brick", new Dictionary<string, string>
