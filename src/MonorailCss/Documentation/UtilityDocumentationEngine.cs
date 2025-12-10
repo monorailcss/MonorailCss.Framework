@@ -88,12 +88,11 @@ public class UtilityDocumentationEngine
         {
             var category = doc.Metadata.Category;
 
-            if (!result.ContainsKey(category))
+            if (!result.TryGetValue(category, out var categoryDocs))
             {
-                result[category] = new Dictionary<string, List<UtilityDocumentation>>();
+                categoryDocs = new Dictionary<string, List<UtilityDocumentation>>();
+                result[category] = categoryDocs;
             }
-
-            var categoryDocs = result[category];
 
             // Only include utilities that have documented properties
             // Utilities without documented properties are excluded from property-based documentation
@@ -102,12 +101,13 @@ public class UtilityDocumentationEngine
                 // Use the primary property for grouping
                 var property = doc.Metadata.PrimaryProperty;
 
-                if (!categoryDocs.ContainsKey(property))
+                if (!categoryDocs.TryGetValue(property, out var value))
                 {
-                    categoryDocs[property] = [];
+                    value = [];
+                    categoryDocs[property] = value;
                 }
 
-                categoryDocs[property].Add(doc);
+                value.Add(doc);
             }
 
             // Note: Utilities without documented properties are intentionally excluded
