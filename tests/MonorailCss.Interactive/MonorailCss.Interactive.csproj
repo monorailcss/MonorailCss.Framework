@@ -11,7 +11,7 @@
     <ItemGroup>
       <PackageReference Include="AngleSharp" Version="1.4.1-beta.505" />
       <PackageReference Include="AngleSharp.Css" Version="1.0.0-beta.164" />
-      <PackageReference Include="Microsoft.Extensions.Logging" Version="9.0.10" />
+      <PackageReference Include="Microsoft.Extensions.Logging" Version="9.0.11" />
       <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="9.0.10" />
     </ItemGroup>
 
