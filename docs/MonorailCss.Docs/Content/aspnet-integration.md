@@ -37,9 +37,11 @@ that returns this list. At runtime, your application can feed this list to Monor
 
 **Trade-offs:**
 
+- This produces a string array of CSS classes being used that can be consumed at runtime. Producing the actual CSS and
+  serving still needs to be done.
 - Fast at runtime since class discovery happens at compile time
 - Only sees static class names (things like `class="bg-blue-500"`)
-- Misses dynamically constructed classes (like `class="bg-@color-500"` where color is a variable)
+- Misses dynamically constructed classes (like `class="bg-@color-500"` where `color` is a variable)
 - Best for applications with mostly static utility usage
 
 ## Approach 2: MSBuild Task Generation
@@ -56,7 +58,6 @@ build process and outputs a static CSS file that you can reference normally.
 - CSS is generated once at build time, so you get the full output immediately
 - Looks closest to tailwind, things like VS Code and Rider intellisense seems to wire up okay.
 - Can't adapt to dynamic content
-- Best for applications where you know all your classes upfront
 - Perfect for SSG (static site generation) scenarios
 
 ## Approach 3: Runtime Middleware Discovery
@@ -90,7 +91,7 @@ order. [MyLittleContent](https://github.com/phil-scott-78/MyLittleContentEngine)
 
 You could even combine approaches - use the source generator or build task for your known classes, and supplement with
 runtime discovery for dynamic content.
-
+ 
 ## Rolling Your Own
 
 MonorailCSS's core API is straightforward enough that you can build your own integration approach if none of these fit
