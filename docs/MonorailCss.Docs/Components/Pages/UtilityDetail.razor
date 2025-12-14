@@ -1,7 +1,9 @@
 @page "/{CategorySlug}/{PropertySlug}"
 @using MonorailCss.Docs.Services
 @using MonorailCss.Documentation
+@using MyLittleContentEngine.Services.Content.MarkdigExtensions.CodeHighlighting
 @inject UtilityContentService UtilityService
+@inject ITextMateHighlighter CodeHighlightService
 @inject CssFramework CssFramework
 @layout MainLayout
 
@@ -52,15 +54,15 @@ else
                                 var generatedCss = GetGeneratedCss(example);
 
                                 <tr>
-                                    <td class="px-2 py-1 lg:px-6 lg:py-2 whitespace-nowrap">
-                                        <code class="text-xs font-mono text-tertiary-one-600 dark:text-tertiary-one-400 py-1 rounded">
+                                    <td class="px-2 py-1 lg:px-6 lg:py-2 whitespace-nowrap w-50">
+                                        <code class="text-xs font-mono text-tertiary-one-900 dark:text-tertiary-one-400 py-1 rounded">
                                             @example.ClassName
                                         </code>
                                     </td>
                                     <td class="px-2 py-2 lg:px-6 lg:py-2">
                                         @if (!string.IsNullOrEmpty(generatedCss))
                                         {
-                                            <pre class="text-xs font-mono text-tertiary-two-700 dark:text-tertiary-two-300 py-1 overflow-x-auto"><code>@generatedCss</code></pre>
+                                            @HighlightCss(generatedCss)
                                         }
                                     </td>
                                 </tr>
@@ -93,15 +95,15 @@ else
                         @foreach (var property in cssProperties.OrderBy(p => p))
                         {
                             <tr>
-                                <td class="px-2 py-1 lg:px-6 lg:py-2 whitespace-nowrap">
+                                <td class="px-2 py-1 lg:px-6 lg:py-2 whitespace-nowrap w-50">
                                     <a href="https://developer.mozilla.org/en-US/docs/Web/CSS/@property"
-                                       class="text-tertiary-one-600 dark:text-tertiary-one-400 hover:underline font-mono text-xs pr-4"
+                                       class="text-tertiary-one-900 dark:text-tertiary-one-400 hover:underline font-mono text-xs pr-4"
                                        target="_blank"
                                        rel="noopener noreferrer">
                                         @property
                                     </a>
                                 </td>
-                                <td class="px-2 py-2 lg:px-6 lg:py-2 w-80">
+                                <td class="px-2 py-2 lg:px-6 lg:py-2">
                                     <span class="text-xs text-base-600 dark:text-base-400 ">
                                         MDN ↗
                                     </span>
@@ -150,6 +152,29 @@ else
             new Breadcrumbs.BreadcrumbItem { Title = _categoryName ?? CategorySlug, Url = string.Empty },
             new Breadcrumbs.BreadcrumbItem { Title = propertyTitle, IsCurrent = true },
         ];
+    }
+
+    private MarkupString HighlightCss(string input)
+    {
+        var css = $$"""
+                  a {
+                  {{input}}
+                  }
+                  """;
+
+        var lines =  CodeHighlightService.Highlight(css, "css")
+            .ReplaceLineEndings(Environment.NewLine)
+            .Split(Environment.NewLine)
+            .Skip(1)
+            .SkipLast(1);
+
+
+        var highlight = $"""
+                         <pre class="text-xs"><code>{string.Join(Environment.NewLine, lines)}
+                         </code></pre>
+                         """;
+
+        return (MarkupString)highlight;
     }
 
     private string GetGeneratedCss(UtilityExample example)
