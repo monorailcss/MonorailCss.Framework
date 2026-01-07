@@ -7,11 +7,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="MyLittleContentEngine" Version="0.0.0-alpha.0.252" />
-    <PackageReference Include="MyLittleContentEngine.MonorailCss" Version="0.0.0-alpha.0.252" />
-    <PackageReference Include="MyLittleContentEngine.UI" Version="0.0.0-alpha.0.252" />
-    <PackageReference Include="TextMateSharp" Version="1.0.70" />
-    <PackageReference Include="TextMateSharp.Grammars" Version="1.0.70" />
+    <PackageReference Include="MyLittleContentEngine" Version="0.0.0-alpha.0.277" />
+    <PackageReference Include="MyLittleContentEngine.MonorailCss" Version="0.0.0-alpha.0.277" />
+    <PackageReference Include="MyLittleContentEngine.UI" Version="0.0.0-alpha.0.277" />
   </ItemGroup>
 
   <ItemGroup>
