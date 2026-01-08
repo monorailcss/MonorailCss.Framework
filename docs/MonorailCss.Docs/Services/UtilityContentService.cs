@@ -97,12 +97,12 @@ public partial class UtilityContentService : IContentService
     public Task<PropertyUtilities?> GetUtilitiesForPropertyAsync(string category, string property)
     {
         var normalizedCategory = _utilitiesByProperty.Value.Keys
-            .FirstOrDefault(k => ToSlug(k) == category.ToLowerInvariant());
+            .FirstOrDefault(k => ToSlug(k) == category);
 
         if (normalizedCategory != null && _utilitiesByProperty.Value.TryGetValue(normalizedCategory, out var propertiesDict))
         {
             var normalizedProperty = propertiesDict.Keys
-                .FirstOrDefault(k => ToSlug(k) == property.ToLowerInvariant());
+                .FirstOrDefault(k => ToSlug(k) == property);
 
             if (normalizedProperty != null && propertiesDict.TryGetValue(normalizedProperty, out var utilities))
             {
@@ -122,7 +122,7 @@ public partial class UtilityContentService : IContentService
     public Task<string?> GetCategoryNameFromSlugAsync(string categorySlug)
     {
         var category = _utilitiesByProperty.Value.Keys
-            .FirstOrDefault(k => ToSlug(k) == categorySlug.ToLowerInvariant());
+            .FirstOrDefault(k => ToSlug(k) == categorySlug);
         return Task.FromResult(category);
     }
 

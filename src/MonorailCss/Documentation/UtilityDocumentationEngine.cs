@@ -119,7 +119,8 @@ public class UtilityDocumentationEngine
             .OrderBy(kvp => kvp.Key)
             .ToDictionary(
                 kvp => kvp.Key,
-                kvp => kvp.Value.OrderBy(p => p.Key).ToDictionary(p => p.Key, p => p.Value));
+                kvp => kvp.Value.OrderBy(p => p.Key).ToDictionary(p => p.Key, p => p.Value, StringComparer.OrdinalIgnoreCase),
+                StringComparer.OrdinalIgnoreCase);
     }
 
     /// <summary>
