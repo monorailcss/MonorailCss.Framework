@@ -4,5 +4,8 @@
     "version": "10.0.101",
     "allowPrerelease": true,
     "rollForward": "latestFeature"
+  },
+  "test": {
+    "runner": "Microsoft.Testing.Platform"
   }
 }
