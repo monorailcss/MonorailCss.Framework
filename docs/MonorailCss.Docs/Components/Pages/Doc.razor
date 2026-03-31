@@ -6,48 +6,11 @@
 {
     <PageTitle>@Content.FrontMatter.Title - MonorailCss</PageTitle>
 
-    <article class="max-w-7xl mx-auto">
-        <!-- Article Header -->
-        <header class="mb-8 pb-8 border-b border-base-200 dark:border-base-700">
-            <Breadcrumbs Items="@BreadcrumbItems" />
-
-            <h1 class="text-4xl lg:text-5xl font-extrabold text-base-900 dark:text-primary-50 mb-4 text-pretty">
-                @Content.FrontMatter.Title
-            </h1>
-
-            @if (!string.IsNullOrEmpty(Content.FrontMatter.Description))
-            {
-                <p class="text-lg lg:text-xl text-base-600 dark:text-base-400 text-pretty">
-                    @Content.FrontMatter.Description
-                </p>
-            }
-        </header>
-
-        <!-- Content with Outline -->
-        <div class="lg:flex lg:gap-8">
-            <!-- Main Content -->
-            <div class="flex-1 min-w-0">
-                <main class="prose dark:prose-invert max-w-full prose-headings:scroll-m-20">
-                    @((MarkupString)HtmlContent)
-                </main>
-            </div>
-
-            <!-- Outline Navigation (Desktop) -->
-            @if (Outline is { Length: > 0 })
-            {
-                <aside class="hidden xl:block w-64 shrink-0">
-                    <div class="sticky top-24">
-                        <h3 class="text-sm font-semibold text-base-900 dark:text-base-100 uppercase tracking-wider mb-3">
-                            On this page
-                        </h3>
-                        <div class="text-sm">
-                            <OutlineNavigation ContentSelector="main"  />
-                        </div>
-                    </div>
-                </aside>
-            }
-        </div>
-    </article>
+    <DocContent Title="@Content.FrontMatter.Title"
+                Description="@Content.FrontMatter.Description"
+                HtmlContent="@HtmlContent"
+                Outline="@Outline"
+                BreadcrumbItems="@BreadcrumbItems" />
 }
 else
 {

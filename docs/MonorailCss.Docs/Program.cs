@@ -6,6 +6,7 @@ using MonorailCss.Theme;
 using MyLittleContentEngine;
 using MyLittleContentEngine.MonorailCss;
 using MyLittleContentEngine.Services.Content;
+using MyLittleContentEngine.Services.Spa;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -23,8 +24,13 @@ builder.Services.AddContentEngineService(_ => new ContentEngineOptions
         ContentPath = "Content",
         BasePageUrl = string.Empty,
     })
-    .AddSingleton<UtilityContentService>()
-    .AddSingleton<IContentService>(sp => sp.GetRequiredService<UtilityContentService>());
+    .WithSpaNavigation<DocFrontMatter>(spa =>
+    {
+        spa.AddIsland<ContentIslandRenderer>();
+    });
+
+builder.Services.AddSingleton<UtilityContentService>();
+builder.Services.AddSingleton<IContentService>(sp => sp.GetRequiredService<UtilityContentService>());
 
 builder.Services.AddMonorailCss(_ =>
 {
@@ -73,5 +79,6 @@ app.UseAntiforgery();
 app.MapStaticAssets();
 app.MapRazorComponents<App>();
 app.UseMonorailCss();
+app.UseSpaNavigation();
 
 await app.RunOrBuildContent(args);

@@ -1,0 +1,72 @@
+@using MonorailCss.Docs.Services
+@inject IMarkdownContentService<DocFrontMatter> ContentService
+@inject UtilityContentService UtilityService
+
+@if (_title is not null)
+{
+    <DocContent Title="@_title"
+                Description="@_description"
+                HtmlContent="@_htmlContent"
+                Outline="@_outline"
+                BreadcrumbItems="@_breadcrumbs" />
+}
+else if (_propertyUtilities is not null && _categoryName is not null)
+{
+    <UtilityDetailContent PropertyUtilities="@_propertyUtilities"
+                          CategoryName="@_categoryName"
+                          Breadcrumbs="@_breadcrumbs" />
+}
+
+@code {
+    [Parameter] public string Url { get; set; } = "";
+
+    private string? _title;
+    private string? _description;
+    private string _htmlContent = "";
+    private OutlineEntry[]? _outline;
+    private PropertyUtilities? _propertyUtilities;
+    private string? _categoryName;
+    private List<Breadcrumbs.BreadcrumbItem> _breadcrumbs = [];
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Try markdown content first
+        var markdownResult = await ContentService.GetRenderedContentPageByUrlOrDefault(Url);
+        if (markdownResult is not null)
+        {
+            var page = markdownResult.Value.Page;
+            _title = page.FrontMatter.Title;
+            _description = page.FrontMatter.Description;
+            _htmlContent = markdownResult.Value.HtmlContent;
+            _outline = page.Outline;
+            _breadcrumbs =
+            [
+                new() { Title = "Home", Url = "/" },
+                new() { Title = page.FrontMatter.Title, IsCurrent = true },
+            ];
+            return;
+        }
+
+        // Try utility content - parse URL for /{category}/{property} pattern
+        var segments = Url.Trim('/').Split('/');
+        if (segments.Length == 2)
+        {
+            var categorySlug = segments[0];
+            var propertySlug = segments[1];
+
+            _categoryName = await UtilityService.GetCategoryNameFromSlugAsync(categorySlug);
+            _propertyUtilities = await UtilityService.GetUtilitiesForPropertyAsync(categorySlug, propertySlug);
+
+            if (_categoryName is not null && _propertyUtilities is not null)
+            {
+                _breadcrumbs =
+                [
+                    new() { Title = "Home", Url = "/" },
+                    new() { Title = "Utilities", Url = string.Empty },
+                    new() { Title = _categoryName, Url = string.Empty },
+                    new() { Title = _propertyUtilities.DisplayName, IsCurrent = true },
+                ];
+            }
+        }
+    }
+}
