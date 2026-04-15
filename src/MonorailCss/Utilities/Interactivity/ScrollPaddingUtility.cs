@@ -11,7 +11,7 @@ namespace MonorailCss.Utilities.Interactivity;
 internal class ScrollPaddingUtility : BaseSpacingUtility
 {
     protected override string[] Patterns => [
-        "scroll-p", "scroll-px", "scroll-py", "scroll-pt", "scroll-pr", "scroll-pb", "scroll-pl", "scroll-ps", "scroll-pe"
+        "scroll-p", "scroll-px", "scroll-py", "scroll-pt", "scroll-pr", "scroll-pb", "scroll-pl", "scroll-ps", "scroll-pe", "scroll-pbs", "scroll-pbe"
     ];
 
     protected override string[] SpacingNamespaces => NamespaceResolver.ScrollPaddingChain;
@@ -38,6 +38,10 @@ internal class ScrollPaddingUtility : BaseSpacingUtility
                 new Declaration("scroll-padding-inline-start", value, important)),
             "scroll-pe" => ImmutableList.Create<AstNode>(
                 new Declaration("scroll-padding-inline-end", value, important)),
+            "scroll-pbs" => ImmutableList.Create<AstNode>(
+                new Declaration("scroll-padding-block-start", value, important)),
+            "scroll-pbe" => ImmutableList.Create<AstNode>(
+                new Declaration("scroll-padding-block-end", value, important)),
             _ => throw new InvalidOperationException($"Unsupported pattern: {pattern}"),
         };
     }

@@ -11,7 +11,7 @@ namespace MonorailCss.Utilities.Interactivity;
 internal class ScrollMarginUtility : BaseSpacingUtility
 {
     protected override string[] Patterns => [
-        "scroll-m", "scroll-mx", "scroll-my", "scroll-mt", "scroll-mr", "scroll-mb", "scroll-ml", "scroll-ms", "scroll-me"
+        "scroll-m", "scroll-mx", "scroll-my", "scroll-mt", "scroll-mr", "scroll-mb", "scroll-ml", "scroll-ms", "scroll-me", "scroll-mbs", "scroll-mbe"
     ];
 
     protected override string[] SpacingNamespaces => NamespaceResolver.ScrollMarginChain;
@@ -38,6 +38,10 @@ internal class ScrollMarginUtility : BaseSpacingUtility
                 new Declaration("scroll-margin-inline-start", value, important)),
             "scroll-me" => ImmutableList.Create<AstNode>(
                 new Declaration("scroll-margin-inline-end", value, important)),
+            "scroll-mbs" => ImmutableList.Create<AstNode>(
+                new Declaration("scroll-margin-block-start", value, important)),
+            "scroll-mbe" => ImmutableList.Create<AstNode>(
+                new Declaration("scroll-margin-block-end", value, important)),
             _ => throw new InvalidOperationException($"Unsupported pattern: {pattern}"),
         };
     }
