@@ -432,6 +432,58 @@ public static class ThemeDefaults
         builder.Add("--color-stone-900", "oklch(21.6% 0.006 56.043)");
         builder.Add("--color-stone-950", "oklch(14.7% 0.004 49.25)");
 
+        // Colors - Mauve
+        builder.Add("--color-mauve-50", "oklch(98.5% 0 0)");
+        builder.Add("--color-mauve-100", "oklch(96% 0.003 325.6)");
+        builder.Add("--color-mauve-200", "oklch(92.2% 0.005 325.62)");
+        builder.Add("--color-mauve-300", "oklch(86.5% 0.012 325.68)");
+        builder.Add("--color-mauve-400", "oklch(71.1% 0.019 323.02)");
+        builder.Add("--color-mauve-500", "oklch(54.2% 0.034 322.5)");
+        builder.Add("--color-mauve-600", "oklch(43.5% 0.029 321.78)");
+        builder.Add("--color-mauve-700", "oklch(36.4% 0.029 323.89)");
+        builder.Add("--color-mauve-800", "oklch(26.3% 0.024 320.12)");
+        builder.Add("--color-mauve-900", "oklch(21.2% 0.019 322.12)");
+        builder.Add("--color-mauve-950", "oklch(14.5% 0.008 326)");
+
+        // Colors - Olive
+        builder.Add("--color-olive-50", "oklch(98.8% 0.003 106.5)");
+        builder.Add("--color-olive-100", "oklch(96.6% 0.005 106.5)");
+        builder.Add("--color-olive-200", "oklch(93% 0.007 106.5)");
+        builder.Add("--color-olive-300", "oklch(88% 0.011 106.6)");
+        builder.Add("--color-olive-400", "oklch(73.7% 0.021 106.9)");
+        builder.Add("--color-olive-500", "oklch(58% 0.031 107.3)");
+        builder.Add("--color-olive-600", "oklch(46.6% 0.025 107.3)");
+        builder.Add("--color-olive-700", "oklch(39.4% 0.023 107.4)");
+        builder.Add("--color-olive-800", "oklch(28.6% 0.016 107.4)");
+        builder.Add("--color-olive-900", "oklch(22.8% 0.013 107.4)");
+        builder.Add("--color-olive-950", "oklch(15.3% 0.006 107.1)");
+
+        // Colors - Mist
+        builder.Add("--color-mist-50", "oklch(98.7% 0.002 197.1)");
+        builder.Add("--color-mist-100", "oklch(96.3% 0.002 197.1)");
+        builder.Add("--color-mist-200", "oklch(92.5% 0.005 214.3)");
+        builder.Add("--color-mist-300", "oklch(87.2% 0.007 219.6)");
+        builder.Add("--color-mist-400", "oklch(72.3% 0.014 214.4)");
+        builder.Add("--color-mist-500", "oklch(56% 0.021 213.5)");
+        builder.Add("--color-mist-600", "oklch(45% 0.017 213.2)");
+        builder.Add("--color-mist-700", "oklch(37.8% 0.015 216)");
+        builder.Add("--color-mist-800", "oklch(27.5% 0.011 216.9)");
+        builder.Add("--color-mist-900", "oklch(21.8% 0.008 223.9)");
+        builder.Add("--color-mist-950", "oklch(14.8% 0.004 228.8)");
+
+        // Colors - Taupe
+        builder.Add("--color-taupe-50", "oklch(98.6% 0.002 67.8)");
+        builder.Add("--color-taupe-100", "oklch(96% 0.002 17.2)");
+        builder.Add("--color-taupe-200", "oklch(92.2% 0.005 34.3)");
+        builder.Add("--color-taupe-300", "oklch(86.8% 0.007 39.5)");
+        builder.Add("--color-taupe-400", "oklch(71.4% 0.014 41.2)");
+        builder.Add("--color-taupe-500", "oklch(54.7% 0.021 43.1)");
+        builder.Add("--color-taupe-600", "oklch(43.8% 0.017 39.3)");
+        builder.Add("--color-taupe-700", "oklch(36.7% 0.016 35.7)");
+        builder.Add("--color-taupe-800", "oklch(26.8% 0.011 36.5)");
+        builder.Add("--color-taupe-900", "oklch(21.4% 0.009 43.1)");
+        builder.Add("--color-taupe-950", "oklch(14.7% 0.004 49.3)");
+
         // Special colors
         builder.Add("--color-black", "#000");
         builder.Add("--color-white", "#fff");
