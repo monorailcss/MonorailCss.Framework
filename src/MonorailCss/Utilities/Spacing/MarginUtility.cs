@@ -10,7 +10,7 @@ namespace MonorailCss.Utilities.Spacing;
 /// </summary>
 internal class MarginUtility : BaseSpacingUtility
 {
-    protected override string[] Patterns => ["m", "mx", "my", "mt", "mr", "mb", "ml", "ms", "me"];
+    protected override string[] Patterns => ["m", "mx", "my", "mt", "mr", "mb", "ml", "ms", "me", "mbs", "mbe"];
 
     protected override string[] SpacingNamespaces => NamespaceResolver.MarginChain;
 
@@ -46,6 +46,12 @@ internal class MarginUtility : BaseSpacingUtility
                 break;
             case "me":
                 declarations.Add(new Declaration("margin-inline-end", value, important));
+                break;
+            case "mbs":
+                declarations.Add(new Declaration("margin-block-start", value, important));
+                break;
+            case "mbe":
+                declarations.Add(new Declaration("margin-block-end", value, important));
                 break;
         }
 
