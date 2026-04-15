@@ -10,7 +10,7 @@ namespace MonorailCss.Utilities.Layout;
 /// </summary>
 internal class InsetUtility : BaseFractionAwareSpacingUtility
 {
-    protected override string[] Patterns => ["inset", "top", "right", "bottom", "left", "start", "end"];
+    protected override string[] Patterns => ["inset", "top", "right", "bottom", "left", "start", "end", "inset-s", "inset-e", "inset-bs", "inset-be"];
 
     protected override string[] SpacingNamespaces => ["--inset", "--spacing"];
 
@@ -37,10 +37,18 @@ internal class InsetUtility : BaseFractionAwareSpacingUtility
                 declarations.Add(new Declaration("left", value, important));
                 break;
             case "start":
+            case "inset-s":
                 declarations.Add(new Declaration("inset-inline-start", value, important));
                 break;
             case "end":
+            case "inset-e":
                 declarations.Add(new Declaration("inset-inline-end", value, important));
+                break;
+            case "inset-bs":
+                declarations.Add(new Declaration("inset-block-start", value, important));
+                break;
+            case "inset-be":
+                declarations.Add(new Declaration("inset-block-end", value, important));
                 break;
         }
 
