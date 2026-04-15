@@ -16,7 +16,7 @@ internal class BorderUtility : IUtility
 {
     private static readonly string[] _functionalRoots = [
         "border", "border-x", "border-y", "border-t", "border-r",
-        "border-b", "border-l", "border-s", "border-e"
+        "border-b", "border-l", "border-s", "border-e", "border-bs", "border-be"
     ];
 
     public UtilityPriority Priority => UtilityPriority.ConstrainedFunctional;
@@ -240,6 +240,12 @@ internal class BorderUtility : IUtility
             case "border-e":
                 declarations.Add(new Declaration("border-inline-end-width", value, important));
                 break;
+            case "border-bs":
+                declarations.Add(new Declaration("border-block-start-width", value, important));
+                break;
+            case "border-be":
+                declarations.Add(new Declaration("border-block-end-width", value, important));
+                break;
         }
 
         return declarations.ToImmutableList();
@@ -290,6 +296,14 @@ internal class BorderUtility : IUtility
                 declarations.Add(new Declaration("border-inline-end-style", "var(--tw-border-style)", important));
                 declarations.Add(new Declaration("border-inline-end-width", value, important));
                 break;
+            case "border-bs":
+                declarations.Add(new Declaration("border-block-start-style", "var(--tw-border-style)", important));
+                declarations.Add(new Declaration("border-block-start-width", value, important));
+                break;
+            case "border-be":
+                declarations.Add(new Declaration("border-block-end-style", "var(--tw-border-style)", important));
+                declarations.Add(new Declaration("border-block-end-width", value, important));
+                break;
         }
 
         return declarations.ToImmutableList();
@@ -327,6 +341,12 @@ internal class BorderUtility : IUtility
                 break;
             case "border-e":
                 declarations.Add(new Declaration("border-inline-end-color", value, important));
+                break;
+            case "border-bs":
+                declarations.Add(new Declaration("border-block-start-color", value, important));
+                break;
+            case "border-be":
+                declarations.Add(new Declaration("border-block-end-color", value, important));
                 break;
         }
 
