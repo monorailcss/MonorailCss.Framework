@@ -10,7 +10,7 @@ namespace MonorailCss.Utilities.Spacing;
 /// </summary>
 internal class PaddingUtility : BaseSpacingUtility
 {
-    protected override string[] Patterns => ["p", "px", "py", "pt", "pr", "pb", "pl", "ps", "pe"];
+    protected override string[] Patterns => ["p", "px", "py", "pt", "pr", "pb", "pl", "ps", "pe", "pbs", "pbe"];
 
     protected override string[] SpacingNamespaces => NamespaceResolver.PaddingChain;
 
@@ -46,6 +46,12 @@ internal class PaddingUtility : BaseSpacingUtility
                 break;
             case "pe":
                 declarations.Add(new Declaration("padding-inline-end", value, important));
+                break;
+            case "pbs":
+                declarations.Add(new Declaration("padding-block-start", value, important));
+                break;
+            case "pbe":
+                declarations.Add(new Declaration("padding-block-end", value, important));
                 break;
         }
 
