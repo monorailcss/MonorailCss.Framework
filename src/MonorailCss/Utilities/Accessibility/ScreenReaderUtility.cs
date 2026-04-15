@@ -53,7 +53,7 @@ internal class ScreenReaderUtility : BaseStaticUtility
             new Declaration("padding", "0", important),
             new Declaration("margin", "-1px", important),
             new Declaration("overflow", "hidden", important),
-            new Declaration("clip", "rect(0, 0, 0, 0)", important),
+            new Declaration("clip-path", "inset(50%)", important),
             new Declaration("white-space", "nowrap", important),
             new Declaration("border-width", "0", important),
         };
