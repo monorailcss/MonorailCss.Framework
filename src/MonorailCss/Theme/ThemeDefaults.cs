@@ -118,6 +118,26 @@ public static class ColorNames
     public const string Stone = "stone";
 
     /// <summary>
+    /// Represents the color name "mauve".
+    /// </summary>
+    public const string Mauve = "mauve";
+
+    /// <summary>
+    /// Represents the color name "olive".
+    /// </summary>
+    public const string Olive = "olive";
+
+    /// <summary>
+    /// Represents the color name "mist".
+    /// </summary>
+    public const string Mist = "mist";
+
+    /// <summary>
+    /// Represents the color name "taupe".
+    /// </summary>
+    public const string Taupe = "taupe";
+
+    /// <summary>
     /// Represents the color name "black".
     /// </summary>
     public const string Black = "black";
