@@ -1,49 +1,51 @@
 @page "/{*slug}"
-@inject IMarkdownContentService<DocFrontMatter> ContentService
+@inject ContentResolver ContentResolver
+@inject MonorailCss.Docs.Services.UtilityContentService UtilityService
 @layout MainLayout
 
-@if (Content != null)
-{
-    <PageTitle>@Content.FrontMatter.Title - MonorailCss</PageTitle>
+<PageTitle>@_pageTitle</PageTitle>
 
-    <DocContent Title="@Content.FrontMatter.Title"
-                Description="@Content.FrontMatter.Description"
-                HtmlContent="@HtmlContent"
-                Outline="@Outline"
-                BreadcrumbItems="@BreadcrumbItems" />
-}
-else
+@if (string.IsNullOrEmpty(Slug))
 {
     <p>Not found</p>
 }
+else
+{
+    <ContentIsland Url="@($"/{Slug.TrimEnd('/')}")" />
+}
 
 @code {
-    [Parameter]
-    public string? Slug { get; set; }
+    [Parameter] public string? Slug { get; set; }
 
-    private MarkdownContentPage<DocFrontMatter>? Content { get; set; }
-    private string HtmlContent { get; set; } = string.Empty;
-    private OutlineEntry[]? Outline { get; set; }
-    private List<Breadcrumbs.BreadcrumbItem>? BreadcrumbItems { get; set; }
+    private string _pageTitle = "MonorailCss";
 
     protected override async Task OnParametersSetAsync()
     {
-        if (!string.IsNullOrEmpty(Slug))
+        if (string.IsNullOrEmpty(Slug))
         {
-            var result = await ContentService.GetRenderedContentPageByUrlOrDefault($"/{Slug}");
-            Content = result?.Page;
-            HtmlContent = result?.HtmlContent ?? string.Empty;
-            Outline = result?.Page.Outline;
+            _pageTitle = "Not found - MonorailCss";
+            return;
+        }
 
-            // Generate breadcrumbs
-            if (Content != null)
+        var url = $"/{Slug.TrimEnd('/')}";
+        var markdown = await ContentResolver.GetContentByUrlAsync(url);
+        if (markdown is not null)
+        {
+            _pageTitle = $"{markdown.Title} - MonorailCss";
+            return;
+        }
+
+        var segments = Slug.Trim('/').Split('/');
+        if (segments.Length == 2)
+        {
+            var utilities = await UtilityService.GetUtilitiesForPropertyAsync(segments[0], segments[1]);
+            if (utilities is not null)
             {
-                BreadcrumbItems =
-                [
-                    new Breadcrumbs.BreadcrumbItem { Title = "Home", Url = "/", IsCurrent = false },
-                    new Breadcrumbs.BreadcrumbItem { Title = Content.FrontMatter.Title, Url = null, IsCurrent = true },
-                ];
+                _pageTitle = $"{utilities.DisplayName} - MonorailCss";
+                return;
             }
         }
+
+        _pageTitle = "Not found - MonorailCss";
     }
 }

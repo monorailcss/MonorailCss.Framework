@@ -32,9 +32,16 @@
                     <h3 class="text-sm font-semibold text-base-900 dark:text-base-100 uppercase tracking-wider mb-3">
                         On this page
                     </h3>
-                    <div class="text-sm">
-                        <OutlineNavigation ContentSelector="main"  />
-                    </div>
+                    <nav class="text-sm space-y-1">
+                        @foreach (var entry in Outline)
+                        {
+                            <a href="#@entry.Id"
+                               class="block py-1 text-base-600 dark:text-base-400 hover:text-base-900 dark:hover:text-base-100"
+                               style="@($"padding-left: {(entry.Level - 1) * 0.75}rem")">
+                                @entry.Text
+                            </a>
+                        }
+                    </nav>
                 </div>
             </aside>
         }

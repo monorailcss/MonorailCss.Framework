@@ -1,6 +1,6 @@
-@using MyLittleContentEngine.Services.Content.TableOfContents
 @inherits LayoutComponentBase
-@inject ITableOfContentService TableOfContentService
+@inject ContentResolver ContentResolver
+@inject NavigationBuilder NavigationBuilder
 @inject NavigationManager NavigationManager
 
 <div class="min-h-screen dark:scheme-dark bg-base-50 dark:bg-base-950">
@@ -112,7 +112,10 @@
             <aside class="hidden lg:block lg:w-64 xl:w-72 shrink-0 sticky top-16 self-start">
                 <div class="overflow-y-auto max-h-[calc(100vh-4rem)] pr-4 -mr-4">
                     <div class="py-8">
-                        <TableOfContentsNavigation TableOfContents="_toc"/>
+                        @if (_toc is not null)
+                        {
+                            <TocSidebar Items="_toc" />
+                        }
                     </div>
                 </div>
             </aside>
@@ -130,7 +133,10 @@
                                       d="M6 18L18 6M6 6l12 12"></path>
                             </svg>
                         </button>
-                        <TableOfContentsNavigation TableOfContents="_toc"/>
+                        @if (_toc is not null)
+                        {
+                            <TocSidebar Items="_toc" />
+                        }
                     </div>
                 </div>
             </div>
@@ -163,12 +169,9 @@
     protected override async Task OnInitializedAsync()
     {
         var currentPath = NavigationManager.ToAbsoluteUri(NavigationManager.Uri).AbsolutePath;
-
-
-        // Get the table of contents for the current section
-        _toc = (await TableOfContentService.GetNavigationTocAsync(currentPath)).ToImmutableList();
-
-
+        var tocItems = await ContentResolver.GetTocItemsAsync(string.Empty);
+        var currentRoute = ContentRouteFactory.FromUrl(new UrlPath(currentPath), string.Empty);
+        _toc = NavigationBuilder.BuildTree(tocItems, currentRoute, string.Empty);
         await base.OnInitializedAsync();
     }
 

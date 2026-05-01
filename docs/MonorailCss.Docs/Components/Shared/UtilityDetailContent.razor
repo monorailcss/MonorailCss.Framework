@@ -1,8 +1,8 @@
 @using MonorailCss.Docs.Services
 @using MonorailCss.Documentation
-@using MyLittleContentEngine.Services.Content.MarkdigExtensions.CodeHighlighting
+@using Pennington.Highlighting
 @inject CssFramework CssFramework
-@inject ITextMateHighlighter CodeHighlightService
+@inject ICodeHighlighter CodeHighlightService
 
 <Breadcrumbs Items="@Breadcrumbs" />
 
@@ -127,17 +127,14 @@ else
                   }
                   """;
 
-        var lines =  CodeHighlightService.Highlight(css, "css")
+        var lines = CodeHighlightService.Highlight(css, "css")
             .ReplaceLineEndings(Environment.NewLine)
+            .TrimEnd()
             .Split(Environment.NewLine)
             .Skip(1)
-            .SkipLast(1);
+            .SkipLast(2);
 
-
-        var highlight = $"""
-                         <pre class="text-xs"><code>{string.Join(Environment.NewLine, lines)}
-                         </code></pre>
-                         """;
+        var highlight = $"""<pre class="text-xs"><code>{string.Join(Environment.NewLine, lines)}</code></pre>""";
 
         return (MarkupString)highlight;
     }

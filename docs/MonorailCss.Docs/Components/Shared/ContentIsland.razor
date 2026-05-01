@@ -1,6 +1,5 @@
-@using MonorailCss.Docs.Services
-@inject IMarkdownContentService<DocFrontMatter> ContentService
-@inject UtilityContentService UtilityService
+@inject ContentResolver ContentResolver
+@inject MonorailCss.Docs.Services.UtilityContentService UtilityService
 
 @if (_title is not null)
 {
@@ -24,30 +23,27 @@ else if (_propertyUtilities is not null && _categoryName is not null)
     private string? _description;
     private string _htmlContent = "";
     private OutlineEntry[]? _outline;
-    private PropertyUtilities? _propertyUtilities;
+    private MonorailCss.Docs.Services.PropertyUtilities? _propertyUtilities;
     private string? _categoryName;
     private List<Breadcrumbs.BreadcrumbItem> _breadcrumbs = [];
 
     protected override async Task OnInitializedAsync()
     {
-        // Try markdown content first
-        var markdownResult = await ContentService.GetRenderedContentPageByUrlOrDefault(Url);
-        if (markdownResult is not null)
+        var markdown = await ContentResolver.GetContentByUrlAsync(Url);
+        if (markdown is not null)
         {
-            var page = markdownResult.Value.Page;
-            _title = page.FrontMatter.Title;
-            _description = page.FrontMatter.Description;
-            _htmlContent = markdownResult.Value.HtmlContent;
-            _outline = page.Outline;
+            _title = markdown.Title;
+            _description = markdown.Description;
+            _htmlContent = markdown.Html;
+            _outline = markdown.Outline;
             _breadcrumbs =
             [
                 new() { Title = "Home", Url = "/" },
-                new() { Title = page.FrontMatter.Title, IsCurrent = true },
+                new() { Title = markdown.Title, IsCurrent = true },
             ];
             return;
         }
 
-        // Try utility content - parse URL for /{category}/{property} pattern
         var segments = Url.Trim('/').Split('/');
         if (segments.Length == 2)
         {

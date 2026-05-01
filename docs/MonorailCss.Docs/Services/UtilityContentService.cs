@@ -1,8 +1,8 @@
 using System.Collections.Immutable;
 using MonorailCss.Documentation;
-using MyLittleContentEngine.Models;
-using MyLittleContentEngine.Services.Content;
-using MyLittleContentEngine.Services.Content.TableOfContents;
+using Pennington.Content;
+using Pennington.Pipeline;
+using Pennington.Routing;
 
 namespace MonorailCss.Docs.Services;
 
@@ -20,13 +20,12 @@ public partial class UtilityContentService : IContentService
             UtilityDocumentationEngine.GenerateDocumentationByProperty(theme));
     }
 
+    public string DefaultSection => "Utilities";
+
     public int SearchPriority => 10;
 
-    public Task<ImmutableList<PageToGenerate>> GetPagesToGenerateAsync()
+    public async IAsyncEnumerable<DiscoveredItem> DiscoverAsync()
     {
-        var pages = new List<PageToGenerate>();
-
-        // Add category pages and individual CSS property pages
         foreach (var (category, propertiesDict) in _utilitiesByProperty.Value)
         {
             var categorySlug = ToSlug(category);
@@ -34,62 +33,52 @@ public partial class UtilityContentService : IContentService
             foreach (var (property, _) in propertiesDict)
             {
                 var propertySlug = ToSlug(property);
-                var propertyDisplayName = GetPropertyDisplayName(property);
-
-                pages.Add(new PageToGenerate(
-                    Url: $"/{categorySlug}/{propertySlug}",
-                    OutputFile: $"{categorySlug}/{propertySlug}.html",
-                    Metadata: new Metadata
-                    {
-                        Title = propertyDisplayName,
-                        Description = $"Utilities for controlling the {property} CSS property",
-                    }));
+                var url = $"/{categorySlug}/{propertySlug}";
+                var route = ContentRouteFactory.FromUrl(new UrlPath(url), string.Empty);
+                yield return new DiscoveredItem(route, new ContentSource(new RazorPageSource("MonorailCss.Docs.Components.Pages.Doc")));
             }
         }
 
-        return Task.FromResult(pages.ToImmutableList());
+        await Task.CompletedTask;
     }
 
     public Task<ImmutableList<ContentTocItem>> GetContentTocEntriesAsync()
     {
         var entries = new List<ContentTocItem>();
 
-        // Add category entries
         var order = 1000;
         foreach (var (category, propertiesDict) in _utilitiesByProperty.Value.OrderBy(x => x.Key))
         {
             var categorySlug = ToSlug(category);
 
-            // Add individual CSS property entries
             var propertyOrder = order + 1;
             foreach (var (property, _) in propertiesDict.OrderBy(p => p.Key))
             {
                 var propertySlug = ToSlug(property);
                 var propertyDisplayName = GetPropertyDisplayName(property);
+                var route = ContentRouteFactory.FromUrl(new UrlPath($"/{categorySlug}/{propertySlug}"), string.Empty);
 
                 entries.Add(new ContentTocItem(
                     Title: propertyDisplayName,
-                    Url: $"/{categorySlug}/{propertySlug}",
+                    Route: route,
                     Order: propertyOrder++,
-                    HierarchyParts: [category, propertyDisplayName]
-                ));
+                    HierarchyParts: [category, propertyDisplayName],
+                    Section: "Utilities",
+                    Locale: string.Empty));
             }
         }
 
         return Task.FromResult(entries.ToImmutableList());
     }
 
-    public Task<ImmutableList<CrossReference>> GetCrossReferencesAsync()
-    {
-        // Could add cross-references between related properties in the future
-        return Task.FromResult(ImmutableList<CrossReference>.Empty);
-    }
+    public Task<ImmutableList<CrossReference>> GetCrossReferencesAsync() =>
+        Task.FromResult(ImmutableList<CrossReference>.Empty);
 
-    public Task<ImmutableList<ContentToCopy>> GetContentToCopyAsync()
-    {
-        // No static assets to copy
-        return Task.FromResult(ImmutableList<ContentToCopy>.Empty);
-    }
+    public Task<ImmutableList<ContentToCopy>> GetContentToCopyAsync() =>
+        Task.FromResult(ImmutableList<ContentToCopy>.Empty);
+
+    public Task<ImmutableList<ContentToCreate>> GetContentToCreateAsync() =>
+        Task.FromResult(ImmutableList<ContentToCreate>.Empty);
 
     /// <summary>
     /// Gets utilities for a specific CSS property within a category.
@@ -128,35 +117,25 @@ public partial class UtilityContentService : IContentService
 
     private static string ToSlug(string text)
     {
-        // Remove "Utility" suffix first
         text = text.Replace("Utility", "");
-
-        // Insert hyphens before uppercase letters (except at the start)
         text = SlugifyRegexDefinition().Replace(text, "-$1");
-
-        // Convert to lowercase and normalize separators
         return text
             .ToLowerInvariant()
             .Replace(" ", "-")
             .Replace("_", "-")
-            .Replace("--", "-") // Clean up any double hyphens
-            .Trim('-'); // Remove leading/trailing hyphens
+            .Replace("--", "-")
+            .Trim('-');
     }
 
     private static string GetPropertyDisplayName(string property)
     {
-        // For utility names (PascalCase with "Utility" suffix), convert to readable format
         if (property.EndsWith("Utility"))
         {
-            // Remove "Utility" suffix
             var nameWithoutSuffix = property.Replace("Utility", "");
-
-            // Split PascalCase into words (e.g., "ScreenReader" → "Screen Reader")
             var withSpaces = SlugifyRegexDefinition().Replace(nameWithoutSuffix, " $1").Trim();
             return withSpaces;
         }
 
-        // For CSS property names like "background-color", convert to title case
         var words = property.Split('-')
             .Where(word => !string.IsNullOrEmpty(word))
             .Select(word => char.ToUpperInvariant(word[0]) + word.Substring(1));
