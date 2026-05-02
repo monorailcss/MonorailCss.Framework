@@ -1,15 +1,15 @@
 @if (Items is { Count: > 0 })
 {
-    <nav class="text-sm space-y-6">
+    <nav class="text-[13.5px] space-y-5">
         @foreach (var sectionGroup in Items.GroupBy(i => i.Section ?? string.Empty))
         {
             @if (!string.IsNullOrWhiteSpace(sectionGroup.Key))
             {
                 <div>
-                    <div class="text-xs font-semibold text-base-500 dark:text-base-400 uppercase tracking-wider mb-2 px-2">
+                    <div class="font-mono text-[11px] text-warm-300 uppercase tracking-[0.08em] mb-2 px-3">
                         @sectionGroup.Key
                     </div>
-                    <ul class="space-y-1">
+                    <ul class="space-y-px">
                         @foreach (var item in sectionGroup)
                         {
                             <TocSidebarItem Item="item" />
@@ -19,7 +19,7 @@
             }
             else
             {
-                <ul class="space-y-1">
+                <ul class="space-y-px">
                     @foreach (var item in sectionGroup)
                     {
                         <TocSidebarItem Item="item" />

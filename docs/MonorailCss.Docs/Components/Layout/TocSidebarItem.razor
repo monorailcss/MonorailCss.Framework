@@ -2,14 +2,14 @@
 {
     <li>
         <a href="@Item.Route.CanonicalPath.Value"
-           class="block px-2 py-1 rounded @(Item.IsSelected
-               ? "bg-primary-100 dark:bg-primary-900/40 text-primary-900 dark:text-primary-100 font-medium"
-               : "text-base-700 dark:text-base-300 hover:text-base-900 dark:hover:text-base-100 hover:bg-base-100 dark:hover:bg-base-800") transition-colors">
+           class="block px-3 py-1.5 rounded-md border-l-2 transition-colors @(Item.IsSelected
+               ? "border-orange-500 bg-orange-500/[0.06] text-orange-500"
+               : "border-transparent text-warm-100 hover:bg-orange-500/[0.04] hover:text-orange-500")">
             @Item.Title
         </a>
         @if (Item.Children is { Count: > 0 })
         {
-            <ul class="ml-3 mt-1 space-y-1 border-l border-base-200 dark:border-base-800 pl-3">
+            <ul class="ml-3 mt-px space-y-px border-l border-warm-800 pl-3">
                 @foreach (var child in Item.Children)
                 {
                     <TocSidebarItem Item="child" />

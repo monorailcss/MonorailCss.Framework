@@ -1,24 +1,37 @@
 <!DOCTYPE html>
-<html lang="en" class="scroll-smooth">
+<html lang="en" class="scroll-smooth dark">
 <head>
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <link rel="preconnect" href="https://fonts.googleapis.com"/>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+    <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300..700;1,6..72,300..700&family=Geist:wght@300..700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet"/>
     <link rel="stylesheet" href="/styles.css" />
     <script src="/_content/Pennington.UI/scripts.js" defer></script>
     <script src="/_content/Pennington.UI/spa-engine.js" defer></script>
 
+    @* MonorailCss serves /styles.css JIT-scanned from the rendered HTML for the
+       requested URL. SPA navigation swaps content client-side without a fresh
+       request, so utility classes new to the destination page would stay
+       unstyled. After every spa:commit, fetch a fresh stylesheet (cache-busted)
+       and hot-swap it once it has loaded — no flash of unstyled content. *@
     <script>
-        // Dark mode initialization - prevents flash
-        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-            document.documentElement.classList.add('dark')
-        } else {
-            document.documentElement.classList.remove('dark')
-        }
+        document.addEventListener('spa:commit', function () {
+            var oldLink = document.querySelector('link[data-monorailcss-styles]')
+                       || document.querySelector('link[rel="stylesheet"][href^="/styles.css"]');
+            if (!oldLink) return;
+            var newLink = document.createElement('link');
+            newLink.rel = 'stylesheet';
+            newLink.dataset.monorailcssStyles = '';
+            newLink.href = '/styles.css?v=' + Date.now();
+            newLink.onload = function () { if (oldLink.parentNode) oldLink.parentNode.removeChild(oldLink); };
+            oldLink.parentNode.insertBefore(newLink, oldLink.nextSibling);
+        });
     </script>
 
     <HeadOutlet />
 </head>
-<body data-sidebar-open="false" class="bg-white dark:bg-base-900 text-base-900 dark:text-base-100 transition-colors duration-200 data-[sidebar-open=true]:overflow-hidden  overflow-y-scroll">
+<body data-sidebar-open="false" class="bg-warm-950 text-warm-50 font-sans data-[sidebar-open=true]:overflow-hidden overflow-y-scroll scrollbar-thin scrollbar-thumb-warm-700 scrollbar-track-warm-950 scrollbar-color">
 <Router AppAssembly="@typeof(Program).Assembly">
     <Found Context="routeData">
         <RouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)"/>

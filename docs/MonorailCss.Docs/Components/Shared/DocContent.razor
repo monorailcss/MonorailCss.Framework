@@ -1,43 +1,55 @@
-<article class="max-w-7xl mx-auto">
-    <!-- Article Header -->
-    <header class="mb-8 pb-8 border-b border-base-200 dark:border-base-700">
-        <Breadcrumbs Items="@BreadcrumbItems" />
+@* Doc page chrome: breadcrumb, title, lead, prose body, right-rail outline. *@
+<article class="max-w-[880px] mx-auto">
+    <Breadcrumbs Items="@BreadcrumbItems" />
 
-        <h1 class="text-4xl lg:text-5xl font-extrabold text-base-900 dark:text-primary-50 mb-4 text-pretty">
-            @Title
-        </h1>
+    <h1 class="font-display font-normal text-warm-50 text-[clamp(36px,4.5vw,44px)] leading-[1.05] tracking-[-0.022em] mb-3 text-pretty">
+        @Title
+    </h1>
 
-        @if (!string.IsNullOrEmpty(Description))
-        {
-            <p class="text-lg lg:text-xl text-base-600 dark:text-base-400 text-pretty">
-                @Description
-            </p>
-        }
-    </header>
+    @if (!string.IsNullOrEmpty(Description))
+    {
+        <p class="text-warm-100 text-[18px] leading-[1.55] max-w-[640px] mb-9 text-pretty">
+            @Description
+        </p>
+    }
 
-    <!-- Content with Outline -->
-    <div class="lg:flex lg:gap-8">
-        <!-- Main Content -->
+    <div class="lg:flex lg:gap-10">
         <div class="flex-1 min-w-0">
-            <main class="prose dark:prose-invert max-w-full prose-headings:scroll-m-20">
+            <main class="prose prose-invert max-w-full
+                         prose-headings:font-display prose-headings:font-normal prose-headings:text-warm-50 prose-headings:scroll-m-20
+                         prose-h2:text-[28px] prose-h2:tracking-[-0.018em] prose-h2:mt-14 prose-h2:mb-4
+                         prose-h3:font-sans prose-h3:font-semibold prose-h3:text-[17px] prose-h3:mt-8 prose-h3:mb-3
+                         prose-p:text-warm-100 prose-p:text-[15.5px] prose-p:leading-[1.65] prose-p:max-w-[700px] prose-p:text-pretty
+                         prose-a:text-orange-500 prose-a:no-underline hover:prose-a:underline
+                         prose-strong:text-warm-50
+                         prose-code:font-mono prose-code:text-orange-500 prose-code:text-[0.9em] prose-code:before:content-none prose-code:after:content-none
+                         prose-pre:bg-warm-900 prose-pre:border prose-pre:border-warm-800 prose-pre:rounded-xl prose-pre:p-0 prose-pre:font-mono prose-pre:text-[13px]
+                         prose-li:text-warm-100 prose-li:marker:text-warm-500
+                         prose-blockquote:border-l-2 prose-blockquote:border-orange-500 prose-blockquote:text-warm-100 prose-blockquote:not-italic
+                         prose-hr:border-warm-800
+                         prose-table:bg-warm-900 prose-table:border prose-table:border-warm-800 prose-table:rounded-xl prose-table:overflow-hidden prose-table:font-mono prose-table:text-[13.5px]
+                         prose-th:bg-warm-800 prose-th:font-sans prose-th:font-medium prose-th:text-[11px] prose-th:uppercase prose-th:tracking-[0.08em] prose-th:text-warm-300 prose-th:px-[18px] prose-th:py-3 prose-th:text-left
+                         prose-td:px-[18px] prose-td:py-3.5 prose-td:text-warm-50 prose-td:border-warm-800">
                 @((MarkupString)HtmlContent)
             </main>
+
+            <div class="mt-14 pt-6 border-t border-warm-800 text-center text-warm-500 text-xs font-mono">
+                © @DateTime.Now.Year MonorailCss · A Tailwind 4.1 compatible CSS engine written in .NET
+            </div>
         </div>
 
-        <!-- Outline Navigation (Desktop) -->
         @if (Outline is { Length: > 0 })
         {
-            <aside class="hidden xl:block w-64 shrink-0">
+            <aside class="hidden xl:block w-[220px] shrink-0">
                 <div class="sticky top-24">
-                    <h3 class="text-sm font-semibold text-base-900 dark:text-base-100 uppercase tracking-wider mb-3">
+                    <div class="font-mono text-[11px] text-warm-300 uppercase tracking-[0.08em] mb-3.5">
                         On this page
-                    </h3>
-                    <nav class="text-sm space-y-1">
+                    </div>
+                    <nav class="flex flex-col gap-px text-[13px]">
                         @foreach (var entry in Outline)
                         {
                             <a href="#@entry.Id"
-                               class="block py-1 text-base-600 dark:text-base-400 hover:text-base-900 dark:hover:text-base-100"
-                               style="@($"padding-left: {(entry.Level - 1) * 0.75}rem")">
+                               class="block py-1 border-l-2 border-warm-800 text-warm-100 hover:text-orange-500 hover:border-orange-500 transition-colors @(IndentClass(entry.Level))">
                                 @entry.Text
                             </a>
                         }
@@ -54,4 +66,12 @@
     [Parameter] public string HtmlContent { get; set; } = "";
     [Parameter] public OutlineEntry[]? Outline { get; set; }
     [Parameter] public List<Breadcrumbs.BreadcrumbItem>? BreadcrumbItems { get; set; }
+
+    private static string IndentClass(int level) => level switch
+    {
+        <= 1 => "pl-3",
+        2    => "pl-6",
+        3    => "pl-9",
+        _    => "pl-12",
+    };
 }

@@ -1,0 +1,37 @@
+@inherits LayoutComponentBase
+
+<div class="min-h-screen font-sans text-warm-50 antialiased selection:bg-terra-500 selection:text-white bg-warm-950 [background-image:radial-gradient(ellipse_800px_600px_at_50%_0%,rgba(214,87,99,0.10),transparent_60%),radial-gradient(ellipse_600px_400px_at_100%_30%,rgba(232,148,95,0.06),transparent_60%)]">
+    <header class="sticky top-0 z-50 flex items-center justify-between px-9 py-[18px] border-b border-warm-800 bg-warm-950/70 backdrop-blur-md supports-[backdrop-filter]:bg-warm-950/60">
+        <a href="/" class="flex items-center gap-2.5">
+            <svg width="26" height="26" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+                <rect x="9"  y="3" width="2" height="26" rx="1" class="fill-orange-500" />
+                <rect x="21" y="3" width="2" height="26" rx="1" class="fill-orange-500" />
+                <rect x="6" y="7"  width="20" height="2" rx="1" class="fill-orange-500/70" />
+                <rect x="6" y="15" width="20" height="2" rx="1" class="fill-orange-500/50" />
+                <rect x="6" y="23" width="20" height="2" rx="1" class="fill-orange-500/35" />
+            </svg>
+            <span class="font-display text-xl italic font-medium tracking-tight text-orange-500">
+                Monorail<span class="not-italic font-normal text-warm-50">Css</span>
+            </span>
+        </a>
+
+        <nav class="hidden md:flex items-center gap-7 text-sm text-warm-100">
+            <a href="/basics/getting-started/" class="hover:text-orange-500 transition-colors">Documentation</a>
+            <a href="/reference/architecture/" class="hover:text-orange-500 transition-colors">Reference</a>
+            <a href="/customization/full-example/" class="hover:text-orange-500 transition-colors">Examples</a>
+            <a href="https://github.com/phil-scott-78/MonorailCss" target="_blank" rel="noopener noreferrer" class="hover:text-orange-500 transition-colors">GitHub ↗</a>
+        </nav>
+
+        <div class="flex items-center gap-3">
+            <div class="hidden sm:flex items-center gap-2 px-3 py-[7px] rounded-lg bg-warm-900 border border-warm-800 text-warm-500 text-[13px] min-w-[240px]">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.35-4.35"/></svg>
+                Search docs
+                <span class="ml-auto font-mono text-[11px] text-warm-500 border border-warm-800 px-1.5 py-px rounded">⌘K</span>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        @Body
+    </main>
+</div>

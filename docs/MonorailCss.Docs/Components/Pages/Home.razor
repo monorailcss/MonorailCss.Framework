@@ -1,94 +1,308 @@
 @page "/"
-@inject ContentResolver ContentResolver
-@layout MainLayout
+@layout HomeLayout
 
-<PageTitle>MonorailCss Documentation</PageTitle>
+<PageTitle>MonorailCSS — A Tailwind-compatible JIT CSS engine for .NET</PageTitle>
 
-<div class="space-y-12">
-    <!-- Hero Section -->
-    <section class="text-center pt-12 lg:pt-20">
-        <h1 class="text-5xl text-primary-950 dark:text-primary-100 lg:text-6xl font-extrabold mb-6">
-                MonorailCss
-        </h1>
-        <p class="text-xl lg:text-2xl text-base-600 dark:text-base-400 max-w-3xl mx-auto mb-8 text-pretty">
-            A JIT CSS compiler written in .NET, hopefully compatible with Tailwind 4.1
-        </p>
-        <div class="flex flex-col sm:flex-row gap-4 justify-center">
-            @{
-                var firstDoc = _docPages.OrderBy(x => x.Order).FirstOrDefault();
-            }
-            @if (firstDoc is not null)
-            {
-                <a href="@firstDoc.Route.CanonicalPath.Value" class="inline-flex items-center justify-center px-6 py-3 text-base font-medium rounded-lg text-white bg-primary-600 hover:bg-primary-700 dark:bg-primary-800 dark:hover:bg-primary-600 transition-colors">
-                    Get Started
-                    <svg class="ml-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
-                    </svg>
+@* ─────────────────────────────────  HERO (split)  ───────────────────────────────── *@
+<section class="relative px-12 py-20 overflow-hidden">
+    <div class="max-w-[1280px] mx-auto grid lg:grid-cols-[1.05fr_1fr] gap-14 items-center relative">
+        <div>
+            <span class="inline-flex items-center gap-2 pl-2.5 pr-3 py-1 rounded-full bg-orange-500/10 border border-orange-500/20 text-orange-500 text-xs font-medium font-mono tracking-[0.02em]">
+                <span class="w-1.5 h-1.5 rounded-full bg-orange-500 ring-[3px] ring-orange-500/20"></span>
+                Tailwind 4.1 · JIT · Pure C#
+            </span>
+            <h1 class="font-display font-normal text-warm-50 mt-[22px] text-[clamp(48px,5.6vw,78px)] leading-[0.98] tracking-[-0.025em] text-balance">
+                Ship Tailwind CSS <span class="italic text-orange-500">without</span> the toolchain.
+            </h1>
+            <p class="mt-6 max-w-[480px] text-warm-100 text-[17px] leading-[1.55] text-pretty">
+                MonorailCSS is a Tailwind-compatible JIT compiler written in pure .NET.
+                Compile utilities at runtime, in-process, with zero npm.
+            </p>
+            <div class="flex gap-3 mt-8">
+                <a href="/basics/getting-started/" class="inline-flex items-center gap-2 px-[18px] py-[11px] rounded-lg text-sm font-medium font-sans bg-terra-500 text-white shadow-[0_1px_0_rgba(255,255,255,0.08)_inset,0_6px_20px_-8px_rgba(214,87,99,0.55)] hover:bg-terra-600 hover:-translate-y-px transition-all duration-150">
+                    Get started
+                    <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
                 </a>
-            }
-            <a href="https://github.com/phil-scott-78/MonorailCss" target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center px-6 py-3 text-base font-medium rounded-lg text-base-700 dark:text-base-200 bg-base-100 hover:bg-base-200 dark:bg-base-800 dark:hover:bg-base-700 transition-colors">
-                View on GitHub
-                <svg class="ml-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
-                </svg>
-            </a>
-        </div>
-    </section>
-
-    <!-- Feature Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-2  gap-6">
-        @foreach (var item in _docPages.OrderBy(x => x.Order).ThenBy(x => x.Title))
-        {
-            <a href="@item.Route.CanonicalPath.Value" class="group relative overflow-hidden rounded-xl bg-white dark:bg-base-900 border border-base-200 dark:border-base-800 transition-all hover:shadow hover:border-primary-300 dark:hover:border-primary-700/50 hover:bg-primary-100/15 dark:hover:bg-primary-900/5">
-                <div class="p-6">
-                    @if (!string.IsNullOrEmpty(item.Section))
-                    {
-                        <div class="mb-3">
-                            <span class="inline-block bg-primary-100 dark:bg-primary-900 text-primary-800 dark:text-primary-200 text-xs font-medium px-2.5 py-1 rounded">
-                                @item.Section
-                            </span>
-                        </div>
-                    }
-
-                    <h3 class="text-xl font-bold text-base-900 dark:text-base-100 mb-2  transition-colors">
-                        @item.Title
-                    </h3>
-
-                    <div class="flex items-center text-primary-600 dark:text-primary-400 text-sm font-medium">
-                        Read more
-                        <svg class="ml-1 w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-                        </svg>
-                    </div>
-                </div>
-            </a>
-        }
-    </div>
-
-    <!-- Quick Start Section -->
-    <section class="mt-12 p-8 bg-base-100 dark:bg-base-800 rounded-2xl border border-base-200 dark:border-base-700">
-        <h2 class="text-3xl font-bold mb-6 text-center text-base-900 dark:text-base-100">Quick Start</h2>
-        <div class="max-w-2xl mx-auto">
-            <div class="bg-white dark:bg-base-900 p-6 rounded-lg border border-base-200 dark:border-base-700">
-                <h3 class="font-semibold mb-3 flex items-center text-base-900 dark:text-base-100">
-                    <svg class="w-5 h-5 mr-2 text-primary-600 dark:text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
-                    </svg>
-                    Install MonorailCss
-                </h3>
-                <pre class="bg-base-100 dark:bg-base-800 p-4 rounded text-sm overflow-x-auto text-base-900 dark:text-base-100"><code>dotnet add package MonorailCss</code></pre>
+                <a href="/basics/configuration/" class="inline-flex items-center gap-2 px-[18px] py-[11px] rounded-lg text-sm font-medium font-sans bg-transparent text-warm-50 border border-warm-700 hover:border-orange-500 hover:text-orange-500 transition-all duration-150">
+                    Read the docs
+                </a>
+            </div>
+            <div class="flex gap-7 mt-11 text-warm-300 text-[13px] flex-wrap">
+                <div><span class="font-mono font-medium text-warm-50">0</span> <span class="ml-1.5">npm deps</span></div>
+                <div><span class="font-mono font-medium text-warm-50">~12ms</span> <span class="ml-1.5">cold compile</span></div>
+                <div><span class="font-mono font-medium text-warm-50">1.4k+</span> <span class="ml-1.5">utilities</span></div>
+                <div><span class="font-mono font-medium text-warm-50">6, 7, 8, 9</span> <span class="ml-1.5">.NET versions</span></div>
             </div>
         </div>
-    </section>
-</div>
+
+        @* Code pane *@
+        <div class="bg-warm-900 border border-warm-800 rounded-xl overflow-hidden shadow-[0_24px_60px_-20px_rgba(0,0,0,0.6),0_0_0_1px_rgba(232,148,95,0.04)] font-mono text-[13px]">
+            <div class="flex items-center px-3.5 py-2.5 border-b border-warm-800 bg-warm-800">
+                <div class="flex gap-1.5">
+                    <span class="w-2.5 h-2.5 rounded-full bg-warm-700"></span>
+                    <span class="w-2.5 h-2.5 rounded-full bg-warm-700"></span>
+                    <span class="w-2.5 h-2.5 rounded-full bg-warm-700"></span>
+                </div>
+                <span class="ml-3.5 text-warm-300 text-xs">Program.cs</span>
+                <span class="ml-auto text-warm-500 text-[11px]">C#</span>
+            </div>
+            <pre class="m-0 px-[18px] py-4 text-warm-50 leading-[1.7] text-[13px] overflow-auto"><code><span class="text-orange-500">using</span> <span class="text-warm-50">MonorailCss</span>;
+
+<span class="text-warm-300">// 1. configure once</span>
+<span class="text-terra-500">var</span> framework = <span class="text-terra-500">new</span> <span class="text-orange-500">CssFramework</span>();
+
+<span class="text-warm-300">// 2. point it at your markup</span>
+<span class="text-terra-500">var</span> css = framework.<span class="text-orange-500">Process</span>(<span class="text-emerald-300">&quot;flex gap-4 p-6 bg-orange-500&quot;</span>);
+
+<span class="text-warm-300">// 3. ship the bytes</span>
+File.<span class="text-orange-500">WriteAllText</span>(<span class="text-emerald-300">&quot;site.css&quot;</span>, css);</code></pre>
+            <div class="px-[18px] py-2.5 border-t border-warm-800 bg-orange-500/5 text-warm-300 text-xs flex items-center gap-2">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                Compiled <span class="text-warm-50">4 utilities</span> in <span class="text-warm-50">11ms</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+@* ─────────────────────────────────  TRUSTED-WITH STRIP  ───────────────────────────────── *@
+<section class="px-12 -mt-5 mb-20 max-w-[1280px] mx-auto">
+    <div class="flex items-center justify-center gap-12 px-8 py-5 border-y border-warm-800 text-warm-300 font-mono text-[11px] tracking-[0.1em] uppercase flex-wrap">
+        <span>Works with</span>
+        <span class="text-warm-100">ASP.NET Core</span>
+        <span class="text-warm-500">·</span>
+        <span class="text-warm-100">Blazor</span>
+        <span class="text-warm-500">·</span>
+        <span class="text-warm-100">Razor Pages</span>
+        <span class="text-warm-500">·</span>
+        <span class="text-warm-100">MAUI</span>
+        <span class="text-warm-500">·</span>
+        <span class="text-warm-100">Statiq</span>
+    </div>
+</section>
+
+@* ─────────────────────────────────  FEATURES  ───────────────────────────────── *@
+<section class="px-12 max-w-[1280px] mx-auto mb-30">
+    <div class="mb-12 max-w-[720px]">
+        <div class="font-mono text-[11px] text-orange-500 tracking-[0.1em] uppercase mb-3.5 flex items-center gap-2.5">
+            <span>◆</span><span>Why MonorailCSS</span>
+        </div>
+        <h2 class="font-display font-normal m-0 text-[clamp(36px,4vw,52px)] leading-[1.12] tracking-[-0.022em] text-balance text-warm-50">A first-class CSS pipeline, in the language you already use.</h2>
+        <p class="mt-4 text-warm-100 text-[17px] leading-[1.55] text-pretty">Every feature you expect from Tailwind, expressed as idiomatic .NET. No build orchestration, no JS dependencies, no cognitive context-switch.</p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-px bg-warm-800 border border-warm-800 rounded-2xl overflow-hidden">
+        @foreach (var f in _features)
+        {
+            <div class="bg-warm-900/95 px-7 py-8 flex flex-col gap-3.5 min-h-[220px] hover:bg-warm-800 transition-colors duration-200 relative">
+                <div class="text-orange-500">@((MarkupString)f.Glyph)</div>
+                <h3 class="mt-2 mb-0 text-lg font-medium text-warm-50 tracking-[-0.005em]">@f.Title</h3>
+                <p class="m-0 text-warm-100 text-[14.5px] leading-[1.55] text-pretty">@f.Body</p>
+            </div>
+        }
+    </div>
+</section>
+
+@* ─────────────────────────────────  LIVE DEMO (static visual)  ───────────────────────────────── *@
+<section class="px-12 max-w-[1280px] mx-auto mb-30">
+    <div class="mb-12 max-w-[720px]">
+        <div class="font-mono text-[11px] text-orange-500 tracking-[0.1em] uppercase mb-3.5 flex items-center gap-2.5">
+            <span>◆</span><span>Try it</span>
+        </div>
+        <h2 class="font-display font-normal m-0 text-[clamp(36px,4vw,52px)] leading-[1.12] tracking-[-0.022em] text-balance text-warm-50">Type utilities. Watch CSS appear.</h2>
+        <p class="mt-4 text-warm-100 text-[17px] leading-[1.55] text-pretty">The same JIT engine that powers your build, running in your browser. Edit the input — the compiled CSS updates live.</p>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-px border border-warm-800 rounded-2xl overflow-hidden bg-warm-800">
+        @* Input pane *@
+        <div class="flex flex-col bg-warm-900">
+            <div class="flex items-center justify-between px-4 py-3 border-b border-warm-800 bg-warm-800 font-mono text-[11px] text-warm-300 tracking-[0.06em] uppercase">
+                <span>Input — utility classes</span>
+                <div class="flex gap-1.5">
+                    <button type="button" class="font-mono text-[11px] bg-transparent border border-warm-700 text-warm-100 px-2 py-0.5 rounded cursor-pointer hover:border-orange-500 hover:text-orange-500 transition-colors">Card</button>
+                    <button type="button" class="font-mono text-[11px] bg-transparent border border-warm-700 text-warm-100 px-2 py-0.5 rounded cursor-pointer hover:border-orange-500 hover:text-orange-500 transition-colors">Button</button>
+                    <button type="button" class="font-mono text-[11px] bg-transparent border border-warm-700 text-warm-100 px-2 py-0.5 rounded cursor-pointer hover:border-orange-500 hover:text-orange-500 transition-colors">Arbitrary</button>
+                </div>
+            </div>
+            <div class="flex-1 min-h-[280px] px-[22px] py-5 font-mono text-sm leading-[1.7] text-warm-50 whitespace-pre-wrap break-words">flex items-center gap-4 px-6 py-4 rounded-xl bg-orange-500 text-white hover:bg-orange-600</div>
+            <div class="border-t border-warm-800 px-[22px] py-5 bg-warm-950">
+                <div class="font-mono text-[10px] text-warm-500 tracking-[0.1em] uppercase mb-3.5">Preview</div>
+                <div class="flex justify-center">
+                    <div class="inline-flex items-center gap-4 px-6 py-4 rounded-xl bg-orange-500 text-white font-medium text-sm">
+                        Preview element
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        @* Output pane *@
+        <div class="flex flex-col bg-warm-950">
+            <div class="flex items-center justify-between px-4 py-3 border-b border-warm-800 bg-warm-800 font-mono text-[11px] text-warm-300 tracking-[0.06em] uppercase">
+                <span>Output — generated CSS</span>
+                <span class="font-mono text-[11px] text-warm-300 normal-case tracking-normal">
+                    <span class="text-emerald-400">●</span> 23 lines · ~7ms
+                </span>
+            </div>
+            <pre class="flex-1 m-0 px-[22px] py-5 font-mono text-[13px] leading-[1.7] text-warm-100 overflow-auto max-h-[460px]"><code><span class="text-emerald-300">.flex</span> {
+  <span class="text-orange-500">display</span>: flex;
+}
+<span class="text-emerald-300">.items-center</span> {
+  <span class="text-orange-500">align-items</span>: center;
+}
+<span class="text-emerald-300">.gap-4</span> {
+  <span class="text-orange-500">gap</span>: 1rem;
+}
+<span class="text-emerald-300">.px-6</span> {
+  <span class="text-orange-500">padding-inline</span>: 1.5rem;
+}
+<span class="text-emerald-300">.py-4</span> {
+  <span class="text-orange-500">padding-block</span>: 1rem;
+}
+<span class="text-emerald-300">.rounded-xl</span> {
+  <span class="text-orange-500">border-radius</span>: 0.75rem;
+}
+<span class="text-emerald-300">.bg-orange-500</span> {
+  <span class="text-orange-500">background-color</span>: oklch(0.705 0.213 47.604);
+}
+<span class="text-emerald-300">.text-white</span> {
+  <span class="text-orange-500">color</span>: #fff;
+}
+<span class="text-emerald-300">.hover\:bg-orange-600</span><span class="text-orange-500">:hover</span> {
+  <span class="text-orange-500">background-color</span>: oklch(0.646 0.222 41.116);
+}</code></pre>
+        </div>
+    </div>
+</section>
+
+@* ─────────────────────────────────  INSTALL  ───────────────────────────────── *@
+<section class="px-12 max-w-[1280px] mx-auto mb-30">
+    <div class="mb-12 max-w-[720px]">
+        <div class="font-mono text-[11px] text-orange-500 tracking-[0.1em] uppercase mb-3.5 flex items-center gap-2.5">
+            <span>◆</span><span>Get going</span>
+        </div>
+        <h2 class="font-display font-normal m-0 text-[clamp(36px,4vw,52px)] leading-[1.12] tracking-[-0.022em] text-balance text-warm-50">
+            Three steps from <span class="font-mono text-[0.85em] text-terra-500">dotnet add</span> to shipping CSS.
+        </h2>
+        <p class="mt-4 text-warm-100 text-[17px] leading-[1.55] text-pretty">Install the NuGet package, instantiate the framework, and you're generating utility CSS — at build time, runtime, or both.</p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4.5">
+        @foreach (var step in _installSteps)
+        {
+            <div class="bg-warm-900 border border-warm-800 rounded-xl px-[22px] py-5 flex flex-col gap-3.5">
+                <div class="flex items-center gap-3.5">
+                    <span class="font-mono text-[11px] text-orange-500 tracking-[0.1em]">@step.N</span>
+                    <span class="text-base font-medium text-warm-50">@step.Title</span>
+                </div>
+                <pre class="m-0 px-3.5 py-3 bg-warm-950 border border-warm-800 rounded-lg font-mono text-[12.5px] leading-[1.6] text-warm-50 overflow-auto"><code>@step.Code</code></pre>
+            </div>
+        }
+    </div>
+</section>
+
+@* ─────────────────────────────────  CLOSING CTA  ───────────────────────────────── *@
+<section class="px-12 pb-30 max-w-[1280px] mx-auto">
+    <div class="relative px-12 py-18 border border-warm-800 rounded-2xl [background-image:linear-gradient(135deg,rgba(214,87,99,0.06),rgba(232,148,95,0.04)_60%,transparent)] text-center overflow-hidden">
+        <div class="relative">
+            <span class="inline-flex items-center gap-2 pl-2.5 pr-3 py-1 rounded-full bg-orange-500/10 border border-orange-500/20 text-orange-500 text-xs font-medium font-mono tracking-[0.02em]">
+                <span class="w-1.5 h-1.5 rounded-full bg-orange-500 ring-[3px] ring-orange-500/20"></span>
+                Open source · MIT
+            </span>
+            <h2 class="font-display font-normal mt-5 mx-auto text-[clamp(36px,5vw,64px)] leading-[1.0] tracking-[-0.025em] max-w-[720px] text-balance text-warm-50">
+                Bring Tailwind home to <span class="italic text-orange-500">.NET</span>.
+            </h2>
+            <p class="mt-4.5 mx-auto max-w-[540px] text-warm-100 text-[17px] leading-[1.55]">
+                Read the docs, scan the source, file an issue. Contributions welcome.
+            </p>
+            <div class="flex gap-3 mt-7 justify-center flex-wrap">
+                <a href="/basics/getting-started/" class="inline-flex items-center gap-2 px-[18px] py-[11px] rounded-lg text-sm font-medium font-sans bg-terra-500 text-white shadow-[0_1px_0_rgba(255,255,255,0.08)_inset,0_6px_20px_-8px_rgba(214,87,99,0.55)] hover:bg-terra-600 hover:-translate-y-px transition-all duration-150">
+                    Read the docs
+                    <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+                </a>
+                <a href="https://github.com/phil-scott-78/MonorailCss" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 px-[18px] py-[11px] rounded-lg text-sm font-medium font-sans bg-transparent text-warm-50 border border-warm-700 hover:border-orange-500 hover:text-orange-500 transition-all duration-150">
+                    View on GitHub ↗
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+@* ─────────────────────────────────  FOOTER  ───────────────────────────────── *@
+<footer class="border-t border-warm-800 px-12 pt-12 pb-15 text-warm-300 text-[13px]">
+    <div class="max-w-[1280px] mx-auto grid grid-cols-1 md:grid-cols-4 md:[grid-template-columns:1.5fr_1fr_1fr_1fr] gap-10">
+        <div>
+            <div class="flex items-center gap-2.5">
+                <svg width="26" height="26" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+                    <rect x="9"  y="3" width="2" height="26" rx="1" class="fill-orange-500" />
+                    <rect x="21" y="3" width="2" height="26" rx="1" class="fill-orange-500" />
+                    <rect x="6" y="7"  width="20" height="2" rx="1" class="fill-orange-500/70" />
+                    <rect x="6" y="15" width="20" height="2" rx="1" class="fill-orange-500/50" />
+                    <rect x="6" y="23" width="20" height="2" rx="1" class="fill-orange-500/35" />
+                </svg>
+                <span class="font-display text-xl italic font-medium tracking-tight text-orange-500">
+                    Monorail<span class="not-italic font-normal text-warm-50">Css</span>
+                </span>
+            </div>
+            <p class="mt-4 max-w-[320px] leading-[1.55]">A Tailwind-compatible JIT CSS engine for .NET. Open source, MIT licensed.</p>
+        </div>
+        @foreach (var col in _footerCols)
+        {
+            <div>
+                <div class="text-warm-50 text-xs font-mono tracking-[0.08em] uppercase mb-4">@col.Title</div>
+                <ul class="list-none p-0 m-0 flex flex-col gap-2.5">
+                    @foreach (var item in col.Items)
+                    {
+                        <li><a class="text-warm-100 hover:text-orange-500 transition-colors">@item</a></li>
+                    }
+                </ul>
+            </div>
+        }
+    </div>
+    <div class="max-w-[1280px] mx-auto mt-10 pt-6 border-t border-warm-800 flex justify-between items-center text-warm-500 text-xs font-mono">
+        <span>© @DateTime.Now.Year MonorailCss · MIT</span>
+        <span>v1.0.2 · Built with MonorailCss</span>
+    </div>
+</footer>
 
 @code {
-    private IReadOnlyList<ContentTocItem> _docPages = [];
+    private record Feature(string Title, string Body, string Glyph);
+    private record InstallStep(string N, string Title, string Code);
+    private record FooterCol(string Title, string[] Items);
 
-    protected override async Task OnInitializedAsync()
-    {
-        var items = await ContentResolver.GetTocItemsAsync(string.Empty);
-        // Hand-written doc pages come from the markdown source; utility pages sit under the "Utilities" section.
-        _docPages = items.Where(i => !string.Equals(i.Section, "Utilities", StringComparison.OrdinalIgnoreCase)).ToList();
-    }
+    private const string IcoAttrs = "width=\"24\" height=\"24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\" viewBox=\"0 0 24 24\"";
+
+    private readonly Feature[] _features =
+    [
+        new(".NET-native, end to end",
+            "Pure C# — no Node, no shelling out, no JS interop. Reference a NuGet package and compile inline.",
+            $"<svg {IcoAttrs}><path d=\"M4 20 L10 4 M14 4 L20 20\"/><path d=\"M7 14 L17 14\"/></svg>"),
+        new("Tailwind 4.1 compatible",
+            "Same utility names, same variants, same arbitrary-value syntax. Bring your existing markup unchanged.",
+            $"<svg {IcoAttrs}><path d=\"M3 12 C 5 8, 8 8, 11 11 C 13 13, 15 13, 17 11\"/><path d=\"M7 18 C 9 14, 12 14, 15 17 C 17 19, 19 19, 21 17\"/></svg>"),
+        new("Just-in-time",
+            "Scans your content, emits only what you used. Cold compiles in ~12ms; hot rebuilds are sub-millisecond.",
+            $"<svg {IcoAttrs}><path d=\"M13 2 L4 14 L11 14 L9 22 L20 9 L13 9 Z\"/></svg>"),
+        new("Built for ASP.NET",
+            "Drop-in middleware for runtime CSS, MSBuild task for build-time output, source-generator-friendly.",
+            $"<svg {IcoAttrs}><rect x=\"3\" y=\"4\" width=\"18\" height=\"14\" rx=\"2\"/><path d=\"M3 9 L21 9 M8 14 L13 14\"/></svg>"),
+        new("Theme-able by config",
+            "Override colors, spacing, breakpoints with a single ITheme. Add custom utilities and variants from C#.",
+            $"<svg {IcoAttrs}><circle cx=\"12\" cy=\"12\" r=\"9\"/><path d=\"M12 3 A9 9 0 0 0 12 21\"/><circle cx=\"8.5\" cy=\"9\" r=\"0.8\" fill=\"currentColor\" stroke=\"none\"/><circle cx=\"15.5\" cy=\"9\" r=\"0.8\" fill=\"currentColor\" stroke=\"none\"/><circle cx=\"15.5\" cy=\"15\" r=\"0.8\" fill=\"currentColor\" stroke=\"none\"/></svg>"),
+        new("Tiny & dependency-free",
+            "One assembly, zero external runtime deps. AOT-friendly. Trims well. Ships clean.",
+            $"<svg {IcoAttrs}><path d=\"M12 3 L20 7 L20 17 L12 21 L4 17 L4 7 Z\"/><path d=\"M12 3 L12 21 M4 7 L20 17 M20 7 L4 17\"/></svg>"),
+    ];
+
+    private readonly InstallStep[] _installSteps =
+    [
+        new("01", "Add the package", "dotnet add package MonorailCss"),
+        new("02", "Create a framework", "var fx = new CssFramework();\nvar css = fx.Process(\"p-6 bg-orange-500\");"),
+        new("03", "Wire it up", "app.UseMonorail(opts => {\n    opts.ContentRoots = [\"Pages\", \"Views\"];\n});"),
+    ];
+
+    private readonly FooterCol[] _footerCols =
+    [
+        new("Documentation", ["Getting Started", "Configuration", "ASP.NET Integration", "Theming"]),
+        new("Reference", ["Architecture", "Utility classes", "Variants", "Migrations"]),
+        new("Project", ["GitHub ↗", "NuGet ↗", "Changelog", "Contributing"]),
+    ];
 }
