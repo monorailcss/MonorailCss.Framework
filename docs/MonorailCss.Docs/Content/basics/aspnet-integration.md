@@ -2,7 +2,7 @@
 title: ASP.NET Integration
 description: Different approaches for integrating MonorailCSS with ASP.NET applications
 order: 3
-category: Basics
+uid: aspnet-integration
 tags: [ aspnet, integration, sourcegen, msbuild, middleware ]
 ---
 

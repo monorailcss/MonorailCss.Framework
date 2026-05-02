@@ -1,8 +1,8 @@
 ---
 title: Architecture
 description: Understand the internal architecture of MonorailCSS
-order: 4
-category: Advanced
+order: 1
+uid: architecture
 tags: [architecture, internals]
 ---
 

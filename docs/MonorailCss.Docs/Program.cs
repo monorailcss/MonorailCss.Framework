@@ -7,6 +7,7 @@ using Pennington.DocSite;
 using Pennington.Infrastructure;
 using Pennington.Islands;
 using Pennington.MonorailCss;
+using Pennington.Roslyn;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -52,6 +53,11 @@ builder.Services.AddMonorailCss(_ => new MonorailCssOptions
             { "950", "oklch(0.145 0.008 20)" },
         }.ToImmutableDictionary()),
     },
+});
+
+builder.Services.AddPenningtonRoslyn(roslyn =>
+{
+    roslyn.SolutionPath = "MonorailCss.Docs.Samples.slnx";
 });
 
 builder.Services.AddFileWatched<UtilityContentService>();
