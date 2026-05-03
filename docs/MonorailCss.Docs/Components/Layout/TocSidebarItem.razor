@@ -4,15 +4,15 @@
         <a href="@Item.Route.CanonicalPath.Value"
            data-toc-link
            aria-current="@(Item.IsSelected ? "page" : null)"
-           class="block px-3 py-1.5 rounded-md transition-colors text-base-900 dark:text-base-100 hover:text-accent-500 hover:bg-base-100/60 dark:hover:bg-base-900/60 aria-[current=page]:text-accent-500 aria-[current=page]:bg-accent-500/[0.08] aria-[current=page]:font-medium">
+           class="block @(Depth == 0 ? "px-3" : "pr-3 pl-6") py-1.5 rounded-md transition-colors text-base-900 dark:text-base-100 hover:text-accent-500 hover:bg-base-100/60 dark:hover:bg-base-900/60 aria-[current=page]:text-accent-500 aria-[current=page]:bg-accent-500/[0.08] aria-[current=page]:font-medium">
             @Item.Title
         </a>
         @if (Item.Children is { Count: > 0 })
         {
-            <ul class="ml-3 mt-px space-y-px border-l border-base-200 dark:border-base-800 pl-3">
+            <ul class="ml-3 mt-px space-y-px border-l border-base-200 dark:border-base-800">
                 @foreach (var child in Item.Children)
                 {
-                    <TocSidebarItem Item="child" />
+                    <TocSidebarItem Item="child" Depth="Depth + 1" />
                 }
             </ul>
         }
@@ -21,4 +21,5 @@
 
 @code {
     [Parameter] public NavigationTreeItem? Item { get; set; }
+    [Parameter] public int Depth { get; set; }
 }
