@@ -6,7 +6,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com"/>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
     <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300..700;1,6..72,300..700&family=Geist:wght@300..700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet"/>
-    <link rel="stylesheet" href="/styles.css" />
+    <link rel="stylesheet" href="/styles.css" data-monorailcss-styles />
     <script src="/_content/Pennington.UI/scripts.js" defer></script>
     <script src="/_content/Pennington.UI/spa-engine.js" defer></script>
 
@@ -14,11 +14,14 @@
        requested URL. SPA navigation swaps content client-side without a fresh
        request, so utility classes new to the destination page would stay
        unstyled. After every spa:commit, fetch a fresh stylesheet (cache-busted)
-       and hot-swap it once it has loaded — no flash of unstyled content. *@
+       and hot-swap it once it has loaded — no flash of unstyled content.
+
+       The link is tagged with data-monorailcss-styles because ASP.NET rewrites
+       the href to an absolute URL during rendering, which broke an earlier
+       href-prefix-based selector. *@
     <script>
         document.addEventListener('spa:commit', function () {
-            var oldLink = document.querySelector('link[data-monorailcss-styles]')
-                       || document.querySelector('link[rel="stylesheet"][href^="/styles.css"]');
+            var oldLink = document.querySelector('link[data-monorailcss-styles]');
             if (!oldLink) return;
             var newLink = document.createElement('link');
             newLink.rel = 'stylesheet';
@@ -27,11 +30,30 @@
             newLink.onload = function () { if (oldLink.parentNode) oldLink.parentNode.removeChild(oldLink); };
             oldLink.parentNode.insertBefore(newLink, oldLink.nextSibling);
         });
+
+        // The TOC sidebar lives outside the SPA island, so its server-rendered
+        // aria-current attribute goes stale on client-side navigation. Refresh
+        // it from the new pathname after each commit.
+        document.addEventListener('spa:commit', function (e) {
+            var path = (e.detail && e.detail.url ? e.detail.url.pathname : location.pathname).replace(/\/$/, '') || '/';
+            document.querySelectorAll('a[data-toc-link]').forEach(function (a) {
+                // Section-parent items have href="" — anchor.href would resolve
+                // those to the current document URL and falsely match. Skip them.
+                var raw = a.getAttribute('href');
+                if (!raw) { a.removeAttribute('aria-current'); return; }
+                var href = (new URL(a.href)).pathname.replace(/\/$/, '') || '/';
+                if (href === path) {
+                    a.setAttribute('aria-current', 'page');
+                } else {
+                    a.removeAttribute('aria-current');
+                }
+            });
+        });
     </script>
 
     <HeadOutlet />
 </head>
-<body data-sidebar-open="false" class="bg-warm-950 text-warm-50 font-sans data-[sidebar-open=true]:overflow-hidden overflow-y-scroll scrollbar-thin scrollbar-thumb-warm-700 scrollbar-track-warm-950 scrollbar-color">
+<body data-sidebar-open="false" class="bg-base-950 text-base-50 font-sans data-[sidebar-open=true]:overflow-hidden overflow-y-scroll scrollbar-thin scrollbar-thumb-base-700 scrollbar-track-base-950 scrollbar-color">
 <Router AppAssembly="@typeof(Program).Assembly">
     <Found Context="routeData">
         <RouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)"/>
