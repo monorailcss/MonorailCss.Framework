@@ -1,16 +1,16 @@
 @if (Items != null && Items.Any())
 {
-    <nav class="flex items-center font-mono text-xs text-base-300 tracking-[0.02em] mb-6">
+    <nav class="flex items-center font-mono text-xs text-base-700 dark:text-base-300 tracking-[0.02em] mb-6">
         @foreach (var (breadcrumb, index) in Items.Select((b, i) => (b, i)))
         {
             @if (index > 0)
             {
-                <span class="mx-2 text-base-500">/</span>
+                <span class="mx-2 text-base-500 dark:text-base-500">/</span>
             }
 
             @if (breadcrumb.IsCurrent)
             {
-                <span class="text-base-50">@breadcrumb.Title</span>
+                <span class="text-base-950 dark:text-base-50">@breadcrumb.Title</span>
             }
             else if (string.IsNullOrEmpty(breadcrumb.Url))
             {

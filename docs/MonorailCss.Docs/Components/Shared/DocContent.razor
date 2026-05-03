@@ -8,18 +8,18 @@
 
     @if (!string.IsNullOrEmpty(Description))
     {
-        <p class="text-base-100 text-[18px] leading-[1.55] max-w-[640px] mb-9 text-pretty">
+        <p class="text-base-900 dark:text-base-100 text-[18px] leading-[1.55] max-w-[640px] mb-9 text-pretty">
             @Description
         </p>
     }
 
     <div class="lg:flex lg:gap-10">
         <div class="flex-1 min-w-0">
-            <main class="prose prose-invert max-w-full">
+            <main class="prose dark:prose-invert max-w-full">
                 @((MarkupString)HtmlContent)
             </main>
 
-            <div class="mt-14 pt-6 border-t border-base-800 text-center text-base-500 text-xs font-mono">
+            <div class="mt-14 pt-6 border-t border-base-200 dark:border-base-800 text-center text-base-500 text-xs font-mono">
                 © @DateTime.Now.Year MonorailCss · A Tailwind 4.1 compatible CSS engine written in .NET
             </div>
         </div>
@@ -28,14 +28,14 @@
         {
             <aside class="hidden xl:block w-[220px] shrink-0">
                 <div class="sticky top-24">
-                    <div class="font-mono text-[11px] text-base-300 uppercase tracking-[0.08em] mb-3.5">
+                    <div class="font-mono text-[11px] text-base-700 dark:text-base-300 uppercase tracking-[0.08em] mb-3.5">
                         On this page
                     </div>
                     <nav class="flex flex-col gap-px text-[13px]">
                         @foreach (var entry in Outline)
                         {
                             <a href="#@entry.Id"
-                               class="block py-1 border-l-2 border-base-800 text-base-100 hover:text-accent-500 hover:border-accent-500 transition-colors @(IndentClass(entry.Level))">
+                               class="block py-1 border-l-2 border-base-200 dark:border-base-800 text-base-900 dark:text-base-100 hover:text-accent-500 hover:border-accent-500 transition-colors @(IndentClass(entry.Level))">
                                 @entry.Text
                             </a>
                         }
