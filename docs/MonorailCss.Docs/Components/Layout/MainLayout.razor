@@ -57,15 +57,19 @@
     @* ─────────────────  3-column layout  ───────────────── *@
     <div class="max-w-[1400px] mx-auto grid lg:grid-cols-[280px_1fr]">
 
-        @* Sidebar *@
-        <aside class="hidden lg:block sticky top-16 self-start max-h-[calc(100vh-4rem)] overflow-y-auto scrollbar-thin scrollbar-thumb-base-700 scrollbar-track-base-950 scrollbar-color border-r border-base-800 py-8 pr-4 pl-8">
+        @* Sidebar — data-spa-region="sidebar" lets spa-engine swap the
+           server-rendered active state on every nav, so the TOC always
+           reflects the current page without client-side re-syncing. *@
+        <aside data-spa-region="sidebar"
+               class="hidden lg:block sticky top-16 self-start max-h-[calc(100vh-4rem)] overflow-y-auto scrollbar-thin scrollbar-thumb-base-700 scrollbar-track-base-950 scrollbar-color border-r border-base-800 py-8 pr-4 pl-8">
             @if (_toc is not null)
             {
                 <TocSidebar Items="_toc" />
             }
         </aside>
 
-        @* Mobile sidebar overlay *@
+        @* Mobile sidebar overlay. The sidebar-mobile region wraps just the
+           TocSidebar so the close button stays put across SPA nav. *@
         <div id="sidebar-overlay" class="lg:hidden fixed inset-0 z-40 hidden bg-base-950/60 backdrop-blur">
             <div id="sidebar-panel" class="fixed inset-y-0 top-16 left-0 w-80 bg-base-950 border-r border-base-800 shadow-xl overflow-y-auto scrollbar-thin scrollbar-thumb-base-700 scrollbar-track-base-950 scrollbar-color">
                 <div class="p-4">
@@ -74,10 +78,12 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                         </svg>
                     </button>
-                    @if (_toc is not null)
-                    {
-                        <TocSidebar Items="_toc" />
-                    }
+                    <div data-spa-region="sidebar-mobile">
+                        @if (_toc is not null)
+                        {
+                            <TocSidebar Items="_toc" />
+                        }
+                    </div>
                 </div>
             </div>
         </div>

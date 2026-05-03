@@ -15,27 +15,6 @@
     <script src="/_content/Pennington.UI/scripts.js" defer></script>
     <script src="/_content/Pennington.UI/spa-engine.js" defer></script>
 
-    <script>
-        // The TOC sidebar lives outside the SPA region, so its server-rendered
-        // aria-current attribute goes stale on client-side navigation. Refresh
-        // it from the new pathname after each commit.
-        document.addEventListener('spa:commit', function (e) {
-            var path = (e.detail && e.detail.url ? e.detail.url.pathname : location.pathname).replace(/\/$/, '') || '/';
-            document.querySelectorAll('a[data-toc-link]').forEach(function (a) {
-                // Section-parent items have href="" — anchor.href would resolve
-                // those to the current document URL and falsely match. Skip them.
-                var raw = a.getAttribute('href');
-                if (!raw) { a.removeAttribute('aria-current'); return; }
-                var href = (new URL(a.href)).pathname.replace(/\/$/, '') || '/';
-                if (href === path) {
-                    a.setAttribute('aria-current', 'page');
-                } else {
-                    a.removeAttribute('aria-current');
-                }
-            });
-        });
-    </script>
-
     <HeadOutlet />
 </head>
 <body data-sidebar-open="false" class="bg-base-950 text-base-50 font-sans data-[sidebar-open=true]:overflow-hidden overflow-y-scroll scrollbar-thin scrollbar-thumb-base-700 scrollbar-track-base-950 scrollbar-color">
