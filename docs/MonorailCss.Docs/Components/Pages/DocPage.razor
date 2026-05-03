@@ -1,0 +1,54 @@
+@page "/{*Slug}"
+@inject ContentResolver ContentResolver
+@layout MainLayout
+
+<PageTitle>@_pageTitle</PageTitle>
+
+<div data-spa-region="content" data-spa-loading="skeleton">
+    @if (_markdown is null)
+    {
+        <p>Not found</p>
+    }
+    else
+    {
+        <DocContent Title="@_markdown.Title"
+                    Description="@_markdown.Description"
+                    HtmlContent="@_markdown.Html"
+                    Outline="@_markdown.Outline"
+                    BreadcrumbItems="@_breadcrumbs" />
+    }
+</div>
+
+@code {
+    [Parameter] public string? Slug { get; set; }
+
+    private string _pageTitle = "Not found - MonorailCss";
+    private ResolvedContent? _markdown;
+    private List<Breadcrumbs.BreadcrumbItem> _breadcrumbs = [];
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (string.IsNullOrEmpty(Slug))
+        {
+            _markdown = null;
+            _pageTitle = "Not found - MonorailCss";
+            return;
+        }
+
+        var url = $"/{Slug.TrimEnd('/')}";
+        _markdown = await ContentResolver.GetContentByUrlAsync(url);
+
+        if (_markdown is null)
+        {
+            _pageTitle = "Not found - MonorailCss";
+            return;
+        }
+
+        _pageTitle = $"{_markdown.Title} - MonorailCss";
+        _breadcrumbs =
+        [
+            new() { Title = "Home", Url = "/" },
+            new() { Title = _markdown.Title, IsCurrent = true },
+        ];
+    }
+}

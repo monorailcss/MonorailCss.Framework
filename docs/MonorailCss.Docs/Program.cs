@@ -7,7 +7,6 @@ using MonorailCss.Theme;
 using Pennington.Content;
 using Pennington.DocSite;
 using Pennington.Infrastructure;
-using Pennington.Islands;
 using Pennington.MonorailCss;
 using Pennington.Roslyn;
 
@@ -18,7 +17,6 @@ builder.Services.AddRazorComponents();
 var colorScheme = new AlgorithmicColorScheme
 {
     PrimaryHue = 45,
-    ColorSchemeGenerator = i => (i + 1, i + 60, i - 60),
     BaseColorName = "brick",
 };
 
@@ -124,10 +122,6 @@ builder.Services.AddPenningtonRoslyn(roslyn =>
 builder.Services.AddFileWatched<UtilityContentService>();
 builder.Services.AddTransient<IContentService>(sp => sp.GetRequiredService<UtilityContentService>());
 
-// SPA island that swaps content on client-side nav without a full page reload.
-builder.Services.AddSpaNavigation();
-builder.Services.AddScoped<IIslandRenderer, ContentIslandRenderer>();
-
 // CssFramework consumed by UtilityDetailContent.razor to render the example
 // CSS pane on every utility-detail page. Must mirror the AddMonorailCss theme
 // so the rendered examples reflect the actual configured palette (brick +
@@ -149,6 +143,5 @@ app.MapStaticAssets();
 app.MapRazorComponents<App>();
 app.UsePennington();
 app.UseMonorailCss();
-app.UseSpaNavigation();
 
 await app.RunOrBuildAsync(args);

@@ -43,11 +43,11 @@
         </nav>
     </header>
 
-    @* No data-spa-island here: the home page has a different wrapper
-       (no sidebar) than the docs pages, so SPA-swapping content between
-       them would leave the wrong layout in place. With no islands on
-       this page, spa-engine falls back to a full page load for any
-       outbound link, server-rendering the destination's correct layout. *@
+    @* No data-spa-region here: the home page has a different wrapper
+       (no sidebar) than the docs pages, so SPA-swapping regions between
+       them would leave the wrong layout in place. When regions don't
+       match across layouts, spa-engine triggers a full page load —
+       server-rendering the destination's correct layout. *@
     <main class="min-w-0">
         @Body
     </main>

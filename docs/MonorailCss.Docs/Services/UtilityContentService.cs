@@ -20,7 +20,7 @@ public partial class UtilityContentService : IContentService
             UtilityDocumentationEngine.GenerateDocumentationByProperty(theme));
     }
 
-    public string DefaultSection => "Utilities";
+    public string DefaultSectionLabel => "Utilities";
 
     public int SearchPriority => 10;
 
@@ -33,9 +33,9 @@ public partial class UtilityContentService : IContentService
             foreach (var (property, _) in propertiesDict)
             {
                 var propertySlug = ToSlug(property);
-                var url = $"/{categorySlug}/{propertySlug}";
+                var url = $"/utility/{categorySlug}/{propertySlug}";
                 var route = ContentRouteFactory.FromUrl(new UrlPath(url), string.Empty);
-                yield return new DiscoveredItem(route, new ContentSource(new RazorPageSource("MonorailCss.Docs.Components.Pages.Doc")));
+                yield return new DiscoveredItem(route, new ContentSource(new RazorPageSource("MonorailCss.Docs.Components.Pages.UtilityPage")));
             }
         }
 
@@ -56,14 +56,14 @@ public partial class UtilityContentService : IContentService
             {
                 var propertySlug = ToSlug(property);
                 var propertyDisplayName = GetPropertyDisplayName(property);
-                var route = ContentRouteFactory.FromUrl(new UrlPath($"/{categorySlug}/{propertySlug}"), string.Empty);
+                var route = ContentRouteFactory.FromUrl(new UrlPath($"/utility/{categorySlug}/{propertySlug}"), string.Empty);
 
                 entries.Add(new ContentTocItem(
                     Title: propertyDisplayName,
                     Route: route,
                     Order: propertyOrder++,
                     HierarchyParts: [category, propertyDisplayName],
-                    Section: "Utilities",
+                    SectionLabel: "Utilities",
                     Locale: string.Empty));
             }
         }

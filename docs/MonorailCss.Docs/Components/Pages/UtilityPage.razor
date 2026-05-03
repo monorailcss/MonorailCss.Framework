@@ -1,0 +1,49 @@
+@page "/utility/{Category}/{Property}"
+@inject MonorailCss.Docs.Services.UtilityContentService UtilityService
+@layout MainLayout
+
+<PageTitle>@_pageTitle</PageTitle>
+
+<div data-spa-region="content" data-spa-loading="skeleton">
+    @if (_propertyUtilities is not null && _categoryName is not null)
+    {
+        <UtilityDetailContent PropertyUtilities="@_propertyUtilities"
+                              CategoryName="@_categoryName"
+                              Breadcrumbs="@_breadcrumbs" />
+    }
+    else
+    {
+        <p>Not found</p>
+    }
+</div>
+
+@code {
+    [Parameter] public string Category { get; set; } = "";
+    [Parameter] public string Property { get; set; } = "";
+
+    private string _pageTitle = "Not found - MonorailCss";
+    private MonorailCss.Docs.Services.PropertyUtilities? _propertyUtilities;
+    private string? _categoryName;
+    private List<Breadcrumbs.BreadcrumbItem> _breadcrumbs = [];
+
+    protected override async Task OnParametersSetAsync()
+    {
+        _categoryName = await UtilityService.GetCategoryNameFromSlugAsync(Category);
+        _propertyUtilities = await UtilityService.GetUtilitiesForPropertyAsync(Category, Property);
+
+        if (_categoryName is null || _propertyUtilities is null)
+        {
+            _pageTitle = "Not found - MonorailCss";
+            return;
+        }
+
+        _pageTitle = $"{_propertyUtilities.DisplayName} - MonorailCss";
+        _breadcrumbs =
+        [
+            new() { Title = "Home", Url = "/" },
+            new() { Title = "Utilities", Url = string.Empty },
+            new() { Title = _categoryName, Url = string.Empty },
+            new() { Title = _propertyUtilities.DisplayName, IsCurrent = true },
+        ];
+    }
+}

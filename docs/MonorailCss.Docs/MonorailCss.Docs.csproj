@@ -7,11 +7,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Pennington" Version="0.0.1" />
-    <PackageReference Include="Pennington.DocSite" Version="0.0.1" />
-    <PackageReference Include="Pennington.MonorailCss" Version="0.0.1" />
-    <PackageReference Include="Pennington.Roslyn" Version="0.0.1" />
-    <PackageReference Include="Pennington.UI" Version="0.0.1" />
+    <PackageReference Include="Pennington" Version="0.1.0-alpha.0.63" />
+    <PackageReference Include="Pennington.DocSite" Version="0.1.0-alpha.0.63" />
+    <PackageReference Include="Pennington.MonorailCss" Version="0.1.0-alpha.0.63" />
+    <PackageReference Include="Pennington.Roslyn" Version="0.1.0-alpha.0.63" />
+    <PackageReference Include="Pennington.UI" Version="0.1.0-alpha.0.63" />
     <PackageReference Include="Microsoft.CodeAnalysis.Workspaces.MSBuild" Version="5.3.0" />
     <PackageReference Include="Microsoft.Build.Framework" Version="18.4.0" ExcludeAssets="runtime" PrivateAssets="all" />
   </ItemGroup>

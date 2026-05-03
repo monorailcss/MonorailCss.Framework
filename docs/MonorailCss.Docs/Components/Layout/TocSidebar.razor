@@ -1,7 +1,7 @@
 @if (Items is { Count: > 0 })
 {
     <nav class="text-[13.5px] space-y-5">
-        @foreach (var sectionGroup in Items.GroupBy(i => i.Section ?? string.Empty))
+        @foreach (var sectionGroup in Items.GroupBy(i => i.SectionLabel ?? string.Empty))
         {
             @if (!string.IsNullOrWhiteSpace(sectionGroup.Key))
             {
