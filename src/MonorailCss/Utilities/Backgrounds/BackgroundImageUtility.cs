@@ -27,6 +27,16 @@ internal class BackgroundImageUtility : BaseFunctionalUtility
             value = value.Substring(4); // Remove "NEG:" prefix
         }
 
+        // Arbitrary CSS function values (e.g. linear-gradient(...), radial-gradient(...),
+        // url(...), var(...)) are emitted directly. The named-utility prefix branches
+        // below ('linear-', 'radial-', 'conic-') only apply to bare keys like
+        // 'linear-30' or 'radial-at-t', which never contain a '('.
+        if (value.Contains('('))
+        {
+            declarations.Add(new Declaration("background-image", value, important));
+            return declarations.ToImmutable();
+        }
+
         // Handle gradient directions - these set both background-image and gradient position
         if (IsGradientDirection(value))
         {

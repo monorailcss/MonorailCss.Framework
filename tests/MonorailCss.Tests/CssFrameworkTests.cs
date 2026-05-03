@@ -128,6 +128,25 @@ public partial class CssFrameworkTests
     }
 
     [Fact]
+    public void Process_ShouldHandleArbitraryGradientBackgroundImage()
+    {
+        var testCases = new[]
+        {
+            ("bg-[linear-gradient(red,blue)]", "background-image: linear-gradient(red,blue)"),
+            ("bg-[radial-gradient(red,blue)]", "background-image: radial-gradient(red,blue)"),
+            ("bg-[conic-gradient(red,blue)]", "background-image: conic-gradient(red,blue)"),
+            ("bg-[radial-gradient(ellipse_800px_600px_at_50%_0%,rgba(214,87,99,0.10),transparent_60%),radial-gradient(ellipse_600px_400px_at_100%_30%,rgba(232,148,95,0.06),transparent_60%)]",
+                "background-image: radial-gradient(ellipse 800px 600px at 50% 0%,rgba(214,87,99,0.10),transparent 60%),radial-gradient(ellipse 600px 400px at 100% 30%,rgba(232,148,95,0.06),transparent 60%)"),
+        };
+
+        foreach (var (input, expected) in testCases)
+        {
+            var css = _framework.Process(input);
+            css.ShouldContain(expected);
+        }
+    }
+
+    [Fact]
     public void Process_ShouldHandleOpacityModifiers()
     {
         var testCases = new[]
