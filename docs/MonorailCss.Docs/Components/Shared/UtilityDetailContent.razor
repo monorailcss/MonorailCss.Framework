@@ -121,6 +121,10 @@ else
 
     private MarkupString HighlightCss(string input)
     {
+        // Pennington's CSS highlighter rejects bare declaration lists, so wrap
+        // in a dummy `a { ... }` rule and strip the wrapper from the output.
+        // The highlighter emits `<pre><code>...{` on the first line, the body
+        // line(s), and `}</code></pre>` on the last — drop the first and last.
         var css = $$"""
                   a {
                   {{input}}
@@ -132,7 +136,7 @@ else
             .TrimEnd()
             .Split(Environment.NewLine)
             .Skip(1)
-            .SkipLast(2);
+            .SkipLast(1);
 
         var highlight = $"""<pre class="text-xs"><code>{string.Join(Environment.NewLine, lines)}</code></pre>""";
 
