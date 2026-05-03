@@ -14,10 +14,15 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddRazorComponents();
 
-var colorScheme = new AlgorithmicColorScheme
+var colorScheme = new NamedColorScheme
 {
-    PrimaryHue = 45,
-    BaseColorName = "brick",
+    PrimaryColorName = "sanibel",
+    AccentColorName = "mixed",
+    BaseColorName = "frosted",
+    AdditionalMappings = new Dictionary<string, ColorName>
+    {
+        ["tertiary-one"] = "happily",
+    },
 };
 
 ImmutableList<UtilityDefinition> customUtilities =
@@ -53,42 +58,61 @@ ImmutableList<UtilityDefinition> customUtilities =
 ];
 
 Theme ApplyDocsTheme(Theme baseTheme) => baseTheme
-    .AddColorPalette("brick", new Dictionary<string, string>
+    .AddColorPalette("sanibel", new Dictionary<string, string>
     {
-        { "50", "oklch(0.985 0.003 20)" },
-        { "100", "oklch(0.967 0.004 20)" },
-        { "200", "oklch(0.929 0.006 20)" },
-        { "300", "oklch(0.870 0.009 20)" },
-        { "400", "oklch(0.705 0.015 20)" },
-        { "500", "oklch(0.554 0.020 20)" },
-        { "600", "oklch(0.446 0.018 20)" },
-        { "700", "oklch(0.369 0.015 20)" },
-        { "800", "oklch(0.283 0.012 20)" },
-        { "900", "oklch(0.220 0.010 20)" },
-        { "950", "oklch(0.145 0.008 20)" },
+        { "50",  "oklch(97% 0.007 52.073)" },
+        { "100", "oklch(94% 0.017 52.073)" },
+        { "200", "oklch(89% 0.032 52.073)" },
+        { "300", "oklch(82% 0.058 52.073)" },
+        { "400", "oklch(72% 0.094 52.073)" },
+        { "500", "oklch(64% 0.123 52.073)" },
+        { "600", "oklch(56% 0.129 52.073)" },
+        { "700", "oklch(49% 0.118 52.073)" },
+        { "800", "oklch(43% 0.096 52.073)" },
+        { "900", "oklch(38% 0.076 52.073)" },
+        { "950", "oklch(27% 0.052 52.073)" },
     }.ToImmutableDictionary())
-    // Landing-page palettes (warm-charcoal design system).
-    .AddColorPalette("warm", new Dictionary<string, string>
+    .AddColorPalette("frosted", new Dictionary<string, string>
     {
-        { "50",  "#f5ede2" },
-        { "100", "#c9bfb2" },
-        { "300", "#948578" },
-        { "500", "#6b5e54" },
-        { "700", "#4a3d35" },
-        { "800", "#3a2f29" },
-        { "900", "#221b17" },
-        { "950", "#17110e" },
+        { "50",  "oklch(98.5% 0.003 52.073)" },
+        { "100", "oklch(97% 0.004 52.073)" },
+        { "200", "oklch(92.5% 0.007 52.073)" },
+        { "300", "oklch(87% 0.014 52.073)" },
+        { "400", "oklch(71% 0.026 52.073)" },
+        { "500", "oklch(55% 0.040 52.073)" },
+        { "600", "oklch(44% 0.036 52.073)" },
+        { "700", "oklch(37% 0.034 52.073)" },
+        { "800", "oklch(27% 0.029 52.073)" },
+        { "900", "oklch(21% 0.025 52.073)" },
+        { "950", "oklch(14% 0.020 52.073)" },
     }.ToImmutableDictionary())
-    .AddColorPalette("terra", new Dictionary<string, string>
+    .AddColorPalette("mixed", new Dictionary<string, string>
     {
-        { "500", "#d65763" },
-        { "600", "#c44552" },
+        { "50",  "oklch(97% 0.007 22.073)" },
+        { "100", "oklch(94% 0.017 22.073)" },
+        { "200", "oklch(89% 0.032 22.073)" },
+        { "300", "oklch(82% 0.058 22.073)" },
+        { "400", "oklch(72% 0.094 22.073)" },
+        { "500", "oklch(64% 0.123 22.073)" },
+        { "600", "oklch(56% 0.129 22.073)" },
+        { "700", "oklch(49% 0.118 22.073)" },
+        { "800", "oklch(43% 0.096 22.073)" },
+        { "900", "oklch(38% 0.076 22.073)" },
+        { "950", "oklch(27% 0.052 22.073)" },
     }.ToImmutableDictionary())
-    // Override Tailwind's default orange with the design's warmer terracotta-orange.
-    .AddColorPalette("orange", new Dictionary<string, string>
+    .AddColorPalette("happily", new Dictionary<string, string>
     {
-        { "500", "#e8945f" },
-        { "600", "#d97742" },
+        { "50",  "oklch(97% 0.007 82.073)" },
+        { "100", "oklch(94% 0.017 82.073)" },
+        { "200", "oklch(89% 0.032 82.073)" },
+        { "300", "oklch(82% 0.058 82.073)" },
+        { "400", "oklch(72% 0.094 82.073)" },
+        { "500", "oklch(64% 0.123 82.073)" },
+        { "600", "oklch(56% 0.129 82.073)" },
+        { "700", "oklch(49% 0.118 82.073)" },
+        { "800", "oklch(43% 0.096 82.073)" },
+        { "900", "oklch(38% 0.076 82.073)" },
+        { "950", "oklch(27% 0.052 82.073)" },
     }.ToImmutableDictionary())
     .AddFontFamily("display", "'Newsreader', 'Iowan Old Style', 'Charter', Georgia, serif")
     .AddFontFamily("sans", "'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif")
@@ -102,7 +126,7 @@ builder.Services.AddDocSite(() => new DocSiteOptions
     ColorScheme = colorScheme,
 });
 
-// Override MonorailCss wiring to install the brick color palette, which DocSiteOptions
+// Override MonorailCss wiring to install the docs color palettes, which DocSiteOptions
 // can't express. AddMonorailCss after AddDocSite replaces the DI registration.
 builder.Services.AddMonorailCss(_ => new MonorailCssOptions
 {
@@ -124,8 +148,8 @@ builder.Services.AddTransient<IContentService>(sp => sp.GetRequiredService<Utili
 
 // CssFramework consumed by UtilityDetailContent.razor to render the example
 // CSS pane on every utility-detail page. Must mirror the AddMonorailCss theme
-// so the rendered examples reflect the actual configured palette (brick +
-// warm/terra/orange) rather than Tailwind defaults.
+// so the rendered examples reflect the actual configured palette (sanibel,
+// frosted, mixed, happily) rather than Tailwind defaults.
 builder.Services.AddSingleton<CssFramework>(_ =>
 {
     var theme = ApplyDocsTheme(colorScheme.ApplyToTheme(Theme.CreateWithDefaults()));

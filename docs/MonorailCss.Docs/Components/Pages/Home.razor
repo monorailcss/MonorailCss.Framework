@@ -7,12 +7,12 @@
 <section class="relative px-12 py-20 overflow-hidden">
     <div class="max-w-[1280px] mx-auto grid lg:grid-cols-[1.05fr_1fr] gap-14 items-center relative">
         <div>
-            <span class="inline-flex items-center gap-2 pl-2.5 pr-3 py-1 rounded-full bg-accent-500/10 border border-accent-500/20 text-accent-500 text-xs font-medium font-mono tracking-[0.02em]">
-                <span class="w-1.5 h-1.5 rounded-full bg-accent-500 ring-[3px] ring-accent-500/20"></span>
+            <span class="inline-flex items-center gap-2 pl-2.5 pr-3 py-1 rounded-full bg-primary-500/10 border border-primary-500/20 text-primary-500 text-xs font-medium font-mono tracking-[0.02em]">
+                <span class="w-1.5 h-1.5 rounded-full bg-primary-500 ring-[3px] ring-primary-500/20"></span>
                 Tailwind 4.1 · JIT · Pure C#
             </span>
             <h1 class="font-display font-normal text-base-50 mt-[22px] text-[clamp(48px,5.6vw,78px)] leading-[0.98] tracking-[-0.025em] text-balance">
-                Ship Tailwind CSS <span class="italic text-accent-500">without</span> the toolchain.
+                Ship Tailwind CSS <span class="italic text-primary-500">without</span> the toolchain.
             </h1>
             <p class="mt-6 max-w-[480px] text-base-100 text-[17px] leading-[1.55] text-pretty">
                 MonorailCSS is a Tailwind-compatible JIT compiler written in pure .NET.
@@ -23,7 +23,7 @@
                     Get started
                     <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
                 </a>
-                <a href="https://github.com/monorailcss/MonorailCss.Framework" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 px-[18px] py-[11px] rounded-lg text-sm font-medium font-sans bg-transparent text-base-50 border border-base-700 hover:border-accent-500 hover:text-accent-500 transition-all duration-150">
+                <a href="https://github.com/monorailcss/MonorailCss.Framework" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 px-[18px] py-[11px] rounded-lg text-sm font-medium font-sans bg-transparent text-base-50 border border-base-700 hover:border-primary-500 hover:text-primary-500 transition-all duration-150">
                     View on GitHub ↗
                 </a>
             </div>
@@ -46,17 +46,17 @@
                 <span class="ml-3.5 text-base-300 text-xs">Program.cs</span>
                 <span class="ml-auto text-base-500 text-[11px]">C#</span>
             </div>
-            <pre class="m-0 px-[18px] py-4 text-base-50 leading-[1.7] text-[13px] overflow-auto"><code><span class="text-accent-500">using</span> <span class="text-base-50">MonorailCss</span>;
+            <pre class="m-0 px-[18px] py-4 text-base-50 leading-[1.7] text-[13px] overflow-auto"><code><span class="text-primary-500">using</span> <span class="text-base-50">MonorailCss</span>;
 
 <span class="text-base-300">// 1. configure once</span>
-<span class="text-primary-500">var</span> framework = <span class="text-primary-500">new</span> <span class="text-accent-500">CssFramework</span>();
+<span class="text-primary-500">var</span> framework = <span class="text-primary-500">new</span> <span class="text-primary-500">CssFramework</span>();
 
 <span class="text-base-300">// 2. point it at your markup</span>
-<span class="text-primary-500">var</span> css = framework.<span class="text-accent-500">Process</span>(<span class="text-tertiary-one-300">&quot;flex gap-4 p-6 bg-orange-500&quot;</span>);
+<span class="text-primary-500">var</span> css = framework.<span class="text-primary-500">Process</span>(<span class="text-tertiary-one-300">&quot;flex gap-4 p-6 bg-primary-500&quot;</span>);
 
 <span class="text-base-300">// 3. ship the bytes</span>
-File.<span class="text-accent-500">WriteAllText</span>(<span class="text-tertiary-one-300">&quot;site.css&quot;</span>, css);</code></pre>
-            <div class="px-[18px] py-2.5 border-t border-base-800 bg-accent-500/5 text-base-300 text-xs flex items-center gap-2">
+File.<span class="text-primary-500">WriteAllText</span>(<span class="text-tertiary-one-300">&quot;site.css&quot;</span>, css);</code></pre>
+            <div class="px-[18px] py-2.5 border-t border-base-800 bg-primary-500/5 text-base-300 text-xs flex items-center gap-2">
                 <span class="w-1.5 h-1.5 rounded-full bg-tertiary-one-400"></span>
                 Compiled <span class="text-base-50">4 utilities</span> in <span class="text-base-50">11ms</span>
             </div>
@@ -83,7 +83,7 @@ File.<span class="text-accent-500">WriteAllText</span>(<span class="text-tertiar
 @* ─────────────────────────────────  FEATURES  ───────────────────────────────── *@
 <section class="px-12 max-w-[1280px] mx-auto mb-30">
     <div class="mb-12 max-w-[720px]">
-        <div class="font-mono text-[11px] text-accent-500 tracking-[0.1em] uppercase mb-3.5 flex items-center gap-2.5">
+        <div class="font-mono text-[11px] text-primary-500 tracking-[0.1em] uppercase mb-3.5 flex items-center gap-2.5">
             <span>◆</span><span>Why MonorailCSS</span>
         </div>
         <h2 class="font-display font-normal m-0 text-[clamp(36px,4vw,52px)] leading-[1.12] tracking-[-0.022em] text-balance text-base-50">A first-class CSS pipeline, in the language you already use.</h2>
@@ -94,7 +94,7 @@ File.<span class="text-accent-500">WriteAllText</span>(<span class="text-tertiar
         @foreach (var f in _features)
         {
             <div class="bg-base-900/95 px-7 py-8 flex flex-col gap-3.5 min-h-[220px] hover:bg-base-800 transition-colors duration-200 relative">
-                <div class="text-accent-500">@((MarkupString)f.Glyph)</div>
+                <div class="text-primary-500">@((MarkupString)f.Glyph)</div>
                 <h3 class="mt-2 mb-0 text-lg font-medium text-base-50 tracking-[-0.005em]">@f.Title</h3>
                 <p class="m-0 text-base-100 text-[14.5px] leading-[1.55] text-pretty">@f.Body</p>
             </div>
@@ -105,7 +105,7 @@ File.<span class="text-accent-500">WriteAllText</span>(<span class="text-tertiar
 @* ─────────────────────────────────  LIVE DEMO (static visual)  ───────────────────────────────── *@
 <section class="px-12 max-w-[1280px] mx-auto mb-30">
     <div class="mb-12 max-w-[720px]">
-        <div class="font-mono text-[11px] text-accent-500 tracking-[0.1em] uppercase mb-3.5 flex items-center gap-2.5">
+        <div class="font-mono text-[11px] text-primary-500 tracking-[0.1em] uppercase mb-3.5 flex items-center gap-2.5">
             <span>◆</span><span>Try it</span>
         </div>
         <h2 class="font-display font-normal m-0 text-[clamp(36px,4vw,52px)] leading-[1.12] tracking-[-0.022em] text-balance text-base-50">Type utilities. Watch CSS appear.</h2>
@@ -118,16 +118,16 @@ File.<span class="text-accent-500">WriteAllText</span>(<span class="text-tertiar
             <div class="flex items-center justify-between px-4 py-3 border-b border-base-800 bg-base-800 font-mono text-[11px] text-base-300 tracking-[0.06em] uppercase">
                 <span>Input — utility classes</span>
                 <div class="flex gap-1.5">
-                    <button type="button" class="font-mono text-[11px] bg-transparent border border-base-700 text-base-100 px-2 py-0.5 rounded cursor-pointer hover:border-accent-500 hover:text-accent-500 transition-colors">Card</button>
-                    <button type="button" class="font-mono text-[11px] bg-transparent border border-base-700 text-base-100 px-2 py-0.5 rounded cursor-pointer hover:border-accent-500 hover:text-accent-500 transition-colors">Button</button>
-                    <button type="button" class="font-mono text-[11px] bg-transparent border border-base-700 text-base-100 px-2 py-0.5 rounded cursor-pointer hover:border-accent-500 hover:text-accent-500 transition-colors">Arbitrary</button>
+                    <button type="button" class="font-mono text-[11px] bg-transparent border border-base-700 text-base-100 px-2 py-0.5 rounded cursor-pointer hover:border-primary-500 hover:text-primary-500 transition-colors">Card</button>
+                    <button type="button" class="font-mono text-[11px] bg-transparent border border-base-700 text-base-100 px-2 py-0.5 rounded cursor-pointer hover:border-primary-500 hover:text-primary-500 transition-colors">Button</button>
+                    <button type="button" class="font-mono text-[11px] bg-transparent border border-base-700 text-base-100 px-2 py-0.5 rounded cursor-pointer hover:border-primary-500 hover:text-primary-500 transition-colors">Arbitrary</button>
                 </div>
             </div>
-            <div class="flex-1 min-h-[280px] px-[22px] py-5 font-mono text-sm leading-[1.7] text-base-50 whitespace-pre-wrap break-words">flex items-center gap-4 px-6 py-4 rounded-xl bg-orange-500 text-white hover:bg-orange-600</div>
+            <div class="flex-1 min-h-[280px] px-[22px] py-5 font-mono text-sm leading-[1.7] text-base-50 whitespace-pre-wrap break-words">flex items-center gap-4 px-6 py-4 rounded-xl bg-primary-500 text-white hover:bg-primary-600</div>
             <div class="border-t border-base-800 px-[22px] py-5 bg-base-950">
                 <div class="font-mono text-[10px] text-base-500 tracking-[0.1em] uppercase mb-3.5">Preview</div>
                 <div class="flex justify-center">
-                    <div class="inline-flex items-center gap-4 px-6 py-4 rounded-xl bg-orange-500 text-white font-medium text-sm">
+                    <div class="inline-flex items-center gap-4 px-6 py-4 rounded-xl bg-primary-500 text-white font-medium text-sm">
                         Preview element
                     </div>
                 </div>
@@ -143,31 +143,31 @@ File.<span class="text-accent-500">WriteAllText</span>(<span class="text-tertiar
                 </span>
             </div>
             <pre class="flex-1 m-0 px-[22px] py-5 font-mono text-[13px] leading-[1.7] text-base-100 overflow-auto max-h-[460px]"><code><span class="text-tertiary-one-300">.flex</span> {
-  <span class="text-accent-500">display</span>: flex;
+  <span class="text-primary-500">display</span>: flex;
 }
 <span class="text-tertiary-one-300">.items-center</span> {
-  <span class="text-accent-500">align-items</span>: center;
+  <span class="text-primary-500">align-items</span>: center;
 }
 <span class="text-tertiary-one-300">.gap-4</span> {
-  <span class="text-accent-500">gap</span>: 1rem;
+  <span class="text-primary-500">gap</span>: 1rem;
 }
 <span class="text-tertiary-one-300">.px-6</span> {
-  <span class="text-accent-500">padding-inline</span>: 1.5rem;
+  <span class="text-primary-500">padding-inline</span>: 1.5rem;
 }
 <span class="text-tertiary-one-300">.py-4</span> {
-  <span class="text-accent-500">padding-block</span>: 1rem;
+  <span class="text-primary-500">padding-block</span>: 1rem;
 }
 <span class="text-tertiary-one-300">.rounded-xl</span> {
-  <span class="text-accent-500">border-radius</span>: 0.75rem;
+  <span class="text-primary-500">border-radius</span>: 0.75rem;
 }
-<span class="text-tertiary-one-300">.bg-orange-500</span> {
-  <span class="text-accent-500">background-color</span>: oklch(0.705 0.213 47.604);
+<span class="text-tertiary-one-300">.bg-primary-500</span> {
+  <span class="text-primary-500">background-color</span>: oklch(64% 0.123 52.073);
 }
 <span class="text-tertiary-one-300">.text-white</span> {
-  <span class="text-accent-500">color</span>: #fff;
+  <span class="text-primary-500">color</span>: #fff;
 }
-<span class="text-tertiary-one-300">.hover\:bg-orange-600</span><span class="text-accent-500">:hover</span> {
-  <span class="text-accent-500">background-color</span>: oklch(0.646 0.222 41.116);
+<span class="text-tertiary-one-300">.hover\:bg-primary-600</span><span class="text-primary-500">:hover</span> {
+  <span class="text-primary-500">background-color</span>: oklch(56% 0.129 52.073);
 }</code></pre>
         </div>
     </div>
@@ -176,7 +176,7 @@ File.<span class="text-accent-500">WriteAllText</span>(<span class="text-tertiar
 @* ─────────────────────────────────  INSTALL  ───────────────────────────────── *@
 <section class="px-12 max-w-[1280px] mx-auto mb-30">
     <div class="mb-12 max-w-[720px]">
-        <div class="font-mono text-[11px] text-accent-500 tracking-[0.1em] uppercase mb-3.5 flex items-center gap-2.5">
+        <div class="font-mono text-[11px] text-primary-500 tracking-[0.1em] uppercase mb-3.5 flex items-center gap-2.5">
             <span>◆</span><span>Get going</span>
         </div>
         <h2 class="font-display font-normal m-0 text-[clamp(36px,4vw,52px)] leading-[1.12] tracking-[-0.022em] text-balance text-base-50">
@@ -190,7 +190,7 @@ File.<span class="text-accent-500">WriteAllText</span>(<span class="text-tertiar
         {
             <div class="bg-base-900 border border-base-800 rounded-xl px-[22px] py-5 flex flex-col gap-3.5">
                 <div class="flex items-center gap-3.5">
-                    <span class="font-mono text-[11px] text-accent-500 tracking-[0.1em]">@step.N</span>
+                    <span class="font-mono text-[11px] text-primary-500 tracking-[0.1em]">@step.N</span>
                     <span class="text-base font-medium text-base-50">@step.Title</span>
                 </div>
                 <pre class="m-0 px-3.5 py-3 bg-base-950 border border-base-800 rounded-lg font-mono text-[12.5px] leading-[1.6] text-base-50 overflow-auto"><code>@step.Code</code></pre>
@@ -203,12 +203,12 @@ File.<span class="text-accent-500">WriteAllText</span>(<span class="text-tertiar
 <section class="px-12 pb-30 max-w-[1280px] mx-auto">
     <div class="relative px-12 py-18 border border-base-800 rounded-2xl [background-image:linear-gradient(135deg,rgba(214,87,99,0.06),rgba(232,148,95,0.04)_60%,transparent)] text-center overflow-hidden">
         <div class="relative">
-            <span class="inline-flex items-center gap-2 pl-2.5 pr-3 py-1 rounded-full bg-accent-500/10 border border-accent-500/20 text-accent-500 text-xs font-medium font-mono tracking-[0.02em]">
-                <span class="w-1.5 h-1.5 rounded-full bg-accent-500 ring-[3px] ring-accent-500/20"></span>
+            <span class="inline-flex items-center gap-2 pl-2.5 pr-3 py-1 rounded-full bg-primary-500/10 border border-primary-500/20 text-primary-500 text-xs font-medium font-mono tracking-[0.02em]">
+                <span class="w-1.5 h-1.5 rounded-full bg-primary-500 ring-[3px] ring-primary-500/20"></span>
                 Open source · MIT
             </span>
             <h2 class="font-display font-normal mt-5 mx-auto text-[clamp(36px,5vw,64px)] leading-[1.0] tracking-[-0.025em] max-w-[720px] text-balance text-base-50">
-                Bring Tailwind home to <span class="italic text-accent-500">.NET</span>.
+                Bring Tailwind home to <span class="italic text-primary-500">.NET</span>.
             </h2>
             <p class="mt-4.5 mx-auto max-w-[540px] text-base-100 text-[17px] leading-[1.55]">
                 Read the docs, scan the source, file an issue. Contributions welcome.
@@ -218,7 +218,7 @@ File.<span class="text-accent-500">WriteAllText</span>(<span class="text-tertiar
                     Read the docs
                     <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
                 </a>
-                <a href="https://github.com/phil-scott-78/MonorailCss" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 px-[18px] py-[11px] rounded-lg text-sm font-medium font-sans bg-transparent text-base-50 border border-base-700 hover:border-accent-500 hover:text-accent-500 transition-all duration-150">
+                <a href="https://github.com/phil-scott-78/MonorailCss" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 px-[18px] py-[11px] rounded-lg text-sm font-medium font-sans bg-transparent text-base-50 border border-base-700 hover:border-primary-500 hover:text-primary-500 transition-all duration-150">
                     View on GitHub ↗
                 </a>
             </div>
@@ -232,13 +232,13 @@ File.<span class="text-accent-500">WriteAllText</span>(<span class="text-tertiar
         <div>
             <div class="flex items-center gap-2.5">
                 <svg width="26" height="26" viewBox="0 0 32 32" fill="none" aria-hidden="true">
-                    <rect x="9"  y="3" width="2" height="26" rx="1" class="fill-accent-500" />
-                    <rect x="21" y="3" width="2" height="26" rx="1" class="fill-accent-500" />
-                    <rect x="6" y="7"  width="20" height="2" rx="1" class="fill-accent-500/70" />
-                    <rect x="6" y="15" width="20" height="2" rx="1" class="fill-accent-500/50" />
-                    <rect x="6" y="23" width="20" height="2" rx="1" class="fill-accent-500/35" />
+                    <rect x="9"  y="3" width="2" height="26" rx="1" class="fill-primary-500" />
+                    <rect x="21" y="3" width="2" height="26" rx="1" class="fill-primary-500" />
+                    <rect x="6" y="7"  width="20" height="2" rx="1" class="fill-primary-500/70" />
+                    <rect x="6" y="15" width="20" height="2" rx="1" class="fill-primary-500/50" />
+                    <rect x="6" y="23" width="20" height="2" rx="1" class="fill-primary-500/35" />
                 </svg>
-                <span class="font-display text-xl italic font-medium tracking-tight text-accent-500">
+                <span class="font-display text-xl italic font-medium tracking-tight text-primary-500">
                     Monorail<span class="not-italic font-normal text-base-50">Css</span>
                 </span>
             </div>
@@ -251,7 +251,7 @@ File.<span class="text-accent-500">WriteAllText</span>(<span class="text-tertiar
                 <ul class="list-none p-0 m-0 flex flex-col gap-2.5">
                     @foreach (var item in col.Items)
                     {
-                        <li><a class="text-base-100 hover:text-accent-500 transition-colors">@item</a></li>
+                        <li><a class="text-base-100 hover:text-primary-500 transition-colors">@item</a></li>
                     }
                 </ul>
             </div>
@@ -295,7 +295,7 @@ File.<span class="text-accent-500">WriteAllText</span>(<span class="text-tertiar
     private readonly InstallStep[] _installSteps =
     [
         new("01", "Add the package", "dotnet add package MonorailCss"),
-        new("02", "Create a framework", "var fx = new CssFramework();\nvar css = fx.Process(\"p-6 bg-orange-500\");"),
+        new("02", "Create a framework", "var fx = new CssFramework();\nvar css = fx.Process(\"p-6 bg-primary-500\");"),
         new("03", "Wire it up", "app.UseMonorail(opts => {\n    opts.ContentRoots = [\"Pages\", \"Views\"];\n});"),
     ];
 
