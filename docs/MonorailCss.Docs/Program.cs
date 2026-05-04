@@ -115,8 +115,8 @@ Theme ApplyDocsTheme(Theme baseTheme) => baseTheme
         { "900", "oklch(38% 0.076 82.073)" },
         { "950", "oklch(27% 0.052 82.073)" },
     }.ToImmutableDictionary())
-    .AddFontFamily("display", "'Newsreader', 'Iowan Old Style', 'Charter', Georgia, serif")
-    .AddFontFamily("sans", "'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif")
+    .AddFontFamily("display", "'Jost', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif")
+    .AddFontFamily("sans", "'Nunito', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif")
     .AddFontFamily("mono", "'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace");
 
 builder.Services.AddDocSite(() => new DocSiteOptions
