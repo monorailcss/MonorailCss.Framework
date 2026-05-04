@@ -6,7 +6,7 @@ uid: getting-started
 tags: [getting-started, basics]
 ---
 
-MonorailCSS is a Tailwind 4.1-compatible JIT CSS compiler for .NET. Hand it a list of class names; it returns the CSS those classes need.
+MonorailCSS is a Tailwind 4.2-compatible JIT CSS compiler for .NET. Hand it a list of class names; it returns the CSS those classes need.
 
 ## Installation
 

@@ -121,7 +121,7 @@ Theme ApplyDocsTheme(Theme baseTheme) => baseTheme
 builder.Services.AddDocSite(() => new DocSiteOptions
 {
     SiteTitle = "MonorailCss Documentation",
-    Description = "A JIT CSS compiler that aims to be Tailwind CSS 4.1 compatible, written in .NET",
+    Description = "A JIT CSS compiler that aims to be Tailwind CSS 4.2 compatible, written in .NET",
     ContentRootPath = new Pennington.Routing.FilePath("Content"),
     ColorScheme = colorScheme,
 });

@@ -1,6 +1,6 @@
 # MonorailCSS
 
-MonorailCss is a JIT CSS compiler that aims to be a Tailwind CSS 4.1 compatible CSS engine written in .NET. It processes utility class names and generates optimized CSS output.
+MonorailCss is a JIT CSS compiler that aims to be a Tailwind CSS 4.2 compatible CSS engine written in .NET. It processes utility class names and generates optimized CSS output.
 
 ## Architecture Overview
 

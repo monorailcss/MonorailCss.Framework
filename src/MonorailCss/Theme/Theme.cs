@@ -326,7 +326,7 @@ public class Theme
 
     /// <summary>
     /// Resolves a value by expanding any var() references to their actual values.
-    /// This is used for @theme inline blocks in Tailwind CSS 4.1.
+    /// This is used for @theme inline blocks in Tailwind CSS 4.2.
     /// </summary>
     /// <param name="value">The value to resolve (may contain var() references).</param>
     /// <param name="maxDepth">Maximum recursion depth to prevent infinite loops (default: 10).</param>
@@ -457,7 +457,7 @@ public class Theme
     /// <summary>
     /// Adds a key-value pair to the theme with inline variable resolution.
     /// Values containing var() references will be resolved to their actual values.
-    /// This is used for @theme inline blocks in Tailwind CSS 4.1.
+    /// This is used for @theme inline blocks in Tailwind CSS 4.2.
     /// </summary>
     /// <param name="key">The key representing the design token to be added.</param>
     /// <param name="value">The value associated with the design token (may contain var() references).</param>
