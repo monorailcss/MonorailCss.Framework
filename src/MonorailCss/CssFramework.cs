@@ -283,6 +283,8 @@ public class CssFramework
             }
         }
 
+        ExpandColorVariables(usedVariables, _settings.Theme, _settings.ColorEmission);
+
         // Generate the final CSS
         var generator = new CssGenerator();
         var generatedCss = generator.GenerateCss(cssRules.ToImmutableList(), usedVariables, propertyRegistry, false, preflightCss, componentNodes);
@@ -430,5 +432,57 @@ public class CssFramework
         // Add default font family variables that reference the theme fonts
         variables["--default-font-family"] = "var(--font-sans)";
         variables["--default-mono-font-family"] = "var(--font-mono)";
+    }
+
+    private static void ExpandColorVariables(
+        Dictionary<string, string> variables,
+        Theme.Theme theme,
+        ColorEmissionMode mode)
+    {
+        const string colorPrefix = "--color-";
+
+        switch (mode)
+        {
+            case ColorEmissionMode.Used:
+                return;
+
+            case ColorEmissionMode.All:
+                foreach (var (key, value) in theme.Namespace("--color"))
+                {
+                    variables[key] = value;
+                }
+
+                return;
+
+            case ColorEmissionMode.UsedPalettes:
+                var palettes = new HashSet<string>(StringComparer.Ordinal);
+                foreach (var key in variables.Keys.ToList())
+                {
+                    if (!key.StartsWith(colorPrefix, StringComparison.Ordinal))
+                    {
+                        continue;
+                    }
+
+                    var rest = key.AsSpan(colorPrefix.Length);
+                    var lastDash = rest.LastIndexOf('-');
+                    if (lastDash <= 0)
+                    {
+                        // Singletons like --color-black / --color-white have no shade.
+                        continue;
+                    }
+
+                    palettes.Add(rest[..lastDash].ToString());
+                }
+
+                foreach (var palette in palettes)
+                {
+                    foreach (var (key, value) in theme.Namespace($"--color-{palette}"))
+                    {
+                        variables[key] = value;
+                    }
+                }
+
+                return;
+        }
     }
 }

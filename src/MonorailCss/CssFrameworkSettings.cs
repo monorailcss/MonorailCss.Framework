@@ -23,6 +23,7 @@ public record CssFrameworkSettings
         ProseCustomization = null;
         CustomUtilities = ImmutableList<UtilityDefinition>.Empty;
         CustomVariants = ImmutableList<CustomVariantDefinition>.Empty;
+        ColorEmission = ColorEmissionMode.UsedPalettes;
     }
 
     /// <summary>
@@ -67,6 +68,35 @@ public record CssFrameworkSettings
     /// Each variant definition includes a name and selector pattern (e.g., "scrollbar" with "&amp;::-webkit-scrollbar").
     /// </summary>
     public ImmutableList<CustomVariantDefinition> CustomVariants { get; init; }
+
+    /// <summary>
+    /// Gets the mode that controls which <c>--color-*</c> CSS variables are emitted in the
+    /// generated output. Defaults to <see cref="ColorEmissionMode.UsedPalettes"/> so that
+    /// dynamic class names (e.g. <c>bg-sky-700</c> rendered after build) resolve correctly.
+    /// </summary>
+    public ColorEmissionMode ColorEmission { get; init; }
+}
+
+/// <summary>
+/// Controls which <c>--color-*</c> theme variables are emitted in the generated CSS.
+/// </summary>
+public enum ColorEmissionMode
+{
+    /// <summary>
+    /// Only emit color variables actually referenced by generated CSS.
+    /// </summary>
+    Used,
+
+    /// <summary>
+    /// For every used <c>--color-{palette}-{shade}</c>, also emit every other shade in that
+    /// palette. Singletons such as <c>--color-black</c> are unaffected.
+    /// </summary>
+    UsedPalettes,
+
+    /// <summary>
+    /// Emit every <c>--color-*</c> variable defined in the theme.
+    /// </summary>
+    All,
 }
 
 /// <summary>
