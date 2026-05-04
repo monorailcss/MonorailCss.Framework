@@ -3,6 +3,12 @@
 @layout MainLayout
 
 <PageTitle>@_pageTitle</PageTitle>
+@if (!string.IsNullOrEmpty(_description))
+{
+    <HeadContent>
+        <meta name="description" content="@_description" />
+    </HeadContent>
+}
 
 <div data-spa-region="content" data-spa-loading="skeleton">
     @if (_propertyUtilities is not null && _categoryName is not null)
@@ -22,6 +28,7 @@
     [Parameter] public string Property { get; set; } = "";
 
     private string _pageTitle = "Not found - MonorailCss";
+    private string? _description;
     private MonorailCss.Docs.Services.PropertyUtilities? _propertyUtilities;
     private string? _categoryName;
     private List<Breadcrumbs.BreadcrumbItem> _breadcrumbs = [];
@@ -34,10 +41,14 @@
         if (_categoryName is null || _propertyUtilities is null)
         {
             _pageTitle = "Not found - MonorailCss";
+            _description = null;
             return;
         }
 
         _pageTitle = $"{_propertyUtilities.DisplayName} - MonorailCss";
+        _description = _propertyUtilities.Utilities
+            .Select(u => u.Metadata.Description)
+            .FirstOrDefault(d => !string.IsNullOrWhiteSpace(d));
         _breadcrumbs =
         [
             new() { Title = "Home", Url = "/" },

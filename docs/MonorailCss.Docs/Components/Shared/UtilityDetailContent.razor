@@ -32,7 +32,7 @@ else
         <!-- Examples Section -->
         @if (allExamples.Any())
         {
-            <div class="border border-base-200 dark:border-base-800 rounded-lg overflow-hidden bg-white dark:bg-base-900">
+            <div class="humans-only border border-base-200 dark:border-base-800 rounded-lg overflow-hidden bg-white dark:bg-base-900">
                 <div class="overflow-x-auto">
                     <table class="w-full">
                         <thead>
@@ -68,6 +68,14 @@ else
                     </table>
                 </div>
             </div>
+
+            <div class="robots-only">
+                @foreach (var example in allExamples)
+                {
+                    <p><code>@example.ClassName</code></p>
+                    <pre>@GetGeneratedCss(example)</pre>
+                }
+            </div>
         }
         else
         {
@@ -82,7 +90,7 @@ else
         }
         @if (cssProperties.Any())
         {
-            <div class="space-y-4">
+            <div class="humans-only space-y-4">
                 <h2 class="text-2xl font-bold text-base-900 dark:text-primary-50">
                     Reference
                 </h2>
@@ -109,6 +117,16 @@ else
                         }
                     </table>
                 </div>
+            </div>
+
+            <div class="robots-only">
+                <h2>CSS Properties</h2>
+                <ul>
+                    @foreach (var property in cssProperties.OrderBy(p => p))
+                    {
+                        <li><code>@property</code></li>
+                    }
+                </ul>
             </div>
         }
     </div>

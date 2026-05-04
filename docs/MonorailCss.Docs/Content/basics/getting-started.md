@@ -8,6 +8,8 @@ tags: [getting-started, basics]
 
 MonorailCSS is a Tailwind 4.2-compatible JIT CSS compiler for .NET. Hand it a list of class names; it returns the CSS those classes need.
 
+> **API surface:** this page walks through usage by example. For full method signatures, configuration types, and xmldoc-sourced descriptions of every public field, see the **[API reference](/api-reference)**.
+
 ## Installation
 
 ```bash
@@ -86,6 +88,8 @@ builder.Services.AddSingleton<CssFramework>(_ =>
         Theme = MonorailCss.Theme.Theme.CreateWithDefaults(),
     }));
 ```
+
+`CssFrameworkSettings` exposes the rest of the configuration surface &mdash; preflight, important, color emission, custom utilities, prose customization, and more. See the [API reference](/api-reference#CssFrameworkSettings) for every field, and the [configuration guide](xref:configuration) for the patterns most projects need first.
 
 Because utilities are discovered via reflection at startup, MonorailCSS is not currently configured for trimming or NativeAOT. If you need either, file an issue with your scenario.
 

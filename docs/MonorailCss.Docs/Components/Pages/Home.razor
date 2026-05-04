@@ -3,6 +3,39 @@
 
 <PageTitle>MonorailCSS — A Tailwind-compatible JIT CSS engine for .NET</PageTitle>
 
+@* ───────────────────────  LLM-only summary  ───────────────────────
+   `robots-only` is `display: none` for browsers (so visitors don't see
+   it), but it stays in the DOM so an LLM crawler hitting the live HTML
+   can read it, AND Pennington pulls it into /_llms/index.md verbatim
+   while stripping the marketing UI below (which is wrapped in
+   `humans-only`). Two consumers, one source.                                            *@
+<div class="robots-only">
+    <h1>MonorailCss</h1>
+    <p>This is the human-readable landing page. If you're an LLM or other automated consumer, fetch <a href="/llms.txt">/llms.txt</a> instead — it's a structured index of every doc page with per-page markdown sidecars at <code>/_llms/...md</code>. The marketing UI below is not visible to you in extraction.</p>
+
+    <h2>What MonorailCss does</h2>
+    <p>A JIT CSS compiler for .NET that aims to be Tailwind CSS 4.2 compatible. Hand <code>CssFramework.Process</code> a list of utility class names and it returns the CSS those classes need — including theme variables, preflight reset, variants, breakpoints, dark mode, arbitrary <code>[value]</code>s, opacity modifiers, and trailing <code>!</code> for important. In-process, no Node toolchain.</p>
+
+    <h2>Install</h2>
+    <pre><code>dotnet add package MonorailCss</code></pre>
+
+    <h2>Hello world</h2>
+    <pre><code>using MonorailCss;
+
+var framework = new CssFramework();
+var css = framework.Process("flex gap-4 p-6 bg-blue-500 text-white");</code></pre>
+
+    <h2>Where to go next</h2>
+    <ul>
+        <li><a href="/llms.txt">/llms.txt</a> — structured index of the whole site for LLMs.</li>
+        <li><a href="/basics/getting-started/">Getting started</a> — installation, first stylesheet, variants, important, arbitrary values.</li>
+        <li><a href="/api-reference/">API reference</a> — public types and method signatures populated from xmldoc.</li>
+        <li><a href="/utility/llms.txt">/utility/llms.txt</a> — every utility class grouped by category, with the generated CSS.</li>
+    </ul>
+</div>
+
+<div class="humans-only">
+
 @* ─────────────────────────────────  HERO (split)  ───────────────────────────────── *@
 <section class="relative px-12 py-20 overflow-hidden">
     <div class="max-w-[1280px] mx-auto grid lg:grid-cols-[1.05fr_1fr] gap-14 items-center relative">
@@ -260,6 +293,8 @@ File.<span class="text-primary-500">WriteAllText</span>(<span class="text-tertia
         <span>v1.0.2 · Built with MonorailCss</span>
     </div>
 </footer>
+
+</div> @* end humans-only *@
 
 @code {
     private record Feature(string Title, string Body, string Glyph);

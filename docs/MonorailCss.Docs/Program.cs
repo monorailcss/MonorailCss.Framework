@@ -7,6 +7,7 @@ using MonorailCss.Theme;
 using Pennington.Content;
 using Pennington.DocSite;
 using Pennington.Infrastructure;
+using Pennington.LlmsTxt;
 using Pennington.MonorailCss;
 using Pennington.Roslyn;
 
@@ -145,6 +146,16 @@ builder.Services.AddPenningtonRoslyn(roslyn =>
 
 builder.Services.AddFileWatched<UtilityContentService>();
 builder.Services.AddTransient<IContentService>(sp => sp.GetRequiredService<UtilityContentService>());
+
+builder.Services.AddSingleton<ApiReferenceService>();
+
+// Split the ~150 utility pages out of the main /llms.txt into /utility/llms.txt
+// so the front door stays scannable for an LLM. The main index gets a single
+// see-also pointer; consumers fetching that pointer land on the full utility list.
+builder.Services.AddLlmsSubtree(new LlmsSubtree(
+    routePrefix: "/utility/",
+    title: "Utilities",
+    description: "Tailwind 4-compatible utility classes — one page per CSS property, grouped by category."));
 
 // CssFramework consumed by UtilityDetailContent.razor to render the example
 // CSS pane on every utility-detail page. Must mirror the AddMonorailCss theme

@@ -50,21 +50,31 @@ public partial class UtilityContentService : IContentService
         foreach (var (category, propertiesDict) in _utilitiesByProperty.Value.OrderBy(x => x.Key))
         {
             var categorySlug = ToSlug(category);
+            var categoryDisplayName = GetCategoryDisplayName(category);
 
             var propertyOrder = order + 1;
-            foreach (var (property, _) in propertiesDict.OrderBy(p => p.Key))
+            foreach (var (property, utilities) in propertiesDict.OrderBy(p => p.Key))
             {
                 var propertySlug = ToSlug(property);
                 var propertyDisplayName = GetPropertyDisplayName(property);
                 var route = ContentRouteFactory.FromUrl(new UrlPath($"/utility/{categorySlug}/{propertySlug}"), string.Empty);
 
+                // Description shows up in /llms.txt next to the link so an LLM
+                // consumer can pick which sidecars to fetch without crawling each.
+                var description = utilities
+                    .Select(u => u.Metadata.Description)
+                    .FirstOrDefault(d => !string.IsNullOrWhiteSpace(d));
+
                 entries.Add(new ContentTocItem(
                     Title: propertyDisplayName,
                     Route: route,
                     Order: propertyOrder++,
-                    HierarchyParts: [category, propertyDisplayName],
+                    HierarchyParts: [categoryDisplayName, propertyDisplayName],
                     SectionLabel: "Utilities",
-                    Locale: string.Empty));
+                    Locale: string.Empty)
+                {
+                    Description = description,
+                });
             }
         }
 
@@ -106,19 +116,20 @@ public partial class UtilityContentService : IContentService
     }
 
     /// <summary>
-    /// Gets the category name from a slug.
+    /// Gets the display-friendly category name from a URL slug (e.g.
+    /// "flexbox-grid" -> "Flexbox &amp; Grid").
     /// </summary>
     public Task<string?> GetCategoryNameFromSlugAsync(string categorySlug)
     {
         var category = _utilitiesByProperty.Value.Keys
             .FirstOrDefault(k => ToSlug(k) == categorySlug);
-        return Task.FromResult(category);
+        return Task.FromResult<string?>(category is null ? null : GetCategoryDisplayName(category));
     }
 
     private static string ToSlug(string text)
     {
         text = text.Replace("Utility", "");
-        text = SlugifyRegexDefinition().Replace(text, "-$1");
+        text = SplitOnPascalCase(text, "-");
         return text
             .ToLowerInvariant()
             .Replace(" ", "-")
@@ -132,8 +143,7 @@ public partial class UtilityContentService : IContentService
         if (property.EndsWith("Utility"))
         {
             var nameWithoutSuffix = property.Replace("Utility", "");
-            var withSpaces = SlugifyRegexDefinition().Replace(nameWithoutSuffix, " $1").Trim();
-            return withSpaces;
+            return SplitOnPascalCase(nameWithoutSuffix, " ").Trim();
         }
 
         var words = property.Split('-')
@@ -142,8 +152,30 @@ public partial class UtilityContentService : IContentService
         return string.Join(" ", words);
     }
 
-    [System.Text.RegularExpressions.GeneratedRegex("(?<!^)([A-Z])")]
-    private static partial System.Text.RegularExpressions.Regex SlugifyRegexDefinition();
+    private static string GetCategoryDisplayName(string category) => category switch
+    {
+        "FlexboxGrid" => "Flexbox & Grid",
+        "TransitionsAnimation" => "Transitions & Animation",
+        _ => SplitOnPascalCase(category, " ").Trim(),
+    };
+
+    /// <summary>
+    /// Splits PascalCase identifiers on word boundaries, treating runs of capitals
+    /// as a single word (so "SVG" stays "SVG" and "XMLParser" becomes "XML Parser").
+    /// </summary>
+    private static string SplitOnPascalCase(string text, string separator)
+    {
+        // First insert a separator at acronym boundaries: "XMLParser" -> "XML{sep}Parser"
+        var step1 = AcronymBoundaryRegex().Replace(text, "$1" + separator + "$2");
+        // Then at lowercase-to-uppercase boundaries: "FlexboxGrid" -> "Flexbox{sep}Grid"
+        return WordBoundaryRegex().Replace(step1, "$1" + separator + "$2");
+    }
+
+    [System.Text.RegularExpressions.GeneratedRegex("([A-Z]+)([A-Z][a-z])")]
+    private static partial System.Text.RegularExpressions.Regex AcronymBoundaryRegex();
+
+    [System.Text.RegularExpressions.GeneratedRegex(@"([a-z\d])([A-Z])")]
+    private static partial System.Text.RegularExpressions.Regex WordBoundaryRegex();
 }
 
 /// <summary>
