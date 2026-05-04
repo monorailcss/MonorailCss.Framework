@@ -3,12 +3,12 @@ using MonorailCss.Ast;
 using MonorailCss.Candidates;
 using MonorailCss.Utilities.Base;
 
-namespace MonorailCss.Utilities;
+namespace MonorailCss.Utilities.Layout;
 
 /// <summary>
 /// Utilities for creating responsive container widths with automatic max-width constraints.
 /// </summary>
-internal class ContainerUtility : BaseStaticUtility
+internal class ContainerUtility : BaseStaticUtility, IUtility
 {
     protected override ImmutableDictionary<string, (string Property, string Value)> StaticValues { get; } =
         new Dictionary<string, (string, string)>
@@ -17,6 +17,15 @@ internal class ContainerUtility : BaseStaticUtility
             // The actual CSS generation is done in TryCompile override
             { "container", ("width", "100%") },
         }.ToImmutableDictionary();
+
+    // ContainerUtility emits `width: 100%` plus a stack of breakpoint media queries —
+    // it isn't really a "width utility". Document it as its own logical group so it
+    // surfaces as "Layout > Container" instead of colliding with WidthUtility under
+    // "Sizing > Width" via the auto-extracted primary property. Explicit interface
+    // implementation is required: BaseStaticUtility implements IUtility, so a plain
+    // `public string[] GetDocumentedProperties()` would only shadow, not override the
+    // interface default that documentation reflection invokes through IUtility.
+    string[]? IUtility.GetDocumentedProperties() => ["container"];
 
     public override bool TryCompile(Candidate candidate, Theme.Theme theme, out ImmutableList<AstNode>? results)
     {
