@@ -84,7 +84,7 @@ internal class TransitionDurationUtility : BaseFunctionalUtility
         return false;
     }
 
-    public bool TryCompile(Candidate candidate, Theme.Theme theme, CssPropertyRegistry propertyRegistry, out ImmutableList<AstNode>? results)
+    public override bool TryCompile(Candidate candidate, Theme.Theme theme, CssPropertyRegistry propertyRegistry, out ImmutableList<AstNode>? results)
     {
         // Register CSS variables for transition duration
         propertyRegistry.Register("--tw-duration", "*", false, "150ms");

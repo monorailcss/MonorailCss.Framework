@@ -107,7 +107,7 @@ internal class TransitionTimingFunctionUtility : BaseFunctionalUtility
     /// </summary>
     private record TimingFunctionConfig(string CssVariableValue, string PropertyValue);
 
-    public bool TryCompile(Candidate candidate, Theme.Theme theme, CssPropertyRegistry propertyRegistry, out ImmutableList<AstNode>? results)
+    public override bool TryCompile(Candidate candidate, Theme.Theme theme, CssPropertyRegistry propertyRegistry, out ImmutableList<AstNode>? results)
     {
         // Register CSS variables for transition timing function
         propertyRegistry.Register("--tw-ease", "*", false, "ease");

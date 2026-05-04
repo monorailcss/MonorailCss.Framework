@@ -51,19 +51,48 @@ internal abstract class BaseColorUtility : IUtility
             return false;
         }
 
-        // For arbitrary values, check if it's actually a color
-        if (functionalUtility.Value.Kind == ValueKind.Arbitrary)
+        // Substitute `theme(...)` calls inside arbitrary values up-front so the
+        // hint check and color resolution operate on a concrete value.
+        var resolvedCandidate = functionalUtility.Value;
+        if (resolvedCandidate.Kind == ValueKind.Arbitrary)
         {
-            var inferredType = DataTypeInference.InferDataType(
-                functionalUtility.Value.Value,
-                [DataType.Color, DataType.Length, DataType.LineWidth, DataType.Number]);
-            if (inferredType != DataType.Color)
+            var substituted = ValueResolver.SubstituteThemeFunctions(resolvedCandidate.Value, theme);
+            if (!ReferenceEquals(substituted, resolvedCandidate.Value))
             {
-                return false;
+                resolvedCandidate = resolvedCandidate with { Value = substituted };
+            }
+
+            var hint = resolvedCandidate.DataTypeHint;
+            if (hint != null)
+            {
+                // A type hint disambiguates the candidate. Only accept when the
+                // hint is "color" — any other hint belongs to a sibling utility
+                // (length → border-width, size → bg-size, etc.).
+                if (hint != "color")
+                {
+                    return false;
+                }
+            }
+            else
+            {
+                // No hint: try to infer. Accept opaque CSS functions like var()
+                // and theme() where inference can't tell us the type — the
+                // utility's namespace (bg, text, border-color, …) implies color.
+                var arbitrary = resolvedCandidate.Value;
+                if (!IsOpaqueColorExpression(arbitrary))
+                {
+                    var inferredType = DataTypeInference.InferDataType(
+                        arbitrary,
+                        [DataType.Color, DataType.Length, DataType.LineWidth, DataType.Number]);
+                    if (inferredType != DataType.Color)
+                    {
+                        return false;
+                    }
+                }
             }
         }
 
-        if (!TryResolveColor(functionalUtility.Value, theme, out var color))
+        if (!TryResolveColor(resolvedCandidate, theme, out var color))
         {
             return false;
         }
@@ -80,6 +109,18 @@ internal abstract class BaseColorUtility : IUtility
     protected virtual bool TryResolveColor(CandidateValue value, Theme.Theme theme, [NotNullWhen(true)] out string? color)
     {
         return ValueResolver.TryResolveColor(value, theme, ColorNamespaces, out color);
+    }
+
+    // Treat opaque CSS-function values as colors when no type hint is given.
+    // The utility's namespace already commits to color semantics; without this
+    // we'd reject `bg-[var(--my-color)]` because the inference engine can't
+    // peek inside `var()` to detect a color.
+    private static bool IsOpaqueColorExpression(string value)
+    {
+        return value.StartsWith("var(", StringComparison.Ordinal)
+            || value.StartsWith("theme(", StringComparison.Ordinal)
+            || value.StartsWith("color-mix(", StringComparison.Ordinal)
+            || value.StartsWith("light-dark(", StringComparison.Ordinal);
     }
 
     /// <summary>

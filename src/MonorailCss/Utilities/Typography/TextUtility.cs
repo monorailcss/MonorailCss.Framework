@@ -41,6 +41,38 @@ internal class TextUtility : IUtility
         // Handle arbitrary values
         if (functionalUtility.Value.Kind == ValueKind.Arbitrary)
         {
+            var hint = functionalUtility.Value.DataTypeHint;
+
+            // Type-hint dispatch: `text-[length:var(--x)]` forces font-size,
+            // `text-[color:var(--x)]` forces color. Without a hint we fall back
+            // to inference, accepting opaque CSS functions (var(), theme(), …)
+            // as colors since the namespace defaults to color.
+            if (hint != null)
+            {
+                switch (hint)
+                {
+                    case "length":
+                    case "percentage":
+                    case "absolute-size":
+                    case "relative-size":
+                        results = GenerateFontSizeDeclarations(value, candidate.Modifier, theme, candidate.Important);
+                        return true;
+
+                    case "color":
+                        if (TryApplyColorWithModifier(value, candidate.Modifier, theme, out var hintedColor))
+                        {
+                            results = ImmutableList.Create<AstNode>(
+                                new Declaration("color", hintedColor, candidate.Important));
+                            return true;
+                        }
+
+                        return false;
+
+                    default:
+                        return false;
+                }
+            }
+
             var inferredType = DataTypeInference.InferDataType(
                 value,
                 [DataType.Color, DataType.Length, DataType.Percentage, DataType.AbsoluteSize, DataType.RelativeSize]);

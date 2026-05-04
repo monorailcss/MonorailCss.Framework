@@ -111,6 +111,12 @@ public class CanonicalUtilitiesTest(CssFrameworkFixture fixture) : IClassFixture
         }
     }
 
+    // Known-failing canonical entries. Each entry maps a class name to a tracking
+    // note explaining the gap. Removing an entry here means MonorailCss now
+    // supports the utility correctly. Used to keep the suite green while making
+    // gaps visible in code review.
+    private static readonly Dictionary<string, string> KnownGaps = new();
+
     public static IEnumerable<TheoryDataRow<string, CanonicalUtilityData>> GetCanonicalTestData()
     {
         // Load the canonical-v4.json file
@@ -137,10 +143,8 @@ public class CanonicalUtilitiesTest(CssFrameworkFixture fixture) : IClassFixture
         {
             var row = new TheoryDataRow<string, CanonicalUtilityData>(kvp.Key, kvp.Value);
 
-            // Add metadata for better test naming and organization
             row.TestDisplayName = $"{kvp.Key}";
-            // All tests should now pass - no skips needed
-            row.Skip = null;
+            row.Skip = KnownGaps.TryGetValue(kvp.Key, out var reason) ? reason : null;
             row.Traits.Add("Category", ["Canonical"]);
 
             // Add trait based on utility prefix for better grouping

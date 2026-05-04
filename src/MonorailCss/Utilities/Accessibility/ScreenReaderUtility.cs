@@ -63,6 +63,8 @@ internal class ScreenReaderUtility : BaseStaticUtility
 
     private static ImmutableList<AstNode> CreateNotSrOnlyDeclarations(bool important)
     {
+        // Tailwind v4 dropped the deprecated `clip` property in favor of
+        // `clip-path: none;` to undo `sr-only`'s `clip-path: inset(50%)`.
         var declarations = new List<AstNode>
         {
             new Declaration("position", "static", important),
@@ -71,7 +73,7 @@ internal class ScreenReaderUtility : BaseStaticUtility
             new Declaration("padding", "0", important),
             new Declaration("margin", "0", important),
             new Declaration("overflow", "visible", important),
-            new Declaration("clip", "auto", important),
+            new Declaration("clip-path", "none", important),
             new Declaration("white-space", "normal", important),
         };
 

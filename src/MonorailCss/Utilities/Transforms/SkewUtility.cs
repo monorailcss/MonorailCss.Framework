@@ -165,7 +165,7 @@ internal class SkewUtility : BaseFunctionalUtility
         return IsValidSkewValue(value);
     }
 
-    public bool TryCompile(Candidate candidate, Theme.Theme theme, CssPropertyRegistry propertyRegistry, out ImmutableList<AstNode>? results)
+    public override bool TryCompile(Candidate candidate, Theme.Theme theme, CssPropertyRegistry propertyRegistry, out ImmutableList<AstNode>? results)
     {
         // Register CSS variables for skew and rotate (used in transform)
         propertyRegistry.Register("--tw-rotate-x", "*", false, null);

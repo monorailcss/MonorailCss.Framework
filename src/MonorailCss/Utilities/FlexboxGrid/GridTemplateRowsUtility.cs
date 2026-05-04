@@ -95,6 +95,10 @@ internal class GridTemplateRowsUtility : BaseFunctionalUtility
             return true;
         }
 
+        // Per-track keywords valid inside a grid-template list (auto, min-content,
+        // max-content, fit-content, etc.) in addition to the whole-value keywords.
+        var trackKeywords = new[] { "auto", "min-content", "max-content", "fit-content" };
+
         // Allow length values, percentages, fr units, and combinations
         var validUnits = new[] { "px", "em", "rem", "ch", "vw", "vh", "vmin", "vmax", "%", "fr" };
         var parts = value.Split(' ', StringSplitOptions.RemoveEmptyEntries);
@@ -102,7 +106,7 @@ internal class GridTemplateRowsUtility : BaseFunctionalUtility
         foreach (var part in parts)
         {
             // Skip function calls and keywords
-            if (part.Contains('(') || keywords.Contains(part))
+            if (part.Contains('(') || keywords.Contains(part) || trackKeywords.Contains(part))
             {
                 continue;
             }

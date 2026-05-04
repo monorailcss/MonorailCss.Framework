@@ -49,6 +49,11 @@ internal sealed class UtilityMatcher
         public string Root { get; init; } = string.Empty;
         public string? Value { get; init; }
         public string? Property { get; init; }
+
+        // Carried through for ParenthesesShorthand matches so utilities can
+        // dispatch on Tailwind type hints like `(color:--my-var)` or
+        // `(length:--my-var)`. Null when no hint was present.
+        public string? DataTypeHint { get; init; }
     }
 
     public enum UtilityType
@@ -104,6 +109,7 @@ internal sealed class UtilityMatcher
                         Type = UtilityType.ParenthesesShorthand,
                         Root = root,
                         Value = parsed.Value,
+                        DataTypeHint = parsed.DataTypeHint,
                     };
                 }
             }

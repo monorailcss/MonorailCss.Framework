@@ -86,15 +86,34 @@ internal class ShadowColorUtility : BaseColorUtility
             return false;
         }
 
-        // For arbitrary values, check if it's actually a color
+        // For arbitrary values, check if it's actually a color (mirrors
+        // BaseColorUtility's hint-aware dispatch).
         if (functionalUtility.Value.Kind == ValueKind.Arbitrary)
         {
-            var inferredType = DataTypeInference.InferDataType(
-                functionalUtility.Value.Value,
-                [DataType.Color, DataType.Length, DataType.LineWidth, DataType.Number]);
-            if (inferredType != DataType.Color)
+            var hint = functionalUtility.Value.DataTypeHint;
+            if (hint != null)
             {
-                return false;
+                if (hint != "color")
+                {
+                    return false;
+                }
+            }
+            else
+            {
+                var arbitrary = functionalUtility.Value.Value;
+                if (!arbitrary.StartsWith("var(", StringComparison.Ordinal)
+                    && !arbitrary.StartsWith("theme(", StringComparison.Ordinal)
+                    && !arbitrary.StartsWith("color-mix(", StringComparison.Ordinal)
+                    && !arbitrary.StartsWith("light-dark(", StringComparison.Ordinal))
+                {
+                    var inferredType = DataTypeInference.InferDataType(
+                        arbitrary,
+                        [DataType.Color, DataType.Length, DataType.LineWidth, DataType.Number]);
+                    if (inferredType != DataType.Color)
+                    {
+                        return false;
+                    }
+                }
             }
         }
 
@@ -106,31 +125,29 @@ internal class ShadowColorUtility : BaseColorUtility
         // Create the fallback declaration
         var fallbackDeclaration = new Declaration(CssProperty, color, candidate.Important);
 
-        // For named colors (not special keywords or arbitrary values), also generate @supports block
-        if (functionalUtility.Value.Kind != ValueKind.Arbitrary &&
-            color != "transparent" && color != "currentcolor" && color != "inherit")
+        // Special keywords don't need an @supports color-mix block.
+        if (color == "transparent" || color == "currentcolor" || color == "inherit")
         {
-            // Build the CSS variable name (e.g., --color-red-500 from red-500)
-            var colorVarName = $"--color-{functionalUtility.Value.Value}";
-
-            // Create the color-mix declaration for inside @supports
-            var colorMixValue = $"color-mix(in oklab, var({colorVarName}) var(--tw-shadow-alpha), transparent)";
-            var colorMixDeclaration = new Declaration(CssProperty, colorMixValue, candidate.Important);
-
-            // Create @supports rule with color-mix test
-            var supportsRule = new AtRule(
-                "supports",
-                "(color: color-mix(in lab, red, red))",
-                ImmutableList.Create<AstNode>(colorMixDeclaration));
-
-            results = ImmutableList.Create<AstNode>(fallbackDeclaration, supportsRule);
-        }
-        else
-        {
-            // For special keywords and arbitrary values, just use the simple declaration
             results = ImmutableList.Create<AstNode>(fallbackDeclaration);
+            return true;
         }
 
+        // Compute the color-mix expression for inside @supports. Named theme
+        // values use `var(--color-<name>)`; arbitrary values use the raw
+        // resolved color directly.
+        string colorMixSource = functionalUtility.Value.Kind == ValueKind.Arbitrary
+            ? color
+            : $"var(--color-{functionalUtility.Value.Value})";
+
+        var colorMixValue = $"color-mix(in oklab, {colorMixSource} var(--tw-shadow-alpha), transparent)";
+        var colorMixDeclaration = new Declaration(CssProperty, colorMixValue, candidate.Important);
+
+        var supportsRule = new AtRule(
+            "supports",
+            "(color: color-mix(in lab, red, red))",
+            ImmutableList.Create<AstNode>(colorMixDeclaration));
+
+        results = ImmutableList.Create<AstNode>(fallbackDeclaration, supportsRule);
         return true;
     }
 

@@ -61,10 +61,27 @@ internal class BackgroundPositionUtility : BaseFunctionalUtility
         // Handle arbitrary values (bg-[50%], bg-[100px], bg-[center_top])
         if (value.Kind == ValueKind.Arbitrary)
         {
-            var arbitrary = value.Value;
+            var hint = value.DataTypeHint;
 
-            // Convert underscores to spaces for multi-value positions (center_top -> center top)
+            // If the candidate carries a non-position hint, this isn't ours.
+            // Tailwind's `bg-[size:100%]` and `bg-[color:var(--x)]` would
+            // otherwise look identical to a position checker.
+            if (hint != null && hint != "position" && hint != "percentage")
+            {
+                return false;
+            }
+
+            var arbitrary = value.Value;
             var processedValue = arbitrary.Replace("_", " ");
+
+            // Without an explicit position hint, bare `var()` / `calc()` could
+            // be anything — defer to BackgroundColorUtility (the namespace
+            // default for `bg-*`). Only claim values that are obviously a
+            // position: keywords or unit-bearing literals.
+            if (hint == null && !IsObviousBackgroundPositionValue(processedValue))
+            {
+                return false;
+            }
 
             if (IsValidBackgroundPositionValue(processedValue))
             {
@@ -75,6 +92,19 @@ internal class BackgroundPositionUtility : BaseFunctionalUtility
 
         // No theme resolution needed for background-position
         return false;
+    }
+
+    // Stricter than IsValidBackgroundPositionValue: rejects var() and calc()
+    // because those values can hold any type and shouldn't auto-claim the
+    // position route without an explicit hint.
+    private static bool IsObviousBackgroundPositionValue(string value)
+    {
+        if (value.StartsWith("var(", StringComparison.Ordinal) || value.Contains("calc("))
+        {
+            return false;
+        }
+
+        return IsValidBackgroundPositionValue(value);
     }
 
     /// <summary>

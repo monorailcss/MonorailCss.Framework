@@ -50,6 +50,13 @@ internal class BorderUtility : IUtility
         // Use data type inference for arbitrary values
         if (functionalUtility.Value.Kind == ValueKind.Arbitrary)
         {
+            // Type-hint dispatch: `border-[length:var(--x)]`, `border-(length:--x)`,
+            // `border-[color:#08c]` etc. force the branch directly.
+            if (TryDispatchByHint(functionalUtility, candidate, theme, null, out results))
+            {
+                return results != null;
+            }
+
             var allowedTypes = new[] { DataType.Color, DataType.LineWidth, DataType.Length };
             if (ValueResolver.TryInferAndResolve(
                 functionalUtility.Value,
@@ -100,6 +107,53 @@ internal class BorderUtility : IUtility
         return false;
     }
 
+    // Dispatches arbitrary border values based on Tailwind type hints. Returns
+    // true and sets `results` when a hint produced a result, true and null when
+    // a hint was present but unrecognized (so the caller short-circuits and
+    // returns false), or false when no hint is present (caller falls through to
+    // inference).
+    private bool TryDispatchByHint(
+        FunctionalUtility functionalUtility,
+        Candidate candidate,
+        Theme.Theme theme,
+        CssPropertyRegistry? propertyRegistry,
+        out ImmutableList<AstNode>? results)
+    {
+        results = null;
+
+        var hint = functionalUtility.Value!.DataTypeHint;
+        if (hint == null)
+        {
+            return false;
+        }
+
+        var pattern = functionalUtility.Root;
+        var rawValue = functionalUtility.Value.Value;
+
+        switch (hint)
+        {
+            case "length":
+            case "line-width":
+                results = propertyRegistry != null
+                    ? CreateWidthDeclarations(pattern, rawValue, candidate.Important, propertyRegistry)
+                    : CreateWidthDeclarations(pattern, rawValue, candidate.Important);
+                return true;
+
+            case "color":
+                var resolved = rawValue;
+                if (candidate.Modifier != null && ValueResolver.TryResolveOpacity(candidate.Modifier, theme, out var opacity))
+                {
+                    resolved = $"color-mix(in oklab, {resolved} {opacity}, transparent)";
+                }
+
+                results = CreateColorDeclarations(pattern, resolved, candidate.Important);
+                return true;
+
+            default:
+                return true;
+        }
+    }
+
     public bool TryCompile(Candidate candidate, Theme.Theme theme, CssPropertyRegistry propertyRegistry, out ImmutableList<AstNode>? results)
     {
         results = null;
@@ -125,6 +179,11 @@ internal class BorderUtility : IUtility
         // Use data type inference for arbitrary values
         if (functionalUtility.Value.Kind == ValueKind.Arbitrary)
         {
+            if (TryDispatchByHint(functionalUtility, candidate, theme, propertyRegistry, out results))
+            {
+                return results != null;
+            }
+
             var allowedTypes = new[] { DataType.Color, DataType.LineWidth, DataType.Length };
             if (ValueResolver.TryInferAndResolve(
                 functionalUtility.Value,

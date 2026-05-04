@@ -119,10 +119,21 @@ internal abstract class BaseSizingUtility : IUtility
         // Handle arbitrary values
         if (value.Kind == ValueKind.Arbitrary)
         {
-            var arbitrary = value.Value;
+            // Resolve any embedded `theme(...)` calls before further processing.
+            var arbitrary = Utilities.Resolvers.ValueResolver.SubstituteThemeFunctions(value.Value, theme);
 
             // Allow CSS functions (var(), calc(), min(), max(), clamp(), etc.)
             if (IsCssFunction(arbitrary))
+            {
+                sizing = arbitrary;
+                return true;
+            }
+
+            // Bracket fractions like `w-[1/2]` are passed through verbatim. The
+            // result (`width: 1/2;`) isn't valid CSS, but it matches Tailwind's
+            // exact output — users opting into bracket syntax pick up its
+            // semantics, including this footgun.
+            if (Parser.CandidateValueParser.IsFractionValue(arbitrary))
             {
                 sizing = arbitrary;
                 return true;

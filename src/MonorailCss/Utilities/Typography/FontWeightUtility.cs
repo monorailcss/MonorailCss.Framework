@@ -127,7 +127,7 @@ internal class FontWeightUtility : BaseFunctionalUtility
     /// <summary>
     /// Override to register the --tw-font-weight property.
     /// </summary>
-    public bool TryCompile(Candidate candidate, Theme.Theme theme, CssPropertyRegistry propertyRegistry, out ImmutableList<AstNode>? results)
+    public override bool TryCompile(Candidate candidate, Theme.Theme theme, CssPropertyRegistry propertyRegistry, out ImmutableList<AstNode>? results)
     {
         // Register the font weight custom property
         propertyRegistry.Register("--tw-font-weight", "*", false, null);

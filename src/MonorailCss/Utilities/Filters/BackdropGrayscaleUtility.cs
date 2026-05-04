@@ -143,7 +143,7 @@ internal class BackdropGrayscaleUtility : BaseFilterUtility
         return IsValidGrayscaleValue(value);
     }
 
-    public bool TryCompile(Candidate candidate, Theme.Theme theme, CssPropertyRegistry propertyRegistry, out ImmutableList<AstNode>? results)
+    public override bool TryCompile(Candidate candidate, Theme.Theme theme, CssPropertyRegistry propertyRegistry, out ImmutableList<AstNode>? results)
     {
         // Use shared method to register filter variables
         RegisterFilterVariables(propertyRegistry);

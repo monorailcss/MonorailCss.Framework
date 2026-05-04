@@ -44,22 +44,18 @@ internal class BackgroundSizeUtility : BaseFunctionalUtility
             }
         }
 
-        // Handle arbitrary values with length: prefix (bg-[length:200px_100px])
+        // Handle arbitrary values. Tailwind dispatches `bg-[size:100%]`,
+        // `bg-[bg-size:100%]`, and `bg-[length:200px_100px]` all to
+        // `background-size`. The decoder converts underscores to spaces, so the
+        // value reaches us already in the form `200px 100px`.
         if (value.Kind == ValueKind.Arbitrary)
         {
-            var arbitrary = value.Value;
-
-            // Check for length: prefix which indicates background-size
-            if (arbitrary.StartsWith("length:"))
+            var hint = value.DataTypeHint;
+            if (hint is "size" or "bg-size" or "length" or "percentage")
             {
-                var lengthValue = arbitrary[7..]; // Remove "length:" prefix
-
-                // Convert underscores to spaces (200px_100px -> 200px 100px)
-                var processedValue = lengthValue.Replace("_", " ");
-
-                if (IsValidBackgroundSizeValue(processedValue))
+                if (IsValidBackgroundSizeValue(value.Value))
                 {
-                    resolvedValue = processedValue;
+                    resolvedValue = value.Value;
                     return true;
                 }
             }
@@ -121,14 +117,11 @@ internal class BackgroundSizeUtility : BaseFunctionalUtility
 
     protected override bool IsValidArbitraryValue(string value)
     {
-        // Only handle arbitrary values with length: prefix
-        if (value.StartsWith("length:"))
-        {
-            var lengthValue = value[7..].Replace("_", " ");
-            return IsValidBackgroundSizeValue(lengthValue);
-        }
-
-        return false;
+        // Hint is consumed in TryResolveValue via CandidateValue.DataTypeHint;
+        // by the time we reach here the type hint has already been stripped from
+        // the value. Anything that looks like a valid background-size literal is
+        // potentially ours (TryResolveValue ultimately gates on the hint).
+        return IsValidBackgroundSizeValue(value);
     }
 
     // Lower priority since this handles fewer cases than BackgroundImageUtility

@@ -130,8 +130,22 @@ internal abstract class BaseSpacingUtility : IUtility
         // Handle arbitrary values
         if (value.Kind == ValueKind.Arbitrary)
         {
+            // Resolve any embedded `theme(...)` calls first.
+            var arbitrary = Utilities.Resolvers.ValueResolver.SubstituteThemeFunctions(value.Value, theme);
+
+            // Allow CSS functions (var(), calc(), min(), max(), clamp(), etc.) —
+            // they're opaque to type inference but valid as spacing values.
+            if (arbitrary.StartsWith("var(", StringComparison.Ordinal)
+                || arbitrary.Contains("calc(", StringComparison.Ordinal)
+                || arbitrary.Contains("min(", StringComparison.Ordinal)
+                || arbitrary.Contains("max(", StringComparison.Ordinal)
+                || arbitrary.Contains("clamp(", StringComparison.Ordinal))
+            {
+                spacing = arbitrary;
+                return true;
+            }
+
             // Check if it looks like a length value using DataTypeInference
-            var arbitrary = value.Value;
             var inferredType = DataTypeInference.InferDataType(arbitrary, [DataType.Length, DataType.Percentage, DataType.Number]);
 
             if (inferredType is DataType.Length or DataType.Percentage or DataType.Number)

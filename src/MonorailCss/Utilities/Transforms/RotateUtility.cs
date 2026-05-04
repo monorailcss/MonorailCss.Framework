@@ -170,7 +170,7 @@ internal class RotateUtility : BaseFunctionalUtility
         return IsValidRotateValue(value);
     }
 
-    public bool TryCompile(Candidate candidate, Theme.Theme theme, CssPropertyRegistry propertyRegistry, out ImmutableList<AstNode>? results)
+    public override bool TryCompile(Candidate candidate, Theme.Theme theme, CssPropertyRegistry propertyRegistry, out ImmutableList<AstNode>? results)
     {
         // Register CSS variables for rotate
         propertyRegistry.Register("--tw-rotate-x", "*", false, null);

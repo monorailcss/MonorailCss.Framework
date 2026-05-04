@@ -1,7 +1,9 @@
 using System.Collections.Immutable;
 using System.Globalization;
 using MonorailCss.Ast;
+using MonorailCss.Candidates;
 using MonorailCss.Core;
+using MonorailCss.Css;
 using MonorailCss.Utilities.Base;
 
 namespace MonorailCss.Utilities.Typography;
@@ -84,6 +86,28 @@ internal class LetterSpacingUtility : BaseFunctionalUtility
     {
         return ImmutableList.Create<AstNode>(
             new Declaration("letter-spacing", value, important));
+    }
+
+    // Registry-aware overload: arbitrary tracking values pre-set a `--tw-tracking`
+    // custom property so authors can later compose against it; matches Tailwind
+    // v4's emission shape (`@property --tw-tracking; --tw-tracking: ...; letter-spacing: ...;`).
+    public override bool TryCompile(Candidate candidate, Theme.Theme theme, CssPropertyRegistry propertyRegistry, out ImmutableList<AstNode>? results)
+    {
+        if (!TryCompile(candidate, theme, out results))
+        {
+            return false;
+        }
+
+        if (candidate is FunctionalUtility { Value: { Kind: ValueKind.Arbitrary } value } && results != null)
+        {
+            propertyRegistry.Register("--tw-tracking", "*", false, null);
+
+            // Prepend `--tw-tracking: <value>;` before the existing `letter-spacing` declaration.
+            var trackingDeclaration = new Declaration("--tw-tracking", value.Value, candidate.Important);
+            results = results.Insert(0, trackingDeclaration);
+        }
+
+        return true;
     }
 
     protected override string GetSampleCssForArbitraryValue(string pattern) => "letter-spacing: [value]";

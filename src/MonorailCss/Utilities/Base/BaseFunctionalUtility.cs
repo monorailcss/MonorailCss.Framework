@@ -1,6 +1,7 @@
 using System.Collections.Immutable;
 using MonorailCss.Ast;
 using MonorailCss.Candidates;
+using MonorailCss.Css;
 
 namespace MonorailCss.Utilities.Base;
 
@@ -48,6 +49,15 @@ internal abstract class BaseFunctionalUtility : IUtility
         }
 
         return roots.ToArray();
+    }
+
+    // Virtual registry-aware overload so derived classes can intercept the
+    // candidate before/after compilation (e.g. to register `@property` blocks).
+    // The default just delegates to the simple TryCompile, preserving existing
+    // behavior for utilities that don't care about the registry.
+    public virtual bool TryCompile(Candidate candidate, Theme.Theme theme, CssPropertyRegistry propertyRegistry, out ImmutableList<AstNode>? results)
+    {
+        return TryCompile(candidate, theme, out results);
     }
 
     public virtual bool TryCompile(Candidate candidate, Theme.Theme theme, out ImmutableList<AstNode>? results)

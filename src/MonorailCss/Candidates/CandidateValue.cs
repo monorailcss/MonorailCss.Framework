@@ -21,9 +21,16 @@ public enum ValueKind
 /// </summary>
 /// <remarks>
 /// This type is used to distinguish between named and arbitrary values, providing
-/// additional precision through the optional fraction for named values.
+/// additional precision through the optional fraction for named values, and an
+/// optional <see cref="DataTypeHint"/> carried from arbitrary values that used
+/// the <c>[type:value]</c> or <c>(type:--var)</c> syntax.
 /// </remarks>
-public record CandidateValue(ValueKind Kind, string Value, string? Fraction = null)
+public record CandidateValue(
+    ValueKind Kind,
+    string Value,
+    string? Fraction = null,
+    string? DataTypeHint = null,
+    bool IsParenthesesShorthand = false)
 {
     /// <summary>
     /// Creates a new instance of the <see cref="CandidateValue"/> class with the specified kind as Named.
@@ -37,8 +44,11 @@ public record CandidateValue(ValueKind Kind, string Value, string? Fraction = nu
     /// Creates a new instance of the <see cref="CandidateValue"/> class with the specified kind as Arbitrary.
     /// </summary>
     /// <param name="value">The arbitrary value to be assigned.</param>
+    /// <param name="dataTypeHint">Optional Tailwind type hint (e.g. <c>color</c>, <c>length</c>) parsed from <c>[type:value]</c>.</param>
+    /// <param name="isParenthesesShorthand">True when the source syntax was <c>(--var)</c> rather than <c>[var(--var)]</c>.</param>
     /// <returns>A new <see cref="CandidateValue"/> instance of kind Arbitrary with the provided value.</returns>
-    public static CandidateValue Arbitrary(string value) => new(ValueKind.Arbitrary, value);
+    public static CandidateValue Arbitrary(string value, string? dataTypeHint = null, bool isParenthesesShorthand = false) =>
+        new(ValueKind.Arbitrary, value, null, dataTypeHint, isParenthesesShorthand);
 
     /// <inheritdoc />
     public override string ToString() => Kind == ValueKind.Arbitrary ? $"[{Value}]" : Value;

@@ -42,7 +42,7 @@ internal sealed class CandidateValueParser
                 return null; // Parsing failed
             }
 
-            return CandidateValue.Arbitrary(parsed.Value!);
+            return CandidateValue.Arbitrary(parsed.Value!, parsed.DataTypeHint);
         }
 
         // Check if value is CSS variable shorthand with parentheses (value)
@@ -64,7 +64,7 @@ internal sealed class CandidateValueParser
             }
 
             // Store as arbitrary value with the expanded var() syntax
-            return CandidateValue.Arbitrary(parsed.Value!);
+            return CandidateValue.Arbitrary(parsed.Value!, parsed.DataTypeHint, isParenthesesShorthand: true);
         }
 
         // Check if this is a fraction value (e.g., "1/2")

@@ -8,6 +8,95 @@ namespace MonorailCss.Utilities.Resolvers;
 
 internal static partial class ValueResolver
 {
+    [GeneratedRegex(@"theme\(([^)]+)\)")]
+    private static partial Regex ThemeFunctionPattern();
+
+    // Tailwind's `theme()` namespace aliases (e.g. `colors` → `color`). Only the
+    // ones we actually emit canonical entries for; extend as needed.
+    private static readonly Dictionary<string, string> ThemeNamespaceAliases = new()
+    {
+        ["colors"] = "color",
+    };
+
+    /// <summary>
+    /// Substitutes <c>theme(...)</c> calls inside an arbitrary value with the
+    /// resolved theme value. Returns the input unchanged if no theme() calls
+    /// are present or if a referenced theme key isn't found (in which case the
+    /// original <c>theme(...)</c> syntax is preserved so downstream validation
+    /// can reject it cleanly).
+    /// </summary>
+    public static string SubstituteThemeFunctions(string value, Theme.Theme theme)
+    {
+        if (string.IsNullOrEmpty(value) || !value.Contains("theme(", StringComparison.Ordinal))
+        {
+            return value;
+        }
+
+        return ThemeFunctionPattern().Replace(value, match =>
+        {
+            var path = match.Groups[1].Value.Trim();
+            var key = NormalizeThemePath(path);
+
+            var resolved = theme.ResolveValue(key, []);
+            if (resolved != null)
+            {
+                return resolved;
+            }
+
+            // Tailwind's spacing scale: `theme(spacing.4)` falls back to
+            // `calc(var(--spacing) * 4)` when `--spacing-4` isn't a direct theme
+            // entry. Mirrors how named utilities like `p-4` resolve.
+            if (TryResolveSpacingScale(key, theme, out var calc))
+            {
+                return calc;
+            }
+
+            return match.Value;
+        });
+    }
+
+    private static bool TryResolveSpacingScale(string key, Theme.Theme theme, [NotNullWhen(true)] out string? calc)
+    {
+        calc = null;
+
+        if (!key.StartsWith("--spacing-", StringComparison.Ordinal))
+        {
+            return false;
+        }
+
+        var multiplier = key["--spacing-".Length..];
+        if (!double.TryParse(multiplier, System.Globalization.NumberStyles.Number, System.Globalization.CultureInfo.InvariantCulture, out _))
+        {
+            return false;
+        }
+
+        if (!theme.ContainsKey("--spacing"))
+        {
+            return false;
+        }
+
+        calc = $"calc(var(--spacing) * {multiplier})";
+        return true;
+    }
+
+    private static string NormalizeThemePath(string path)
+    {
+        // Direct CSS variable: `theme(--spacing-4)` already names the key.
+        if (path.StartsWith("--", StringComparison.Ordinal))
+        {
+            return path;
+        }
+
+        // Dot-notation path: `colors.red.500` → `--color-red-500`.
+        var parts = path.Split('.');
+        if (parts.Length > 0 && ThemeNamespaceAliases.TryGetValue(parts[0], out var alias))
+        {
+            parts[0] = alias;
+        }
+
+        return "--" + string.Join('-', parts);
+    }
+
     public static bool TryResolveColor(
         CandidateValue value,
         Theme.Theme theme,

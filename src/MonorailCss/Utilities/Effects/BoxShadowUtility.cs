@@ -71,7 +71,7 @@ internal class BoxShadowUtility : BaseFunctionalUtility
     }
 
     /// <summary>
-    /// Validates if the arbitrary value is a valid box-shadow value.
+    /// Validates if the arbitrary value is a valid box-shadow value (not just a color).
     /// </summary>
     private static bool IsValidBoxShadowValue(string value)
     {
@@ -80,44 +80,32 @@ internal class BoxShadowUtility : BaseFunctionalUtility
             return false;
         }
 
-        // Allow CSS keywords
-        var keywords = new[] { "none", "inherit", "initial", "unset", "revert" };
-        if (keywords.Contains(value.Trim()))
-        {
-            return true;
-        }
-
-        // Allow CSS variables and functions
-        if (value.StartsWith("var(") || value.Contains("calc("))
-        {
-            return true;
-        }
-
-        // Basic validation for box-shadow syntax
-        // This could be more comprehensive but covers common cases
         var trimmed = value.Trim();
 
-        // Allow inset keyword
+        // CSS keywords
+        var keywords = new[] { "none", "inherit", "initial", "unset", "revert" };
+        if (keywords.Contains(trimmed))
+        {
+            return true;
+        }
+
+        // A single color token (`#0088cc`, `red`, `rgb(...)`, `hsl(...)`) belongs
+        // to ShadowColorUtility, not the box-shadow definition path. Detect by
+        // looking for offset/blur tokens — a real box-shadow value has spaces
+        // separating multiple tokens or starts with `inset`.
         if (trimmed.StartsWith("inset "))
         {
             return true;
         }
 
-        // Allow color values (hex, rgb, hsl, etc.)
-        if (trimmed.StartsWith("#") ||
-            trimmed.StartsWith("rgb") ||
-            trimmed.StartsWith("hsl") ||
-            trimmed.StartsWith("color"))
+        // Multi-token values (offsets, blur, spread, color) are box-shadow defs.
+        if (trimmed.Contains(' '))
         {
             return true;
         }
 
-        // Allow numeric values (offset-x, offset-y, blur-radius, spread-radius)
-        if (char.IsDigit(trimmed[0]) || trimmed[0] == '-')
-        {
-            return true;
-        }
-
+        // Single-token CSS function: opaque, defer to ShadowColorUtility unless
+        // it looks like a shadow keyword.
         return false;
     }
 

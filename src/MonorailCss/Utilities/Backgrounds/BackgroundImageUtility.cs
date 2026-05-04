@@ -161,10 +161,26 @@ internal class BackgroundImageUtility : BaseFunctionalUtility
         // Handle arbitrary values (bg-[url(...)], bg-[linear-gradient(...)])
         if (value.Kind == ValueKind.Arbitrary)
         {
+            var hint = value.DataTypeHint;
             var arbitrary = value.Value;
 
-            // Allow arbitrary background-image values
-            if (IsValidBackgroundImageValue(arbitrary))
+            // With a hint: only image/url claim this utility. Any other hint
+            // belongs to a sibling (color, size, position).
+            if (hint != null)
+            {
+                if (hint != "image" && hint != "url")
+                {
+                    return false;
+                }
+
+                resolvedValue = arbitrary;
+                return true;
+            }
+
+            // No hint: only obvious image markers. Bare `var()` and `calc()` go
+            // to the color utility — Tailwind treats `bg-[var(--x)]` as a color
+            // by default since the namespace is bg-color.
+            if (IsObviousBackgroundImageValue(arbitrary))
             {
                 resolvedValue = arbitrary;
                 return true;
@@ -172,6 +188,36 @@ internal class BackgroundImageUtility : BaseFunctionalUtility
         }
 
         // No theme resolution needed for background-image
+        return false;
+    }
+
+    // Stricter than IsValidBackgroundImageValue: only matches values that are
+    // unambiguously images (url(...), gradient functions, image keywords). Used
+    // when no type hint is present so that bare var()/calc() values fall
+    // through to BackgroundColorUtility.
+    private static bool IsObviousBackgroundImageValue(string value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return false;
+        }
+
+        var keywords = new[] { "none", "inherit", "initial", "unset", "revert" };
+        if (keywords.Contains(value.Trim()))
+        {
+            return true;
+        }
+
+        if (value.StartsWith("url(") && value.EndsWith(")"))
+        {
+            return true;
+        }
+
+        if (value.Contains("gradient("))
+        {
+            return true;
+        }
+
         return false;
     }
 

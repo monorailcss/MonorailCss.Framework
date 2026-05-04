@@ -153,7 +153,7 @@ internal class BlurUtility : BaseFilterUtility
         return IsValidBlurValue(value);
     }
 
-    public bool TryCompile(Candidate candidate, Theme.Theme theme, CssPropertyRegistry propertyRegistry, out ImmutableList<AstNode>? results)
+    public override bool TryCompile(Candidate candidate, Theme.Theme theme, CssPropertyRegistry propertyRegistry, out ImmutableList<AstNode>? results)
     {
         results = null;
 

@@ -79,8 +79,11 @@ internal sealed class CandidateParser
                 return true;
 
             case UtilityMatcher.UtilityType.ParenthesesShorthand:
-                // For parentheses shorthand, the value is already parsed by UtilityMatcher
-                var parsedValue = utilityMatch.Value != null ? CandidateValue.Arbitrary(utilityMatch.Value) : null;
+                // For parentheses shorthand, the value is already parsed by UtilityMatcher.
+                // Thread the type hint through so utilities can dispatch on it.
+                var parsedValue = utilityMatch.Value != null
+                    ? CandidateValue.Arbitrary(utilityMatch.Value, utilityMatch.DataTypeHint, isParenthesesShorthand: true)
+                    : null;
                 candidate = CreateFunctionalUtility(input, utilityMatch, parsedValue, variants, tokenized.Important, modifierResult.Modifier);
                 return true;
 
