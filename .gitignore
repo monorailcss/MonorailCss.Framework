@@ -484,3 +484,6 @@ $RECYCLE.BIN/
 *.swp
 
 output/
+
+# Playwright MCP debug snapshots / console logs
+.playwright-mcp/
