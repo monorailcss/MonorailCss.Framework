@@ -198,7 +198,12 @@ internal sealed class AssemblyClassScanner
 
     private static bool IsCandidateStart(char c)
     {
-        return (c is >= 'a' and <= 'z') || c is '-' or '!' or '@' or '[' or '*';
+        // Digits are valid starts because variant prefixes like `2xl:`, `3xl:`, `2xs:`
+        // begin a token. Without digits in the start set, the lexer skips the leading `2`
+        // and emits the wrong token (`xl:w-92` instead of `2xl:w-92`).
+        return (c is >= 'a' and <= 'z')
+            || (c is >= '0' and <= '9')
+            || c is '-' or '!' or '@' or '[' or '*';
     }
 
     private static bool IsCandidateChar(char c)

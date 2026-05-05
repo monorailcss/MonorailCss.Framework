@@ -26,6 +26,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\MonorailCss\MonorailCss.csproj" />
+    <ProjectReference Include="..\..\src\MonorailCss.Discovery\MonorailCss.Discovery.csproj" />
     <ProjectReference Include="..\MonorailCss.Interactive\MonorailCss.Interactive.csproj" />
   </ItemGroup>
 </Project>

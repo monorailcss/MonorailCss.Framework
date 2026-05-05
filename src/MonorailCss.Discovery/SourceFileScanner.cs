@@ -146,7 +146,11 @@ internal sealed partial class SourceFileScanner
 
     private static bool IsCandidateStart(char c)
     {
-        return (c is >= 'a' and <= 'z') || c is '-' or '!' or '@' or '[' or '*';
+        // Mirrors AssemblyClassScanner.IsCandidateStart; digits are valid starts so that
+        // variant prefixes like `2xl:`, `3xl:`, `2xs:` begin a token instead of being skipped.
+        return (c is >= 'a' and <= 'z')
+            || (c is >= '0' and <= '9')
+            || c is '-' or '!' or '@' or '[' or '*';
     }
 
     private static bool IsCandidateChar(char c)

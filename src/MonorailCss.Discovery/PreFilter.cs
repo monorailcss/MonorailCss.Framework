@@ -29,7 +29,7 @@ internal sealed class PreFilter
         // identifiers like `console` while letting through any class regardless of whether its
         // utility implementation declares its functional root.
         var first = token[0];
-        if (first is not ((>= 'a' and <= 'z') or '-' or '!' or '@' or '[' or '*'))
+        if (first is not ((>= 'a' and <= 'z') or (>= '0' and <= '9') or '-' or '!' or '@' or '[' or '*'))
         {
             return false;
         }
