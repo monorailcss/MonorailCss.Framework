@@ -207,7 +207,7 @@ internal sealed class ClassDiscoveryService : IHostedService, IClassRegistry, ID
         foreach (var reference in entry.GetReferencedAssemblies())
         {
             var name = reference.Name ?? string.Empty;
-            if (loaded.Contains(name) || IsKnownFrameworkAssembly(name))
+            if (loaded.Contains(name) || IsKnownFrameworkAssembly(name) || _options.ExcludeAssemblies.Contains(name))
             {
                 continue;
             }
@@ -534,7 +534,7 @@ internal sealed class ClassDiscoveryService : IHostedService, IClassRegistry, ID
         }
     }
 
-    private static bool ShouldScan(Assembly asm)
+    private bool ShouldScan(Assembly asm)
     {
         if (asm.IsDynamic)
         {
@@ -549,7 +549,14 @@ internal sealed class ClassDiscoveryService : IHostedService, IClassRegistry, ID
 
         // Skip the BCL noise — same filter we use during force-load. The IL scanner would
         // reject most of these strings anyway, but this avoids walking 100+ heaps for nothing.
-        return !IsKnownFrameworkAssembly(name);
+        if (IsKnownFrameworkAssembly(name))
+        {
+            return false;
+        }
+
+        // User-configured exclusions: utility libraries (icon packs, the framework itself)
+        // whose IL-embedded strings would inflate the discovered class set.
+        return !_options.ExcludeAssemblies.Contains(name);
     }
 
     private void Regenerate(string trigger)

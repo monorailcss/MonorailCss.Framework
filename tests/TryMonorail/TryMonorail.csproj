@@ -1,37 +1,19 @@
-<Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
+<Project Sdk="Microsoft.NET.Sdk.Web">
     <PropertyGroup>
         <TargetFramework>net10.0</TargetFramework>
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
-        <PublishTrimmed>true</PublishTrimmed>
         <LangVersion>preview</LangVersion>
-        <BlazorEnableTimeZoneSupport>false</BlazorEnableTimeZoneSupport>
-        <BlazorWebAssemblyPreserveCollationData>false</BlazorWebAssemblyPreserveCollationData>
+        <RootNamespace>TryMonorail</RootNamespace>
     </PropertyGroup>
 
     <ItemGroup>
         <PackageReference Include="BadIdeas.Icons.FontAwesome" Version="0.0.0-alpha.0.21" />
         <PackageReference Include="BlazorMonaco" Version="3.4.0" />
-        <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="10.0.1" />
-        <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="10.0.1" PrivateAssets="all" />
-        <PackageReference Include="MonorailCss.Build.Tasks" Version="0.0.5-alpha.0.3">
-          <PrivateAssets>all</PrivateAssets>
-          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-        </PackageReference>
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\..\src\MonorailCss\MonorailCss.csproj" />
+        <ProjectReference Include="..\..\src\MonorailCss\MonorailCss.csproj" />
+        <ProjectReference Include="..\..\src\MonorailCss.Discovery\MonorailCss.Discovery.csproj" />
     </ItemGroup>
-
-    <!-- Direct target with hardcoded values for CSS generation -->
-    <Target Name="GenerateCss"
-            BeforeTargets="BeforeBuild"
-            DependsOnTargets="ResolveProjectReferences"
-            Inputs="app.css;@(Content);@(Compile)"
-            Outputs="wwwroot\css\app.css">
-      <ProcessCssTask
-        InputFile="app.css"
-        OutputFile="wwwroot\css\app.css" />
-    </Target>
 </Project>

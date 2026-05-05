@@ -1,0 +1,48 @@
+html {
+    --blazor-load-percentage: 0%;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    background-color: rgba(17, 24, 39, 1);
+    overflow-y: hidden;
+}
+
+.monaco-editor-container {
+    height: 100%;
+    width: 100%;
+    zoom: 0.9;
+}
+
+@media (min-width: 1500px) {
+    .monaco-editor-container {
+        zoom: 1;
+    }
+}
+
+@keyframes clearToFull {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+#main-app {
+    animation: 0.25s ease-out 0s 1 clearToFull;
+}
+
+.monaco-hover {
+    border-radius: 4px;
+    backdrop-filter: blur(4px);
+    min-width: 40ch;
+    max-width: 80ch;
+    width: fit-content;
+    font-weight: 300;
+}
+
+.monaco-hover-content {
+    max-width: 80ch !important;
+}

@@ -21,6 +21,18 @@ public sealed class MonorailDiscoveryOptions
     public List<string> ExtraSafelist { get; } = new();
 
     /// <summary>
+    /// Gets the set of assembly names to skip during scanning. Names match exactly against
+    /// <c>Assembly.GetName().Name</c>. Use this to exclude assemblies whose IL-embedded
+    /// strings are not real utilities used by the running app — e.g. the MonorailCss
+    /// framework itself (it ships template strings like <c>"bg-{color}-500"</c> in its
+    /// utilities), icon packs that bake hundreds of class-shaped strings into their
+    /// metadata, or any third-party library whose discovery contribution is noise.
+    /// BCL assemblies (<c>System.*</c>, <c>Microsoft.*</c>, etc.) are skipped automatically
+    /// and do not need to be listed here.
+    /// </summary>
+    public HashSet<string> ExcludeAssemblies { get; } = new(StringComparer.OrdinalIgnoreCase);
+
+    /// <summary>
     /// Gets or sets the CSS source supplied by the user. Anything you would normally put
     /// in <c>app.css</c> — <c>@theme</c> blocks, <c>@apply</c> components, plain CSS — goes
     /// here. The discovery output is appended to this content. Pass either inline CSS or the

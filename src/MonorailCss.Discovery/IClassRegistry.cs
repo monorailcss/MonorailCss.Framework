@@ -20,4 +20,14 @@ public interface IClassRegistry
     /// Embedders use this to invalidate their own cached CSS without re-comparing the set.
     /// </summary>
     string Version { get; }
+
+    /// <summary>
+    /// Gets the fully assembled CSS the discovery pipeline produced — the configured
+    /// <see cref="MonorailDiscoveryOptions.SourceCss"/> (or the auto-loaded
+    /// <c>wwwroot/app.css</c>) prefix plus the utilities generated from the discovered
+    /// class set. Custom MapGet/MapMethods endpoints can return this directly to match
+    /// what the built-in middleware serves at <see cref="MonorailDiscoveryOptions.CssEndpoint"/>.
+    /// The string is recomputed only when the class set changes, so cheap to read.
+    /// </summary>
+    string Css { get; }
 }

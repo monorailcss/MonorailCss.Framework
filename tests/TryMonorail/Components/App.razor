@@ -1,0 +1,77 @@
+@inject IHostEnvironment Env
+@inject MonorailCss.Discovery.IClassRegistry Registry
+@{
+    // Strip the RFC 7232 quotes — keep the URL clean while still cache-busting on every
+    // content change. Each unique value becomes its own cache key so a stale body from a
+    // previous server run can never bind to a freshly-restarted server's response.
+    var cssVersion = Registry.Version.Trim('"');
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <base href="/" />
+    <title>Try MonorailCss</title>
+    <link href="_content/BlazorMonaco/lib/monaco-editor/min/vs/editor/editor.main.css" rel="stylesheet" />
+    <link id="monorail-css" rel="stylesheet" href="/css/app.css?v=@cssVersion" />
+    <script src="https://unpkg.com/split-grid/dist/split-grid.js"></script>
+    <HeadOutlet />
+    @if (Env.IsDevelopment())
+    {
+        <script>
+            (function () {
+                const link = document.getElementById('monorail-css');
+                let lastVersion = '@cssVersion';
+                async function tick() {
+                    try {
+                        const r = await fetch('/css/app.css', { method: 'HEAD', cache: 'no-store' });
+                        const etag = r.headers.get('ETag');
+                        // ETag is wrapped in quotes per RFC 7232; strip to match the bare-hex
+                        // shape the server rendered into the initial link href.
+                        const v = etag ? etag.replace(/^"|"$/g, '') : null;
+                        if (v && v !== lastVersion) {
+                            lastVersion = v;
+                            link.href = '/css/app.css?v=' + encodeURIComponent(v);
+                        }
+                    } catch { /* ignore */ }
+                }
+                tick();
+                setInterval(tick, 500);
+            })();
+        </script>
+    }
+</head>
+<body>
+    <Routes @rendermode="InteractiveServer" />
+
+    <script>
+        window.postPreviewMessage = (element, data) => {
+            if (element !== undefined) {
+                element.contentWindow.postMessage(data, '*');
+            }
+        };
+        window.initSplit = () => {
+            window.Split({
+                columnGutters: [{
+                    track: 1,
+                    element: document.querySelector('.gutter-col-1'),
+                }],
+            });
+        };
+    </script>
+    <!-- jsInterop.js declares `var require = { paths: { vs: ... } }` which Monaco's
+         loader.js consumes as pre-config; it MUST run before loader.js. -->
+    <script src="_content/BlazorMonaco/jsInterop.js"></script>
+    <script src="_content/BlazorMonaco/lib/monaco-editor/min/vs/loader.js"></script>
+    <script src="_framework/blazor.web.js" autostart="false"></script>
+    <script>
+        // Monaco's AMD modules resolve asynchronously. Hold the Blazor circuit until
+        // `monaco` is on the window; otherwise the editor component's first render
+        // calls into BlazorMonaco interop while monaco is still undefined.
+        require(['vs/editor/editor.main'], function () {
+            Blazor.start();
+        });
+    </script>
+</body>
+</html>
