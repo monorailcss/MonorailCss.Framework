@@ -72,64 +72,8 @@ internal sealed partial class SourceFileScanner
             return;
         }
 
-        // Same lexer as AssemblyClassScanner, kept in sync intentionally.
-        var i = 0;
-        while (i < raw.Length)
+        foreach (var token in CandidateLexer.Tokenize(raw))
         {
-            var startChar = raw[i];
-            if (!IsCandidateStart(startChar))
-            {
-                i++;
-                continue;
-            }
-
-            var start = i;
-            var depth = 0;
-            while (i < raw.Length)
-            {
-                var c = raw[i];
-
-                if (depth > 0)
-                {
-                    if (c == '[')
-                    {
-                        depth++;
-                    }
-                    else if (c == ']')
-                    {
-                        depth--;
-                    }
-
-                    i++;
-                    continue;
-                }
-
-                if (c == '[')
-                {
-                    depth = 1;
-                    i++;
-                    continue;
-                }
-
-                if (!IsCandidateChar(c))
-                {
-                    break;
-                }
-
-                i++;
-            }
-
-            if (depth != 0 || i == start)
-            {
-                if (i == start)
-                {
-                    i++;
-                }
-
-                continue;
-            }
-
-            var token = raw[start..i];
             if (token.Length is < 2 or > 96)
             {
                 continue;
@@ -142,22 +86,5 @@ internal sealed partial class SourceFileScanner
 
             output.Add(token);
         }
-    }
-
-    private static bool IsCandidateStart(char c)
-    {
-        // Mirrors AssemblyClassScanner.IsCandidateStart; digits are valid starts so that
-        // variant prefixes like `2xl:`, `3xl:`, `2xs:` begin a token instead of being skipped.
-        return (c is >= 'a' and <= 'z')
-            || (c is >= '0' and <= '9')
-            || c is '-' or '!' or '@' or '[' or '*';
-    }
-
-    private static bool IsCandidateChar(char c)
-    {
-        return (c is >= 'a' and <= 'z')
-            || (c is >= 'A' and <= 'Z')
-            || (c is >= '0' and <= '9')
-            || c is '-' or '_' or ':' or '.' or '/' or '!' or '%' or '*' or '#' or '@' or '~' or '$';
     }
 }

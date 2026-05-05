@@ -19,15 +19,13 @@ internal sealed class AssemblyClassScanner
     // 16 of 17 assemblies on a typical docs site, since their #US heaps are byte-identical to
     // the previous scan. Hit count is exposed via <see cref="MvidCacheHits"/>.
     private readonly ConcurrentDictionary<Guid, ImmutableSortedSet<string>> _mvidCache = new();
-    private readonly PreFilter _preFilter;
     private readonly ValidationCache _validationCache;
     private long _mvidCacheHits;
     private long _mvidCacheMisses;
 
-    public AssemblyClassScanner(ValidationCache validationCache, PreFilter preFilter)
+    public AssemblyClassScanner(ValidationCache validationCache)
     {
         _validationCache = validationCache;
-        _preFilter = preFilter;
     }
 
     public long MvidCacheHits => Interlocked.Read(ref _mvidCacheHits);
@@ -118,71 +116,9 @@ internal sealed class AssemblyClassScanner
 
     private void ScanString(string raw, ICollection<string> output)
     {
-        // Razor compiles adjacent static markup into a single AddMarkupContent("<div class=\"foo bar\">...")
-        // string literal. A whitespace-only split would leak HTML fragments like `class="foo` and
-        // `bar">content</div>` into the candidate stream. Instead we scan for class-shaped runs:
-        // start at any candidate-leading char, advance through the safe character set OUTSIDE
-        // brackets and through anything BALANCED inside [...], and stop at the first HTML/code
-        // boundary.
-        var i = 0;
-        while (i < raw.Length)
+        foreach (var token in CandidateLexer.Tokenize(raw))
         {
-            var startChar = raw[i];
-            if (!IsCandidateStart(startChar))
-            {
-                i++;
-                continue;
-            }
-
-            var start = i;
-            var depth = 0;
-            while (i < raw.Length)
-            {
-                var c = raw[i];
-
-                if (depth > 0)
-                {
-                    if (c == '[')
-                    {
-                        depth++;
-                    }
-                    else if (c == ']')
-                    {
-                        depth--;
-                    }
-
-                    i++;
-                    continue;
-                }
-
-                if (c == '[')
-                {
-                    depth = 1;
-                    i++;
-                    continue;
-                }
-
-                if (!IsCandidateChar(c))
-                {
-                    break;
-                }
-
-                i++;
-            }
-
-            if (depth != 0 || i == start)
-            {
-                // Unmatched bracket or zero-width run — skip past the start char and continue
-                if (i == start)
-                {
-                    i++;
-                }
-
-                continue;
-            }
-
-            var token = raw[start..i];
-            if (!_preFilter.IsPlausible(token))
+            if (token.Length is < 2 or > 96)
             {
                 continue;
             }
@@ -194,27 +130,6 @@ internal sealed class AssemblyClassScanner
 
             output.Add(token);
         }
-    }
-
-    private static bool IsCandidateStart(char c)
-    {
-        // Digits are valid starts because variant prefixes like `2xl:`, `3xl:`, `2xs:`
-        // begin a token. Without digits in the start set, the lexer skips the leading `2`
-        // and emits the wrong token (`xl:w-92` instead of `2xl:w-92`).
-        return (c is >= 'a' and <= 'z')
-            || (c is >= '0' and <= '9')
-            || c is '-' or '!' or '@' or '[' or '*';
-    }
-
-    private static bool IsCandidateChar(char c)
-    {
-        // Class-name chars OUTSIDE brackets. Inside [...] the lexer accepts anything balanced,
-        // so this set excludes characters that only appear in arbitrary values (`>`, `=`, `&`,
-        // `<`, quotes, parens, commas, semicolons) and never in a bare utility token.
-        return (c is >= 'a' and <= 'z')
-            || (c is >= 'A' and <= 'Z')
-            || (c is >= '0' and <= '9')
-            || c is '-' or '_' or ':' or '.' or '/' or '!' or '%' or '*' or '#' or '@' or '~' or '$';
     }
 
     private static bool HasReferenceAssemblyAttribute(MetadataReader md)

@@ -51,7 +51,7 @@ internal sealed class ClassDiscoveryService : IHostedService, IClassRegistry, ID
         _logger = logger;
         _environment = environment;
         _validationCache = new ValidationCache(_options.Framework);
-        _scanner = new AssemblyClassScanner(_validationCache, new PreFilter(_options.Framework));
+        _scanner = new AssemblyClassScanner(_validationCache);
         _sourceScanner = new SourceFileScanner(_validationCache);
         _debounce = new System.Threading.Timer(OnDebounceTick, null, Timeout.Infinite, Timeout.Infinite);
     }
@@ -375,13 +375,22 @@ internal sealed class ClassDiscoveryService : IHostedService, IClassRegistry, ID
         lock (_lock)
         {
             _byAssembly[SourceWatcherKey] = contributed;
-            _classes = _byAssembly.Values
-                .SelectMany(s => s)
-                .Concat(_options.ExtraSafelist)
-                .ToImmutableSortedSet(StringComparer.Ordinal);
+            RebuildClasses();
         }
 
         _logger.LogDebug("MonorailCss discovery: source-watcher scanned {FileCount} files, {Count} candidate classes", fileCount, contributed.Count);
+    }
+
+    /// <summary>
+    /// Rebuilds <see cref="_classes"/> from the current <see cref="_byAssembly"/> contributions
+    /// plus the user's extra safelist. Caller must hold <see cref="_lock"/>.
+    /// </summary>
+    private void RebuildClasses()
+    {
+        _classes = _byAssembly.Values
+            .SelectMany(s => s)
+            .Concat(_options.ExtraSafelist)
+            .ToImmutableSortedSet(StringComparer.Ordinal);
     }
 
     private static IEnumerable<string> EnumerateSourceFiles(string dir)
@@ -474,10 +483,7 @@ internal sealed class ClassDiscoveryService : IHostedService, IClassRegistry, ID
                 _byAssembly[k] = v;
             }
 
-            _classes = _byAssembly.Values
-                .SelectMany(s => s)
-                .Concat(_options.ExtraSafelist)
-                .ToImmutableSortedSet(StringComparer.Ordinal);
+            RebuildClasses();
         }
 
         return (scanned, skipped);
@@ -516,10 +522,7 @@ internal sealed class ClassDiscoveryService : IHostedService, IClassRegistry, ID
             else
             {
                 _byAssembly[name] = contributed;
-                _classes = _byAssembly.Values
-                    .SelectMany(s => s)
-                    .Concat(_options.ExtraSafelist)
-                    .ToImmutableSortedSet(StringComparer.Ordinal);
+                RebuildClasses();
                 changed = true;
             }
         }
@@ -558,8 +561,7 @@ internal sealed class ClassDiscoveryService : IHostedService, IClassRegistry, ID
         }
 
         var sw = Stopwatch.StartNew();
-        var classList = snapshot.Concat(_options.ExtraSafelist);
-        var generated = _options.Framework.Process(classList);
+        var generated = _options.Framework.Process(snapshot);
 
         var combined = string.IsNullOrWhiteSpace(_options.SourceCss)
             ? generated

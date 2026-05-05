@@ -33,14 +33,17 @@ public class DiscoveryTokenizationTests
     }
 
     [Fact]
-    public void PreFilter_Should_Accept_DigitLeading_Tokens()
+    public void CandidateLexer_Should_Emit_DigitLeading_Tokens()
     {
-        var framework = new CssFramework();
-        var preFilter = new PreFilter(framework);
+        var tokens = new HashSet<string>(StringComparer.Ordinal);
+        foreach (var token in CandidateLexer.Tokenize("foo 2xl:w-92 3xl:grid-cols-4 2xs:hidden bar"))
+        {
+            tokens.Add(token);
+        }
 
-        preFilter.IsPlausible("2xl:w-92").ShouldBeTrue();
-        preFilter.IsPlausible("3xl:grid-cols-4").ShouldBeTrue();
-        preFilter.IsPlausible("2xs:hidden").ShouldBeTrue();
+        tokens.ShouldContain("2xl:w-92");
+        tokens.ShouldContain("3xl:grid-cols-4");
+        tokens.ShouldContain("2xs:hidden");
     }
 
     [Fact]
