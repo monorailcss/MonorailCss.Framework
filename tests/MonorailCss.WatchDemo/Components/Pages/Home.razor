@@ -1,0 +1,46 @@
+@page "/"
+
+<main class="min-h-screen px-6 py-16">
+    <div class="mx-auto max-w-3xl space-y-8">
+        <header class="space-y-3">
+            <p class="text-xl text-mist-500 font-medium uppercase tracking-wider">MonorailCss</p>
+            <h1 class="text-5xl font-extrabold tracking-tight text-amber-700 italic">Live class discovery</h1>
+            <p class="text-lg text-slate-600">
+                This page's CSS is generated at runtime by scanning IL <code class="rounded bg-slate-100 px-1.5 py-0.5 text-sm font-mono">#US</code> heaps —
+                no source generators, no MSBuild tasks, no rendered HTML scraping.
+            </p>
+        </header>
+
+        <section class="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+            <h2 class="text-xl font-semibold text-slate-900">What's covered</h2>
+            <ul class="mt-4 space-y-2 text-slate-700">
+                <li class="flex gap-3">
+                    <span class="mt-1 inline-block h-2 w-2 shrink-0 rounded-full bg-emerald-500"></span>
+                    <span>Classes from this <code class="font-mono text-sm">.razor</code> file (you're reading them).</span>
+                </li>
+                <li class="flex gap-3">
+                    <span class="mt-1 inline-block h-2 w-2 shrink-0 rounded-full bg-emerald-500"></span>
+                    <span>Classes baked into <code class="font-mono text-sm">Pennington.UI</code> components — discovered without rendering them.</span>
+                </li>
+                <li class="flex gap-3">
+                    <span class="mt-1 inline-block h-2 w-2 shrink-0 rounded-full bg-emerald-500"></span>
+                    <span>New classes added on hot reload — pick up edits inside <code class="font-mono text-sm">dotnet watch</code>.</span>
+                </li>
+            </ul>
+        </section>
+
+        <section class="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+            <h2 class="text-xl font-semibold text-slate-900">Try it</h2>
+            <p class="mt-2 text-slate-600">Edit this file and add a class that's never appeared anywhere else, like <code class="rounded bg-amber-100 px-1.5 py-0.5 font-mono text-sm text-amber-900">text-purple-700</code>. Save. The browser refreshes; the new style applies.</p>
+            <div class="mt-4 flex flex-wrap gap-2">
+                <span class="inline-flex items-center rounded-full bg-emerald-100 px-3 py-1 text-sm font-medium text-emerald-800">runtime</span>
+                <span class="inline-flex items-center rounded-full bg-sky-100 px-3 py-1 text-sm font-medium text-sky-800">hot reload</span>
+                <span class="inline-flex items-center rounded-full bg-violet-100 px-3 py-1 text-sm font-medium text-violet-800">no build task</span>
+            </div>
+        </section>
+
+        <footer class="pt-6 text-sm text-slate-500">
+            <a href="/_monorail/app.css" class="underline decoration-slate-300 underline-offset-4 hover:text-slate-900 hover:decoration-slate-900">view generated CSS</a>
+        </footer>
+    </div>
+</main>

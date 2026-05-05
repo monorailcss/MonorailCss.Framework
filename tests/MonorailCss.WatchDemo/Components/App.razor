@@ -1,0 +1,44 @@
+@inject IHostEnvironment Env
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <base href="/" />
+    <link id="monorail-css" rel="stylesheet" href="/_monorail/app.css" />
+    <title>MonorailCss WatchDemo</title>
+    <HeadOutlet />
+    @if (Env.IsDevelopment())
+    {
+        <script>
+            // Poll the discovery service's ETag every 500ms; when it changes, swap the stylesheet's
+            // href with a cache-busting query so the browser fetches the new CSS without reloading
+            // the whole page. Console-logs each step so we can see the loop in DevTools.
+            (function () {
+                const link = document.getElementById('monorail-css');
+                let lastEtag = null;
+                async function tick() {
+                    try {
+                        const r = await fetch('/_monorail/app.css', { method: 'HEAD', cache: 'no-store' });
+                        const etag = r.headers.get('ETag');
+                        if (etag && etag !== lastEtag) {
+                            const note = lastEtag === null ? 'initial' : 'changed';
+                            console.log('[monorail] etag ' + note + ': ' + etag);
+                            lastEtag = etag;
+                            link.href = '/_monorail/app.css?v=' + encodeURIComponent(etag);
+                        }
+                    } catch (e) {
+                        console.warn('[monorail] poll error', e);
+                    }
+                }
+                tick();
+                setInterval(tick, 500);
+            })();
+        </script>
+    }
+</head>
+<body class="bg-slate-50 text-slate-900 font-sans antialiased">
+    <Routes />
+    <script src="_framework/blazor.web.js"></script>
+</body>
+</html>

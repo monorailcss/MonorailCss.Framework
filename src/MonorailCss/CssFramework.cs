@@ -310,6 +310,41 @@ public class CssFramework
     }
 
     /// <summary>
+    /// Tests whether a single token would parse as a valid utility candidate.
+    /// Use as a fast validator when filtering arbitrary strings (e.g. extracted from
+    /// IL user-string heaps) before feeding them to <see cref="Process(IEnumerable{string})"/>.
+    /// Never throws — returns false for null, empty, or unparseable input.
+    /// </summary>
+    /// <param name="token">A single class candidate (no whitespace).</param>
+    /// <returns>True when the token parses as a known static, functional, or arbitrary-property utility.</returns>
+    public bool TryValidateCandidate(string token)
+    {
+        return _parser.TryParseCandidate(token, out _);
+    }
+
+    /// <summary>
+    /// Gets the names of all registered static utilities (e.g. "flex", "block", "hidden").
+    /// Used by the discovery library to build a fast pre-filter that distinguishes
+    /// candidate strings from natural-language strings before invoking the full parser.
+    /// </summary>
+    /// <returns>The static utility names exposed by this framework instance.</returns>
+    public IReadOnlyCollection<string> GetStaticUtilityNames()
+    {
+        return UtilityRegistry.StaticUtilitiesLookup.Keys.ToArray();
+    }
+
+    /// <summary>
+    /// Gets the roots of all registered functional utilities (e.g. "bg", "text", "p", "m").
+    /// Used by the discovery library to build a fast pre-filter that distinguishes
+    /// candidate strings from natural-language strings before invoking the full parser.
+    /// </summary>
+    /// <returns>The functional utility roots exposed by this framework instance.</returns>
+    public IReadOnlyCollection<string> GetFunctionalUtilityPrefixes()
+    {
+        return UtilityRegistry.FunctionalRoots.ToArray();
+    }
+
+    /// <summary>
     /// Processes a collection of CSS class names and returns detailed results.
     /// </summary>
     /// <param name="candidates">The CSS class names to process.</param>

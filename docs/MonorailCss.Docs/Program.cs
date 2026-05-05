@@ -157,19 +157,11 @@ builder.Services.AddLlmsSubtree(new LlmsSubtree(
     title: "Utilities",
     description: "Tailwind 4-compatible utility classes — one page per CSS property, grouped by category."));
 
-// CssFramework consumed by UtilityDetailContent.razor to render the example
-// CSS pane on every utility-detail page. Must mirror the AddMonorailCss theme
-// so the rendered examples reflect the actual configured palette (sanibel,
-// frosted, mixed, happily) rather than Tailwind defaults.
-builder.Services.AddSingleton<CssFramework>(_ =>
-{
-    var theme = ApplyDocsTheme(colorScheme.ApplyToTheme(Theme.CreateWithDefaults()));
-    return new CssFramework(new CssFrameworkSettings
-    {
-        Theme = theme,
-        IncludePreflight = false,
-    });
-});
+// CssFramework is now registered by Pennington's AddMonorailCss above (the post-Discovery
+// refactor). UtilityDetailContent.razor injects it via @inject CssFramework and only calls
+// CompileUtilityClass(...) — which doesn't depend on IncludePreflight — so the same instance
+// works for both the main /styles.css endpoint and per-utility example rendering, and the
+// custom scrollbar utilities/sanibel theme are guaranteed to match.
 
 var app = builder.Build();
 

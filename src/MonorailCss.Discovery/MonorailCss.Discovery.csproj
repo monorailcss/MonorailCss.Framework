@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFrameworks>net9.0;net10.0</TargetFrameworks>
@@ -10,24 +10,27 @@
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <Description>MonorailCSS is a JIT CSS compiler inspired by Tailwind CSS</Description>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Description>Runtime CSS class discovery for MonorailCSS — scans loaded assembly IL to extract utility classes from .razor, .cs, and compiled NuGet packages without source generators or build tasks.</Description>
     <Copyright>Phil Scott</Copyright>
     <PackageProjectUrl>https://github.com/phil-scott-78/monorail</PackageProjectUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageTags>dotnet css utility-css monorail tailwind discovery aspnetcore blazor</PackageTags>
   </PropertyGroup>
-    <ItemGroup>
-        <InternalsVisibleTo Include="$(AssemblyName).Tests" />
-      <InternalsVisibleTo Include="$(AssemblyName).Interactive" />
-      <InternalsVisibleTo Include="$(AssemblyName).Discovery" />
-      <InternalsVisibleTo Include="$(AssemblyName).Discovery.Tests" />
-    </ItemGroup>
+
   <ItemGroup>
-    <None Include="..\..\README.md" Pack="true" PackagePath="\"/>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
+
   <ItemGroup>
-    <AdditionalFiles Include="..\stylecop.json" Link="Properties/stylecop.json" />
+    <ProjectReference Include="..\MonorailCss\MonorailCss.csproj" />
   </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\..\README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
+
   <ItemGroup>
     <PackageReference Include="JetBrains.Annotations.Sources" Version="2025.2.4">
       <PrivateAssets>all</PrivateAssets>
@@ -37,6 +40,10 @@
     <PackageReference Include="StyleCop.Analyzers" Version="1.2.0-beta.556">
       <PrivateAssets>All</PrivateAssets>
     </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <AdditionalFiles Include="..\stylecop.json" Link="Properties/stylecop.json" />
   </ItemGroup>
 
 </Project>
