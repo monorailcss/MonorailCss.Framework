@@ -37,8 +37,8 @@ var css = framework.Process("flex gap-4 p-6 bg-blue-500 text-white");</code></pr
 <div class="humans-only">
 
 @* ─────────────────────────────────  HERO (split)  ───────────────────────────────── *@
-<section class="relative px-12 py-20 overflow-hidden">
-    <div class="max-w-[1280px] mx-auto grid lg:grid-cols-[1.05fr_1fr] gap-14 items-center relative">
+<section class="relative px-5 md:px-12 py-12 md:py-20 overflow-hidden">
+    <div class="max-w-[1280px] mx-auto grid lg:grid-cols-[1.05fr_1fr] gap-10 md:gap-14 items-center relative">
         <div>
             <span class="inline-flex items-center gap-2 pl-2.5 pr-3 py-1 rounded-full bg-primary-500/10 border border-primary-500/20 text-primary-500 text-xs font-medium font-mono tracking-[0.02em]">
                 <span class="w-1.5 h-1.5 rounded-full bg-primary-500 ring-[3px] ring-primary-500/20"></span>
@@ -60,7 +60,7 @@ var css = framework.Process("flex gap-4 p-6 bg-blue-500 text-white");</code></pr
                     View on GitHub ↗
                 </a>
             </div>
-            <div class="flex gap-7 mt-11 text-base-700 dark:text-base-300 text-[13px] flex-wrap">
+            <div class="flex gap-x-5 gap-y-2 mt-9 md:gap-7 md:mt-11 text-base-700 dark:text-base-300 text-[13px] flex-wrap">
                 <div><span class="font-mono font-medium text-base-950 dark:text-base-50">0</span> <span class="ml-1.5">npm deps</span></div>
                 <div><span class="font-mono font-medium text-base-950 dark:text-base-50">~12ms</span> <span class="ml-1.5">cold compile</span></div>
                 <div><span class="font-mono font-medium text-base-950 dark:text-base-50">1.4k+</span> <span class="ml-1.5">utilities</span></div>
@@ -98,8 +98,8 @@ File.<span class="text-primary-500">WriteAllText</span>(<span class="text-tertia
 </section>
 
 @* ─────────────────────────────────  TRUSTED-WITH STRIP  ───────────────────────────────── *@
-<section class="px-12 -mt-5 mb-20 max-w-[1280px] mx-auto">
-    <div class="flex items-center justify-center gap-12 px-8 py-5 border-y border-base-200 dark:border-base-800 text-base-700 dark:text-base-300 font-mono text-[11px] tracking-[0.1em] uppercase flex-wrap">
+<section class="px-5 md:px-12 -mt-5 mb-20 max-w-[1280px] mx-auto">
+    <div class="flex items-center justify-center gap-x-5 gap-y-2 px-4 py-5 md:gap-12 md:px-8 border-y border-base-200 dark:border-base-800 text-base-700 dark:text-base-300 font-mono text-[11px] tracking-[0.1em] uppercase flex-wrap">
         <span>Works with</span>
         <span class="text-base-900 dark:text-base-100">ASP.NET Core</span>
         <span class="text-base-500 dark:text-base-500">·</span>
@@ -112,7 +112,7 @@ File.<span class="text-primary-500">WriteAllText</span>(<span class="text-tertia
 </section>
 
 @* ─────────────────────────────────  FEATURES  ───────────────────────────────── *@
-<section class="px-12 max-w-[1280px] mx-auto mb-30">
+<section class="px-5 md:px-12 max-w-[1280px] mx-auto mb-20 md:mb-30">
     <div class="mb-12 max-w-[720px]">
         <div class="font-mono text-[11px] text-primary-500 tracking-[0.1em] uppercase mb-3.5 flex items-center gap-2.5">
             <span>◆</span><span>Why MonorailCSS</span>
@@ -124,7 +124,7 @@ File.<span class="text-primary-500">WriteAllText</span>(<span class="text-tertia
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-px bg-base-200 dark:bg-base-800 border border-base-200 dark:border-base-800 rounded-2xl overflow-hidden">
         @foreach (var f in _features)
         {
-            <div class="bg-base-100/95 dark:bg-base-900/95 px-7 py-8 flex flex-col gap-3.5 min-h-[220px] hover:bg-base-200 dark:hover:bg-base-800 transition-colors duration-200 relative">
+            <div class="bg-base-100/95 dark:bg-base-900/95 px-6 py-7 md:px-7 md:py-8 md:min-h-[220px] flex flex-col gap-3.5 hover:bg-base-200 dark:hover:bg-base-800 transition-colors duration-200 relative">
                 <div class="text-primary-500">@((MarkupString)f.Glyph)</div>
                 <h3 class="mt-2 mb-0 text-lg font-medium text-base-950 dark:text-base-50 tracking-[-0.005em]">@f.Title</h3>
                 <p class="m-0 text-base-900 dark:text-base-100 text-[14.5px] leading-[1.55] text-pretty">@f.Body</p>
@@ -134,7 +134,7 @@ File.<span class="text-primary-500">WriteAllText</span>(<span class="text-tertia
 </section>
 
 @* ─────────────────────────────────  LIVE DEMO (static visual)  ───────────────────────────────── *@
-<section class="px-12 max-w-[1280px] mx-auto mb-30">
+<section class="px-5 md:px-12 max-w-[1280px] mx-auto mb-20 md:mb-30">
     <div class="mb-12 max-w-[720px]">
         <div class="font-mono text-[11px] text-primary-500 tracking-[0.1em] uppercase mb-3.5 flex items-center gap-2.5">
             <span>◆</span><span>Try it</span>
@@ -205,7 +205,7 @@ File.<span class="text-primary-500">WriteAllText</span>(<span class="text-tertia
 </section>
 
 @* ─────────────────────────────────  INSTALL  ───────────────────────────────── *@
-<section class="px-12 max-w-[1280px] mx-auto mb-30">
+<section class="px-5 md:px-12 max-w-[1280px] mx-auto mb-20 md:mb-30">
     <div class="mb-12 max-w-[720px]">
         <div class="font-mono text-[11px] text-primary-500 tracking-[0.1em] uppercase mb-3.5 flex items-center gap-2.5">
             <span>◆</span><span>Get going</span>
@@ -231,8 +231,8 @@ File.<span class="text-primary-500">WriteAllText</span>(<span class="text-tertia
 </section>
 
 @* ─────────────────────────────────  CLOSING CTA  ───────────────────────────────── *@
-<section class="px-12 pb-30 max-w-[1280px] mx-auto">
-    <div class="relative px-12 py-18 border border-base-200 dark:border-base-800 rounded-2xl [background-image:linear-gradient(135deg,rgba(214,87,99,0.06),rgba(232,148,95,0.04)_60%,transparent)] text-center overflow-hidden">
+<section class="px-5 md:px-12 pb-20 md:pb-30 max-w-[1280px] mx-auto">
+    <div class="relative px-6 py-12 md:px-12 md:py-18 border border-base-200 dark:border-base-800 rounded-2xl [background-image:linear-gradient(135deg,rgba(214,87,99,0.06),rgba(232,148,95,0.04)_60%,transparent)] text-center overflow-hidden">
         <div class="relative">
             <span class="inline-flex items-center gap-2 pl-2.5 pr-3 py-1 rounded-full bg-primary-500/10 border border-primary-500/20 text-primary-500 text-xs font-medium font-mono tracking-[0.02em]">
                 <span class="w-1.5 h-1.5 rounded-full bg-primary-500 ring-[3px] ring-primary-500/20"></span>
@@ -258,8 +258,8 @@ File.<span class="text-primary-500">WriteAllText</span>(<span class="text-tertia
 </section>
 
 @* ─────────────────────────────────  FOOTER  ───────────────────────────────── *@
-<footer class="border-t border-base-200 dark:border-base-800 px-12 pt-12 pb-15 text-base-700 dark:text-base-300 text-[13px]">
-    <div class="max-w-[1280px] mx-auto grid grid-cols-1 md:grid-cols-4 md:[grid-template-columns:1.5fr_1fr_1fr_1fr] gap-10">
+<footer class="border-t border-base-200 dark:border-base-800 px-5 md:px-12 pt-10 pb-12 md:pt-12 md:pb-15 text-base-700 dark:text-base-300 text-[13px]">
+    <div class="max-w-[1280px] mx-auto grid grid-cols-1 md:grid-cols-4 md:[grid-template-columns:1.5fr_1fr_1fr_1fr] gap-8 md:gap-10">
         <div>
             <div class="flex items-center gap-2.5">
                 <svg width="26" height="26" viewBox="0 0 32 32" fill="none" aria-hidden="true">
@@ -288,7 +288,7 @@ File.<span class="text-primary-500">WriteAllText</span>(<span class="text-tertia
             </div>
         }
     </div>
-    <div class="max-w-[1280px] mx-auto mt-10 pt-6 border-t border-base-200 dark:border-base-800 flex justify-between items-center text-base-500 dark:text-base-500 text-xs font-mono">
+    <div class="max-w-[1280px] mx-auto mt-8 md:mt-10 pt-6 border-t border-base-200 dark:border-base-800 flex flex-col gap-3 sm:flex-row sm:gap-0 sm:justify-between sm:items-center text-base-500 dark:text-base-500 text-xs font-mono">
         <span>© @DateTime.Now.Year MonorailCss · MIT</span>
         <span>v1.0.2 · Built with MonorailCss</span>
     </div>
