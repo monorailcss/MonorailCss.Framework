@@ -158,9 +158,11 @@ builder.Services.AddLlmsSubtree(new LlmsSubtree(
     description: "Tailwind 4-compatible utility classes — one page per CSS property, grouped by category."));
 
 // CssFramework consumed by UtilityDetailContent.razor to render the example
-// CSS pane on every utility-detail page. Must mirror the AddMonorailCss theme
-// so the rendered examples reflect the actual configured palette (sanibel,
-// frosted, mixed, happily) rather than Tailwind defaults.
+// CSS pane on every utility-detail page. Mirrors the docs theme so examples
+// reflect the configured palette (sanibel, frosted, mixed, happily) rather
+// than Tailwind defaults. Safe to register alongside Pennington 0.72+: that
+// release moved Pennington's own framework behind MonorailCssEngine and no
+// longer puts a CssFramework in DI, so this registration can't shadow it.
 builder.Services.AddSingleton<CssFramework>(_ =>
 {
     var theme = ApplyDocsTheme(colorScheme.ApplyToTheme(Theme.CreateWithDefaults()));
