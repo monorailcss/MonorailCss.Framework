@@ -51,7 +51,7 @@ internal sealed partial class SourceFileScanner
         foreach (Match m in ClassAttributeRegex().Matches(content))
         {
             var raw = m.Groups[1].Success ? m.Groups[1].Value : m.Groups[2].Value;
-            ScanRaw(raw, output);
+            _validationCache.CollectValid(raw, output);
         }
     }
 
@@ -60,31 +60,7 @@ internal sealed partial class SourceFileScanner
         // Conservative: scan every string literal's content. Most non-class strings won't validate.
         foreach (Match m in StringLiteralRegex().Matches(content))
         {
-            var raw = m.Groups[1].Value;
-            ScanRaw(raw, output);
-        }
-    }
-
-    private void ScanRaw(string raw, ICollection<string> output)
-    {
-        if (string.IsNullOrEmpty(raw))
-        {
-            return;
-        }
-
-        foreach (var token in CandidateLexer.Tokenize(raw))
-        {
-            if (token.Length is < 2 or > 96)
-            {
-                continue;
-            }
-
-            if (!_validationCache.TryValidate(token))
-            {
-                continue;
-            }
-
-            output.Add(token);
+            _validationCache.CollectValid(m.Groups[1].Value, output);
         }
     }
 }

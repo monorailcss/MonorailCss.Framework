@@ -97,7 +97,7 @@ internal sealed class AssemblyClassScanner
                 continue;
             }
 
-            ScanString(raw, local);
+            _validationCache.CollectValid(raw, local);
 
             var dataBytes = (raw.Length * 2) + 1;
             var prefixBytes = dataBytes < 0x80 ? 1 : dataBytes < 0x4000 ? 2 : 4;
@@ -112,24 +112,6 @@ internal sealed class AssemblyClassScanner
         }
 
         return true;
-    }
-
-    private void ScanString(string raw, ICollection<string> output)
-    {
-        foreach (var token in CandidateLexer.Tokenize(raw))
-        {
-            if (token.Length is < 2 or > 96)
-            {
-                continue;
-            }
-
-            if (!_validationCache.TryValidate(token))
-            {
-                continue;
-            }
-
-            output.Add(token);
-        }
     }
 
     private static bool HasReferenceAssemblyAttribute(MetadataReader md)

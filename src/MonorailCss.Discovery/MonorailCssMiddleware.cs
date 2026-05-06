@@ -56,7 +56,7 @@ internal sealed class MonorailCssMiddleware
 
     private async Task ServeCssAsync(HttpContext context)
     {
-        var etag = _service.ETag;
+        var etag = _service.Version;
 
         if (context.Request.Headers.TryGetValue(HeaderNames.IfNoneMatch, out var inm) &&
             inm.ToString() == etag)

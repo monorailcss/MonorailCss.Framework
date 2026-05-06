@@ -16,8 +16,11 @@ public interface IClassRegistry
     IReadOnlyCollection<string> GetClasses();
 
     /// <summary>
-    /// Gets a monotonically increasing token that changes whenever the class set is regenerated.
-    /// Embedders use this to invalidate their own cached CSS without re-comparing the set.
+    /// Gets an opaque token derived from the current generated CSS — suitable for an HTTP
+    /// <c>ETag</c> / <c>If-None-Match</c> round-trip. The token changes whenever the class set
+    /// or source CSS changes, but is content-derived rather than monotonic, so reverting to a
+    /// prior class set yields the prior token. Embedders compare against the previously-seen
+    /// value to decide whether to re-emit cached CSS.
     /// </summary>
     string Version { get; }
 

@@ -86,17 +86,6 @@ internal sealed class ClassDiscoveryService : IHostedService, IClassRegistry, ID
         }
     }
 
-    public string ETag
-    {
-        get
-        {
-            lock (_lock)
-            {
-                return _eTag;
-            }
-        }
-    }
-
     public DiagnosticsSnapshot GetDiagnostics()
     {
         lock (_lock)
