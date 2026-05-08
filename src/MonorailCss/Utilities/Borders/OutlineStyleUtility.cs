@@ -15,6 +15,7 @@ internal class OutlineStyleUtility : BaseStaticUtility
         new Dictionary<string, (string, string)>
         {
             { "outline-none", ("outline-style", "none") },
+            { "outline-solid", ("outline-style", "solid") },
             { "outline-dashed", ("outline-style", "dashed") },
             { "outline-dotted", ("outline-style", "dotted") },
             { "outline-double", ("outline-style", "double") },

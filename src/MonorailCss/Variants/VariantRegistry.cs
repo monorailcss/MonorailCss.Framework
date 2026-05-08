@@ -228,6 +228,7 @@ internal sealed class VariantRegistry
         Register(new PseudoElementVariant("marker", "::marker", 540));
         Register(new PseudoElementVariant("selection", "::selection", 550));
         Register(new PseudoElementVariant("placeholder", "::placeholder", 560));
+        Register(new PseudoElementVariant("backdrop", "::backdrop", 570));
 
         Register(new BreakpointVariant("sm", "(min-width: 640px)", 600));
         Register(new BreakpointVariant("md", "(min-width: 768px)", 610));

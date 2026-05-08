@@ -229,7 +229,7 @@ internal static class NamespaceResolver
     public static readonly string[] VerticalAlignChain = [VerticalAlign];
     public static readonly string[] ContentChain = [Content];
     public static readonly string[] WillChangeChain = [WillChange];
-    public static readonly string[] TransitionChain = [Transition];
+    public static readonly string[] TransitionChain = [TransitionProperty, Transition];
     public static readonly string[] DelayChain = [Delay];
     public static readonly string[] EaseChain = [Ease];
     public static readonly string[] DurationChain = [Duration];
