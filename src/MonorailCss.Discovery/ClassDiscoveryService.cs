@@ -6,6 +6,7 @@ using System.Text;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using MonorailCss.Parser.SourceCss;
 
 namespace MonorailCss.Discovery;
 
@@ -22,17 +23,29 @@ internal sealed class ClassDiscoveryService : IHostedService, IClassRegistry, ID
     private readonly MonorailDiscoveryOptions _options;
     private readonly ILogger<ClassDiscoveryService> _logger;
     private readonly IHostEnvironment? _environment;
-    private readonly AssemblyClassScanner _scanner;
-    private readonly SourceFileScanner _sourceScanner;
-    private readonly ValidationCache _validationCache;
     private readonly List<FileSystemWatcher> _fileWatchers = new();
+    private readonly List<FileSystemWatcher> _cssWatchers = new();
     private readonly object _lock = new();
     private readonly System.Threading.Timer _debounce;
+    private readonly System.Threading.Timer _cssDebounce;
     private readonly HashSet<string> _pendingFiles = new(StringComparer.OrdinalIgnoreCase);
 
     // Per-assembly contributed classes; lets us answer "what came from where?" and rescan one
     // assembly without losing the others' contributions.
     private readonly Dictionary<string, ImmutableSortedSet<string>> _byAssembly = new(StringComparer.OrdinalIgnoreCase);
+
+    // Mutable: rebuilt whenever the source CSS changes (the framework instance changes too).
+    private ValidationCache _validationCache;
+    private AssemblyClassScanner _scanner;
+    private SourceFileScanner _sourceScanner;
+
+    // Pass-through CSS (font-faces, keyframes, plain rules, layer-base content) prepended to
+    // generated utilities at emit time. Populated by ProcessSourceCss; empty when no source CSS.
+    private string _rawCss = string.Empty;
+
+    // Files contributing to the source-CSS pipeline (entry file + every transitively imported).
+    // Watched in development for hot-reload.
+    private ImmutableList<string> _importedCssFiles = ImmutableList<string>.Empty;
 
     private ImmutableSortedSet<string> _classes = ImmutableSortedSet<string>.Empty;
     private string _generatedCss = string.Empty;
@@ -54,6 +67,7 @@ internal sealed class ClassDiscoveryService : IHostedService, IClassRegistry, ID
         _scanner = new AssemblyClassScanner(_validationCache);
         _sourceScanner = new SourceFileScanner(_validationCache);
         _debounce = new System.Threading.Timer(OnDebounceTick, null, Timeout.Infinite, Timeout.Infinite);
+        _cssDebounce = new System.Threading.Timer(OnCssDebounceTick, null, Timeout.Infinite, Timeout.Infinite);
     }
 
     public IReadOnlyCollection<string> GetClasses()
@@ -116,6 +130,7 @@ internal sealed class ClassDiscoveryService : IHostedService, IClassRegistry, ID
         MonorailCssReloader.RegisterService(this);
 
         ApplyEnvironmentDefaults();
+        ProcessSourceCss(trigger: "startup");
         ForceLoadEntryAssemblyReferences();
 
         var sw = Stopwatch.StartNew();
@@ -125,6 +140,7 @@ internal sealed class ClassDiscoveryService : IHostedService, IClassRegistry, ID
         sw.Stop();
 
         StartFileWatchers();
+        StartCssFileWatchers();
 
         _started = true;
         _logger.LogInformation(
@@ -138,7 +154,7 @@ internal sealed class ClassDiscoveryService : IHostedService, IClassRegistry, ID
     /// <c>services.AddMonorailCss()</c> call works for typical apps:
     /// <list type="bullet">
     ///   <item>Watches <c>ContentRootPath</c> for source changes in development.</item>
-    ///   <item>Loads <c>wwwroot/app.css</c> as the source CSS prefix if it exists.</item>
+    ///   <item>Sets <see cref="MonorailDiscoveryOptions.SourceCssPath"/> to <c>wwwroot/app.css</c> when present.</item>
     /// </list>
     /// Anything the user already configured wins; we only fill in blanks.
     /// </summary>
@@ -157,21 +173,78 @@ internal sealed class ClassDiscoveryService : IHostedService, IClassRegistry, ID
             _logger.LogDebug("MonorailCss discovery: auto-watching {Dir}", _environment.ContentRootPath);
         }
 
-        if (_options.SourceCss is null)
+        if (_options.SourceCss is null && _options.SourceCssPath is null)
         {
             var candidate = Path.Combine(_environment.ContentRootPath, "wwwroot", "app.css");
             if (File.Exists(candidate))
             {
-                try
+                _options.SourceCssPath = candidate;
+                _logger.LogDebug("MonorailCss discovery: auto-detected source CSS at {Path}", candidate);
+            }
+        }
+    }
+
+    /// <summary>
+    /// Runs the user's source CSS through <see cref="CssSourceProcessor"/>, replaces
+    /// <see cref="MonorailDiscoveryOptions.Framework"/> with one configured from the parsed
+    /// theme/applies/utilities/variants, and stores the residue raw CSS for verbatim emission.
+    /// Re-runs on hot-reload of any imported file.
+    /// </summary>
+    private void ProcessSourceCss(string trigger)
+    {
+        if (string.IsNullOrWhiteSpace(_options.SourceCss) && string.IsNullOrWhiteSpace(_options.SourceCssPath))
+        {
+            return;
+        }
+
+        try
+        {
+            var sw = Stopwatch.StartNew();
+            var processor = new CssSourceProcessor(msg => _logger.LogDebug("source-css: {Message}", msg));
+            var baseSettings = _options.Framework.Settings;
+
+            CssSourceResult result;
+            if (!string.IsNullOrWhiteSpace(_options.SourceCssPath))
+            {
+                result = processor.ProcessFile(_options.SourceCssPath!, baseSettings);
+
+                if (!string.IsNullOrWhiteSpace(_options.SourceCss))
                 {
-                    _options.SourceCss = File.ReadAllText(candidate);
-                    _logger.LogDebug("MonorailCss discovery: auto-loaded source CSS from {Path}", candidate);
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogWarning(ex, "MonorailCss discovery: could not read {Path}", candidate);
+                    // Both set: layer the inline content on top of the file-derived settings.
+                    var basePath = Path.GetDirectoryName(_options.SourceCssPath);
+                    result = processor.ProcessSource(_options.SourceCss!, basePath, result.Settings);
                 }
             }
+            else
+            {
+                result = processor.ProcessSource(_options.SourceCss!, basePath: null, baseSettings);
+            }
+
+            // Replace the framework with one configured from the parsed CSS. The validation
+            // cache and scanners hold a reference to the framework's TryValidateCandidate, so
+            // they have to be rebuilt too.
+            _options.Framework = new CssFramework(result.Settings);
+            _validationCache = new ValidationCache(_options.Framework);
+            _scanner = new AssemblyClassScanner(_validationCache);
+            _sourceScanner = new SourceFileScanner(_validationCache);
+
+            _rawCss = result.RawCss;
+            _importedCssFiles = result.ImportedFiles;
+
+            sw.Stop();
+            _logger.LogInformation(
+                "MonorailCss discovery: source CSS processed (trigger={Trigger}, files={FileCount}, applies={ApplyCount}, custom-utilities={UtilityCount}, custom-variants={VariantCount}, raw-residue={RawLen} chars, in {ElapsedMs} ms)",
+                trigger,
+                _importedCssFiles.Count,
+                result.Settings.Applies.Count,
+                result.Settings.CustomUtilities.Count,
+                result.Settings.CustomVariants.Count,
+                _rawCss.Length,
+                sw.ElapsedMilliseconds);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "MonorailCss discovery: failed to process source CSS — falling back to existing framework configuration");
         }
     }
 
@@ -229,6 +302,7 @@ internal sealed class ClassDiscoveryService : IHostedService, IClassRegistry, ID
         AppDomain.CurrentDomain.AssemblyLoad -= OnAssemblyLoad;
         MonorailCssReloader.UnregisterService(this);
         StopFileWatchers();
+        StopCssFileWatchers();
         return Task.CompletedTask;
     }
 
@@ -237,7 +311,9 @@ internal sealed class ClassDiscoveryService : IHostedService, IClassRegistry, ID
         AppDomain.CurrentDomain.AssemblyLoad -= OnAssemblyLoad;
         MonorailCssReloader.UnregisterService(this);
         StopFileWatchers();
+        StopCssFileWatchers();
         _debounce.Dispose();
+        _cssDebounce.Dispose();
     }
 
     private void StartFileWatchers()
@@ -287,6 +363,109 @@ internal sealed class ClassDiscoveryService : IHostedService, IClassRegistry, ID
         }
 
         _fileWatchers.Clear();
+    }
+
+    /// <summary>
+    /// Watches every file the source-CSS pipeline pulled in (entry path + every transitively
+    /// imported file). Edits to any of them re-run <see cref="ProcessSourceCss"/>, rebuild the
+    /// framework, and regenerate. We use a per-directory <see cref="FileSystemWatcher"/> with a
+    /// filename filter so cross-directory imports (e.g. NuGet-shipped theme files under
+    /// <c>_content/</c>) work too.
+    /// </summary>
+    private void StartCssFileWatchers()
+    {
+        if (_importedCssFiles.Count == 0)
+        {
+            return;
+        }
+
+        if (_environment is { } env && !env.IsDevelopment())
+        {
+            return;
+        }
+
+        var byDirectory = _importedCssFiles
+            .Where(p => !string.IsNullOrEmpty(p))
+            .GroupBy(p => Path.GetDirectoryName(p) ?? string.Empty, StringComparer.OrdinalIgnoreCase);
+
+        foreach (var group in byDirectory)
+        {
+            var dir = group.Key;
+            if (string.IsNullOrEmpty(dir) || !Directory.Exists(dir))
+            {
+                continue;
+            }
+
+            var watcher = new FileSystemWatcher(dir)
+            {
+                IncludeSubdirectories = false,
+                NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.FileName | NotifyFilters.Size,
+                EnableRaisingEvents = true,
+            };
+
+            foreach (var file in group)
+            {
+                watcher.Filters.Add(Path.GetFileName(file));
+            }
+
+            watcher.Changed += OnCssFileChanged;
+            watcher.Created += OnCssFileChanged;
+            watcher.Renamed += OnCssFileRenamed;
+
+            _cssWatchers.Add(watcher);
+            _logger.LogDebug("MonorailCss discovery: watching CSS in {Dir} ({Count} files)", dir, group.Count());
+        }
+    }
+
+    private void StopCssFileWatchers()
+    {
+        foreach (var w in _cssWatchers)
+        {
+            try
+            {
+                w.EnableRaisingEvents = false;
+                w.Dispose();
+            }
+            catch
+            {
+                // best-effort
+            }
+        }
+
+        _cssWatchers.Clear();
+    }
+
+    private void OnCssFileChanged(object sender, FileSystemEventArgs e)
+    {
+        QueueCssReload(e.FullPath);
+    }
+
+    private void OnCssFileRenamed(object sender, RenamedEventArgs e)
+    {
+        QueueCssReload(e.FullPath);
+    }
+
+    private void QueueCssReload(string path)
+    {
+        // Coalesce bursts (editors often save twice + the import processor's output triggers a
+        // self-write when WriteToFile is set) into a single re-process.
+        _cssDebounce.Change(150, Timeout.Infinite);
+    }
+
+    private void OnCssDebounceTick(object? state)
+    {
+        _logger.LogInformation("MonorailCss discovery: source CSS changed — re-processing");
+        ProcessSourceCss(trigger: "css-watcher");
+
+        // The set of imported files may have shifted (e.g. a new @import landed). Reset the
+        // CSS watchers and rebuild assembly contributions through the (potentially) new
+        // validation cache.
+        StopCssFileWatchers();
+        StartCssFileWatchers();
+
+        ScanAllLoadedAssemblies();
+        ScanWatchedSources();
+        Regenerate("css-watcher");
     }
 
     private void OnSourceFileChanged(object sender, FileSystemEventArgs e)
@@ -559,9 +738,9 @@ internal sealed class ClassDiscoveryService : IHostedService, IClassRegistry, ID
         var sw = Stopwatch.StartNew();
         var generated = _options.Framework.Process(snapshot);
 
-        var combined = string.IsNullOrWhiteSpace(_options.SourceCss)
+        var combined = string.IsNullOrWhiteSpace(_rawCss)
             ? generated
-            : _options.SourceCss + "\n\n" + generated;
+            : _rawCss + "\n\n" + generated;
 
         var etag = ComputeETag(combined);
         sw.Stop();

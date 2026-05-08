@@ -33,12 +33,29 @@ public sealed class MonorailDiscoveryOptions
     public HashSet<string> ExcludeAssemblies { get; } = new(StringComparer.OrdinalIgnoreCase);
 
     /// <summary>
-    /// Gets or sets the CSS source supplied by the user. Anything you would normally put
-    /// in <c>app.css</c> — <c>@theme</c> blocks, <c>@apply</c> components, plain CSS — goes
-    /// here. The discovery output is appended to this content. Pass either inline CSS or the
-    /// result of <c>File.ReadAllText("wwwroot/app.css")</c>.
+    /// Gets or sets an in-memory CSS source. Anything you would normally put in <c>app.css</c>
+    /// — <c>@theme</c> blocks, <c>@apply</c> components, <c>@utility</c> definitions,
+    /// <c>@custom-variant</c> directives, plain CSS — goes here. Discovery runs this through
+    /// <see cref="MonorailCss.Parser.SourceCss.CssSourceProcessor"/> to populate the framework's
+    /// theme, applies, custom utilities, and custom variants; whatever the processor doesn't
+    /// consume is emitted verbatim ahead of the generated utilities.
+    /// <para>
+    /// When you need <c>@import</c> resolution from disk, set <see cref="SourceCssPath"/> instead
+    /// (or in addition — both can be set, in which case <see cref="SourceCss"/> wins for the
+    /// inline content and <see cref="SourceCssPath"/>'s directory becomes the base for
+    /// <c>@import</c> resolution).
+    /// </para>
     /// </summary>
     public string? SourceCss { get; set; }
+
+    /// <summary>
+    /// Gets or sets the path to a CSS file that drives the framework configuration. When set,
+    /// Discovery follows <c>@import</c> directives recursively, watches every imported file in
+    /// development for hot-reload, and resolves relative paths against the entry file's
+    /// directory. Auto-detected from <c>wwwroot/app.css</c> when both this and
+    /// <see cref="SourceCss"/> are unset.
+    /// </summary>
+    public string? SourceCssPath { get; set; }
 
     /// <summary>
     /// Gets or sets the URL path the middleware serves the generated CSS at.

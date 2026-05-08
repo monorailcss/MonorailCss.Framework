@@ -6,9 +6,11 @@ uid: aspnet-integration
 tags: [aspnet, integration, discovery, blazor, middleware]
 ---
 
-MonorailCSS is a JIT compiler &mdash; it only emits CSS for the classes your app actually uses. That works in any framework, but it leaves an open question for ASP.NET: how do you tell MonorailCSS which classes that is?
+MonorailCSS is a JIT compiler &mdash; it only emits CSS for the classes your app actually uses. That works in any framework, but it leaves an open question for ASP.NET: how do you tell MonorailCSS which classes that is, and how do you wire up the theme?
 
-`MonorailCss.Discovery` answers that. At startup it walks the IL of every loaded assembly &mdash; your app, your Razor class libraries, every component package on NuGet &mdash; and pulls out the strings that look like utility classes. In development it also watches your `.razor`, `.cshtml`, and `.cs` files so hot-reload edits show up the moment you save them. No source generators, no MSBuild targets, no per-request HTML parsing.
+`MonorailCss.Discovery` answers both. At startup it walks the IL of every loaded assembly &mdash; your app, your Razor class libraries, every component package on NuGet &mdash; and pulls out the strings that look like utility classes. It also reads a Tailwind v4-style CSS file (your `app.css`) and feeds its `@theme`, `@utility`, `@apply`, `@custom-variant`, and `@import` directives into the framework. In development it watches your `.razor`, `.cshtml`, and `.cs` files for class changes and your CSS file (plus everything it imports) for theme changes &mdash; both flow through hot-reload the moment you save. No source generators, no MSBuild targets, no per-request HTML parsing.
+
+The CSS-file-as-config angle has a second benefit: editor tooling like the [Tailwind CSS IntelliSense extension](https://marketplace.visualstudio.com/items?itemName=bradlc.vscode-tailwindcss) parses the same file and gives you autocomplete, hover previews, and color squares for every theme token in your `.razor` and `.cs` source. One file, two consumers.
 
 ## Installation
 
@@ -45,34 +47,57 @@ Then point your layout at the served stylesheet:
 <link rel="stylesheet" href="/_monorail/app.css" />
 ```
 
-With no configuration `AddMonorailCss` registers a default `CssFramework`, scans every non-BCL referenced assembly, watches your project's source directory in development, and uses `wwwroot/app.css` as the source CSS prefix when it exists. `UseMonorailCss` mounts the CSS endpoint at `/_monorail/app.css`.
+With no configuration `AddMonorailCss` registers a default `CssFramework`, scans every non-BCL referenced assembly, watches your project's source directory in development, and auto-detects `wwwroot/app.css` as the entry CSS file (recursively following its `@import`s). `UseMonorailCss` mounts the CSS endpoint at `/_monorail/app.css`.
+
+## CSS-driven configuration
+
+Most projects don't need a custom `CssFramework` at all &mdash; the theme, custom utilities, custom variants, and component classes all live in `wwwroot/app.css`, exactly the same shape Tailwind v4 expects:
+
+```css
+/* wwwroot/app.css */
+@import "tailwindcss";
+
+@theme {
+    --color-brand: oklch(60% 0.2 250);
+    --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.1);
+    --radius-card: 0.625rem;
+}
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@utility scrollbar-hide {
+    scrollbar-width: none;
+}
+
+@layer base {
+    body {
+        @apply text-foreground bg-background;
+    }
+}
+```
+
+That's it &mdash; `bg-brand`, `shadow-card`, `rounded-card`, `dark:bg-card`, `scrollbar-hide` all resolve. The framework follows `@import` recursively; in development a file watcher rebuilds the framework whenever you save any of the imported files.
 
 ## Configuration
 
 Pass a callback to `AddMonorailCss` to override the auto-detected defaults. The options most projects reach for:
 
 ```csharp
-var framework = new CssFramework(new CssFrameworkSettings
-{
-    Theme = MonorailCss.Theme.Theme.CreateWithDefaults(),
-});
-
-builder.Services.AddSingleton(framework);
 builder.Services.AddMonorailCss(opt =>
 {
-    opt.Framework = framework;
+    opt.SourceCssPath = "wwwroot/app.css";          // explicit path; auto-detected when omitted
     opt.ExcludeAssemblies.Add("MonorailCss");
     opt.ExcludeAssemblies.Add("BadIdeas.Icons.FontAwesome");
     opt.ExtraSafelist.Add("bg-red-500");
-    opt.SourceCss = File.ReadAllText("wwwroot/app.css");
     opt.CssEndpoint = "/css/app.css";
 });
 ```
 
-- **`Framework`** &mdash; supply a configured `CssFramework` when you have a custom theme, prose config, or registered utilities. See [configuration](xref:configuration) for the full settings surface.
+- **`SourceCssPath`** &mdash; path to the entry CSS file. The framework follows `@import` recursively, picks up `@theme`/`@utility`/`@custom-variant`/`@apply` directives, and watches every imported file in development. Auto-detected as `wwwroot/app.css` when both this and `SourceCss` are unset.
+- **`SourceCss`** &mdash; an in-memory CSS string, for cases where you compose the CSS programmatically rather than putting it on disk. Same parsing as `SourceCssPath`. Can be combined with `SourceCssPath` (the inline content layers on top of the file-derived settings).
+- **`Framework`** &mdash; supply a pre-configured `CssFramework` when you need to seed custom prose configuration or register utilities programmatically. The CSS-file processing layers on top of these settings; you don't have to choose. See [configuration](xref:configuration) for the full settings surface.
 - **`ExcludeAssemblies`** &mdash; skip assemblies whose IL strings are noise rather than real utilities. The MonorailCSS framework itself ships template strings like `"bg-{color}-500"` in its utilities; icon packs like `BadIdeas.Icons.FontAwesome` bake thousands of class-shaped tokens into their metadata. Excluding these makes the difference between scanning tens of thousands of phantom classes and scanning the hundred or so your app actually uses. BCL assemblies (`System.*`, `Microsoft.*`) are skipped automatically.
 - **`ExtraSafelist`** &mdash; force-include classes that static scanning can't reconstruct, e.g. anything built at runtime via `$"bg-{color}-500"`.
-- **`SourceCss`** &mdash; the equivalent of `app.css`: `@theme` blocks, `@apply` components, plain CSS. The discovered utilities are appended to whatever you put here. Defaults to the contents of `wwwroot/app.css` when present.
 - **`CssEndpoint`** &mdash; the URL the middleware serves CSS at. Defaults to `/_monorail/app.css`; change it if that path collides with something else.
 
 ## Owning the endpoint
