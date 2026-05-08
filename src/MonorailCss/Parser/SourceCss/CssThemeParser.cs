@@ -328,7 +328,11 @@ public partial class CssThemeParser
     [GeneratedRegex(@"(--[\w-]+)\s*:\s*([^;]+);", RegexOptions.Compiled)]
     private static partial Regex ThemeVariableRegexDefinition();
 
-    [GeneratedRegex(@"([\w\s\-\.\#\:\[\]]+)\s*\{([^}]*@apply[^}]*)\}", RegexOptions.Compiled | RegexOptions.Singleline)]
+    // Selector class deliberately permissive: allow comma-separated selectors, combinators
+    // (`>`, `+`, `~`), attribute selectors with operators and quoted values, pseudo-class
+    // arguments. We anchor on `{ ... @apply ... }` to keep matches scoped to rules that
+    // actually carry an apply directive.
+    [GeneratedRegex(@"([^{}@]+?)\s*\{([^{}]*@apply[^{}]*)\}", RegexOptions.Compiled | RegexOptions.Singleline)]
     private static partial Regex ComponentRuleRegexDefinition();
 
     [GeneratedRegex(@"@apply\s+([^;]+);", RegexOptions.Compiled)]
