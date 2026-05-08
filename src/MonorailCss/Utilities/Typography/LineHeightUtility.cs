@@ -37,21 +37,14 @@ internal class LineHeightUtility : BaseFunctionalUtility
             return namedValue;
         }
 
-        // Handle numeric values - these typically map to rem values for spacing
+        // Tailwind v4 maps integer `leading-N` through the spacing scale:
+        // line-height = calc(var(--spacing) * N). Returning a unitless multiplier here was
+        // incorrect — the resulting `line-height: 6` reads as 6× font-size and cascades
+        // through anything inheriting line-height (e.g. nested links inside a `lg:leading-6`
+        // wrapper end up at 84px line-height for 14px text).
         if (int.TryParse(value, out var numValue) && numValue >= 0)
         {
-            // For line-height, numeric values like "4" typically mean "1rem" (4 * 0.25rem)
-            // But for line-height, we want unitless values for most cases
-            // Let's check if this should be a rem value or unitless
-            if (numValue <= 10)
-            {
-                // Small numbers are typically unitless multipliers
-                return numValue.ToString();
-            }
-
-            // Larger numbers might be pixel/rem values
-            // This would need to be handled by theme resolution
-            return null;
+            return $"calc(var(--spacing) * {numValue.ToString(CultureInfo.InvariantCulture)})";
         }
 
         // Handle decimal values (unitless line-height multipliers)

@@ -253,19 +253,16 @@ internal static partial class ValueResolver
             return true;
         }
 
-        // Generate inline values for common widths
-        result = value.Value switch
+        // Tailwind v4 lets `border-N` accept any non-negative integer and emit `Npx`.
+        // (LumexUI's spinner uses `border-3`, which the original allowlist
+        // [0, 1, 2, 4, 8, 16] silently dropped.)
+        if (int.TryParse(value.Value, System.Globalization.NumberStyles.Integer, System.Globalization.CultureInfo.InvariantCulture, out var width) && width >= 0)
         {
-            "0" => "0px",
-            "1" => "1px",
-            "2" => "2px",
-            "4" => "4px",
-            "8" => "8px",
-            "16" => "16px",
-            _ => null,
-        };
+            result = $"{width.ToString(System.Globalization.CultureInfo.InvariantCulture)}px";
+            return true;
+        }
 
-        return result != null;
+        return false;
     }
 
     public static bool TryResolveBorderRadius(
