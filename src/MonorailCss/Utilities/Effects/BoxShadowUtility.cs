@@ -12,15 +12,41 @@ internal class BoxShadowUtility : BaseFunctionalUtility
 {
     protected override string[] Patterns => ["shadow"];
 
-    protected override string[] ThemeKeys => [];
+    protected override string[] ThemeKeys => ["--shadow"];
 
-    protected override string DefaultValue => "0 1px 3px 0 var(--tw-shadow-color, rgb(0 0 0 / 0.1)), 0 1px 2px -1px var(--tw-shadow-color, rgb(0 0 0 / 0.1))";
+    protected override string DefaultValue => _builtInShadows["sm"];
+
+    /// <summary>
+    /// Hardcoded Tailwind v4 default shadow scale. Used as fallbacks for the bare keywords
+    /// (<c>shadow-sm</c>, <c>shadow-md</c>, etc.) so they keep working without any theme
+    /// configuration. Theme entries (<c>--shadow-<i>name</i></c>) take precedence — see
+    /// <see cref="HandleBareValue"/>.
+    /// </summary>
+    private static readonly Dictionary<string, string> _builtInShadows = new()
+    {
+        ["none"] = "0 0 #0000",
+        ["inner"] = "inset 0 2px 4px 0 var(--tw-shadow-color, rgb(0 0 0 / 0.05))",
+        ["sm"] = "0 1px 3px 0 var(--tw-shadow-color, rgb(0 0 0 / 0.1)), 0 1px 2px -1px var(--tw-shadow-color, rgb(0 0 0 / 0.1))",
+        ["md"] = "0 4px 6px -1px var(--tw-shadow-color, rgb(0 0 0 / 0.1)), 0 2px 4px -2px var(--tw-shadow-color, rgb(0 0 0 / 0.1))",
+        ["lg"] = "0 10px 15px -3px var(--tw-shadow-color, rgb(0 0 0 / 0.1)), 0 4px 6px -4px var(--tw-shadow-color, rgb(0 0 0 / 0.1))",
+        ["xl"] = "0 20px 25px -5px var(--tw-shadow-color, rgb(0 0 0 / 0.1)), 0 8px 10px -6px var(--tw-shadow-color, rgb(0 0 0 / 0.1))",
+        ["2xl"] = "0 25px 50px -12px var(--tw-shadow-color, rgb(0 0 0 / 0.25))",
+    };
 
     protected override ImmutableList<AstNode> GenerateDeclarations(string pattern, string value, bool important)
     {
         return ImmutableList.Create<AstNode>(
             new Declaration("--tw-shadow", value, important),
             new Declaration("box-shadow", "var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow)", important));
+    }
+
+    protected override string? HandleBareValue(string value)
+    {
+        // Built-in keywords always resolve to their hardcoded values so the default scale
+        // works without any theme keys. The theme namespace (`--shadow-*`) is consulted by
+        // BaseFunctionalUtility.TryResolveValue when this returns null, letting users add
+        // (or override) named shadows via `@theme { --shadow-foo: …; }`.
+        return _builtInShadows.GetValueOrDefault(value);
     }
 
     protected override bool TryResolveValue(CandidateValue value, Theme.Theme theme, bool isNegative, out string resolvedValue)
@@ -32,11 +58,11 @@ internal class BoxShadowUtility : BaseFunctionalUtility
             return false;
         }
 
-        // Handle arbitrary values
+        // Custom validation path for arbitrary values: the base class would happily accept
+        // a bare color token like `[red]` as a box-shadow, but those belong to ShadowColorUtility.
         if (value.Kind == ValueKind.Arbitrary)
         {
             var arbitrary = value.Value;
-
             if (IsValidBoxShadowValue(arbitrary))
             {
                 resolvedValue = arbitrary;
@@ -46,28 +72,7 @@ internal class BoxShadowUtility : BaseFunctionalUtility
             return false;
         }
 
-        // Handle named values
-        if (value.Kind == ValueKind.Named)
-        {
-            var key = value.Value;
-
-            // Use direct shadow value mapping to match Tailwind exactly
-            resolvedValue = key switch
-            {
-                "none" => "0 0 #0000",
-                "inner" => "inset 0 2px 4px 0 var(--tw-shadow-color, rgb(0 0 0 / 0.05))",
-                "sm" => "0 1px 3px 0 var(--tw-shadow-color, rgb(0 0 0 / 0.1)), 0 1px 2px -1px var(--tw-shadow-color, rgb(0 0 0 / 0.1))",
-                "md" => "0 4px 6px -1px var(--tw-shadow-color, rgb(0 0 0 / 0.1)), 0 2px 4px -2px var(--tw-shadow-color, rgb(0 0 0 / 0.1))",
-                "lg" => "0 10px 15px -3px var(--tw-shadow-color, rgb(0 0 0 / 0.1)), 0 4px 6px -4px var(--tw-shadow-color, rgb(0 0 0 / 0.1))",
-                "xl" => "0 20px 25px -5px var(--tw-shadow-color, rgb(0 0 0 / 0.1)), 0 8px 10px -6px var(--tw-shadow-color, rgb(0 0 0 / 0.1))",
-                "2xl" => "0 25px 50px -12px var(--tw-shadow-color, rgb(0 0 0 / 0.25))",
-                _ => string.Empty,
-            };
-
-            return !string.IsNullOrEmpty(resolvedValue);
-        }
-
-        return false;
+        return base.TryResolveValue(value, theme, isNegative, out resolvedValue);
     }
 
     /// <summary>
