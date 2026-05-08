@@ -48,6 +48,21 @@ internal class VariantTokenizer
     }
 
     /// <summary>
+    /// Variant names that contain hyphens and resemble functional/compound forms (e.g.
+    /// <c>not-open</c> looks like <c>not-[selector]</c>) but should resolve as a single
+    /// static variant. Tokenization checks this set before the functional/compound rules so
+    /// the bare name reaches the static-variant fallback (and the registered handler).
+    /// </summary>
+    private static readonly HashSet<string> _knownStaticHyphenatedVariants = new(StringComparer.Ordinal)
+    {
+        // Tailwind v4 popover/dialog open state:
+        //   open ⇒ :is([open], :popover-open, :open)
+        //   not-open ⇒ :not(:is([open], :popover-open, :open))
+        "not-open",
+        "popover-open",
+    };
+
+    /// <summary>
     /// Parses a single variant segment into a token.
     /// </summary>
     private VariantToken? ParseVariantToken(string segment)
@@ -62,6 +77,13 @@ internal class VariantTokenizer
         {
             var content = segment[1..^1];
             return VariantToken.Arbitrary(content);
+        }
+
+        // Some hyphenated variant names look like functional or compound variants but should
+        // be treated as a single static name. Short-circuit them here.
+        if (_knownStaticHyphenatedVariants.Contains(segment))
+        {
+            return VariantToken.Static(segment);
         }
 
         // Check for compound variants with modifier (group/name-hover)

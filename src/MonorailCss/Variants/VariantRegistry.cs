@@ -188,6 +188,13 @@ internal sealed class VariantRegistry
         Register(new ProseElementVariant("hr", "hr", 290));
         Register(new ProseElementVariant("lead", "[class~=\"lead\"]", 291));
 
+        // Tailwind v4 dialog/popover open state. The selector is intentionally an :is() of
+        // [open] (HTML <dialog>/<details>), :popover-open (popover API), and :open (CSS),
+        // so the variant matches every form of "this element is currently open".
+        Register(new PseudoClassVariant("open", ":is([open],:popover-open,:open)", 295));
+        Register(new PseudoClassVariant("popover-open", ":popover-open", 296));
+        Register(new PseudoClassVariant("not-open", ":not(:is([open],:popover-open,:open))", 297));
+
         Register(new PseudoClassVariant("hover", ":hover", 300));
         Register(new PseudoClassVariant("focus", ":focus", 310));
         Register(new PseudoClassVariant("focus-visible", ":focus-visible", 320));
@@ -211,6 +218,9 @@ internal sealed class VariantRegistry
 
         // Supports variant for @supports feature queries
         Register(new SupportsVariant(400));
+
+        // @starting-style for transition starting values (e.g. dialog backdrop fade-in)
+        Register(new StartingStyleVariant(405));
 
         Register(new PseudoClassVariant("first", ":first-child", 410));
         Register(new PseudoClassVariant("last", ":last-child", 420));
