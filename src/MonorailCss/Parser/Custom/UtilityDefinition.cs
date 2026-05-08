@@ -36,6 +36,13 @@ public record UtilityDefinition
     /// These are properties that are referenced via var() or set as custom properties.
     /// </summary>
     public ImmutableList<string> CustomPropertyDependencies { get; set; } = ImmutableList<string>.Empty;
+
+    /// <summary>
+    /// Implicitly wraps a single <see cref="UtilityDefinition"/> in a one-element <see cref="ImmutableList{T}"/>.
+    /// </summary>
+    /// <param name="definition">The utility definition.</param>
+    public static implicit operator ImmutableList<UtilityDefinition>(UtilityDefinition definition)
+        => ImmutableList.Create(definition);
 }
 
 /// <summary>
@@ -66,6 +73,13 @@ public record CssDeclaration
 
     /// <inheritdoc />
     public override string ToString() => $"{Property}: {Value}";
+
+    /// <summary>
+    /// Implicitly wraps a single <see cref="CssDeclaration"/> in a one-element <see cref="ImmutableList{T}"/>.
+    /// </summary>
+    /// <param name="declaration">The declaration.</param>
+    public static implicit operator ImmutableList<CssDeclaration>(CssDeclaration declaration)
+        => ImmutableList.Create(declaration);
 }
 
 /// <summary>
@@ -86,4 +100,11 @@ public record NestedSelector(string Selector, ImmutableList<CssDeclaration> Decl
 
     /// <inheritdoc />
     public override string ToString() => $"{Selector} {{ {Declarations.Count} declarations }}";
+
+    /// <summary>
+    /// Implicitly wraps a single <see cref="NestedSelector"/> in a one-element <see cref="ImmutableList{T}"/>.
+    /// </summary>
+    /// <param name="nested">The nested selector.</param>
+    public static implicit operator ImmutableList<NestedSelector>(NestedSelector nested)
+        => ImmutableList.Create(nested);
 }

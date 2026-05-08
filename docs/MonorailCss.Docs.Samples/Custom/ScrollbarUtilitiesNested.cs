@@ -1,4 +1,3 @@
-using System.Collections.Immutable;
 using MonorailCss.Parser.Custom;
 using ThemeModel = MonorailCss.Theme.Theme;
 
@@ -19,23 +18,17 @@ public static class ScrollbarUtilitiesNested
     /// </summary>
     public static CssFramework Build()
     {
-        var customUtilities = ImmutableList.Create(
-            new UtilityDefinition
-            {
-                Pattern = "scrollbar-none",
-                Declarations = ImmutableList.Create(
-                    new CssDeclaration("scrollbar-width", "none")),
-                NestedSelectors = ImmutableList.Create(
-                    new NestedSelector(
-                        "&::-webkit-scrollbar",
-                        ImmutableList.Create(
-                            new CssDeclaration("display", "none")))),
-            });
-
         return new CssFramework(new CssFrameworkSettings
         {
             Theme = new ThemeModel(),
-            CustomUtilities = customUtilities,
+            CustomUtilities = new UtilityDefinition
+            {
+                Pattern = "scrollbar-none",
+                Declarations = new CssDeclaration("scrollbar-width", "none"),
+                NestedSelectors = new NestedSelector(
+                    "&::-webkit-scrollbar",
+                    new CssDeclaration("display", "none")),
+            },
         });
     }
 }

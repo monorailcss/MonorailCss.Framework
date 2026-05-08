@@ -16,13 +16,11 @@ public class StaticCustomUtilityTests
     [Fact]
     public void StaticCustomUtility_SimpleDeclaration_ShouldGenerateCorrectAst()
     {
-        // Arrange
+        // Arrange — uses the implicit conversion from CssDeclaration to ImmutableList<CssDeclaration>.
         var definition = new UtilityDefinition
         {
             Pattern = "scrollbar-thin",
-            Declarations = ImmutableList.Create(
-                new CssDeclaration("scrollbar-width", "thin")
-            )
+            Declarations = new CssDeclaration("scrollbar-width", "thin"),
         };
 
         var utility = new StaticCustomUtility(definition);

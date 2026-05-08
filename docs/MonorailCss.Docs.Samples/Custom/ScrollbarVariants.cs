@@ -20,7 +20,8 @@ public static class ScrollbarVariants
     /// </summary>
     public static CssFramework Build()
     {
-        var customVariants = ImmutableList.Create(
+        ImmutableList<CustomVariantDefinition> customVariants =
+        [
             new CustomVariantDefinition
             {
                 Name = "scrollbar",
@@ -38,7 +39,8 @@ public static class ScrollbarVariants
                 Name = "scrollbar-track",
                 Selector = "&::-webkit-scrollbar-track",
                 Weight = 492,
-            });
+            },
+        ];
 
         return new CssFramework(new CssFrameworkSettings
         {

@@ -25,24 +25,23 @@ public static class BoldLinks
             {
                 ["DEFAULT"] = new()
                 {
-                    Rules = ImmutableList.Create(
-                        new ProseElementRule
-                        {
-                            Selector = "a",
-                            Declarations = ImmutableList.Create(
-                                new ProseDeclaration { Property = "font-weight", Value = "700" },
-                                new ProseDeclaration { Property = "text-decoration-line", Value = "underline" }),
-                        }),
+                    Rules = new ProseElementRule
+                    {
+                        Selector = "a",
+                        Declarations =
+                        [
+                            new ProseDeclaration { Property = "font-weight", Value = "700" },
+                            new ProseDeclaration { Property = "text-decoration-line", Value = "underline" },
+                        ],
+                    },
                 },
                 ["lg"] = new()
                 {
-                    Rules = ImmutableList.Create(
-                        new ProseElementRule
-                        {
-                            Selector = "blockquote",
-                            Declarations = ImmutableList.Create(
-                                new ProseDeclaration { Property = "font-weight", Value = "600" }),
-                        }),
+                    Rules = new ProseElementRule
+                    {
+                        Selector = "blockquote",
+                        Declarations = new ProseDeclaration { Property = "font-weight", Value = "600" },
+                    },
                 },
             }.ToImmutableDictionary(),
         };

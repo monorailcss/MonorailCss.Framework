@@ -36,28 +36,21 @@ public static class FullSetup
             { ".scroll-area", "scrollbar-thin scrollbar-thumb:bg-primary-500" },
         }.ToImmutableDictionary();
 
-        var customUtilities = ImmutableList.Create(
-            new UtilityDefinition
-            {
-                Pattern = "scrollbar-thin",
-                Declarations = ImmutableList.Create(
-                    new CssDeclaration("scrollbar-width", "thin")),
-            });
-
-        var customVariants = ImmutableList.Create(
-            new CustomVariantDefinition
-            {
-                Name = "scrollbar-thumb",
-                Selector = "&::-webkit-scrollbar-thumb",
-                Weight = 491,
-            });
-
         return new CssFramework(new CssFrameworkSettings
         {
             Theme = theme,
             Applies = applies,
-            CustomUtilities = customUtilities,
-            CustomVariants = customVariants,
+            CustomUtilities = new UtilityDefinition
+            {
+                Pattern = "scrollbar-thin",
+                Declarations = new CssDeclaration("scrollbar-width", "thin"),
+            },
+            CustomVariants = new CustomVariantDefinition
+            {
+                Name = "scrollbar-thumb",
+                Selector = "&::-webkit-scrollbar-thumb",
+                Weight = 491,
+            },
             IncludePreflight = true,
         });
     }

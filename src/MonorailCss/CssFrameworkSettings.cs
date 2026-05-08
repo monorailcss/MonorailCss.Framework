@@ -120,4 +120,11 @@ public record CustomVariantDefinition
     /// Defaults to 490 (just before built-in pseudo-elements at 500+).
     /// </summary>
     public int Weight { get; init; } = 490;
+
+    /// <summary>
+    /// Implicitly wraps a single <see cref="CustomVariantDefinition"/> in a one-element <see cref="ImmutableList{T}"/>.
+    /// </summary>
+    /// <param name="definition">The variant definition.</param>
+    public static implicit operator ImmutableList<CustomVariantDefinition>(CustomVariantDefinition definition)
+        => ImmutableList.Create(definition);
 }

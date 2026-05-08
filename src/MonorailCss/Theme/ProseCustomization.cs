@@ -130,6 +130,13 @@ public record ProseElementRule
             ExcludeClass = other.ExcludeClass ?? ExcludeClass, // Use override if not null
         };
     }
+
+    /// <summary>
+    /// Implicitly wraps a single <see cref="ProseElementRule"/> in a one-element <see cref="ImmutableList{T}"/>.
+    /// </summary>
+    /// <param name="rule">The prose element rule.</param>
+    public static implicit operator ImmutableList<ProseElementRule>(ProseElementRule rule)
+        => ImmutableList.Create(rule);
 }
 
 /// <summary>
@@ -152,4 +159,11 @@ public record ProseDeclaration
     /// Gets a value indicating whether whether this declaration is marked as important.
     /// </summary>
     public bool Important { get; init; }
+
+    /// <summary>
+    /// Implicitly wraps a single <see cref="ProseDeclaration"/> in a one-element <see cref="ImmutableList{T}"/>.
+    /// </summary>
+    /// <param name="declaration">The prose declaration.</param>
+    public static implicit operator ImmutableList<ProseDeclaration>(ProseDeclaration declaration)
+        => ImmutableList.Create(declaration);
 }

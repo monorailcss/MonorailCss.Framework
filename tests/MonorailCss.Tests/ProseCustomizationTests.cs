@@ -8,22 +8,22 @@ public class ProseCustomizationTests
     [Fact]
     public void ProseCustomization_OverridesDefaultStyles()
     {
-        // Arrange
+        // Arrange — uses the implicit conversion from ProseElementRule to ImmutableList<ProseElementRule>
+        // and the collection-expression form for the multi-declaration body.
         var customization = new ProseCustomization
         {
             Customization = _ => ImmutableDictionary<string, ProseElementRules>.Empty
                 .Add("DEFAULT", new ProseElementRules
                 {
-                    Rules = ImmutableList.Create(
-                        new ProseElementRule
-                        {
-                            Selector = "a",
-                            Declarations = ImmutableList.Create(
-                                new ProseDeclaration { Property = "font-weight", Value = "700" },
-                                new ProseDeclaration { Property = "text-decoration", Value = "none" }
-                            )
-                        }
-                    )
+                    Rules = new ProseElementRule
+                    {
+                        Selector = "a",
+                        Declarations =
+                        [
+                            new ProseDeclaration { Property = "font-weight", Value = "700" },
+                            new ProseDeclaration { Property = "text-decoration", Value = "none" },
+                        ],
+                    },
                 })
         };
 
