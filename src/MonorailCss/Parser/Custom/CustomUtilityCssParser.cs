@@ -16,6 +16,8 @@ internal partial class CustomUtilityCssParser
 
     private static readonly Regex _varReferenceRegex = VarReferenceRegexDefinition();
 
+    private static readonly Regex _applyDirectiveRegex = ApplyDirectiveRegexDefinition();
+
     /// <summary>
     /// Parses CSS containing @utility directives and returns a collection of utility definitions.
     /// </summary>
@@ -61,6 +63,28 @@ internal partial class CustomUtilityCssParser
             Pattern = pattern,
             IsWildcard = pattern.Contains('*'),
         };
+
+        // Pull @apply directives out before declaration parsing so they don't appear as
+        // declarations whose property is "@apply" with the rest of the line as the value.
+        var applyUtilities = new List<string>();
+        foreach (Match applyMatch in _applyDirectiveRegex.Matches(content))
+        {
+            var raw = applyMatch.Groups[1].Value;
+            foreach (var token in raw.Split(' ', '\t', '\r', '\n'))
+            {
+                var trimmed = token.Trim();
+                if (trimmed.Length > 0)
+                {
+                    applyUtilities.Add(trimmed);
+                }
+            }
+        }
+
+        if (applyUtilities.Count > 0)
+        {
+            definition.ApplyUtilities = applyUtilities.ToImmutableList();
+            content = _applyDirectiveRegex.Replace(content, string.Empty);
+        }
 
         // Remove nested selectors from content to parse root-level declarations first
         var rootContent = _nestedSelectorRegex.Replace(content, string.Empty);
@@ -217,4 +241,6 @@ internal partial class CustomUtilityCssParser
     private static partial Regex SetPropertyMatchesRegexDefinition();
     [GeneratedRegex(@"^[a-z0-9\-\*]+$")]
     private static partial Regex ValidPatternRegexDefinition();
+    [GeneratedRegex(@"@apply\s+([^;]+);", RegexOptions.Compiled)]
+    private static partial Regex ApplyDirectiveRegexDefinition();
 }

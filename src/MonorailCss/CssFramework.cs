@@ -90,6 +90,15 @@ public class CssFramework
     }
 
     /// <summary>
+    /// Gets the settings this framework was constructed from, after any constructor-time
+    /// adjustments (e.g. <see cref="CssFrameworkSettings.ProseCustomization"/> applied to
+    /// the theme). Use this when you need to layer additional configuration on top — for
+    /// example, the discovery library merges CSS-derived theme tokens, custom utilities,
+    /// and custom variants into a fresh framework built from these settings.
+    /// </summary>
+    public CssFrameworkSettings Settings => _settings;
+
+    /// <summary>
     /// Gets the utility registry used by this framework instance.
     /// </summary>
     private UtilityRegistry UtilityRegistry { get; }

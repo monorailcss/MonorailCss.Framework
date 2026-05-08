@@ -38,6 +38,12 @@ public record UtilityDefinition
     public ImmutableList<string> CustomPropertyDependencies { get; set; } = ImmutableList<string>.Empty;
 
     /// <summary>
+    /// Gets or sets the list of utility classes referenced from <c>@apply</c> directives inside
+    /// the utility block. Empty when the block contains no <c>@apply</c>.
+    /// </summary>
+    public ImmutableList<string> ApplyUtilities { get; set; } = ImmutableList<string>.Empty;
+
+    /// <summary>
     /// Implicitly wraps a single <see cref="UtilityDefinition"/> in a one-element <see cref="ImmutableList{T}"/>.
     /// </summary>
     /// <param name="definition">The utility definition.</param>
