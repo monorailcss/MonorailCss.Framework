@@ -1,101 +1,130 @@
 ---
 title: ASP.NET Integration
-description: Different approaches for integrating MonorailCSS with ASP.NET applications
+description: Wire MonorailCSS into an ASP.NET app with runtime class discovery
 order: 3
 uid: aspnet-integration
-tags: [ aspnet, integration, sourcegen, msbuild, middleware ]
+tags: [aspnet, integration, discovery, blazor, middleware]
 ---
 
-Integrating a JIT CSS compiler like MonorailCSS with ASP.NET presents an interesting challenge: MonorailCSS needs to
-know which CSS classes your application uses to generate the appropriate styles. Since it's a utility-first system, you
-could potentially use thousands of different class combinations, but you only want to ship CSS for the classes you
-actually use.
+MonorailCSS is a JIT compiler &mdash; it only emits CSS for the classes your app actually uses. That works in any framework, but it leaves an open question for ASP.NET: how do you tell MonorailCSS which classes that is?
 
-There are a few different approaches to solving this problem, each with their own trade-offs.
+`MonorailCss.Discovery` answers that. At startup it walks the IL of every loaded assembly &mdash; your app, your Razor class libraries, every component package on NuGet &mdash; and pulls out the strings that look like utility classes. In development it also watches your `.razor`, `.cshtml`, and `.cs` files so hot-reload edits show up the moment you save them. No source generators, no MSBuild targets, no per-request HTML parsing.
 
-## The Core Problem
+## Installation
 
-Unlike traditional CSS frameworks that ship everything upfront, MonorailCSS generates CSS on-demand based on the classes
-you use. This is great for bundle size, but it means we need a way to discover which classes are actually in use in your
-application.
+```bash
+dotnet add package MonorailCss.Discovery
+```
 
-For ASP.NET applications, your CSS classes are typically scattered across:
+The package targets `net9.0` and `net10.0` and references `Microsoft.AspNetCore.App`.
 
-- Razor pages and components
-- View files
-- Component libraries
-- Dynamically generated markup
+## Quickstart
 
-## Approach 1: Source Generator Discovery
+Two lines in `Program.cs`:
 
-The [MonorailCss.SourceGen.AspNet](https://github.com/monorailcss/MonorailCss.SourceGen.AspNet) project takes a
-compile-time approach. It's a source generator that scans your Razor files during compilation and creates a list of all
-the CSS classes it finds.
+```csharp
+using MonorailCss.Discovery;
 
-**The idea:** During build, walk through your Razor files, extract class names from the static markup, and generate code
-that returns this list. At runtime, your application can feed this list to MonorailCSS to generate the stylesheet.
+var builder = WebApplication.CreateBuilder(args);
 
-**Trade-offs:**
+builder.Services.AddRazorComponents().AddInteractiveServerComponents();
+builder.Services.AddMonorailCss();
 
-- This produces a string array of CSS classes being used that can be consumed at runtime. Producing the actual CSS and
-  serving still needs to be done.
-- Fast at runtime since class discovery happens at compile time
-- Only sees static class names (things like `class="bg-blue-500"`)
-- Misses dynamically constructed classes (like `class="bg-@color-500"` where `color` is a variable)
-- Best for applications with mostly static utility usage
+var app = builder.Build();
 
-## Approach 2: MSBuild Task Generation
+app.UseStaticFiles();
+app.UseMonorailCss();
 
-The [MonorailCss.Build.Tasks](https://github.com/monorailcss/MonorailCss.Build.Tasks) project goes a step further and
-generates the actual CSS file at build time.
+app.MapRazorComponents<App>().AddInteractiveServerRenderMode();
+app.Run();
+```
 
-**The idea:** Similar to the source generator, but instead of just discovering classes, it runs MonorailCSS during your
-build process and outputs a static CSS file that you can reference normally.
+Then point your layout at the served stylesheet:
 
-**Trade-offs:**
+```html
+<link rel="stylesheet" href="/_monorail/app.css" />
+```
 
-- Zero runtime overhead - it's just a static CSS file
-- CSS is generated once at build time, so you get the full output immediately
-- Looks closest to tailwind, things like VS Code and Rider intellisense seems to wire up okay.
-- Can't adapt to dynamic content
-- Perfect for SSG (static site generation) scenarios
+With no configuration `AddMonorailCss` registers a default `CssFramework`, scans every non-BCL referenced assembly, watches your project's source directory in development, and uses `wwwroot/app.css` as the source CSS prefix when it exists. `UseMonorailCss` mounts the CSS endpoint at `/_monorail/app.css`.
 
-## Approach 3: Runtime Middleware Discovery
+## Configuration
 
-A more dynamic approach involves using middleware to intercept HTML responses, parse out CSS classes, and generate
-styles on-demand.
+Pass a callback to `AddMonorailCss` to override the auto-detected defaults. The options most projects reach for:
 
-**The idea:** Hook into the ASP.NET pipeline, capture rendered HTML, extract class names with regex or HTML parsing, and
-maintain a running collection of discovered classes. Generate and serve CSS based on this collection.
+```csharp
+var framework = new CssFramework(new CssFrameworkSettings
+{
+    Theme = MonorailCss.Theme.Theme.CreateWithDefaults(),
+});
 
-**Trade-offs:**
+builder.Services.AddSingleton(framework);
+builder.Services.AddMonorailCss(opt =>
+{
+    opt.Framework = framework;
+    opt.ExcludeAssemblies.Add("MonorailCss");
+    opt.ExcludeAssemblies.Add("BadIdeas.Icons.FontAwesome");
+    opt.ExtraSafelist.Add("bg-red-500");
+    opt.SourceCss = File.ReadAllText("wwwroot/app.css");
+    opt.CssEndpoint = "/css/app.css";
+});
+```
 
-- Works with dynamic classes and runtime-generated content
-- Slower first request (needs to parse HTML and generate CSS)
-- Each page will have its own collection of CSS classes, making exposing a single CSS file for the site tricky
-- More complex to implement correctly
-- Best for highly dynamic applications where class usage can't be determined at compile time
+- **`Framework`** &mdash; supply a configured `CssFramework` when you have a custom theme, prose config, or registered utilities. See [configuration](xref:configuration) for the full settings surface.
+- **`ExcludeAssemblies`** &mdash; skip assemblies whose IL strings are noise rather than real utilities. The MonorailCSS framework itself ships template strings like `"bg-{color}-500"` in its utilities; icon packs like `BadIdeas.Icons.FontAwesome` bake thousands of class-shaped tokens into their metadata. Excluding these makes the difference between scanning tens of thousands of phantom classes and scanning the hundred or so your app actually uses. BCL assemblies (`System.*`, `Microsoft.*`) are skipped automatically.
+- **`ExtraSafelist`** &mdash; force-include classes that static scanning can't reconstruct, e.g. anything built at runtime via `$"bg-{color}-500"`.
+- **`SourceCss`** &mdash; the equivalent of `app.css`: `@theme` blocks, `@apply` components, plain CSS. The discovered utilities are appended to whatever you put here. Defaults to the contents of `wwwroot/app.css` when present.
+- **`CssEndpoint`** &mdash; the URL the middleware serves CSS at. Defaults to `/_monorail/app.css`; change it if that path collides with something else.
 
-## Which Approach Should You Use?
+## Owning the endpoint
 
-It really depends on your application:
+The built-in middleware handles caching headers, `If-None-Match`, and `HEAD` requests. When that's not enough &mdash; you want auth in front of the CSS, custom cache directives, or to mirror the output to disk &mdash; register the discovery service without the middleware and inject `IClassRegistry` into your own endpoint:
 
-**Use the source generator** if your application mostly uses static utility classes in Razor files. This gives you a
-nice balance of performance and convenience.
+```csharp
+builder.Services.AddMonorailClassDiscovery(opt =>
+{
+    opt.Framework = framework;
+    opt.ExcludeAssemblies.Add("MonorailCss");
+});
 
-**Use the MSBuild task** if you're building a static site or an application where you know all possible classes upfront.
-This gives you the best runtime performance since everything is pre-generated.
+var app = builder.Build();
 
-**Use runtime middleware** if your application heavily uses dynamic class generation, or if you can control page load
-order. [MyLittleContent](https://github.com/phil-scott-78/MyLittleContentEngine) engine uses this approach, but it also owns the full stack including publishing.
+app.MapMethods("/css/app.css", ["GET", "HEAD"], (HttpContext ctx, IClassRegistry registry) =>
+{
+    var etag = registry.Version;
+    ctx.Response.Headers[HeaderNames.ETag] = etag;
+    ctx.Response.Headers[HeaderNames.CacheControl] = "no-cache";
 
-You could even combine approaches - use the source generator or build task for your known classes, and supplement with
-runtime discovery for dynamic content.
- 
-## Rolling Your Own
+    if (ctx.Request.Headers.TryGetValue(HeaderNames.IfNoneMatch, out var inm) && inm.ToString() == etag)
+    {
+        return Results.StatusCode(StatusCodes.Status304NotModified);
+    }
 
-MonorailCSS's core API is straightforward enough that you can build your own integration approach if none of these fit
-your needs:
+    if (HttpMethods.IsHead(ctx.Request.Method))
+    {
+        ctx.Response.ContentType = "text/css; charset=utf-8";
+        return Results.Empty;
+    }
+
+    return Results.Text(registry.Css, "text/css", Encoding.UTF8);
+});
+```
+
+`IClassRegistry` exposes three things:
+
+- **`GetClasses()`** &mdash; an immutable snapshot of every class the discovery pipeline has validated.
+- **`Version`** &mdash; an opaque, content-derived ETag token. It changes whenever the class set or source CSS changes, but reverting to a prior class set yields the prior token, so an `If-None-Match` round-trip works the way browsers expect. The string is already wrapped in quotes per RFC 7232.
+- **`Css`** &mdash; the fully assembled CSS (your `SourceCss` prefix plus the generated utilities), recomputed only when the class set changes. Same content the built-in middleware serves.
+
+Bust the browser cache between hot-reloads by pinning the `Version` token onto the `<link>` href:
+
+```razor
+@inject IClassRegistry Registry
+<link rel="stylesheet" href="/css/app.css?v=@Registry.Version" />
+```
+
+## Rolling your own
+
+Discovery is a wrapper around `CssFramework.Process`. If its scanning model doesn't fit &mdash; you have your own class collector, you're generating CSS in a non-ASP.NET host, you want to drive everything from a build step &mdash; you can call the framework directly:
 
 ```csharp
 var framework = new CssFramework();
@@ -103,5 +132,4 @@ var classes = GetClassesSomehow();
 var css = framework.Process(classes);
 ```
 
-The hard part isn't calling MonorailCSS - it's figuring out how to reliably discover which classes your application
-uses. That's the problem each of these approaches tries to solve in different ways.
+See [getting started](xref:getting-started) for the bare-API walkthrough. The hard part isn't calling MonorailCSS &mdash; it's reliably discovering which classes your application uses. Discovery solves that for the ASP.NET case; outside it, you're on your own.
