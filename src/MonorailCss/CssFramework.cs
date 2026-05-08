@@ -296,7 +296,7 @@ public class CssFramework
 
         // Generate the final CSS
         var generator = new CssGenerator();
-        var generatedCss = generator.GenerateCss(cssRules.ToImmutableList(), usedVariables, propertyRegistry, false, preflightCss, componentNodes);
+        var generatedCss = generator.GenerateCss(cssRules.ToImmutableList(), usedVariables, propertyRegistry, false, preflightCss, componentNodes, _settings.Keyframes);
 
         return new CssFrameworkResult
         {

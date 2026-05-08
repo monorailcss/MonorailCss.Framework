@@ -165,6 +165,88 @@ public class CssSourceProcessorTests
     }
 
     [Fact]
+    public void Process_Source_Captures_Keyframes_From_Theme_Block()
+    {
+        const string css = """
+                           @theme {
+                               --animate-enter: enter 150ms ease-out normal both;
+
+                               @keyframes enter {
+                                   0% { opacity: 0; transform: scale(0.95); }
+                                   100% { opacity: 1; transform: scale(1); }
+                               }
+                           }
+                           """;
+
+        var processor = new CssSourceProcessor();
+        var result = processor.ProcessSource(css);
+
+        result.Settings.Keyframes.ShouldContainKey("enter");
+        result.Settings.Keyframes["enter"].ShouldContain("opacity: 0");
+        result.Settings.Keyframes["enter"].ShouldContain("scale(1)");
+
+        // Variable extraction still works alongside keyframes capture.
+        result.Settings.Theme.ContainsKey("--animate-enter").ShouldBeTrue();
+    }
+
+    [Fact]
+    public void Process_Source_Captures_Keyframes_From_Theme_Static_Inline_Block()
+    {
+        // LumexUI's _theme.css uses @theme static inline. Multiple keyframes per block
+        // should all round-trip.
+        const string css = """
+                           @theme static inline {
+                               --animate-shimmer: shimmer 2s infinite;
+                               --animate-blink: blink 1.5s infinite both;
+
+                               @keyframes shimmer {
+                                   100% { translate: 100%; }
+                               }
+
+                               @keyframes blink {
+                                   0%, 100% { opacity: 0.2; }
+                                   50% { opacity: 1; }
+                               }
+                           }
+                           """;
+
+        var processor = new CssSourceProcessor();
+        var result = processor.ProcessSource(css);
+
+        result.Settings.Keyframes.Count.ShouldBe(2);
+        result.Settings.Keyframes.ShouldContainKey("shimmer");
+        result.Settings.Keyframes.ShouldContainKey("blink");
+        result.Settings.Keyframes["blink"].ShouldContain("0.2");
+    }
+
+    [Fact]
+    public void Process_Source_User_Keyframes_Override_Defaults()
+    {
+        // User redefines `spin` to a different rotation. The compiled CSS should use
+        // the user's body, not the framework default.
+        const string css = """
+                           @theme {
+                               @keyframes spin {
+                                   from { transform: rotate(45deg); }
+                                   to { transform: rotate(405deg); }
+                               }
+                           }
+                           """;
+
+        var processor = new CssSourceProcessor();
+        var result = processor.ProcessSource(css);
+        var framework = new CssFramework(result.Settings);
+
+        var generated = framework.Process(["animate-spin"]);
+
+        // The user body wins.
+        generated.ShouldContain("rotate(45deg)");
+        generated.ShouldContain("rotate(405deg)");
+        // The default body should not appear.
+        generated.ShouldNotContain("to { transform: rotate(360deg); }");
+    }
+
+    [Fact]
     public void Process_File_Wires_Custom_Utility_Apply_Through_Settings()
     {
         var path = Path.Combine(Path.GetTempPath(), "monorail-source-test-" + Guid.NewGuid().ToString("N") + ".css");

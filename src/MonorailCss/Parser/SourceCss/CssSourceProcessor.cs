@@ -117,12 +117,19 @@ public class CssSourceProcessor
         var customUtilities = settings.CustomUtilities.AddRange(imported.UtilityDefinitions);
         var customVariants = settings.CustomVariants.AddRange(imported.SourceConfiguration.CustomVariants);
 
+        var keyframes = settings.Keyframes;
+        foreach (var (name, body) in imported.Keyframes)
+        {
+            keyframes = keyframes.SetItem(name, body);
+        }
+
         var newSettings = settings with
         {
             Theme = theme,
             Applies = applies,
             CustomUtilities = customUtilities,
             CustomVariants = customVariants,
+            Keyframes = keyframes,
         };
 
         var rawCss = imported.RawCssRules.Count == 0

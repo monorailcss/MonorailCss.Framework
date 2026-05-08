@@ -20,6 +20,9 @@ namespace MonorailCss.Parser.SourceCss;
 /// <param name="SourceConfiguration">Aggregated <c>@import</c>/<c>@source</c>/<c>@custom-variant</c> directives.</param>
 /// <param name="RawCssRules">CSS the parser didn't consume; emit verbatim alongside the generated output.</param>
 /// <param name="ImportedFiles">Absolute paths of every file pulled into the graph (in import order).</param>
+/// <param name="Keyframes">Animation name → keyframes body extracted from <c>@keyframes</c>
+/// blocks declared inside any <c>@theme</c> block. Later imports override earlier ones on
+/// name collision.</param>
 public record CssImportResult(
     ImmutableDictionary<string, string> ThemeVariables,
     ImmutableDictionary<string, string> InlineThemeVariables,
@@ -29,7 +32,8 @@ public record CssImportResult(
     ImmutableList<UtilityDefinition> UtilityDefinitions,
     SourceConfiguration SourceConfiguration,
     ImmutableList<RawCssRule> RawCssRules,
-    ImmutableList<string> ImportedFiles)
+    ImmutableList<string> ImportedFiles,
+    ImmutableDictionary<string, string> Keyframes)
 {
     /// <summary>
     /// Empty result for null/missing inputs.
@@ -43,7 +47,8 @@ public record CssImportResult(
         ImmutableList<UtilityDefinition>.Empty,
         new SourceConfiguration(),
         ImmutableList<RawCssRule>.Empty,
-        ImmutableList<string>.Empty);
+        ImmutableList<string>.Empty,
+        ImmutableDictionary<string, string>.Empty);
 }
 
 /// <summary>
@@ -99,6 +104,7 @@ public partial class CssImportProcessor
         var utilities = ImmutableList.CreateBuilder<UtilityDefinition>();
         var raw = ImmutableList.CreateBuilder<RawCssRule>();
         var imported = ImmutableList.CreateBuilder<string>();
+        var keyframes = ImmutableDictionary.CreateBuilder<string, string>();
         var sourceConfiguration = new SourceConfiguration();
 
         ProcessFileRecursive(
@@ -111,6 +117,7 @@ public partial class CssImportProcessor
             utilities,
             raw,
             imported,
+            keyframes,
             ref sourceConfiguration);
 
         return new CssImportResult(
@@ -122,7 +129,8 @@ public partial class CssImportProcessor
             utilities.ToImmutable(),
             sourceConfiguration,
             raw.ToImmutable(),
-            imported.ToImmutable());
+            imported.ToImmutable(),
+            keyframes.ToImmutable());
     }
 
     /// <summary>
@@ -145,6 +153,7 @@ public partial class CssImportProcessor
         var utilities = ImmutableList.CreateBuilder<UtilityDefinition>();
         var raw = ImmutableList.CreateBuilder<RawCssRule>();
         var imported = ImmutableList.CreateBuilder<string>();
+        var keyframes = ImmutableDictionary.CreateBuilder<string, string>();
         var sourceConfiguration = new SourceConfiguration();
 
         ApplyParsedSource(
@@ -157,6 +166,7 @@ public partial class CssImportProcessor
             components,
             utilities,
             raw,
+            keyframes,
             ref sourceConfiguration);
 
         if (!string.IsNullOrEmpty(basePath))
@@ -179,6 +189,7 @@ public partial class CssImportProcessor
                     utilities,
                     raw,
                     imported,
+                    keyframes,
                     ref sourceConfiguration);
             }
         }
@@ -192,7 +203,8 @@ public partial class CssImportProcessor
             utilities.ToImmutable(),
             sourceConfiguration,
             raw.ToImmutable(),
-            imported.ToImmutable());
+            imported.ToImmutable(),
+            keyframes.ToImmutable());
     }
 
     private void ProcessFileRecursive(
@@ -205,6 +217,7 @@ public partial class CssImportProcessor
         ImmutableList<UtilityDefinition>.Builder utilities,
         ImmutableList<RawCssRule>.Builder raw,
         ImmutableList<string>.Builder imported,
+        ImmutableDictionary<string, string>.Builder keyframes,
         ref SourceConfiguration sourceConfiguration)
     {
         var normalized = Path.GetFullPath(cssFilePath);
@@ -235,6 +248,7 @@ public partial class CssImportProcessor
             components,
             utilities,
             raw,
+            keyframes,
             ref sourceConfiguration);
 
         var directory = Path.GetDirectoryName(normalized) ?? string.Empty;
@@ -260,6 +274,7 @@ public partial class CssImportProcessor
                 utilities,
                 raw,
                 imported,
+                keyframes,
                 ref sourceConfiguration);
         }
     }
@@ -274,6 +289,7 @@ public partial class CssImportProcessor
         ImmutableDictionary<string, string>.Builder components,
         ImmutableList<UtilityDefinition>.Builder utilities,
         ImmutableList<RawCssRule>.Builder raw,
+        ImmutableDictionary<string, string>.Builder keyframes,
         ref SourceConfiguration sourceConfiguration)
     {
         var parseResult = _themeParser.Parse(content);
@@ -301,6 +317,13 @@ public partial class CssImportProcessor
         foreach (var (k, v) in parseResult.ComponentRules)
         {
             components[k] = v;
+        }
+
+        // Last-write-wins on name collision so a later @import can override an earlier
+        // keyframes definition, mirroring how variables and applies behave.
+        foreach (var (name, body) in parseResult.Keyframes)
+        {
+            keyframes[name] = body;
         }
 
         utilities.AddRange(parseResult.UtilityDefinitions);

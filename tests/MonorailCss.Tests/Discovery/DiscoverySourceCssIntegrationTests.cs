@@ -150,6 +150,52 @@ public class DiscoverySourceCssIntegrationTests
         }
     }
 
+    [Fact]
+    public async Task SourceCssPath_User_Keyframes_Are_Emitted_When_Animate_Variable_Is_Used()
+    {
+        var dir = TempDir();
+        try
+        {
+            var cssPath = Path.Combine(dir, "app.css");
+            File.WriteAllText(cssPath, """
+                                       @theme static inline {
+                                           --animate-enter: enter 150ms ease-out normal both;
+
+                                           @keyframes enter {
+                                               0% { opacity: 0; transform: scale(0.95); }
+                                               100% { opacity: 1; transform: scale(1); }
+                                           }
+                                       }
+                                       """);
+
+            var (service, _) = CreateService(o =>
+            {
+                o.SourceCssPath = cssPath;
+                o.ExtraSafelist.Add("animate-enter");
+            });
+            using (service)
+            {
+                await service.StartAsync(CancellationToken.None);
+
+                var css = service.Css;
+
+                // The @keyframes block should be in the output, top-level.
+                css.ShouldContain("@keyframes enter");
+                css.ShouldContain("opacity: 0");
+                css.ShouldContain("scale(0.95)");
+
+                // And the .animate-enter class should reference the variable.
+                css.ShouldContain("--animate-enter");
+
+                await service.StopAsync(CancellationToken.None);
+            }
+        }
+        finally
+        {
+            Directory.Delete(dir, recursive: true);
+        }
+    }
+
     private static (ClassDiscoveryService Service, MonorailDiscoveryOptions Options) CreateService(Action<MonorailDiscoveryOptions>? configure = null)
     {
         var options = new MonorailDiscoveryOptions();

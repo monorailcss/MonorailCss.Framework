@@ -24,6 +24,7 @@ public record CssFrameworkSettings
         CustomUtilities = ImmutableList<UtilityDefinition>.Empty;
         CustomVariants = ImmutableList<CustomVariantDefinition>.Empty;
         ColorEmission = ColorEmissionMode.UsedPalettes;
+        Keyframes = ImmutableDictionary<string, string>.Empty;
     }
 
     /// <summary>
@@ -75,6 +76,16 @@ public record CssFrameworkSettings
     /// dynamic class names (e.g. <c>bg-sky-700</c> rendered after build) resolve correctly.
     /// </summary>
     public ColorEmissionMode ColorEmission { get; init; }
+
+    /// <summary>
+    /// Gets a map of animation name → keyframes body, populated from <c>@keyframes</c>
+    /// blocks declared inside any <c>@theme</c> flavor (regular, <c>inline</c>, <c>static</c>,
+    /// <c>static inline</c>). Used by the CSS generator to emit a top-level <c>@keyframes</c>
+    /// rule whenever the matching <c>--animate-{name}</c> theme variable ends up in the output;
+    /// user entries override the built-in defaults (<c>spin</c>, <c>ping</c>, <c>pulse</c>,
+    /// <c>bounce</c>) on name collision.
+    /// </summary>
+    public ImmutableDictionary<string, string> Keyframes { get; init; }
 }
 
 /// <summary>

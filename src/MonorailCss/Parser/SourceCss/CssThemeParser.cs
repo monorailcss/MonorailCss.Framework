@@ -17,6 +17,10 @@ namespace MonorailCss.Parser.SourceCss;
 /// list, suitable for assignment to <see cref="CssFrameworkSettings.Applies"/>.</param>
 /// <param name="UtilityDefinitions">Definitions parsed from <c>@utility</c> blocks.</param>
 /// <param name="SourceConfiguration">Configuration extracted from <c>@import</c>/<c>@source</c>/<c>@custom-variant</c>.</param>
+/// <param name="Keyframes">Animation name → keyframes body extracted from <c>@keyframes</c>
+/// blocks declared inside any <c>@theme</c> flavor. The body is the raw content between the
+/// braces (no enclosing <c>@keyframes name { … }</c> wrapper) so the generator can re-emit
+/// the block at the top level.</param>
 public record CssThemeParseResult(
     ImmutableDictionary<string, string> ThemeVariables,
     ImmutableDictionary<string, string> InlineThemeVariables,
@@ -24,7 +28,8 @@ public record CssThemeParseResult(
     ImmutableDictionary<string, string> StaticInlineThemeVariables,
     ImmutableDictionary<string, string> ComponentRules,
     ImmutableList<UtilityDefinition> UtilityDefinitions,
-    SourceConfiguration SourceConfiguration)
+    SourceConfiguration SourceConfiguration,
+    ImmutableDictionary<string, string> Keyframes)
 {
     /// <summary>Empty parse result.</summary>
     public static readonly CssThemeParseResult Empty = new(
@@ -34,7 +39,8 @@ public record CssThemeParseResult(
         ImmutableDictionary<string, string>.Empty,
         ImmutableDictionary<string, string>.Empty,
         ImmutableList<UtilityDefinition>.Empty,
-        new SourceConfiguration());
+        new SourceConfiguration(),
+        ImmutableDictionary<string, string>.Empty);
 }
 
 /// <summary>
@@ -63,7 +69,7 @@ public partial class CssThemeParser
 
         cssSource = CssCommentStripper.Strip(cssSource);
 
-        var (regular, inline, staticVars, staticInline) = ExtractThemeVariables(cssSource);
+        var (regular, inline, staticVars, staticInline, keyframes) = ExtractThemeVariables(cssSource);
 
         var componentRules = ExtractComponentRules(cssSource);
 
@@ -79,19 +85,22 @@ public partial class CssThemeParser
             staticInline,
             componentRules,
             utilityDefinitions,
-            sourceConfiguration);
+            sourceConfiguration,
+            keyframes);
     }
 
     private static (
         ImmutableDictionary<string, string> Regular,
         ImmutableDictionary<string, string> Inline,
         ImmutableDictionary<string, string> Static,
-        ImmutableDictionary<string, string> StaticInline) ExtractThemeVariables(string css)
+        ImmutableDictionary<string, string> StaticInline,
+        ImmutableDictionary<string, string> Keyframes) ExtractThemeVariables(string css)
     {
         var regular = ImmutableDictionary.CreateBuilder<string, string>();
         var inline = ImmutableDictionary.CreateBuilder<string, string>();
         var staticVars = ImmutableDictionary.CreateBuilder<string, string>();
         var staticInline = ImmutableDictionary.CreateBuilder<string, string>();
+        var keyframes = ImmutableDictionary.CreateBuilder<string, string>();
 
         var i = 0;
         while (i < css.Length)
@@ -146,12 +155,87 @@ public partial class CssThemeParser
                 (false, false) => regular,
             };
 
-            ExtractVariablesFromContent(content, target);
+            // Pull `@keyframes` blocks out of the body before variable extraction. The
+            // declarations inside them (e.g. "0%, 100% { ... }") would otherwise pollute the
+            // theme-variable scan; capturing them here keeps the original CSS intact for the
+            // generator to re-emit at the top level.
+            ExtractKeyframesFromContent(content, keyframes, out var contentWithoutKeyframes);
+            ExtractVariablesFromContent(contentWithoutKeyframes, target);
 
             i = j;
         }
 
-        return (regular.ToImmutable(), inline.ToImmutable(), staticVars.ToImmutable(), staticInline.ToImmutable());
+        return (regular.ToImmutable(), inline.ToImmutable(), staticVars.ToImmutable(), staticInline.ToImmutable(), keyframes.ToImmutable());
+    }
+
+    /// <summary>
+    /// Walks a <c>@theme</c> body extracting every nested <c>@keyframes &lt;name&gt; { … }</c>
+    /// block. Returns the body with those blocks removed so the variable scan won't trip over
+    /// percent-stop selectors. Brace-counted so nested rule bodies inside the keyframes (e.g.
+    /// <c>50% { transform: scale(2); }</c>) don't terminate the outer scan.
+    /// </summary>
+    private static void ExtractKeyframesFromContent(
+        string body,
+        ImmutableDictionary<string, string>.Builder target,
+        out string remaining)
+    {
+        var sb = new System.Text.StringBuilder(body.Length);
+        var i = 0;
+        while (i < body.Length)
+        {
+            var idx = body.IndexOf("@keyframes", i, StringComparison.OrdinalIgnoreCase);
+            if (idx < 0)
+            {
+                sb.Append(body, i, body.Length - i);
+                break;
+            }
+
+            sb.Append(body, i, idx - i);
+
+            var nameStart = idx + "@keyframes".Length;
+            var open = body.IndexOf('{', nameStart);
+            if (open < 0)
+            {
+                // Malformed — drop the rest and bail.
+                break;
+            }
+
+            var name = body[nameStart..open].Trim();
+
+            var depth = 1;
+            var j = open + 1;
+            while (j < body.Length && depth > 0)
+            {
+                if (body[j] == '{')
+                {
+                    depth++;
+                }
+                else if (body[j] == '}')
+                {
+                    depth--;
+                }
+
+                j++;
+            }
+
+            if (depth != 0)
+            {
+                // Unbalanced — give up on this keyframes entry, but keep going so we don't
+                // lose downstream content.
+                i = body.Length;
+                break;
+            }
+
+            if (name.Length > 0)
+            {
+                var inner = body[(open + 1)..(j - 1)].Trim();
+                target[name] = inner;
+            }
+
+            i = j;
+        }
+
+        remaining = sb.ToString();
     }
 
     private static bool ContainsKeyword(string modifiers, string keyword)
@@ -171,8 +255,8 @@ public partial class CssThemeParser
 
     private static void ExtractVariablesFromContent(string content, ImmutableDictionary<string, string>.Builder target)
     {
-        // Strip nested @keyframes / @utility blocks so their inner declarations don't leak in.
-        content = StripNestedAtBlocks(content, "@keyframes");
+        // @keyframes is already extracted by the caller; only @utility (which can hold its
+        // own --custom-property declarations as part of the utility body) needs stripping.
         content = StripNestedAtBlocks(content, "@utility");
 
         foreach (Match match in _themeVariableRegex.Matches(content))

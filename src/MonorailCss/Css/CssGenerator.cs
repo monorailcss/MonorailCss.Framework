@@ -1,6 +1,7 @@
 using System.Collections.Immutable;
 using System.Text;
 using MonorailCss.Ast;
+using MonorailCss.Theme;
 
 namespace MonorailCss.Css;
 
@@ -19,7 +20,8 @@ internal sealed class CssGenerator
         CssPropertyRegistry? propertyRegistry = null,
         bool includeComments = false,
         string? preflightCss = null,
-        List<AstNode>? componentNodes = null)
+        List<AstNode>? componentNodes = null,
+        ImmutableDictionary<string, string>? userKeyframes = null)
     {
         if (nodes.IsEmpty && (themeVariables == null || themeVariables.Count == 0) && (propertyRegistry == null || propertyRegistry.Count == 0) && string.IsNullOrWhiteSpace(preflightCss))
         {
@@ -63,6 +65,15 @@ internal sealed class CssGenerator
         EmitLayer(sb, "components", componentNodes ?? new List<AstNode>());
         EmitLayer(sb, "utilities", utilityNodes);
 
+        // Emit @keyframes for animations whose theme variable is in use. Without these,
+        // .animate-spin (and friends) reference a keyframes name the browser can't resolve
+        // and the animation runs invisibly. User-defined keyframes (from @theme blocks)
+        // override the built-in defaults on name collision.
+        if (themeVariables != null)
+        {
+            EmitKeyframes(sb, themeVariables, userKeyframes);
+        }
+
         // Generate @property declarations if property registry is provided
         if (propertyRegistry != null && propertyRegistry.Count > 0)
         {
@@ -70,6 +81,60 @@ internal sealed class CssGenerator
         }
 
         return sb.ToString().TrimEnd();
+    }
+
+    private static void EmitKeyframes(
+        StringBuilder sb,
+        IReadOnlyDictionary<string, string> themeVariables,
+        ImmutableDictionary<string, string>? userKeyframes)
+    {
+        // Collect every animation name referenced by an in-use --animate-* variable.
+        // We pick up names from both the built-ins and any user-defined keyframes that
+        // happen to share a --animate- prefix in the theme.
+        var animationNames = new SortedSet<string>(StringComparer.Ordinal);
+        const string prefix = "--animate-";
+        foreach (var key in themeVariables.Keys)
+        {
+            if (!key.StartsWith(prefix, StringComparison.Ordinal))
+            {
+                continue;
+            }
+
+            var name = key[prefix.Length..];
+            var hasDefault = DefaultKeyframes.Defaults.ContainsKey(name);
+            var hasUser = userKeyframes != null && userKeyframes.ContainsKey(name);
+            if (hasDefault || hasUser)
+            {
+                animationNames.Add(name);
+            }
+        }
+
+        if (animationNames.Count == 0)
+        {
+            return;
+        }
+
+        if (sb.Length > 0)
+        {
+            sb.AppendLine();
+        }
+
+        foreach (var name in animationNames)
+        {
+            string body;
+            if (userKeyframes != null && userKeyframes.TryGetValue(name, out var userBody))
+            {
+                body = userBody;
+            }
+            else
+            {
+                body = DefaultKeyframes.Defaults[name];
+            }
+
+            sb.AppendLine($"@keyframes {name} {{");
+            sb.AppendLine($"  {body}");
+            sb.AppendLine("}");
+        }
     }
 
     public string GenerateCss(AstNode node, bool includeComments = false)
