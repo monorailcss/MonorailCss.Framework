@@ -1,0 +1,1266 @@
+{
+  "*:flex": {
+    "css": ":is(& > *) {\n      display: flex;\n    }",
+    "cssProperties": [
+      "display"
+    ]
+  },
+  "*:bg-red-500": {
+    "css": ":is(& > *) {\n      background-color: var(--color-red-500);\n    }",
+    "cssProperties": [
+      "background-color"
+    ],
+    "customProperties": {
+      "--color-red-500": "oklch(63.7% 0.237 25.331)"
+    }
+  },
+  "**:flex": {
+    "css": ":is(& *) {\n      display: flex;\n    }",
+    "cssProperties": [
+      "display"
+    ]
+  },
+  "**:bg-red-500": {
+    "css": ":is(& *) {\n      background-color: var(--color-red-500);\n    }",
+    "cssProperties": [
+      "background-color"
+    ],
+    "customProperties": {
+      "--color-red-500": "oklch(63.7% 0.237 25.331)"
+    }
+  },
+  "not-hover:flex": {
+    "css": "&:not(*:hover) {\n      display: flex;\n    }\n    @media not (hover: hover) {\n      display: flex;\n    }",
+    "cssProperties": [
+      "display"
+    ]
+  },
+  "not-hover:bg-red-500": {
+    "css": "&:not(*:hover) {\n      background-color: var(--color-red-500);\n    }\n    @media not (hover: hover) {\n      background-color: var(--color-red-500);\n    }",
+    "cssProperties": [
+      "background-color"
+    ],
+    "customProperties": {
+      "--color-red-500": "oklch(63.7% 0.237 25.331)"
+    }
+  },
+  "not-focus:flex": {
+    "css": "&:not(*:focus) {\n      display: flex;\n    }",
+    "cssProperties": [
+      "display"
+    ]
+  },
+  "not-focus:bg-red-500": {
+    "css": "&:not(*:focus) {\n      background-color: var(--color-red-500);\n    }",
+    "cssProperties": [
+      "background-color"
+    ],
+    "customProperties": {
+      "--color-red-500": "oklch(63.7% 0.237 25.331)"
+    }
+  },
+  "group-hover:flex": {
+    "css": "&:is(:where(.group):hover *) {\n      @media (hover: hover) {\n        display: flex;\n      }\n    }",
+    "cssProperties": [
+      "display"
+    ]
+  },
+  "group-hover:bg-red-500": {
+    "css": "&:is(:where(.group):hover *) {\n      @media (hover: hover) {\n        background-color: var(--color-red-500);\n      }\n    }",
+    "cssProperties": [
+      "background-color"
+    ],
+    "customProperties": {
+      "--color-red-500": "oklch(63.7% 0.237 25.331)"
+    }
+  },
+  "group-focus:flex": {
+    "css": "&:is(:where(.group):focus *) {\n      display: flex;\n    }",
+    "cssProperties": [
+      "display"
+    ]
+  },
+  "group-focus:bg-red-500": {
+    "css": "&:is(:where(.group):focus *) {\n      background-color: var(--color-red-500);\n    }",
+    "cssProperties": [
+      "background-color"
+    ],
+    "customProperties": {
+      "--color-red-500": "oklch(63.7% 0.237 25.331)"
+    }
+  },
+  "group-[.is-active]:flex": {
+    "css": "&:is(:where(.group):is(.is-active) *) {\n      display: flex;\n    }",
+    "cssProperties": [
+      "display"
+    ]
+  },
+  "group-[.is-active]:bg-red-500": {
+    "css": "&:is(:where(.group):is(.is-active) *) {\n      background-color: var(--color-red-500);\n    }",
+    "cssProperties": [
+      "background-color"
+    ],
+    "customProperties": {
+      "--color-red-500": "oklch(63.7% 0.237 25.331)"
+    }
+  },
+  "peer-hover:flex": {
+    "css": "&:is(:where(.peer):hover ~ *) {\n      @media (hover: hover) {\n        display: flex;\n      }\n    }",
+    "cssProperties": [
+      "display"
+    ]
+  },
+  "peer-hover:bg-red-500": {
+    "css": "&:is(:where(.peer):hover ~ *) {\n      @media (hover: hover) {\n        background-color: var(--color-red-500);\n      }\n    }",
+    "cssProperties": [
+      "background-color"
+    ],
+    "customProperties": {
+      "--color-red-500": "oklch(63.7% 0.237 25.331)"
+    }
+  },
+  "peer-focus:flex": {
+    "css": "&:is(:where(.peer):focus ~ *) {\n      display: flex;\n    }",
+    "cssProperties": [
+      "display"
+    ]
+  },
+  "peer-focus:bg-red-500": {
+    "css": "&:is(:where(.peer):focus ~ *) {\n      background-color: var(--color-red-500);\n    }",
+    "cssProperties": [
+      "background-color"
+    ],
+    "customProperties": {
+      "--color-red-500": "oklch(63.7% 0.237 25.331)"
+    }
+  },
+  "peer-[&.dark]:flex": {
+    "css": "&:is(:where(.peer).dark ~ *) {\n      display: flex;\n    }",
+    "cssProperties": [
+      "display"
+    ]
+  },
+  "peer-[&.dark]:bg-red-500": {
+    "css": "&:is(:where(.peer).dark ~ *) {\n      background-color: var(--color-red-500);\n    }",
+    "cssProperties": [
+      "background-color"
+    ],
+    "customProperties": {
+      "--color-red-500": "oklch(63.7% 0.237 25.331)"
+    }
+  },
+  "first-letter:flex": {
+    "css": "&::first-letter {\n      display: flex;\n    }",
+    "cssProperties": [
+      "display"
+    ]
+  },
+  "first-letter:bg-red-500": {
+    "css": "&::first-letter {\n      background-color: var(--color-red-500);\n    }",
+    "cssProperties": [
+      "background-color"
+    ],
+    "customProperties": {
+      "--color-red-500": "oklch(63.7% 0.237 25.331)"
+    }
+  },
+  "first-line:flex": {
+    "css": "&::first-line {\n      display: flex;\n    }",
+    "cssProperties": [
+      "display"
+    ]
+  },
+  "first-line:bg-red-500": {
+    "css": "&::first-line {\n      background-color: var(--color-red-500);\n    }",
+    "cssProperties": [
+      "background-color"
+    ],
+    "customProperties": {
+      "--color-red-500": "oklch(63.7% 0.237 25.331)"
+    }
+  },
+  "marker:flex": {
+    "css": "& *::marker {\n      display: flex;\n    }\n    &::marker {\n      display: flex;\n    }\n    & *::-webkit-details-marker {\n      display: flex;\n    }\n    &::-webkit-details-marker {\n      display: flex;\n    }",
+    "cssProperties": [
+      "display"
+    ]
+  },
+  "marker:bg-red-500": {
+    "css": "& *::marker {\n      background-color: var(--color-red-500);\n    }\n    &::marker {\n      background-color: var(--color-red-500);\n    }\n    & *::-webkit-details-marker {\n      background-color: var(--color-red-500);\n    }\n    &::-webkit-details-marker {\n      background-color: var(--color-red-500);\n    }",
+    "cssProperties": [
+      "background-color"
+    ],
+    "customProperties": {
+      "--color-red-500": "oklch(63.7% 0.237 25.331)"
+    }
+  },
+  "selection:flex": {
+    "css": "& *::selection {\n      display: flex;\n    }\n    &::selection {\n      display: flex;\n    }",
+    "cssProperties": [
+      "display"
+    ]
+  },
+  "selection:bg-red-500": {
+    "css": "& *::selection {\n      background-color: var(--color-red-500);\n    }\n    &::selection {\n      background-color: var(--color-red-500);\n    }",
+    "cssProperties": [
+      "background-color"
+    ],
+    "customProperties": {
+      "--color-red-500": "oklch(63.7% 0.237 25.331)"
+    }
+  },
+  "file:flex": {
+    "css": "&::file-selector-button {\n      display: flex;\n    }",
+    "cssProperties": [
+      "display"
+    ]
+  },
+  "file:bg-red-500": {
+    "css": "&::file-selector-button {\n      background-color: var(--color-red-500);\n    }",
+    "cssProperties": [
+      "background-color"
+    ],
+    "customProperties": {
+      "--color-red-500": "oklch(63.7% 0.237 25.331)"
+    }
+  },
+  "placeholder:flex": {
+    "css": "&::placeholder {\n      display: flex;\n    }",
+    "cssProperties": [
+      "display"
+    ]
+  },
+  "placeholder:bg-red-500": {
+    "css": "&::placeholder {\n      background-color: var(--color-red-500);\n    }",
+    "cssProperties": [
+      "background-color"
+    ],
+    "customProperties": {
+      "--color-red-500": "oklch(63.7% 0.237 25.331)"
+    }
+  },
+  "backdrop:flex": {
+    "css": "&::backdrop {\n      display: flex;\n    }",
+    "cssProperties": [
+      "display"
+    ]
+  },
+  "backdrop:bg-red-500": {
+    "css": "&::backdrop {\n      background-color: var(--color-red-500);\n    }",
+    "cssProperties": [
+      "background-color"
+    ],
+    "customProperties": {
+      "--color-red-500": "oklch(63.7% 0.237 25.331)"
+    }
+  },
+  "before:flex": {
+    "css": "&::before {\n      content: var(--tw-content);\n      display: flex;\n    }",
+    "cssProperties": [
+      "content",
+      "display"
+    ]
+  },
+  "before:bg-red-500": {
+    "css": "&::before {\n      content: var(--tw-content);\n      background-color: var(--color-red-500);\n    }",
+    "cssProperties": [
+      "content",
+      "background-color"
+    ],
+    "customProperties": {
+      "--color-red-500": "oklch(63.7% 0.237 25.331)"
+    }
+  },
+  "after:flex": {
+    "css": "&::after {\n      content: var(--tw-content);\n      display: flex;\n    }",
+    "cssProperties": [
+      "content",
+      "display"
+    ]
+  },
+  "after:bg-red-500": {
+    "css": "&::after {\n      content: var(--tw-content);\n      background-color: var(--color-red-500);\n    }",
+    "cssProperties": [
+      "content",
+      "background-color"
+    ],
+    "customProperties": {
+      "--color-red-500": "oklch(63.7% 0.237 25.331)"
+    }
+  },
+  "first:flex": {
+    "css": "&:first-child {\n      display: flex;\n    }",
+    "cssProperties": [
+      "display"
+    ]
+  },
+  "first:bg-red-500": {
+    "css": "&:first-child {\n      background-color: var(--color-red-500);\n    }",
+    "cssProperties": [
+      "background-color"
+    ],
+    "customProperties": {
+      "--color-red-500": "oklch(63.7% 0.237 25.331)"
+    }
+  },
+  "last:flex": {
+    "css": "&:last-child {\n      display: flex;\n    }",
+    "cssProperties": [
+      "display"
+    ]
+  },
+  "last:bg-red-500": {
+    "css": "&:last-child {\n      background-color: var(--color-red-500);\n    }",
+    "cssProperties": [
+      "background-color"
+    ],
+    "customProperties": {
+      "--color-red-500": "oklch(63.7% 0.237 25.331)"
+    }
+  },
+  "only:flex": {
+    "css": "&:only-child {\n      display: flex;\n    }",
+    "cssProperties": [
+      "display"
+    ]
+  },
+  "only:bg-red-500": {
+    "css": "&:only-child {\n      background-color: var(--color-red-500);\n    }",
+    "cssProperties": [
+      "background-color"
+    ],
+    "customProperties": {
+      "--color-red-500": "oklch(63.7% 0.237 25.331)"
+    }
+  },
+  "odd:flex": {
+    "css": "&:nth-child(odd) {\n      display: flex;\n    }",
+    "cssProperties": [
+      "display"
+    ]
+  },
+  "odd:bg-red-500": {
+    "css": "&:nth-child(odd) {\n      background-color: var(--color-red-500);\n    }",
+    "cssProperties": [
+      "background-color"
+    ],
+    "customProperties": {
+      "--color-red-500": "oklch(63.7% 0.237 25.331)"
+    }
+  },
+  "even:flex": {
+    "css": "&:nth-child(even) {\n      display: flex;\n    }",
+    "cssProperties": [
+      "display"
+    ]
+  },
+  "even:bg-red-500": {
+    "css": "&:nth-child(even) {\n      background-color: var(--color-red-500);\n    }",
+    "cssProperties": [
+      "background-color"
+    ],
+    "customProperties": {
+      "--color-red-500": "oklch(63.7% 0.237 25.331)"
+    }
+  },
+  "first-of-type:flex": {
+    "css": "&:first-of-type {\n      display: flex;\n    }",
+    "cssProperties": [
+      "display"
+    ]
+  },
+  "first-of-type:bg-red-500": {
+    "css": "&:first-of-type {\n      background-color: var(--color-red-500);\n    }",
+    "cssProperties": [
+      "background-color"
+    ],
+    "customProperties": {
+      "--color-red-500": "oklch(63.7% 0.237 25.331)"
+    }
+  },
+  "last-of-type:flex": {
+    "css": "&:last-of-type {\n      display: flex;\n    }",
+    "cssProperties": [
+      "display"
+    ]
+  },
+  "last-of-type:bg-red-500": {
+    "css": "&:last-of-type {\n      background-color: var(--color-red-500);\n    }",
+    "cssProperties": [
+      "background-color"
+    ],
+    "customProperties": {
+      "--color-red-500": "oklch(63.7% 0.237 25.331)"
+    }
+  },
+  "only-of-type:flex": {
+    "css": "&:only-of-type {\n      display: flex;\n    }",
+    "cssProperties": [
+      "display"
+    ]
+  },
+  "only-of-type:bg-red-500": {
+    "css": "&:only-of-type {\n      background-color: var(--color-red-500);\n    }",
+    "cssProperties": [
+      "background-color"
+    ],
+    "customProperties": {
+      "--color-red-500": "oklch(63.7% 0.237 25.331)"
+    }
+  },
+  "visited:flex": {
+    "css": "&:visited {\n      display: flex;\n    }",
+    "cssProperties": [
+      "display"
+    ]
+  },
+  "visited:bg-red-500": {
+    "css": "&:visited {\n      background-color: var(--color-red-500);\n    }",
+    "cssProperties": [
+      "background-color"
+    ],
+    "customProperties": {
+      "--color-red-500": "oklch(63.7% 0.237 25.331)"
+    }
+  },
+  "target:flex": {
+    "css": "&:target {\n      display: flex;\n    }",
+    "cssProperties": [
+      "display"
+    ]
+  },
+  "target:bg-red-500": {
+    "css": "&:target {\n      background-color: var(--color-red-500);\n    }",
+    "cssProperties": [
+      "background-color"
+    ],
+    "customProperties": {
+      "--color-red-500": "oklch(63.7% 0.237 25.331)"
+    }
+  },
+  "open:flex": {
+    "css": "&:is([open], :popover-open, :open) {\n      display: flex;\n    }",
+    "cssProperties": [
+      "display"
+    ]
+  },
+  "open:bg-red-500": {
+    "css": "&:is([open], :popover-open, :open) {\n      background-color: var(--color-red-500);\n    }",
+    "cssProperties": [
+      "background-color"
+    ],
+    "customProperties": {
+      "--color-red-500": "oklch(63.7% 0.237 25.331)"
+    }
+  },
+  "default:flex": {
+    "css": "&:default {\n      display: flex;\n    }",
+    "cssProperties": [
+      "display"
+    ]
+  },
+  "default:bg-red-500": {
+    "css": "&:default {\n      background-color: var(--color-red-500);\n    }",
+    "cssProperties": [
+      "background-color"
+    ],
+    "customProperties": {
+      "--color-red-500": "oklch(63.7% 0.237 25.331)"
+    }
+  },
+  "checked:flex": {
+    "css": "&:checked {\n      display: flex;\n    }",
+    "cssProperties": [
+      "display"
+    ]
+  },
+  "checked:bg-red-500": {
+    "css": "&:checked {\n      background-color: var(--color-red-500);\n    }",
+    "cssProperties": [
+      "background-color"
+    ],
+    "customProperties": {
+      "--color-red-500": "oklch(63.7% 0.237 25.331)"
+    }
+  },
+  "indeterminate:flex": {
+    "css": "&:indeterminate {\n      display: flex;\n    }",
+    "cssProperties": [
+      "display"
+    ]
+  },
+  "indeterminate:bg-red-500": {
+    "css": "&:indeterminate {\n      background-color: var(--color-red-500);\n    }",
+    "cssProperties": [
+      "background-color"
+    ],
+    "customProperties": {
+      "--color-red-500": "oklch(63.7% 0.237 25.331)"
+    }
+  },
+  "placeholder-shown:flex": {
+    "css": "&:placeholder-shown {\n      display: flex;\n    }",
+    "cssProperties": [
+      "display"
+    ]
+  },
+  "placeholder-shown:bg-red-500": {
+    "css": "&:placeholder-shown {\n      background-color: var(--color-red-500);\n    }",
+    "cssProperties": [
+      "background-color"
+    ],
+    "customProperties": {
+      "--color-red-500": "oklch(63.7% 0.237 25.331)"
+    }
+  },
+  "autofill:flex": {
+    "css": "&:autofill {\n      display: flex;\n    }",
+    "cssProperties": [
+      "display"
+    ]
+  },
+  "autofill:bg-red-500": {
+    "css": "&:autofill {\n      background-color: var(--color-red-500);\n    }",
+    "cssProperties": [
+      "background-color"
+    ],
+    "customProperties": {
+      "--color-red-500": "oklch(63.7% 0.237 25.331)"
+    }
+  },
+  "optional:flex": {
+    "css": "&:optional {\n      display: flex;\n    }",
+    "cssProperties": [
+      "display"
+    ]
+  },
+  "optional:bg-red-500": {
+    "css": "&:optional {\n      background-color: var(--color-red-500);\n    }",
+    "cssProperties": [
+      "background-color"
+    ],
+    "customProperties": {
+      "--color-red-500": "oklch(63.7% 0.237 25.331)"
+    }
+  },
+  "required:flex": {
+    "css": "&:required {\n      display: flex;\n    }",
+    "cssProperties": [
+      "display"
+    ]
+  },
+  "required:bg-red-500": {
+    "css": "&:required {\n      background-color: var(--color-red-500);\n    }",
+    "cssProperties": [
+      "background-color"
+    ],
+    "customProperties": {
+      "--color-red-500": "oklch(63.7% 0.237 25.331)"
+    }
+  },
+  "valid:flex": {
+    "css": "&:valid {\n      display: flex;\n    }",
+    "cssProperties": [
+      "display"
+    ]
+  },
+  "valid:bg-red-500": {
+    "css": "&:valid {\n      background-color: var(--color-red-500);\n    }",
+    "cssProperties": [
+      "background-color"
+    ],
+    "customProperties": {
+      "--color-red-500": "oklch(63.7% 0.237 25.331)"
+    }
+  },
+  "invalid:flex": {
+    "css": "&:invalid {\n      display: flex;\n    }",
+    "cssProperties": [
+      "display"
+    ]
+  },
+  "invalid:bg-red-500": {
+    "css": "&:invalid {\n      background-color: var(--color-red-500);\n    }",
+    "cssProperties": [
+      "background-color"
+    ],
+    "customProperties": {
+      "--color-red-500": "oklch(63.7% 0.237 25.331)"
+    }
+  },
+  "user-valid:flex": {
+    "css": "&:user-valid {\n      display: flex;\n    }",
+    "cssProperties": [
+      "display"
+    ]
+  },
+  "user-valid:bg-red-500": {
+    "css": "&:user-valid {\n      background-color: var(--color-red-500);\n    }",
+    "cssProperties": [
+      "background-color"
+    ],
+    "customProperties": {
+      "--color-red-500": "oklch(63.7% 0.237 25.331)"
+    }
+  },
+  "user-invalid:flex": {
+    "css": "&:user-invalid {\n      display: flex;\n    }",
+    "cssProperties": [
+      "display"
+    ]
+  },
+  "user-invalid:bg-red-500": {
+    "css": "&:user-invalid {\n      background-color: var(--color-red-500);\n    }",
+    "cssProperties": [
+      "background-color"
+    ],
+    "customProperties": {
+      "--color-red-500": "oklch(63.7% 0.237 25.331)"
+    }
+  },
+  "in-range:flex": {
+    "css": "&:in-range {\n      display: flex;\n    }",
+    "cssProperties": [
+      "display"
+    ]
+  },
+  "in-range:bg-red-500": {
+    "css": "&:in-range {\n      background-color: var(--color-red-500);\n    }",
+    "cssProperties": [
+      "background-color"
+    ],
+    "customProperties": {
+      "--color-red-500": "oklch(63.7% 0.237 25.331)"
+    }
+  },
+  "out-of-range:flex": {
+    "css": "&:out-of-range {\n      display: flex;\n    }",
+    "cssProperties": [
+      "display"
+    ]
+  },
+  "out-of-range:bg-red-500": {
+    "css": "&:out-of-range {\n      background-color: var(--color-red-500);\n    }",
+    "cssProperties": [
+      "background-color"
+    ],
+    "customProperties": {
+      "--color-red-500": "oklch(63.7% 0.237 25.331)"
+    }
+  },
+  "read-only:flex": {
+    "css": "&:read-only {\n      display: flex;\n    }",
+    "cssProperties": [
+      "display"
+    ]
+  },
+  "read-only:bg-red-500": {
+    "css": "&:read-only {\n      background-color: var(--color-red-500);\n    }",
+    "cssProperties": [
+      "background-color"
+    ],
+    "customProperties": {
+      "--color-red-500": "oklch(63.7% 0.237 25.331)"
+    }
+  },
+  "empty:flex": {
+    "css": "&:empty {\n      display: flex;\n    }",
+    "cssProperties": [
+      "display"
+    ]
+  },
+  "empty:bg-red-500": {
+    "css": "&:empty {\n      background-color: var(--color-red-500);\n    }",
+    "cssProperties": [
+      "background-color"
+    ],
+    "customProperties": {
+      "--color-red-500": "oklch(63.7% 0.237 25.331)"
+    }
+  },
+  "focus-within:flex": {
+    "css": "&:focus-within {\n      display: flex;\n    }",
+    "cssProperties": [
+      "display"
+    ]
+  },
+  "focus-within:bg-red-500": {
+    "css": "&:focus-within {\n      background-color: var(--color-red-500);\n    }",
+    "cssProperties": [
+      "background-color"
+    ],
+    "customProperties": {
+      "--color-red-500": "oklch(63.7% 0.237 25.331)"
+    }
+  },
+  "hover:flex": {
+    "css": "&:hover {\n      @media (hover: hover) {\n        display: flex;\n      }\n    }",
+    "cssProperties": [
+      "display"
+    ]
+  },
+  "hover:bg-red-500": {
+    "css": "&:hover {\n      @media (hover: hover) {\n        background-color: var(--color-red-500);\n      }\n    }",
+    "cssProperties": [
+      "background-color"
+    ],
+    "customProperties": {
+      "--color-red-500": "oklch(63.7% 0.237 25.331)"
+    }
+  },
+  "focus:flex": {
+    "css": "&:focus {\n      display: flex;\n    }",
+    "cssProperties": [
+      "display"
+    ]
+  },
+  "focus:bg-red-500": {
+    "css": "&:focus {\n      background-color: var(--color-red-500);\n    }",
+    "cssProperties": [
+      "background-color"
+    ],
+    "customProperties": {
+      "--color-red-500": "oklch(63.7% 0.237 25.331)"
+    }
+  },
+  "focus-visible:flex": {
+    "css": "&:focus-visible {\n      display: flex;\n    }",
+    "cssProperties": [
+      "display"
+    ]
+  },
+  "focus-visible:bg-red-500": {
+    "css": "&:focus-visible {\n      background-color: var(--color-red-500);\n    }",
+    "cssProperties": [
+      "background-color"
+    ],
+    "customProperties": {
+      "--color-red-500": "oklch(63.7% 0.237 25.331)"
+    }
+  },
+  "active:flex": {
+    "css": "&:active {\n      display: flex;\n    }",
+    "cssProperties": [
+      "display"
+    ]
+  },
+  "active:bg-red-500": {
+    "css": "&:active {\n      background-color: var(--color-red-500);\n    }",
+    "cssProperties": [
+      "background-color"
+    ],
+    "customProperties": {
+      "--color-red-500": "oklch(63.7% 0.237 25.331)"
+    }
+  },
+  "enabled:flex": {
+    "css": "&:enabled {\n      display: flex;\n    }",
+    "cssProperties": [
+      "display"
+    ]
+  },
+  "enabled:bg-red-500": {
+    "css": "&:enabled {\n      background-color: var(--color-red-500);\n    }",
+    "cssProperties": [
+      "background-color"
+    ],
+    "customProperties": {
+      "--color-red-500": "oklch(63.7% 0.237 25.331)"
+    }
+  },
+  "disabled:flex": {
+    "css": "&:disabled {\n      display: flex;\n    }",
+    "cssProperties": [
+      "display"
+    ]
+  },
+  "disabled:bg-red-500": {
+    "css": "&:disabled {\n      background-color: var(--color-red-500);\n    }",
+    "cssProperties": [
+      "background-color"
+    ],
+    "customProperties": {
+      "--color-red-500": "oklch(63.7% 0.237 25.331)"
+    }
+  },
+  "inert:flex": {
+    "css": "&:is([inert], [inert] *) {\n      display: flex;\n    }",
+    "cssProperties": [
+      "display"
+    ]
+  },
+  "inert:bg-red-500": {
+    "css": "&:is([inert], [inert] *) {\n      background-color: var(--color-red-500);\n    }",
+    "cssProperties": [
+      "background-color"
+    ],
+    "customProperties": {
+      "--color-red-500": "oklch(63.7% 0.237 25.331)"
+    }
+  },
+  "has-[:checked]:flex": {
+    "css": "&:has(*:is(:checked)) {\n      display: flex;\n    }",
+    "cssProperties": [
+      "display"
+    ]
+  },
+  "has-[:checked]:bg-red-500": {
+    "css": "&:has(*:is(:checked)) {\n      background-color: var(--color-red-500);\n    }",
+    "cssProperties": [
+      "background-color"
+    ],
+    "customProperties": {
+      "--color-red-500": "oklch(63.7% 0.237 25.331)"
+    }
+  },
+  "has-[:hover]:flex": {
+    "css": "&:has(*:is(:hover)) {\n      display: flex;\n    }",
+    "cssProperties": [
+      "display"
+    ]
+  },
+  "has-[:hover]:bg-red-500": {
+    "css": "&:has(*:is(:hover)) {\n      background-color: var(--color-red-500);\n    }",
+    "cssProperties": [
+      "background-color"
+    ],
+    "customProperties": {
+      "--color-red-500": "oklch(63.7% 0.237 25.331)"
+    }
+  },
+  "aria-[invalid=spelling]:flex": {
+    "css": "&[aria-invalid=\"spelling\"] {\n      display: flex;\n    }",
+    "cssProperties": [
+      "display"
+    ]
+  },
+  "aria-[invalid=spelling]:bg-red-500": {
+    "css": "&[aria-invalid=\"spelling\"] {\n      background-color: var(--color-red-500);\n    }",
+    "cssProperties": [
+      "background-color"
+    ],
+    "customProperties": {
+      "--color-red-500": "oklch(63.7% 0.237 25.331)"
+    }
+  },
+  "data-[potato=salad]:flex": {
+    "css": "&[data-potato=\"salad\"] {\n      display: flex;\n    }",
+    "cssProperties": [
+      "display"
+    ]
+  },
+  "data-[potato=salad]:bg-red-500": {
+    "css": "&[data-potato=\"salad\"] {\n      background-color: var(--color-red-500);\n    }",
+    "cssProperties": [
+      "background-color"
+    ],
+    "customProperties": {
+      "--color-red-500": "oklch(63.7% 0.237 25.331)"
+    }
+  },
+  "nth-[3]:flex": {
+    "css": "&:nth-child(3) {\n      display: flex;\n    }",
+    "cssProperties": [
+      "display"
+    ]
+  },
+  "nth-[3]:bg-red-500": {
+    "css": "&:nth-child(3) {\n      background-color: var(--color-red-500);\n    }",
+    "cssProperties": [
+      "background-color"
+    ],
+    "customProperties": {
+      "--color-red-500": "oklch(63.7% 0.237 25.331)"
+    }
+  },
+  "nth-last-[2]:flex": {
+    "css": "&:nth-last-child(2) {\n      display: flex;\n    }",
+    "cssProperties": [
+      "display"
+    ]
+  },
+  "nth-last-[2]:bg-red-500": {
+    "css": "&:nth-last-child(2) {\n      background-color: var(--color-red-500);\n    }",
+    "cssProperties": [
+      "background-color"
+    ],
+    "customProperties": {
+      "--color-red-500": "oklch(63.7% 0.237 25.331)"
+    }
+  },
+  "supports-[display:grid]:flex": {
+    "css": "@supports (display:grid) {\n      display: flex;\n    }",
+    "cssProperties": [
+      "display"
+    ]
+  },
+  "supports-[display:grid]:bg-red-500": {
+    "css": "@supports (display:grid) {\n      background-color: var(--color-red-500);\n    }",
+    "cssProperties": [
+      "background-color"
+    ],
+    "customProperties": {
+      "--color-red-500": "oklch(63.7% 0.237 25.331)"
+    }
+  },
+  "motion-safe:flex": {
+    "css": "@media (prefers-reduced-motion: no-preference) {\n      display: flex;\n    }",
+    "cssProperties": [
+      "display"
+    ]
+  },
+  "motion-safe:bg-red-500": {
+    "css": "@media (prefers-reduced-motion: no-preference) {\n      background-color: var(--color-red-500);\n    }",
+    "cssProperties": [
+      "background-color"
+    ],
+    "customProperties": {
+      "--color-red-500": "oklch(63.7% 0.237 25.331)"
+    }
+  },
+  "motion-reduce:flex": {
+    "css": "@media (prefers-reduced-motion: reduce) {\n      display: flex;\n    }",
+    "cssProperties": [
+      "display"
+    ]
+  },
+  "motion-reduce:bg-red-500": {
+    "css": "@media (prefers-reduced-motion: reduce) {\n      background-color: var(--color-red-500);\n    }",
+    "cssProperties": [
+      "background-color"
+    ],
+    "customProperties": {
+      "--color-red-500": "oklch(63.7% 0.237 25.331)"
+    }
+  },
+  "contrast-more:flex": {
+    "css": "@media (prefers-contrast: more) {\n      display: flex;\n    }",
+    "cssProperties": [
+      "display"
+    ]
+  },
+  "contrast-more:bg-red-500": {
+    "css": "@media (prefers-contrast: more) {\n      background-color: var(--color-red-500);\n    }",
+    "cssProperties": [
+      "background-color"
+    ],
+    "customProperties": {
+      "--color-red-500": "oklch(63.7% 0.237 25.331)"
+    }
+  },
+  "contrast-less:flex": {
+    "css": "@media (prefers-contrast: less) {\n      display: flex;\n    }",
+    "cssProperties": [
+      "display"
+    ]
+  },
+  "contrast-less:bg-red-500": {
+    "css": "@media (prefers-contrast: less) {\n      background-color: var(--color-red-500);\n    }",
+    "cssProperties": [
+      "background-color"
+    ],
+    "customProperties": {
+      "--color-red-500": "oklch(63.7% 0.237 25.331)"
+    }
+  },
+  "max-[768px]:flex": {
+    "css": "@media (width < 768px) {\n      display: flex;\n    }",
+    "cssProperties": [
+      "display"
+    ]
+  },
+  "max-[768px]:bg-red-500": {
+    "css": "@media (width < 768px) {\n      background-color: var(--color-red-500);\n    }",
+    "cssProperties": [
+      "background-color"
+    ],
+    "customProperties": {
+      "--color-red-500": "oklch(63.7% 0.237 25.331)"
+    }
+  },
+  "min-[480px]:flex": {
+    "css": "@media (width >= 480px) {\n      display: flex;\n    }",
+    "cssProperties": [
+      "display"
+    ]
+  },
+  "min-[480px]:bg-red-500": {
+    "css": "@media (width >= 480px) {\n      background-color: var(--color-red-500);\n    }",
+    "cssProperties": [
+      "background-color"
+    ],
+    "customProperties": {
+      "--color-red-500": "oklch(63.7% 0.237 25.331)"
+    }
+  },
+  "sm:flex": {
+    "css": "@media (width >= 40rem) {\n      display: flex;\n    }",
+    "cssProperties": [
+      "display"
+    ]
+  },
+  "sm:bg-red-500": {
+    "css": "@media (width >= 40rem) {\n      background-color: var(--color-red-500);\n    }",
+    "cssProperties": [
+      "background-color"
+    ],
+    "customProperties": {
+      "--color-red-500": "oklch(63.7% 0.237 25.331)"
+    }
+  },
+  "md:flex": {
+    "css": "@media (width >= 48rem) {\n      display: flex;\n    }",
+    "cssProperties": [
+      "display"
+    ]
+  },
+  "md:bg-red-500": {
+    "css": "@media (width >= 48rem) {\n      background-color: var(--color-red-500);\n    }",
+    "cssProperties": [
+      "background-color"
+    ],
+    "customProperties": {
+      "--color-red-500": "oklch(63.7% 0.237 25.331)"
+    }
+  },
+  "lg:flex": {
+    "css": "@media (width >= 64rem) {\n      display: flex;\n    }",
+    "cssProperties": [
+      "display"
+    ]
+  },
+  "lg:bg-red-500": {
+    "css": "@media (width >= 64rem) {\n      background-color: var(--color-red-500);\n    }",
+    "cssProperties": [
+      "background-color"
+    ],
+    "customProperties": {
+      "--color-red-500": "oklch(63.7% 0.237 25.331)"
+    }
+  },
+  "xl:flex": {
+    "css": "@media (width >= 80rem) {\n      display: flex;\n    }",
+    "cssProperties": [
+      "display"
+    ]
+  },
+  "xl:bg-red-500": {
+    "css": "@media (width >= 80rem) {\n      background-color: var(--color-red-500);\n    }",
+    "cssProperties": [
+      "background-color"
+    ],
+    "customProperties": {
+      "--color-red-500": "oklch(63.7% 0.237 25.331)"
+    }
+  },
+  "2xl:flex": {
+    "css": "@media (width >= 96rem) {\n      display: flex;\n    }",
+    "cssProperties": [
+      "display"
+    ]
+  },
+  "2xl:bg-red-500": {
+    "css": "@media (width >= 96rem) {\n      background-color: var(--color-red-500);\n    }",
+    "cssProperties": [
+      "background-color"
+    ],
+    "customProperties": {
+      "--color-red-500": "oklch(63.7% 0.237 25.331)"
+    }
+  },
+  "@max-[768px]:flex": {
+    "css": "@container (width < 768px) {\n      display: flex;\n    }",
+    "cssProperties": [
+      "display"
+    ]
+  },
+  "@max-[768px]:bg-red-500": {
+    "css": "@container (width < 768px) {\n      background-color: var(--color-red-500);\n    }",
+    "cssProperties": [
+      "background-color"
+    ],
+    "customProperties": {
+      "--color-red-500": "oklch(63.7% 0.237 25.331)"
+    }
+  },
+  "@min-[480px]:flex": {
+    "css": "@container (width >= 480px) {\n      display: flex;\n    }",
+    "cssProperties": [
+      "display"
+    ]
+  },
+  "@min-[480px]:bg-red-500": {
+    "css": "@container (width >= 480px) {\n      background-color: var(--color-red-500);\n    }",
+    "cssProperties": [
+      "background-color"
+    ],
+    "customProperties": {
+      "--color-red-500": "oklch(63.7% 0.237 25.331)"
+    }
+  },
+  "@sm:flex": {
+    "css": "@container (width >= 24rem) {\n      display: flex;\n    }",
+    "cssProperties": [
+      "display"
+    ]
+  },
+  "@sm:bg-red-500": {
+    "css": "@container (width >= 24rem) {\n      background-color: var(--color-red-500);\n    }",
+    "cssProperties": [
+      "background-color"
+    ],
+    "customProperties": {
+      "--color-red-500": "oklch(63.7% 0.237 25.331)"
+    }
+  },
+  "@md:flex": {
+    "css": "@container (width >= 28rem) {\n      display: flex;\n    }",
+    "cssProperties": [
+      "display"
+    ]
+  },
+  "@md:bg-red-500": {
+    "css": "@container (width >= 28rem) {\n      background-color: var(--color-red-500);\n    }",
+    "cssProperties": [
+      "background-color"
+    ],
+    "customProperties": {
+      "--color-red-500": "oklch(63.7% 0.237 25.331)"
+    }
+  },
+  "portrait:flex": {
+    "css": "@media (orientation: portrait) {\n      display: flex;\n    }",
+    "cssProperties": [
+      "display"
+    ]
+  },
+  "portrait:bg-red-500": {
+    "css": "@media (orientation: portrait) {\n      background-color: var(--color-red-500);\n    }",
+    "cssProperties": [
+      "background-color"
+    ],
+    "customProperties": {
+      "--color-red-500": "oklch(63.7% 0.237 25.331)"
+    }
+  },
+  "landscape:flex": {
+    "css": "@media (orientation: landscape) {\n      display: flex;\n    }",
+    "cssProperties": [
+      "display"
+    ]
+  },
+  "landscape:bg-red-500": {
+    "css": "@media (orientation: landscape) {\n      background-color: var(--color-red-500);\n    }",
+    "cssProperties": [
+      "background-color"
+    ],
+    "customProperties": {
+      "--color-red-500": "oklch(63.7% 0.237 25.331)"
+    }
+  },
+  "ltr:flex": {
+    "css": "&:where(:dir(ltr), [dir=\"ltr\"], [dir=\"ltr\"] *) {\n      display: flex;\n    }",
+    "cssProperties": [
+      "display"
+    ]
+  },
+  "ltr:bg-red-500": {
+    "css": "&:where(:dir(ltr), [dir=\"ltr\"], [dir=\"ltr\"] *) {\n      background-color: var(--color-red-500);\n    }",
+    "cssProperties": [
+      "background-color"
+    ],
+    "customProperties": {
+      "--color-red-500": "oklch(63.7% 0.237 25.331)"
+    }
+  },
+  "rtl:flex": {
+    "css": "&:where(:dir(rtl), [dir=\"rtl\"], [dir=\"rtl\"] *) {\n      display: flex;\n    }",
+    "cssProperties": [
+      "display"
+    ]
+  },
+  "rtl:bg-red-500": {
+    "css": "&:where(:dir(rtl), [dir=\"rtl\"], [dir=\"rtl\"] *) {\n      background-color: var(--color-red-500);\n    }",
+    "cssProperties": [
+      "background-color"
+    ],
+    "customProperties": {
+      "--color-red-500": "oklch(63.7% 0.237 25.331)"
+    }
+  },
+  "dark:flex": {
+    "css": "@media (prefers-color-scheme: dark) {\n      display: flex;\n    }",
+    "cssProperties": [
+      "display"
+    ]
+  },
+  "dark:bg-red-500": {
+    "css": "@media (prefers-color-scheme: dark) {\n      background-color: var(--color-red-500);\n    }",
+    "cssProperties": [
+      "background-color"
+    ],
+    "customProperties": {
+      "--color-red-500": "oklch(63.7% 0.237 25.331)"
+    }
+  },
+  "starting:flex": {
+    "css": "@starting-style {\n      display: flex;\n    }",
+    "cssProperties": [
+      "display"
+    ]
+  },
+  "starting:bg-red-500": {
+    "css": "@starting-style {\n      background-color: var(--color-red-500);\n    }",
+    "cssProperties": [
+      "background-color"
+    ],
+    "customProperties": {
+      "--color-red-500": "oklch(63.7% 0.237 25.331)"
+    }
+  },
+  "print:flex": {
+    "css": "@media print {\n      display: flex;\n    }",
+    "cssProperties": [
+      "display"
+    ]
+  },
+  "print:bg-red-500": {
+    "css": "@media print {\n      background-color: var(--color-red-500);\n    }",
+    "cssProperties": [
+      "background-color"
+    ],
+    "customProperties": {
+      "--color-red-500": "oklch(63.7% 0.237 25.331)"
+    }
+  },
+  "forced-colors:flex": {
+    "css": "@media (forced-colors: active) {\n      display: flex;\n    }",
+    "cssProperties": [
+      "display"
+    ]
+  },
+  "forced-colors:bg-red-500": {
+    "css": "@media (forced-colors: active) {\n      background-color: var(--color-red-500);\n    }",
+    "cssProperties": [
+      "background-color"
+    ],
+    "customProperties": {
+      "--color-red-500": "oklch(63.7% 0.237 25.331)"
+    }
+  },
+  "[.parent_&]:flex": {
+    "css": ".parent & {\n      display: flex;\n    }",
+    "cssProperties": [
+      "display"
+    ]
+  },
+  "[.parent_&]:bg-red-500": {
+    "css": ".parent & {\n      background-color: var(--color-red-500);\n    }",
+    "cssProperties": [
+      "background-color"
+    ],
+    "customProperties": {
+      "--color-red-500": "oklch(63.7% 0.237 25.331)"
+    }
+  }
+}

@@ -1,4 +1,6 @@
+using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
+using MonorailCss.Ast;
 using MonorailCss.Css;
 using MonorailCss.Variants.BuiltIn;
 
@@ -237,8 +239,12 @@ internal sealed class VariantRegistry
         Register(new PseudoClassVariant("only", ":only-child", 470));
         Register(new PseudoClassVariant("empty", ":empty", 480));
 
-        Register(new PseudoElementVariant("before", "::before", 500));
-        Register(new PseudoElementVariant("after", "::after", 510));
+        // before:/after: pseudo-elements need `content: var(--tw-content)` injected so the
+        // pseudo-element actually renders. The fallback for --tw-content is "" (registered in
+        // PropertyRegistrationStage), and content-['x'] overrides --tw-content directly.
+        var contentDeclaration = ImmutableList.Create(new Declaration("content", "var(--tw-content)", false));
+        Register(new PseudoElementVariant("before", "::before", 500, contentDeclaration));
+        Register(new PseudoElementVariant("after", "::after", 510, contentDeclaration));
         Register(new PseudoElementVariant("first-line", "::first-line", 520));
         Register(new PseudoElementVariant("first-letter", "::first-letter", 530));
         Register(new PseudoElementVariant("marker", "::marker", 540));

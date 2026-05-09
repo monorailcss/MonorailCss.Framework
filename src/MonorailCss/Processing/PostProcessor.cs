@@ -53,6 +53,10 @@ internal sealed class PostProcessor
                 {
                     appliedSelector = newAppliedSelector;
                 }
+
+                // Allow the variant to inject extra declarations (e.g. before:/after: emit
+                // `content: var(--tw-content)` so the pseudo-element actually renders).
+                nodes = variant.TransformNodes(nodes);
             }
 
             // Fall back to arbitrary variant handling only when registry lookup fails
@@ -153,6 +157,9 @@ internal sealed class PostProcessor
         var baseSelector = Selector.FromClass(escapedClassName);
         var appliedSelector = new AppliedSelector(baseSelector, ImmutableArray<AtRuleWrapper>.Empty);
 
+        // Track variants so we can also let them inject extra declarations into the rule body.
+        var matchedVariants = new List<IVariant>();
+
         // Apply variants
         foreach (var variantToken in candidate.Variants)
         {
@@ -162,6 +169,8 @@ internal sealed class PostProcessor
                 {
                     appliedSelector = newAppliedSelector;
                 }
+
+                matchedVariants.Add(variant);
             }
             else if (variantToken is { IsArbitrary: true, Value: not null })
             {
@@ -182,6 +191,15 @@ internal sealed class PostProcessor
                 ? ApplyImportant(component.BaseDeclarations.Cast<AstNode>().ToImmutableList())
                     .Cast<Declaration>().ToImmutableList()
                 : component.BaseDeclarations;
+
+            // Allow variants to inject declarations (e.g. before:/after: content fallback).
+            var baseAstNodes = baseDeclarations.Cast<AstNode>().ToImmutableList();
+            foreach (var variant in matchedVariants)
+            {
+                baseAstNodes = variant.TransformNodes(baseAstNodes);
+            }
+
+            baseDeclarations = baseAstNodes.OfType<Declaration>().ToImmutableList();
 
             // Handle nested selectors for component rules
             AstNode baseRule;

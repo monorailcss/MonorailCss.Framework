@@ -1,3 +1,5 @@
+using System.Collections.Immutable;
+using MonorailCss.Ast;
 using MonorailCss.Css;
 
 namespace MonorailCss.Variants;
@@ -42,4 +44,13 @@ public interface IVariant
     /// <param name="token">The variant token to check.</param>
     /// <returns>True if this variant can handle the token; otherwise, false.</returns>
     bool CanHandle(VariantToken token);
+
+    /// <summary>
+    /// Optionally injects extra declarations into the rule body. Used by pseudo-element
+    /// variants like <c>before:</c> / <c>after:</c> to emit <c>content: var(--tw-content)</c>
+    /// so the pseudo-element actually renders. Default implementation returns nodes unchanged.
+    /// </summary>
+    /// <param name="nodes">The current rule body declarations.</param>
+    /// <returns>The (possibly augmented) declarations.</returns>
+    ImmutableList<AstNode> TransformNodes(ImmutableList<AstNode> nodes) => nodes;
 }
