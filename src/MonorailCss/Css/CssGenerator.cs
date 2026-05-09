@@ -21,7 +21,8 @@ internal sealed class CssGenerator
         bool includeComments = false,
         string? preflightCss = null,
         List<AstNode>? componentNodes = null,
-        ImmutableDictionary<string, string>? userKeyframes = null)
+        ImmutableDictionary<string, string>? userKeyframes = null,
+        ImmutableHashSet<string>? inlineKeys = null)
     {
         if (nodes.IsEmpty && (themeVariables == null || themeVariables.Count == 0) && (propertyRegistry == null || propertyRegistry.Count == 0) && string.IsNullOrWhiteSpace(preflightCss))
         {
@@ -36,12 +37,19 @@ internal sealed class CssGenerator
         // Collect nodes by layer
         var (themeNodes, baseNodes, utilityNodes) = CollectLayerNodes(nodes, includeComments);
 
-        // Add theme variables to theme layer
+        // Add theme variables to theme layer (skipping @theme inline keys — those were
+        // already substituted into utility output and would block late-binding overrides
+        // if redeclared at :root).
         if (themeVariables != null && themeVariables.Count > 0)
         {
             var rootDeclarations = ImmutableList.CreateBuilder<AstNode>();
             foreach (var (key, value) in themeVariables.OrderBy(kvp => kvp.Key))
             {
+                if (inlineKeys != null && inlineKeys.Contains(key))
+                {
+                    continue;
+                }
+
                 rootDeclarations.Add(new Declaration(key, value));
             }
 

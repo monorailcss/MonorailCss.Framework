@@ -9,6 +9,7 @@ namespace MonorailCss.Theme;
 public class Theme
 {
     private readonly ImmutableDictionary<string, string> _values;
+    private readonly ImmutableHashSet<string> _inlineKeys;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="Theme"/> class.
@@ -23,8 +24,14 @@ public class Theme
     /// </summary>
     /// <param name="values">The theme values.</param>
     public Theme(ImmutableDictionary<string, string> values)
+        : this(values, ImmutableHashSet<string>.Empty)
+    {
+    }
+
+    private Theme(ImmutableDictionary<string, string> values, ImmutableHashSet<string> inlineKeys)
     {
         _values = values;
+        _inlineKeys = inlineKeys;
         Prefix = string.Empty;
         ProseCustomization = null;
     }
@@ -90,7 +97,9 @@ public class Theme
     /// <returns>A new instance of the <see cref="Theme"/> class with the specified key-value pair added.</returns>
     public Theme Add(string key, string value)
     {
-        return new Theme(_values.SetItem(key, value))
+        // A regular Add for a key that was previously inline-flagged demotes it back to a
+        // normal theme variable (so it gets emitted to :root again).
+        return new Theme(_values.SetItem(key, value), _inlineKeys.Remove(key))
         {
             Prefix = Prefix,
             ProseCustomization = ProseCustomization,
@@ -98,13 +107,27 @@ public class Theme
     }
 
     /// <summary>
+    /// Returns true if the given key was registered via <see cref="AddInline"/> (i.e. came from a
+    /// Tailwind v4 <c>@theme inline</c> block). Inline keys are not emitted to <c>:root</c>;
+    /// instead, their value is substituted directly into utility output so any embedded
+    /// <c>var()</c> references late-bind to the cascade at the consuming element.
+    /// </summary>
+    /// <param name="key">The theme key to check.</param>
+    /// <returns>True if the key is inline; otherwise, false.</returns>
+    public bool IsInline(string key) => _inlineKeys.Contains(key);
+
+    /// <summary>
     /// Resolves a candidate value to a corresponding theme value or key.
     /// </summary>
     /// <param name="candidateValue">The candidate value to resolve.</param>
     /// <param name="themeKeys">An array of theme keys used for resolution.</param>
     /// <returns>
-    /// A formatted string representing the resolved theme value using a CSS variable,
-    /// or null if no resolution is found.
+    /// For non-inline keys, returns a <c>var(--key)</c> reference. For inline keys (from
+    /// <c>@theme inline</c>), returns the stored value directly so any <c>var()</c> references
+    /// inside it stay in utility output and resolve via the cascade at the consuming element
+    /// (mirrors Tailwind v4's <c>@theme inline</c> behavior, which preserves late-binding for
+    /// theme overrides like <c>.theme-example-custom { --lumex-primary: orange }</c>).
+    /// Returns null if no resolution is found.
     /// </returns>
     public string? Resolve(string? candidateValue, string[] themeKeys)
     {
@@ -112,6 +135,11 @@ public class Theme
         if (key == null)
         {
             return null;
+        }
+
+        if (_inlineKeys.Contains(key) && _values.TryGetValue(key, out var inlineValue))
+        {
+            return inlineValue;
         }
 
         return $"var({EscapeKey(PrefixKey(key))})";
@@ -253,7 +281,9 @@ public class Theme
             .Where(kvp => !kvp.Key.StartsWith(prefixWithDash))
             .ToImmutableDictionary();
 
-        return new Theme(newValues)
+        var newInline = _inlineKeys.Where(k => !k.StartsWith(prefixWithDash)).ToImmutableHashSet();
+
+        return new Theme(newValues, newInline)
         {
             Prefix = Prefix,
             ProseCustomization = ProseCustomization,
@@ -277,7 +307,7 @@ public class Theme
             builder[key] = shade.Value;
         }
 
-        return new Theme(builder.ToImmutable())
+        return new Theme(builder.ToImmutable(), _inlineKeys)
         {
             Prefix = Prefix,
             ProseCustomization = ProseCustomization,
@@ -301,7 +331,7 @@ public class Theme
             builder[key] = $"var(--color-{alias}-{shade})";
         }
 
-        return new Theme(builder.ToImmutable())
+        return new Theme(builder.ToImmutable(), _inlineKeys)
         {
             Prefix = Prefix,
             ProseCustomization = ProseCustomization,
@@ -317,7 +347,7 @@ public class Theme
     public Theme AddFontFamily(string name, string fontStack)
     {
         var key = $"--font-{name}";
-        return new Theme(_values.SetItem(key, fontStack))
+        return new Theme(_values.SetItem(key, fontStack), _inlineKeys)
         {
             Prefix = Prefix,
             ProseCustomization = ProseCustomization,
@@ -455,9 +485,18 @@ public class Theme
     }
 
     /// <summary>
-    /// Adds a key-value pair to the theme with inline variable resolution.
-    /// Values containing var() references will be resolved to their actual values.
-    /// This is used for @theme inline blocks in Tailwind CSS 4.2.
+    /// Adds a key-value pair to the theme as a Tailwind v4 <c>@theme inline</c> entry.
+    /// The value's <c>var()</c> references that point to other known theme keys are expanded
+    /// (so chains like <c>--font-sans → var(--font-inter) → "Inter"</c> collapse), but
+    /// references to variables outside the theme (e.g. <c>var(--lumex-primary)</c> defined in
+    /// the user's <c>:root</c>) are preserved verbatim. The key is flagged as inline so:
+    /// <list type="bullet">
+    ///   <item><description><see cref="Resolve"/> returns the stored value directly instead of
+    ///     <c>var(--key)</c> — utilities emit the inlined expression, letting any embedded
+    ///     <c>var()</c> references late-bind to the cascade at the consuming element.</description></item>
+    ///   <item><description>The CSS generator skips inline keys when emitting <c>:root</c>, so
+    ///     they don't shadow late-binding overrides via an eagerly-computed root value.</description></item>
+    /// </list>
     /// </summary>
     /// <param name="key">The key representing the design token to be added.</param>
     /// <param name="value">The value associated with the design token (may contain var() references).</param>
@@ -465,7 +504,11 @@ public class Theme
     public Theme AddInline(string key, string value)
     {
         var resolvedValue = ResolveInlineValue(value);
-        return Add(key, resolvedValue);
+        return new Theme(_values.SetItem(key, resolvedValue), _inlineKeys.Add(key))
+        {
+            Prefix = Prefix,
+            ProseCustomization = ProseCustomization,
+        };
     }
 
     private string PrefixKey(string key)

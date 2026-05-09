@@ -42,6 +42,42 @@ public class CssSourceProcessorTests
     }
 
     [Fact]
+    public void Process_Source_Inline_Theme_Allows_Late_Binding_Override()
+    {
+        // Regression for lumexui's orange/blue theme switch: `@theme inline { --color-primary: var(--lumex-primary) }`
+        // must NOT be re-emitted to :root (where the var() would resolve eagerly), and `bg-primary`
+        // must inline `var(--lumex-primary)` directly so a wrapper `.x { --lumex-primary: orange }`
+        // late-binds at the consuming element.
+        const string css = """
+                           @theme static inline {
+                               --color-primary: var(--lumex-primary);
+                           }
+                           """;
+
+        var baseSettings = new CssFrameworkSettings
+        {
+            Theme = MonorailCss.Theme.Theme.CreateWithDefaults(),
+        };
+
+        var processor = new CssSourceProcessor();
+        var result = processor.ProcessSource(css, basePath: null, baseSettings);
+
+        var framework = new CssFramework(result.Settings with { IncludePreflight = false });
+        var generated = framework.Process(["bg-primary"]);
+
+        // bg-primary inlines the var(--lumex-primary) reference (no indirection through --color-primary).
+        generated.ShouldContain("background-color: var(--lumex-primary)");
+        generated.ShouldNotContain("background-color: var(--color-primary)");
+
+        // --color-primary itself must not be redeclared in :root — that would shadow the
+        // late-binding override.
+        generated.ShouldNotContain("--color-primary:");
+
+        // The inline key is flagged on the theme.
+        result.Settings.Theme.IsInline("--color-primary").ShouldBeTrue();
+    }
+
+    [Fact]
     public void Process_Source_Resolves_Theme_Inline_Variables_Through_Add_Inline()
     {
         // `var(--color-zinc-500)` is a known Tailwind default; AddInline should resolve it

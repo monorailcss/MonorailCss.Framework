@@ -294,9 +294,16 @@ public class CssFramework
 
         ExpandColorVariables(usedVariables, _settings.Theme, _settings.ColorEmission);
 
+        // Build the set of inline-flagged keys actually used so the generator can skip them
+        // when emitting :root (their values were already substituted into utility output by
+        // Theme.Resolve; emitting at :root would shadow late-binding overrides), while still
+        // scanning them for animation/keyframe references.
+        var inlineKeys = ImmutableHashSet.CreateRange(
+            usedVariables.Keys.Where(_settings.Theme.IsInline));
+
         // Generate the final CSS
         var generator = new CssGenerator();
-        var generatedCss = generator.GenerateCss(cssRules.ToImmutableList(), usedVariables, propertyRegistry, false, preflightCss, componentNodes, _settings.Keyframes);
+        var generatedCss = generator.GenerateCss(cssRules.ToImmutableList(), usedVariables, propertyRegistry, false, preflightCss, componentNodes, _settings.Keyframes, inlineKeys);
 
         return new CssFrameworkResult
         {

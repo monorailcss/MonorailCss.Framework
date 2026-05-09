@@ -157,6 +157,12 @@ internal sealed class VariantRegistry
         Register(new GroupVariant(200));
         Register(new PeerVariant(250));
 
+        // Tailwind v4 child-targeting variants:
+        //   *:  → .class > *
+        //   **: → .class *
+        Register(new ChildVariant("*", ">", 270));
+        Register(new ChildVariant("**", string.Empty, 275));
+
         // Prose element variants (before pseudo-class variants)
         Register(new ProseElementVariant("headings", "h1, h2, h3, h4, h5, h6, th", 285));
         Register(new ProseElementVariant("h1", "h1", 286));
