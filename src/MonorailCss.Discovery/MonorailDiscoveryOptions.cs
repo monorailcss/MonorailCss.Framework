@@ -80,23 +80,12 @@ public sealed class MonorailDiscoveryOptions
 
     /// <summary>
     /// Gets a list of source directories to watch for utility-class changes during development.
-    /// A <see cref="FileSystemWatcher"/> watches each directory recursively for <c>.razor</c>,
-    /// <c>.cshtml</c>, <c>.html</c>, and <c>.cs</c> changes, then re-extracts class strings
+    /// When non-empty, a <see cref="FileSystemWatcher"/> watches each directory recursively for
+    /// <c>.razor</c>, <c>.cshtml</c>, and <c>.cs</c> changes, then re-extracts class strings
     /// directly from the source file. This bridges the hot-reload gap: <c>dotnet watch</c>
     /// applies EnC deltas in memory but does not rewrite the on-disk PE, so the IL scanner
-    /// can't observe in-session edits.
-    /// <para>
-    /// In development the discovery service auto-populates this list with
-    /// <c>IHostEnvironment.ContentRootPath</c> plus the local source directory of every
-    /// referenced assembly whose PDB resolves to existing files on disk. That covers the
-    /// common multi-project layout (host references library projects holding the razor markup)
-    /// without any consumer configuration. NuGet-consumed assemblies whose PDBs encode CI build
-    /// paths are filtered out automatically by the on-disk existence check. Pre-populate this
-    /// list yourself to add custom roots, or use <see cref="ExcludeAssemblies"/> to suppress an
-    /// assembly's contribution to both IL scanning and source-root detection. In production
-    /// the auto-population is skipped entirely; the IL scan at startup is sufficient when no
-    /// edits are expected.
-    /// </para>
+    /// can't observe in-session edits to the user's own project. Leave this empty in production
+    /// — the IL scan at startup is sufficient when no edits are expected.
     /// </summary>
     public List<string> WatchSourceDirectories { get; } = new();
 }

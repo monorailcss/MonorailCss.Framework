@@ -7,9 +7,6 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>embedded</DebugType>
     <MinVerSkip Condition="'$(Configuration)' == 'Debug' or '$(Vercel)' == '1'">true</MinVerSkip>
-    <!-- Lock AssemblyVersion so consumer hot reload (dotnet watch CS7038) never sees a flip
-         across MonorailCss bumps. Package version still advances via MinVer / FileVersion. -->
-    <AssemblyVersion>0.0.0.0</AssemblyVersion>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>

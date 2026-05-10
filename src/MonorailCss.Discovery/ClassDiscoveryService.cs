@@ -20,14 +20,14 @@ internal sealed class ClassDiscoveryService : IHostedService, IClassRegistry, ID
 {
     private const string SourceWatcherKey = "<source-watcher>";
 
-    private static readonly string[] SourceFileFilters = ["*.razor", "*.cshtml", "*.cs", "*.html"];
-
     private readonly MonorailDiscoveryOptions _options;
     private readonly ILogger<ClassDiscoveryService> _logger;
     private readonly IHostEnvironment? _environment;
-    private readonly DebouncedFileWatcher _sourceWatcher;
-    private readonly DebouncedFileWatcher _cssWatcher;
+    private readonly List<FileSystemWatcher> _fileWatchers = new();
+    private readonly List<FileSystemWatcher> _cssWatchers = new();
     private readonly object _lock = new();
+    private readonly System.Threading.Timer _debounce;
+    private readonly System.Threading.Timer _cssDebounce;
     private readonly HashSet<string> _pendingFiles = new(StringComparer.OrdinalIgnoreCase);
 
     // Per-assembly contributed classes; lets us answer "what came from where?" and rescan one
@@ -66,8 +66,8 @@ internal sealed class ClassDiscoveryService : IHostedService, IClassRegistry, ID
         _validationCache = new ValidationCache(_options.Framework);
         _scanner = new AssemblyClassScanner(_validationCache);
         _sourceScanner = new SourceFileScanner(_validationCache);
-        _sourceWatcher = new DebouncedFileWatcher(OnSourceDebounceTick);
-        _cssWatcher = new DebouncedFileWatcher(OnCssDebounceTick);
+        _debounce = new System.Threading.Timer(OnDebounceTick, null, Timeout.Infinite, Timeout.Infinite);
+        _cssDebounce = new System.Threading.Timer(OnCssDebounceTick, null, Timeout.Infinite, Timeout.Infinite);
     }
 
     public IReadOnlyCollection<string> GetClasses()
@@ -132,7 +132,6 @@ internal sealed class ClassDiscoveryService : IHostedService, IClassRegistry, ID
         ApplyEnvironmentDefaults();
         ProcessSourceCss(trigger: "startup");
         ForceLoadEntryAssemblyReferences();
-        AutoDetectSourceRoots();
 
         var sw = Stopwatch.StartNew();
         var (scanned, skipped) = ScanAllLoadedAssemblies();
@@ -182,74 +181,6 @@ internal sealed class ClassDiscoveryService : IHostedService, IClassRegistry, ID
                 _options.SourceCssPath = candidate;
                 _logger.LogDebug("MonorailCss discovery: auto-detected source CSS at {Path}", candidate);
             }
-        }
-    }
-
-    /// <summary>
-    /// Walks loaded assemblies and adds the local source directory of any whose PDB resolves
-    /// to existing files on disk to <see cref="MonorailDiscoveryOptions.WatchSourceDirectories"/>.
-    /// This bridges the common multi-project layout (host project references library projects
-    /// that own the razor markup) without per-consumer configuration. Only runs in development;
-    /// production deployments don't ship PDBs and don't watch.
-    /// </summary>
-    private void AutoDetectSourceRoots()
-    {
-        foreach (var asm in AppDomain.CurrentDomain.GetAssemblies())
-        {
-            if (!ShouldScan(asm))
-            {
-                continue;
-            }
-
-            TryAutoWatchSourceRoot(asm, "auto-watching", out _);
-        }
-    }
-
-    /// <summary>
-    /// Resolves <paramref name="asm"/>'s local source root via its PDB and adds it to
-    /// <see cref="MonorailDiscoveryOptions.WatchSourceDirectories"/> if it isn't tracked already.
-    /// Returns true (and sets <paramref name="normalized"/>) only when a new directory was added.
-    /// Skips silently in non-development environments.
-    /// </summary>
-    private bool TryAutoWatchSourceRoot(Assembly asm, string logPhrase, out string normalized)
-    {
-        normalized = string.Empty;
-
-        if (_environment is { } env && !env.IsDevelopment())
-        {
-            return false;
-        }
-
-        if (!PdbSourceLocator.TryGetSourceRoot(asm, out var root))
-        {
-            return false;
-        }
-
-        normalized = NormalizeDirectory(root);
-        foreach (var existing in _options.WatchSourceDirectories)
-        {
-            if (string.Equals(NormalizeDirectory(existing), normalized, StringComparison.OrdinalIgnoreCase))
-            {
-                return false;
-            }
-        }
-
-        _options.WatchSourceDirectories.Add(normalized);
-        _logger.LogInformation(
-            "MonorailCss discovery: {Phrase} {Dir} (from {Assembly})",
-            logPhrase, normalized, asm.GetName().Name);
-        return true;
-    }
-
-    private static string NormalizeDirectory(string dir)
-    {
-        try
-        {
-            return Path.GetFullPath(dir).TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
-        }
-        catch
-        {
-            return dir;
         }
     }
 
@@ -370,8 +301,8 @@ internal sealed class ClassDiscoveryService : IHostedService, IClassRegistry, ID
     {
         AppDomain.CurrentDomain.AssemblyLoad -= OnAssemblyLoad;
         MonorailCssReloader.UnregisterService(this);
-        _sourceWatcher.Stop();
-        _cssWatcher.Stop();
+        StopFileWatchers();
+        StopCssFileWatchers();
         return Task.CompletedTask;
     }
 
@@ -379,37 +310,66 @@ internal sealed class ClassDiscoveryService : IHostedService, IClassRegistry, ID
     {
         AppDomain.CurrentDomain.AssemblyLoad -= OnAssemblyLoad;
         MonorailCssReloader.UnregisterService(this);
-        _sourceWatcher.Dispose();
-        _cssWatcher.Dispose();
+        StopFileWatchers();
+        StopCssFileWatchers();
+        _debounce.Dispose();
+        _cssDebounce.Dispose();
     }
 
     private void StartFileWatchers()
     {
         foreach (var dir in _options.WatchSourceDirectories)
         {
-            AddWatcherFor(dir);
+            if (!Directory.Exists(dir))
+            {
+                _logger.LogWarning("MonorailCss discovery: WatchSourceDirectories entry {Dir} does not exist", dir);
+                continue;
+            }
+
+            var watcher = new FileSystemWatcher(dir)
+            {
+                IncludeSubdirectories = true,
+                NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.FileName | NotifyFilters.Size,
+                EnableRaisingEvents = true,
+            };
+
+            watcher.Filters.Add("*.razor");
+            watcher.Filters.Add("*.cshtml");
+            watcher.Filters.Add("*.cs");
+            watcher.Filters.Add("*.html");
+
+            watcher.Changed += OnSourceFileChanged;
+            watcher.Created += OnSourceFileChanged;
+            watcher.Renamed += OnSourceFileRenamed;
+
+            _fileWatchers.Add(watcher);
+            _logger.LogInformation("MonorailCss discovery: watching source directory {Dir}", dir);
         }
     }
 
-    private void AddWatcherFor(string dir)
+    private void StopFileWatchers()
     {
-        if (!Directory.Exists(dir))
+        foreach (var w in _fileWatchers)
         {
-            _logger.LogWarning("MonorailCss discovery: WatchSourceDirectories entry {Dir} does not exist", dir);
-            return;
+            try
+            {
+                w.EnableRaisingEvents = false;
+                w.Dispose();
+            }
+            catch
+            {
+                // best-effort
+            }
         }
 
-        if (_sourceWatcher.AddDirectory(dir, SourceFileFilters, includeSubdirectories: true, onChange: EnqueuePendingSourceFile))
-        {
-            _logger.LogInformation("MonorailCss discovery: watching source directory {Dir}", dir);
-        }
+        _fileWatchers.Clear();
     }
 
     /// <summary>
     /// Watches every file the source-CSS pipeline pulled in (entry path + every transitively
     /// imported file). Edits to any of them re-run <see cref="ProcessSourceCss"/>, rebuild the
-    /// framework, and regenerate. We use a per-directory <see cref="DebouncedFileWatcher"/> with
-    /// a filename filter so cross-directory imports (e.g. NuGet-shipped theme files under
+    /// framework, and regenerate. We use a per-directory <see cref="FileSystemWatcher"/> with a
+    /// filename filter so cross-directory imports (e.g. NuGet-shipped theme files under
     /// <c>_content/</c>) work too.
     /// </summary>
     private void StartCssFileWatchers()
@@ -431,33 +391,68 @@ internal sealed class ClassDiscoveryService : IHostedService, IClassRegistry, ID
         foreach (var group in byDirectory)
         {
             var dir = group.Key;
-            if (string.IsNullOrEmpty(dir))
+            if (string.IsNullOrEmpty(dir) || !Directory.Exists(dir))
             {
                 continue;
             }
 
-            var filenames = group
-                .Select(Path.GetFileName)
-                .Where(n => !string.IsNullOrEmpty(n))
-                .Cast<string>()
-                .ToArray();
-
-            if (_cssWatcher.AddDirectory(dir, filenames, includeSubdirectories: false))
+            var watcher = new FileSystemWatcher(dir)
             {
-                _logger.LogDebug("MonorailCss discovery: watching CSS in {Dir} ({Count} files)", dir, filenames.Length);
+                IncludeSubdirectories = false,
+                NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.FileName | NotifyFilters.Size,
+                EnableRaisingEvents = true,
+            };
+
+            foreach (var file in group)
+            {
+                watcher.Filters.Add(Path.GetFileName(file));
+            }
+
+            watcher.Changed += OnCssFileChanged;
+            watcher.Created += OnCssFileChanged;
+            watcher.Renamed += OnCssFileRenamed;
+
+            _cssWatchers.Add(watcher);
+            _logger.LogDebug("MonorailCss discovery: watching CSS in {Dir} ({Count} files)", dir, group.Count());
+        }
+    }
+
+    private void StopCssFileWatchers()
+    {
+        foreach (var w in _cssWatchers)
+        {
+            try
+            {
+                w.EnableRaisingEvents = false;
+                w.Dispose();
+            }
+            catch
+            {
+                // best-effort
             }
         }
+
+        _cssWatchers.Clear();
     }
 
-    private void EnqueuePendingSourceFile(string path)
+    private void OnCssFileChanged(object sender, FileSystemEventArgs e)
     {
-        lock (_pendingFiles)
-        {
-            _pendingFiles.Add(path);
-        }
+        QueueCssReload(e.FullPath);
     }
 
-    private void OnCssDebounceTick()
+    private void OnCssFileRenamed(object sender, RenamedEventArgs e)
+    {
+        QueueCssReload(e.FullPath);
+    }
+
+    private void QueueCssReload(string path)
+    {
+        // Coalesce bursts (editors often save twice + the import processor's output triggers a
+        // self-write when WriteToFile is set) into a single re-process.
+        _cssDebounce.Change(150, Timeout.Infinite);
+    }
+
+    private void OnCssDebounceTick(object? state)
     {
         _logger.LogInformation("MonorailCss discovery: source CSS changed — re-processing");
         ProcessSourceCss(trigger: "css-watcher");
@@ -465,7 +460,7 @@ internal sealed class ClassDiscoveryService : IHostedService, IClassRegistry, ID
         // The set of imported files may have shifted (e.g. a new @import landed). Reset the
         // CSS watchers and rebuild assembly contributions through the (potentially) new
         // validation cache.
-        _cssWatcher.Stop();
+        StopCssFileWatchers();
         StartCssFileWatchers();
 
         ScanAllLoadedAssemblies();
@@ -473,7 +468,28 @@ internal sealed class ClassDiscoveryService : IHostedService, IClassRegistry, ID
         Regenerate("css-watcher");
     }
 
-    private void OnSourceDebounceTick()
+    private void OnSourceFileChanged(object sender, FileSystemEventArgs e)
+    {
+        QueueSourceFile(e.FullPath);
+    }
+
+    private void OnSourceFileRenamed(object sender, RenamedEventArgs e)
+    {
+        QueueSourceFile(e.FullPath);
+    }
+
+    private void QueueSourceFile(string path)
+    {
+        lock (_pendingFiles)
+        {
+            _pendingFiles.Add(path);
+        }
+
+        // Coalesce bursts (editors often save twice) into a single rescan.
+        _debounce.Change(150, Timeout.Infinite);
+    }
+
+    private void OnDebounceTick(object? state)
     {
         string[] paths;
         lock (_pendingFiles)
@@ -556,13 +572,7 @@ internal sealed class ClassDiscoveryService : IHostedService, IClassRegistry, ID
     }
 
     /// <summary>
-    /// Re-scans the supplied assemblies (a hot-reload delta). Called by the metadata-update
-    /// handler. Invalidates the IL-scan cache for each named assembly before rescanning so
-    /// stale entries from before the delta don't short-circuit the walk. In practice the
-    /// source-file watcher path is what surfaces in-session razor edits, since
-    /// <c>Assembly.TryGetRawMetadata</c> returns the base PE image and EnC <c>#US</c>
-    /// additions live in deltas the IL scanner doesn't read; the invalidation here is
-    /// defensive cover for runtime paths that swap the in-memory metadata image.
+    /// Re-scans the supplied assemblies (a hot-reload delta). Called by the metadata-update handler.
     /// </summary>
     internal void OnAssembliesChanged(IEnumerable<Assembly> changed)
     {
@@ -574,19 +584,6 @@ internal sealed class ClassDiscoveryService : IHostedService, IClassRegistry, ID
             _hotReloadCount,
             changedList.Length,
             string.Join(", ", changedList.Select(a => a.GetName().Name)));
-
-        foreach (var asm in changedList)
-        {
-            try
-            {
-                _scanner.Invalidate(asm.ManifestModule.ModuleVersionId);
-            }
-            catch
-            {
-                // Some dynamic / collectible assemblies don't expose a stable MVID; nothing to
-                // invalidate in that case.
-            }
-        }
 
         // Re-scan every loaded assembly, not just changed ones. The per-assembly cache lets us
         // detect which assembly's contribution actually changed, but the metadata-image walk is
@@ -703,28 +700,6 @@ internal sealed class ClassDiscoveryService : IHostedService, IClassRegistry, ID
             _logger.LogInformation("MonorailCss discovery: late-load {Name} added {Count} classes", name, contributed.Count);
             Regenerate("late-load");
         }
-
-        TryAddSourceRootForLateLoad(asm);
-    }
-
-    private void TryAddSourceRootForLateLoad(Assembly asm)
-    {
-        if (!_started)
-        {
-            return;
-        }
-
-        if (!TryAutoWatchSourceRoot(asm, "late-load auto-watching", out var normalized))
-        {
-            return;
-        }
-
-        AddWatcherFor(normalized);
-
-        // Pull the new directory's source files into the contribution set immediately so the
-        // late-loaded RCL's classes show up without waiting for an edit.
-        ScanWatchedSources();
-        Regenerate("late-load-source-root");
     }
 
     private bool ShouldScan(Assembly asm)
