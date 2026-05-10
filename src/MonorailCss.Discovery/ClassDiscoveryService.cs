@@ -132,6 +132,7 @@ internal sealed class ClassDiscoveryService : IHostedService, IClassRegistry, ID
         ApplyEnvironmentDefaults();
         ProcessSourceCss(trigger: "startup");
         ForceLoadEntryAssemblyReferences();
+        AutoDetectSourceRoots();
 
         var sw = Stopwatch.StartNew();
         var (scanned, skipped) = ScanAllLoadedAssemblies();
@@ -181,6 +182,59 @@ internal sealed class ClassDiscoveryService : IHostedService, IClassRegistry, ID
                 _options.SourceCssPath = candidate;
                 _logger.LogDebug("MonorailCss discovery: auto-detected source CSS at {Path}", candidate);
             }
+        }
+    }
+
+    /// <summary>
+    /// Walks loaded assemblies and adds the local source directory of any whose PDB resolves
+    /// to existing files on disk to <see cref="MonorailDiscoveryOptions.WatchSourceDirectories"/>.
+    /// This bridges the common multi-project layout (host project references library projects
+    /// that own the razor markup) without per-consumer configuration. Only runs in development;
+    /// production deployments don't ship PDBs and don't watch.
+    /// </summary>
+    private void AutoDetectSourceRoots()
+    {
+        if (_environment is { } env && !env.IsDevelopment())
+        {
+            return;
+        }
+
+        var existing = new HashSet<string>(
+            _options.WatchSourceDirectories.Select(NormalizeDirectory),
+            StringComparer.OrdinalIgnoreCase);
+
+        foreach (var asm in AppDomain.CurrentDomain.GetAssemblies())
+        {
+            if (!ShouldScan(asm))
+            {
+                continue;
+            }
+
+            if (!PdbSourceLocator.TryGetSourceRoot(asm, out var root))
+            {
+                continue;
+            }
+
+            var normalized = NormalizeDirectory(root);
+            if (existing.Add(normalized))
+            {
+                _options.WatchSourceDirectories.Add(normalized);
+                _logger.LogInformation(
+                    "MonorailCss discovery: auto-watching {Dir} (from {Assembly})",
+                    normalized, asm.GetName().Name);
+            }
+        }
+    }
+
+    private static string NormalizeDirectory(string dir)
+    {
+        try
+        {
+            return Path.GetFullPath(dir).TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+        }
+        catch
+        {
+            return dir;
         }
     }
 
@@ -320,31 +374,42 @@ internal sealed class ClassDiscoveryService : IHostedService, IClassRegistry, ID
     {
         foreach (var dir in _options.WatchSourceDirectories)
         {
-            if (!Directory.Exists(dir))
-            {
-                _logger.LogWarning("MonorailCss discovery: WatchSourceDirectories entry {Dir} does not exist", dir);
-                continue;
-            }
-
-            var watcher = new FileSystemWatcher(dir)
-            {
-                IncludeSubdirectories = true,
-                NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.FileName | NotifyFilters.Size,
-                EnableRaisingEvents = true,
-            };
-
-            watcher.Filters.Add("*.razor");
-            watcher.Filters.Add("*.cshtml");
-            watcher.Filters.Add("*.cs");
-            watcher.Filters.Add("*.html");
-
-            watcher.Changed += OnSourceFileChanged;
-            watcher.Created += OnSourceFileChanged;
-            watcher.Renamed += OnSourceFileRenamed;
-
-            _fileWatchers.Add(watcher);
-            _logger.LogInformation("MonorailCss discovery: watching source directory {Dir}", dir);
+            AddWatcherFor(dir);
         }
+    }
+
+    private void AddWatcherFor(string dir)
+    {
+        if (!Directory.Exists(dir))
+        {
+            _logger.LogWarning("MonorailCss discovery: WatchSourceDirectories entry {Dir} does not exist", dir);
+            return;
+        }
+
+        var normalized = NormalizeDirectory(dir);
+        if (_fileWatchers.Any(w => string.Equals(NormalizeDirectory(w.Path), normalized, StringComparison.OrdinalIgnoreCase)))
+        {
+            return;
+        }
+
+        var watcher = new FileSystemWatcher(dir)
+        {
+            IncludeSubdirectories = true,
+            NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.FileName | NotifyFilters.Size,
+            EnableRaisingEvents = true,
+        };
+
+        watcher.Filters.Add("*.razor");
+        watcher.Filters.Add("*.cshtml");
+        watcher.Filters.Add("*.cs");
+        watcher.Filters.Add("*.html");
+
+        watcher.Changed += OnSourceFileChanged;
+        watcher.Created += OnSourceFileChanged;
+        watcher.Renamed += OnSourceFileRenamed;
+
+        _fileWatchers.Add(watcher);
+        _logger.LogInformation("MonorailCss discovery: watching source directory {Dir}", dir);
     }
 
     private void StopFileWatchers()
@@ -572,7 +637,13 @@ internal sealed class ClassDiscoveryService : IHostedService, IClassRegistry, ID
     }
 
     /// <summary>
-    /// Re-scans the supplied assemblies (a hot-reload delta). Called by the metadata-update handler.
+    /// Re-scans the supplied assemblies (a hot-reload delta). Called by the metadata-update
+    /// handler. Invalidates the IL-scan cache for each named assembly before rescanning so
+    /// stale entries from before the delta don't short-circuit the walk. In practice the
+    /// source-file watcher path is what surfaces in-session razor edits, since
+    /// <c>Assembly.TryGetRawMetadata</c> returns the base PE image and EnC <c>#US</c>
+    /// additions live in deltas the IL scanner doesn't read; the invalidation here is
+    /// defensive cover for runtime paths that swap the in-memory metadata image.
     /// </summary>
     internal void OnAssembliesChanged(IEnumerable<Assembly> changed)
     {
@@ -584,6 +655,19 @@ internal sealed class ClassDiscoveryService : IHostedService, IClassRegistry, ID
             _hotReloadCount,
             changedList.Length,
             string.Join(", ", changedList.Select(a => a.GetName().Name)));
+
+        foreach (var asm in changedList)
+        {
+            try
+            {
+                _scanner.Invalidate(asm.ManifestModule.ModuleVersionId);
+            }
+            catch
+            {
+                // Some dynamic / collectible assemblies don't expose a stable MVID; nothing to
+                // invalidate in that case.
+            }
+        }
 
         // Re-scan every loaded assembly, not just changed ones. The per-assembly cache lets us
         // detect which assembly's contribution actually changed, but the metadata-image walk is
@@ -700,6 +784,45 @@ internal sealed class ClassDiscoveryService : IHostedService, IClassRegistry, ID
             _logger.LogInformation("MonorailCss discovery: late-load {Name} added {Count} classes", name, contributed.Count);
             Regenerate("late-load");
         }
+
+        TryAddSourceRootForLateLoad(asm);
+    }
+
+    private void TryAddSourceRootForLateLoad(Assembly asm)
+    {
+        if (!_started)
+        {
+            return;
+        }
+
+        if (_environment is { } env && !env.IsDevelopment())
+        {
+            return;
+        }
+
+        if (!PdbSourceLocator.TryGetSourceRoot(asm, out var root))
+        {
+            return;
+        }
+
+        var normalized = NormalizeDirectory(root);
+        var alreadyTracked = _options.WatchSourceDirectories
+            .Any(d => string.Equals(NormalizeDirectory(d), normalized, StringComparison.OrdinalIgnoreCase));
+        if (alreadyTracked)
+        {
+            return;
+        }
+
+        _options.WatchSourceDirectories.Add(normalized);
+        _logger.LogInformation(
+            "MonorailCss discovery: late-load auto-watching {Dir} (from {Assembly})",
+            normalized, asm.GetName().Name);
+        AddWatcherFor(normalized);
+
+        // Pull the new directory's source files into the contribution set immediately so the
+        // late-loaded RCL's classes show up without waiting for an edit.
+        ScanWatchedSources();
+        Regenerate("late-load-source-root");
     }
 
     private bool ShouldScan(Assembly asm)

@@ -14,10 +14,10 @@ namespace MonorailCss.Discovery;
 /// </summary>
 internal sealed class AssemblyClassScanner
 {
-    // MVID is stable for the lifetime of a loaded module — even hot-reload deltas leave the base
-    // PE image (and its MVID) unchanged. Caching by MVID lets a hot-reload event short-circuit
-    // 16 of 17 assemblies on a typical docs site, since their #US heaps are byte-identical to
-    // the previous scan. Hit count is exposed via <see cref="MvidCacheHits"/>.
+    // Cache keyed on module MVID. The cache is sound only for assemblies whose IL has not
+    // changed; callers who know an assembly's contents have changed (e.g. a hot-reload delta
+    // applied to its in-memory metadata image) must call <see cref="Invalidate"/> first so the
+    // next scan re-walks the heap. Hit count is exposed via <see cref="MvidCacheHits"/>.
     private readonly ConcurrentDictionary<Guid, ImmutableSortedSet<string>> _mvidCache = new();
     private readonly ValidationCache _validationCache;
     private long _mvidCacheHits;
@@ -41,6 +41,16 @@ internal sealed class AssemblyClassScanner
         return ScanCore(assembly, output);
     }
 
+    /// <summary>
+    /// Drops any cached scan result for <paramref name="mvid"/>. Call this before rescanning an
+    /// assembly whose contents have changed since the previous scan — e.g. when forwarding a
+    /// hot-reload <c>MetadataUpdateHandler</c> notification.
+    /// </summary>
+    public void Invalidate(Guid mvid)
+    {
+        _mvidCache.TryRemove(mvid, out _);
+    }
+
     private unsafe bool ScanCore(Assembly assembly, ICollection<string> output)
     {
         if (!assembly.TryGetRawMetadata(out var blob, out var length))
@@ -62,10 +72,8 @@ internal sealed class AssemblyClassScanner
 
         var mvid = md.GetGuid(md.GetModuleDefinition().Mvid);
 
-        // Hot-reload events ask us to rescan every loaded assembly even though usually only
-        // one delta-modified assembly's content is novel. MVID is stable across the lifetime
-        // of the module (deltas don't change it), so a cache keyed on MVID returns the
-        // previously-validated set instantly for unchanged assemblies.
+        // Cache hit serves the previously-validated set without re-walking the heap. Callers
+        // that know the assembly has changed (hot-reload) must <see cref="Invalidate"/> first.
         if (_mvidCache.TryGetValue(mvid, out var cached))
         {
             Interlocked.Increment(ref _mvidCacheHits);
