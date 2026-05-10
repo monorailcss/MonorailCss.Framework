@@ -51,6 +51,7 @@ internal sealed class DebouncedFileWatcher : IDisposable
         {
             IncludeSubdirectories = includeSubdirectories,
             NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.FileName | NotifyFilters.Size,
+            InternalBufferSize = 64 * 1024,
             EnableRaisingEvents = true,
         };
 
@@ -59,20 +60,23 @@ internal sealed class DebouncedFileWatcher : IDisposable
             watcher.Filters.Add(filter);
         }
 
-        FileSystemEventHandler changedHandler = (_, e) =>
+        // Recursive watches against a project root pick up obj/, bin/, and .vs/, where
+        // Razor SDK output, EnC delta staging, and source generators churn *.cs files
+        // constantly. Forwarding those events races dotnet watch's hot reload (CS7038).
+        void Handle(string fullPath)
         {
-            onChange?.Invoke(e.FullPath);
-            Trigger();
-        };
-        RenamedEventHandler renamedHandler = (_, e) =>
-        {
-            onChange?.Invoke(e.FullPath);
-            Trigger();
-        };
+            if (IsBuildIntermediate(fullPath))
+            {
+                return;
+            }
 
-        watcher.Changed += changedHandler;
-        watcher.Created += changedHandler;
-        watcher.Renamed += renamedHandler;
+            onChange?.Invoke(fullPath);
+            Trigger();
+        }
+
+        watcher.Changed += (_, e) => Handle(e.FullPath);
+        watcher.Created += (_, e) => Handle(e.FullPath);
+        watcher.Renamed += (_, e) => Handle(e.FullPath);
 
         _watchers.Add(watcher);
         return true;
@@ -122,5 +126,13 @@ internal sealed class DebouncedFileWatcher : IDisposable
         {
             return dir;
         }
+    }
+
+    private static bool IsBuildIntermediate(string fullPath)
+    {
+        var sep = Path.DirectorySeparatorChar;
+        return fullPath.Contains($"{sep}obj{sep}", StringComparison.OrdinalIgnoreCase)
+            || fullPath.Contains($"{sep}bin{sep}", StringComparison.OrdinalIgnoreCase)
+            || fullPath.Contains($"{sep}.vs{sep}", StringComparison.OrdinalIgnoreCase);
     }
 }
