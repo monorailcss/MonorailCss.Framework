@@ -38,14 +38,7 @@ public static class MonorailCssServiceCollectionExtensions
         this IServiceCollection services,
         Action<MonorailDiscoveryOptions>? configure = null)
     {
-        if (configure is not null)
-        {
-            services.Configure(configure);
-        }
-        else
-        {
-            services.AddOptions<MonorailDiscoveryOptions>();
-        }
+        services.Configure(configure ?? (_ => { }));
 
         services.TryAddSingleton<ClassDiscoveryService>();
         services.TryAddSingleton<IClassRegistry>(sp => sp.GetRequiredService<ClassDiscoveryService>());

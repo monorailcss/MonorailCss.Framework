@@ -90,13 +90,16 @@ internal static class CandidateLexer
                     _i++;
                 }
 
-                if (depth != 0 || _i == start)
+                if (_i == start)
                 {
-                    if (_i == start)
-                    {
-                        _i++;
-                    }
+                    // Single-char start that didn't extend; advance to avoid spinning.
+                    _i++;
+                    continue;
+                }
 
+                if (depth != 0)
+                {
+                    // Unbalanced [...]; drop the candidate without emitting it.
                     continue;
                 }
 

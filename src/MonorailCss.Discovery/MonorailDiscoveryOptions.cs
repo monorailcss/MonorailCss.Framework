@@ -7,11 +7,19 @@ namespace MonorailCss.Discovery;
 /// </summary>
 public sealed class MonorailDiscoveryOptions
 {
+    private CssFramework? _framework;
+
     /// <summary>
     /// Gets or sets the framework instance used for class validation and CSS generation.
     /// Replace this when you need a custom theme, prose customization, or registered utilities.
+    /// Constructed on first read so consumers that override via source CSS don't pay for the
+    /// default instance.
     /// </summary>
-    public CssFramework Framework { get; set; } = new();
+    public CssFramework Framework
+    {
+        get => _framework ??= new CssFramework();
+        set => _framework = value;
+    }
 
     /// <summary>
     /// Gets a list of class names to always include in the generated CSS, regardless of
