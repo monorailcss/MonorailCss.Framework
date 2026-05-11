@@ -1,0 +1,58 @@
+﻿<Project>
+  <!-- MonorailCss Build Task Definition -->
+  <UsingTask TaskName="MonorailCss.Build.Tasks.ProcessCssTask"
+             AssemblyFile="$(MSBuildThisFileDirectory)..\bin\$(Configuration)\net9.0\MonorailCss.Build.Tasks.dll"
+             Condition="'$(MonorailCssDevelopment)' == 'true'" />
+  <UsingTask TaskName="MonorailCss.Build.Tasks.ProcessCssTask"
+             AssemblyFile="$(MSBuildThisFileDirectory)..\tasks\net9.0\MonorailCss.Build.Tasks.dll"
+             Condition="'$(MonorailCssDevelopment)' != 'true'" />
+
+  <!-- MSBuild item types this targets file introduces:
+         <MonorailCss Include="path/to/app.css" />              — input CSS files to process
+         <MonorailCssExcludeAssembly Include="AssemblyName" />  — assemblies to skip during reference scan
+       The latter mirrors MonorailDiscoveryOptions.ExcludeAssemblies on the runtime side; useful
+       for libraries (icon packs, MonorailCss itself) whose IL strings would inflate output. -->
+  <ItemGroup>
+    <AvailableItemName Include="MonorailCss" />
+    <AvailableItemName Include="MonorailCssExcludeAssembly" />
+  </ItemGroup>
+
+  <!-- Process each MonorailCss file.
+       BeforeTargets="CoreCompile" runs after ResolveAssemblyReferences populates
+       @(ReferencePath) with absolute paths to every project + package + framework reference
+       MSBuild resolved — exactly the set the runtime would load via AppDomain.GetAssemblies()
+       after force-load. Earlier hooks (BeforeBuild) fire before resolution and miss it.
+       DependsOnTargets keeps the dependency explicit and forces in-tree task DLL builds
+       (when MonorailCss.Build.Tasks is consumed via ProjectReference) before the UsingTask
+       resolves. -->
+  <Target Name="ProcessMonorailCss"
+          BeforeTargets="CoreCompile"
+          DependsOnTargets="ResolveProjectReferences;ResolveAssemblyReferences"
+          Condition="'$(MonorailCssEnabled)' == 'true' and '@(MonorailCss)' != ''"
+          Inputs="@(MonorailCss);@(Content);@(Compile);@(EmbeddedResource);@(ReferencePath)"
+          Outputs="@(MonorailCss->'%(OutputFile)')">
+
+    <ItemGroup>
+      <MonorailCss>
+        <OutputFile Condition="'%(OutputFile)' == ''">$(MSBuildProjectDirectory)\wwwroot\css\%(Filename).css</OutputFile>
+      </MonorailCss>
+    </ItemGroup>
+
+    <ProcessCssTask
+      InputFile="%(MonorailCss.Identity)"
+      OutputFile="%(MonorailCss.OutputFile)"
+      ReferencePaths="@(ReferencePath)"
+      ExcludeAssemblies="@(MonorailCssExcludeAssembly)"
+      Configuration="$(Configuration)"
+      TargetFramework="$(TargetFramework)"
+      RuntimeIdentifier="$(RuntimeIdentifier)" />
+
+  </Target>
+
+  <!-- Clean target to remove generated files -->
+  <Target Name="CleanMonorailCss"
+          BeforeTargets="Clean"
+          Condition="'$(MonorailCssEnabled)' == 'true'">
+    <Delete Files="@(MonorailCss->'%(OutputFile)')" />
+  </Target>
+</Project>

@@ -1,28 +1,25 @@
 using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Reflection;
-using System.Security.Cryptography;
-using System.Text;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using MonorailCss.Parser.SourceCss;
 
 namespace MonorailCss.Discovery;
 
 /// <summary>
-/// Orchestrates assembly scanning. Runs a full scan at startup, listens for newly-loaded
-/// assemblies, and re-scans changed assemblies when hot-reload deltas land via
-/// <see cref="MonorailCssReloader"/>. Maintains a cached CSS string + ETag served by
+/// Hosts a <see cref="MonorailCssGenerator"/> for the runtime: forces transitive references
+/// to load at startup, listens for newly-loaded assemblies, watches the source CSS + content
+/// directories for hot-reload, and re-runs the generator whenever any of those change.
+/// Maintains the cached <see cref="MonorailCssGenerationResult"/> served by
 /// <see cref="MonorailCssMiddleware"/>.
 /// </summary>
 internal sealed class ClassDiscoveryService : IHostedService, IClassRegistry, IDisposable
 {
-    private const string SourceWatcherKey = "<source-watcher>";
-
     private readonly MonorailDiscoveryOptions _options;
     private readonly ILogger<ClassDiscoveryService> _logger;
     private readonly IHostEnvironment? _environment;
+    private readonly MonorailCssGenerator _generator = new();
     private readonly List<FileSystemWatcher> _fileWatchers = new();
     private readonly List<FileSystemWatcher> _cssWatchers = new();
     private readonly object _lock = new();
@@ -30,26 +27,7 @@ internal sealed class ClassDiscoveryService : IHostedService, IClassRegistry, ID
     private readonly System.Threading.Timer _cssDebounce;
     private readonly HashSet<string> _pendingFiles = new(StringComparer.OrdinalIgnoreCase);
 
-    // Per-assembly contributed classes; lets us answer "what came from where?" and rescan one
-    // assembly without losing the others' contributions.
-    private readonly Dictionary<string, ImmutableSortedSet<string>> _byAssembly = new(StringComparer.OrdinalIgnoreCase);
-
-    // Mutable: rebuilt whenever the source CSS changes (the framework instance changes too).
-    private ValidationCache _validationCache;
-    private AssemblyClassScanner _scanner;
-    private SourceFileScanner _sourceScanner;
-
-    // Pass-through CSS (font-faces, keyframes, plain rules, layer-base content) prepended to
-    // generated utilities at emit time. Populated by ProcessSourceCss; empty when no source CSS.
-    private string _rawCss = string.Empty;
-
-    // Files contributing to the source-CSS pipeline (entry file + every transitively imported).
-    // Watched in development for hot-reload.
-    private ImmutableList<string> _importedCssFiles = ImmutableList<string>.Empty;
-
-    private ImmutableSortedSet<string> _classes = ImmutableSortedSet<string>.Empty;
-    private string _generatedCss = string.Empty;
-    private string _eTag = "\"empty\"";
+    private MonorailCssGenerationResult _result;
     private DateTime _lastRegeneratedAt = DateTime.UtcNow;
     private int _regenerateCount;
     private int _hotReloadCount;
@@ -63,9 +41,13 @@ internal sealed class ClassDiscoveryService : IHostedService, IClassRegistry, ID
         _options = options.Value;
         _logger = logger;
         _environment = environment;
-        _validationCache = new ValidationCache(_options.Framework);
-        _scanner = new AssemblyClassScanner(_validationCache);
-        _sourceScanner = new SourceFileScanner(_validationCache);
+        _result = new MonorailCssGenerationResult(
+            Css: string.Empty,
+            ETag: "\"empty\"",
+            Classes: ImmutableSortedSet<string>.Empty,
+            ImportedCssFiles: ImmutableList<string>.Empty,
+            Framework: _options.Framework,
+            SourceConfiguration: new MonorailCss.Parser.SourceCss.SourceConfiguration());
         _debounce = new System.Threading.Timer(OnDebounceTick, null, Timeout.Infinite, Timeout.Infinite);
         _cssDebounce = new System.Threading.Timer(OnCssDebounceTick, null, Timeout.Infinite, Timeout.Infinite);
     }
@@ -74,7 +56,7 @@ internal sealed class ClassDiscoveryService : IHostedService, IClassRegistry, ID
     {
         lock (_lock)
         {
-            return _classes;
+            return _result.Classes;
         }
     }
 
@@ -84,7 +66,7 @@ internal sealed class ClassDiscoveryService : IHostedService, IClassRegistry, ID
         {
             lock (_lock)
             {
-                return _eTag;
+                return _result.ETag;
             }
         }
     }
@@ -95,7 +77,7 @@ internal sealed class ClassDiscoveryService : IHostedService, IClassRegistry, ID
         {
             lock (_lock)
             {
-                return _generatedCss;
+                return _result.Css;
             }
         }
     }
@@ -104,23 +86,15 @@ internal sealed class ClassDiscoveryService : IHostedService, IClassRegistry, ID
     {
         lock (_lock)
         {
-            var perAssembly = _byAssembly
-                .Select(kv => new AssemblyDiagnostics(kv.Key, kv.Value.Count, kv.Value.Take(10).ToArray()))
-                .OrderByDescending(a => a.ClassCount)
-                .ToArray();
-
             return new DiagnosticsSnapshot(
-                ETag: _eTag,
-                ClassCount: _classes.Count,
-                CssLength: _generatedCss.Length,
+                ETag: _result.ETag,
+                ClassCount: _result.Classes.Count,
+                CssLength: _result.Css.Length,
                 LastRegeneratedAt: _lastRegeneratedAt,
                 RegenerateCount: _regenerateCount,
                 HotReloadCount: _hotReloadCount,
-                MvidCacheHits: _scanner.MvidCacheHits,
-                MvidCacheMisses: _scanner.MvidCacheMisses,
-                ValidationCacheSize: _validationCache.Count,
-                Assemblies: perAssembly,
-                AllClasses: _classes.ToArray());
+                ImportedCssFileCount: _result.ImportedCssFiles.Count,
+                AllClasses: _result.Classes.ToArray());
         }
     }
 
@@ -130,12 +104,9 @@ internal sealed class ClassDiscoveryService : IHostedService, IClassRegistry, ID
         MonorailCssReloader.RegisterService(this);
 
         ApplyEnvironmentDefaults();
-        ProcessSourceCss(trigger: "startup");
         ForceLoadEntryAssemblyReferences();
 
         var sw = Stopwatch.StartNew();
-        var (scanned, skipped) = ScanAllLoadedAssemblies();
-        ScanWatchedSources();
         Regenerate("startup");
         sw.Stop();
 
@@ -144,8 +115,8 @@ internal sealed class ClassDiscoveryService : IHostedService, IClassRegistry, ID
 
         _started = true;
         _logger.LogInformation(
-            "MonorailCss discovery startup: {ClassCount} classes from {ScannedCount} assemblies (skipped {SkippedCount}) in {ElapsedMs} ms — ETag {Etag}",
-            _classes.Count, scanned, skipped, sw.ElapsedMilliseconds, _eTag);
+            "MonorailCss discovery startup: {ClassCount} classes in {ElapsedMs} ms — ETag {Etag}",
+            _result.Classes.Count, sw.ElapsedMilliseconds, _result.ETag);
         return Task.CompletedTask;
     }
 
@@ -185,73 +156,9 @@ internal sealed class ClassDiscoveryService : IHostedService, IClassRegistry, ID
     }
 
     /// <summary>
-    /// Runs the user's source CSS through <see cref="CssSourceProcessor"/>, replaces
-    /// <see cref="MonorailDiscoveryOptions.Framework"/> with one configured from the parsed
-    /// theme/applies/utilities/variants, and stores the residue raw CSS for verbatim emission.
-    /// Re-runs on hot-reload of any imported file.
-    /// </summary>
-    private void ProcessSourceCss(string trigger)
-    {
-        if (string.IsNullOrWhiteSpace(_options.SourceCss) && string.IsNullOrWhiteSpace(_options.SourceCssPath))
-        {
-            return;
-        }
-
-        try
-        {
-            var sw = Stopwatch.StartNew();
-            var processor = new CssSourceProcessor(msg => _logger.LogDebug("source-css: {Message}", msg));
-            var baseSettings = _options.Framework.Settings;
-
-            CssSourceResult result;
-            if (!string.IsNullOrWhiteSpace(_options.SourceCssPath))
-            {
-                result = processor.ProcessFile(_options.SourceCssPath!, baseSettings);
-
-                if (!string.IsNullOrWhiteSpace(_options.SourceCss))
-                {
-                    // Both set: layer the inline content on top of the file-derived settings.
-                    var basePath = Path.GetDirectoryName(_options.SourceCssPath);
-                    result = processor.ProcessSource(_options.SourceCss!, basePath, result.Settings);
-                }
-            }
-            else
-            {
-                result = processor.ProcessSource(_options.SourceCss!, basePath: null, baseSettings);
-            }
-
-            // Replace the framework with one configured from the parsed CSS. The validation
-            // cache and scanners hold a reference to the framework's TryValidateCandidate, so
-            // they have to be rebuilt too.
-            _options.Framework = new CssFramework(result.Settings);
-            _validationCache = new ValidationCache(_options.Framework);
-            _scanner = new AssemblyClassScanner(_validationCache);
-            _sourceScanner = new SourceFileScanner(_validationCache);
-
-            _rawCss = result.RawCss;
-            _importedCssFiles = result.ImportedFiles;
-
-            sw.Stop();
-            _logger.LogInformation(
-                "MonorailCss discovery: source CSS processed (trigger={Trigger}, files={FileCount}, applies={ApplyCount}, custom-utilities={UtilityCount}, custom-variants={VariantCount}, raw-residue={RawLen} chars, in {ElapsedMs} ms)",
-                trigger,
-                _importedCssFiles.Count,
-                result.Settings.Applies.Count,
-                result.Settings.CustomUtilities.Count,
-                result.Settings.CustomVariants.Count,
-                _rawCss.Length,
-                sw.ElapsedMilliseconds);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "MonorailCss discovery: failed to process source CSS — falling back to existing framework configuration");
-        }
-    }
-
-    /// <summary>
     /// Walks the entry assembly's transitive references and force-loads each one (skipping the
     /// BCL/framework set). This guarantees component packages like Pennington.UI are present
-    /// in <see cref="AppDomain.CurrentDomain"/> by the time the IL scanner runs, even if the
+    /// in <see cref="AppDomain.CurrentDomain"/> by the time the generator runs, even if the
     /// host (e.g. ASP.NET Core, Blazor) hasn't touched a type from them yet.
     /// </summary>
     private void ForceLoadEntryAssemblyReferences()
@@ -269,7 +176,9 @@ internal sealed class ClassDiscoveryService : IHostedService, IClassRegistry, ID
         foreach (var reference in entry.GetReferencedAssemblies())
         {
             var name = reference.Name ?? string.Empty;
-            if (loaded.Contains(name) || IsKnownFrameworkAssembly(name) || _options.ExcludeAssemblies.Contains(name))
+            if (loaded.Contains(name)
+                || IlMetadataScanner.IsKnownFrameworkAssembly(name)
+                || _options.ExcludeAssemblies.Contains(name))
             {
                 continue;
             }
@@ -283,18 +192,6 @@ internal sealed class ClassDiscoveryService : IHostedService, IClassRegistry, ID
                 _logger.LogTrace(ex, "MonorailCss discovery: skipped reference {Name} (load failed)", name);
             }
         }
-    }
-
-    private static bool IsKnownFrameworkAssembly(string name)
-    {
-        // Skip BCL / runtime libraries — they're full of strings the parser would have to chew
-        // through and the false-positive rate is essentially zero in practice. Anything else
-        // (third-party packages, the user's own assemblies, RCLs) gets scanned.
-        return name.StartsWith("System.", StringComparison.Ordinal)
-            || name.StartsWith("Microsoft.", StringComparison.Ordinal)
-            || name.StartsWith("netstandard", StringComparison.Ordinal)
-            || name.Equals("mscorlib", StringComparison.Ordinal)
-            || name.Equals("WindowsBase", StringComparison.Ordinal);
     }
 
     public Task StopAsync(CancellationToken cancellationToken)
@@ -367,14 +264,13 @@ internal sealed class ClassDiscoveryService : IHostedService, IClassRegistry, ID
 
     /// <summary>
     /// Watches every file the source-CSS pipeline pulled in (entry path + every transitively
-    /// imported file). Edits to any of them re-run <see cref="ProcessSourceCss"/>, rebuild the
-    /// framework, and regenerate. We use a per-directory <see cref="FileSystemWatcher"/> with a
-    /// filename filter so cross-directory imports (e.g. NuGet-shipped theme files under
-    /// <c>_content/</c>) work too.
+    /// imported file). Edits to any of them trigger a regeneration. We use a per-directory
+    /// <see cref="FileSystemWatcher"/> with a filename filter so cross-directory imports
+    /// (e.g. NuGet-shipped theme files under <c>_content/</c>) work too.
     /// </summary>
     private void StartCssFileWatchers()
     {
-        if (_importedCssFiles.Count == 0)
+        if (_result.ImportedCssFiles.Count == 0)
         {
             return;
         }
@@ -384,7 +280,7 @@ internal sealed class ClassDiscoveryService : IHostedService, IClassRegistry, ID
             return;
         }
 
-        var byDirectory = _importedCssFiles
+        var byDirectory = _result.ImportedCssFiles
             .Where(p => !string.IsNullOrEmpty(p))
             .GroupBy(p => Path.GetDirectoryName(p) ?? string.Empty, StringComparer.OrdinalIgnoreCase);
 
@@ -435,17 +331,11 @@ internal sealed class ClassDiscoveryService : IHostedService, IClassRegistry, ID
         _cssWatchers.Clear();
     }
 
-    private void OnCssFileChanged(object sender, FileSystemEventArgs e)
-    {
-        QueueCssReload(e.FullPath);
-    }
+    private void OnCssFileChanged(object sender, FileSystemEventArgs e) => QueueCssReload();
 
-    private void OnCssFileRenamed(object sender, RenamedEventArgs e)
-    {
-        QueueCssReload(e.FullPath);
-    }
+    private void OnCssFileRenamed(object sender, RenamedEventArgs e) => QueueCssReload();
 
-    private void QueueCssReload(string path)
+    private void QueueCssReload()
     {
         // Coalesce bursts (editors often save twice + the import processor's output triggers a
         // self-write when WriteToFile is set) into a single re-process.
@@ -455,28 +345,16 @@ internal sealed class ClassDiscoveryService : IHostedService, IClassRegistry, ID
     private void OnCssDebounceTick(object? state)
     {
         _logger.LogInformation("MonorailCss discovery: source CSS changed — re-processing");
-        ProcessSourceCss(trigger: "css-watcher");
+        Regenerate("css-watcher");
 
-        // The set of imported files may have shifted (e.g. a new @import landed). Reset the
-        // CSS watchers and rebuild assembly contributions through the (potentially) new
-        // validation cache.
+        // Imported file set may have shifted (a new @import landed, a removed one disappeared).
         StopCssFileWatchers();
         StartCssFileWatchers();
-
-        ScanAllLoadedAssemblies();
-        ScanWatchedSources();
-        Regenerate("css-watcher");
     }
 
-    private void OnSourceFileChanged(object sender, FileSystemEventArgs e)
-    {
-        QueueSourceFile(e.FullPath);
-    }
+    private void OnSourceFileChanged(object sender, FileSystemEventArgs e) => QueueSourceFile(e.FullPath);
 
-    private void OnSourceFileRenamed(object sender, RenamedEventArgs e)
-    {
-        QueueSourceFile(e.FullPath);
-    }
+    private void OnSourceFileRenamed(object sender, RenamedEventArgs e) => QueueSourceFile(e.FullPath);
 
     private void QueueSourceFile(string path)
     {
@@ -485,7 +363,6 @@ internal sealed class ClassDiscoveryService : IHostedService, IClassRegistry, ID
             _pendingFiles.Add(path);
         }
 
-        // Coalesce bursts (editors often save twice) into a single rescan.
         _debounce.Change(150, Timeout.Infinite);
     }
 
@@ -503,76 +380,19 @@ internal sealed class ClassDiscoveryService : IHostedService, IClassRegistry, ID
             return;
         }
 
-        _logger.LogInformation("MonorailCss discovery: source file change ({Count} files): {Files}", paths.Length, string.Join(", ", paths.Select(Path.GetFileName)));
+        _logger.LogInformation(
+            "MonorailCss discovery: source file change ({Count} files): {Files}",
+            paths.Length,
+            string.Join(", ", paths.Select(Path.GetFileName)));
 
-        // Rescan all watched directories' source files. Cheaper than tracking per-file deltas
-        // and avoids losing a class when one file removes it but another still uses it.
-        ScanWatchedSources();
         Regenerate("source-watcher");
     }
 
-    private void ScanWatchedSources()
-    {
-        if (_options.WatchSourceDirectories.Count == 0)
-        {
-            return;
-        }
-
-        var bucket = new HashSet<string>();
-        var fileCount = 0;
-        foreach (var dir in _options.WatchSourceDirectories)
-        {
-            if (!Directory.Exists(dir))
-            {
-                continue;
-            }
-
-            foreach (var file in EnumerateSourceFiles(dir))
-            {
-                _sourceScanner.ScanFile(file, bucket);
-                fileCount++;
-            }
-        }
-
-        if (bucket.Count == 0)
-        {
-            return;
-        }
-
-        var contributed = bucket.ToImmutableSortedSet(StringComparer.Ordinal);
-        lock (_lock)
-        {
-            _byAssembly[SourceWatcherKey] = contributed;
-            RebuildClasses();
-        }
-
-        _logger.LogDebug("MonorailCss discovery: source-watcher scanned {FileCount} files, {Count} candidate classes", fileCount, contributed.Count);
-    }
-
     /// <summary>
-    /// Rebuilds <see cref="_classes"/> from the current <see cref="_byAssembly"/> contributions
-    /// plus the user's extra safelist. Caller must hold <see cref="_lock"/>.
-    /// </summary>
-    private void RebuildClasses()
-    {
-        _classes = _byAssembly.Values
-            .SelectMany(s => s)
-            .Concat(_options.ExtraSafelist)
-            .ToImmutableSortedSet(StringComparer.Ordinal);
-    }
-
-    private static IEnumerable<string> EnumerateSourceFiles(string dir)
-    {
-        return Directory.EnumerateFiles(dir, "*.razor", SearchOption.AllDirectories)
-            .Concat(Directory.EnumerateFiles(dir, "*.cshtml", SearchOption.AllDirectories))
-            .Concat(Directory.EnumerateFiles(dir, "*.cs", SearchOption.AllDirectories))
-            .Concat(Directory.EnumerateFiles(dir, "*.html", SearchOption.AllDirectories))
-            .Where(p => !p.Contains($"{Path.DirectorySeparatorChar}obj{Path.DirectorySeparatorChar}", StringComparison.Ordinal)
-                     && !p.Contains($"{Path.DirectorySeparatorChar}bin{Path.DirectorySeparatorChar}", StringComparison.Ordinal));
-    }
-
-    /// <summary>
-    /// Re-scans the supplied assemblies (a hot-reload delta). Called by the metadata-update handler.
+    /// Re-scans every loaded assembly when the runtime applies a hot-reload delta. Called by
+    /// <see cref="MonorailCssReloader.UpdateApplication"/>; the changed-assembly list is
+    /// informational because the generator's MVID cache short-circuits unchanged assemblies
+    /// anyway.
     /// </summary>
     internal void OnAssembliesChanged(IEnumerable<Assembly> changed)
     {
@@ -585,182 +405,80 @@ internal sealed class ClassDiscoveryService : IHostedService, IClassRegistry, ID
             changedList.Length,
             string.Join(", ", changedList.Select(a => a.GetName().Name)));
 
-        // Re-scan every loaded assembly, not just changed ones. The per-assembly cache lets us
-        // detect which assembly's contribution actually changed, but the metadata-image walk is
-        // cheap enough that re-scanning all is simpler and still fast.
-        var (scanned, skipped) = ScanAllLoadedAssemblies();
-        if (scanned == 0)
-        {
-            _logger.LogWarning("MonorailCss discovery: hot-reload triggered but zero assemblies accepted for scan");
-            return;
-        }
-
         Regenerate("hot-reload");
-        _logger.LogInformation(
-            "MonorailCss discovery: hot-reload rescan — {ClassCount} classes total, {ScannedCount} scanned, {SkippedCount} skipped, ETag {Etag}",
-            _classes.Count, scanned, skipped, _eTag);
-    }
-
-    private (int Scanned, int Skipped) ScanAllLoadedAssemblies()
-    {
-        var scanned = 0;
-        var skipped = 0;
-        var newByAssembly = new Dictionary<string, ImmutableSortedSet<string>>(StringComparer.OrdinalIgnoreCase);
-
-        foreach (var asm in AppDomain.CurrentDomain.GetAssemblies())
-        {
-            var name = asm.GetName().Name ?? "<unnamed>";
-
-            if (!ShouldScan(asm))
-            {
-                skipped++;
-                continue;
-            }
-
-            var bucket = new HashSet<string>();
-            var accepted = _scanner.Scan(asm, bucket);
-            if (!accepted)
-            {
-                skipped++;
-                _logger.LogTrace("MonorailCss discovery: {Name} rejected (no metadata or reference-only)", name);
-                continue;
-            }
-
-            scanned++;
-            if (bucket.Count > 0)
-            {
-                newByAssembly[name] = bucket.ToImmutableSortedSet(StringComparer.Ordinal);
-                _logger.LogDebug("MonorailCss discovery: {Name} contributed {Count} classes", name, bucket.Count);
-            }
-        }
-
-        lock (_lock)
-        {
-            // Drop only keys we own (assemblies). Other contributors — most importantly
-            // <source-watcher> — survive an IL rescan, otherwise hot-reload events would
-            // clobber the source-discovered classes added moments earlier when the same
-            // file change triggered the FileSystemWatcher.
-            var assemblyKeys = _byAssembly.Keys.Where(k => !k.StartsWith('<')).ToArray();
-            foreach (var k in assemblyKeys)
-            {
-                _byAssembly.Remove(k);
-            }
-
-            foreach (var (k, v) in newByAssembly)
-            {
-                _byAssembly[k] = v;
-            }
-
-            RebuildClasses();
-        }
-
-        return (scanned, skipped);
     }
 
     private void OnAssemblyLoad(object? sender, AssemblyLoadEventArgs args)
     {
-        var asm = args.LoadedAssembly;
-        var name = asm.GetName().Name ?? "<unnamed>";
-
-        if (!ShouldScan(asm))
+        if (!_started)
         {
             return;
         }
 
-        var bucket = new HashSet<string>();
-        if (!_scanner.Scan(asm, bucket))
-        {
-            return;
-        }
-
-        if (bucket.Count == 0)
-        {
-            _logger.LogDebug("MonorailCss discovery: late-load {Name} accepted but contributed 0 classes", name);
-            return;
-        }
-
-        var contributed = bucket.ToImmutableSortedSet(StringComparer.Ordinal);
-        bool changed;
-        lock (_lock)
-        {
-            if (_byAssembly.TryGetValue(name, out var existing) && existing.SetEquals(contributed))
-            {
-                changed = false;
-            }
-            else
-            {
-                _byAssembly[name] = contributed;
-                RebuildClasses();
-                changed = true;
-            }
-        }
-
-        if (changed && _started)
-        {
-            _logger.LogInformation("MonorailCss discovery: late-load {Name} added {Count} classes", name, contributed.Count);
-            Regenerate("late-load");
-        }
-    }
-
-    private bool ShouldScan(Assembly asm)
-    {
-        if (asm.IsDynamic)
-        {
-            return false;
-        }
-
-        var name = asm.GetName().Name;
-        if (string.IsNullOrEmpty(name))
-        {
-            return false;
-        }
-
-        // Skip the BCL noise — same filter we use during force-load. The IL scanner would
-        // reject most of these strings anyway, but this avoids walking 100+ heaps for nothing.
-        if (IsKnownFrameworkAssembly(name))
-        {
-            return false;
-        }
-
-        // User-configured exclusions: utility libraries (icon packs, the framework itself)
-        // whose IL-embedded strings would inflate the discovered class set.
-        return !_options.ExcludeAssemblies.Contains(name);
+        // Late-loaded assembly. The generator will pick it up on its next regeneration via the
+        // AppDomain.GetAssemblies() snapshot, and its MVID cache means the rescan cost for the
+        // already-known assemblies is negligible.
+        Regenerate("late-load");
     }
 
     private void Regenerate(string trigger)
     {
-        ImmutableSortedSet<string> snapshot;
-        lock (_lock)
-        {
-            snapshot = _classes;
-        }
-
         var sw = Stopwatch.StartNew();
-        var generated = _options.Framework.Process(snapshot);
-
-        var combined = string.IsNullOrWhiteSpace(_rawCss)
-            ? generated
-            : _rawCss + "\n\n" + generated;
-
-        var etag = ComputeETag(combined);
+        var result = _generator.Generate(new MonorailCssGenerationRequest
+        {
+            SourceCss = _options.SourceCss,
+            SourceCssPath = _options.SourceCssPath,
+            BaseFramework = _options.Framework,
+            Assemblies = AppDomain.CurrentDomain.GetAssemblies(),
+            SourceFiles = EnumerateWatchedSourceFiles(),
+            ExtraSafelist = _options.ExtraSafelist,
+            ExcludeAssemblies = _options.ExcludeAssemblies,
+        });
         sw.Stop();
 
         lock (_lock)
         {
-            _generatedCss = combined;
-            _eTag = etag;
+            _result = result;
             _lastRegeneratedAt = DateTime.UtcNow;
             _regenerateCount++;
+            // Surface the generator-built framework so options consumers can read it back.
+            _options.Framework = result.Framework;
         }
 
         _logger.LogInformation(
             "MonorailCss discovery: regenerated CSS (trigger={Trigger}, classes={ClassCount}, length={Length}, etag={Etag}, in {ElapsedMs} ms)",
-            trigger, snapshot.Count, combined.Length, etag, sw.ElapsedMilliseconds);
+            trigger, result.Classes.Count, result.Css.Length, result.ETag, sw.ElapsedMilliseconds);
 
         if (!string.IsNullOrEmpty(_options.WriteToFile))
         {
-            TryWriteToFile(combined);
+            TryWriteToFile(result.Css);
         }
+    }
+
+    private List<string> EnumerateWatchedSourceFiles()
+    {
+        var files = new List<string>();
+        foreach (var dir in _options.WatchSourceDirectories)
+        {
+            if (!Directory.Exists(dir))
+            {
+                continue;
+            }
+
+            files.AddRange(EnumerateSourceFiles(dir));
+        }
+
+        return files;
+    }
+
+    private static IEnumerable<string> EnumerateSourceFiles(string dir)
+    {
+        return Directory.EnumerateFiles(dir, "*.razor", SearchOption.AllDirectories)
+            .Concat(Directory.EnumerateFiles(dir, "*.cshtml", SearchOption.AllDirectories))
+            .Concat(Directory.EnumerateFiles(dir, "*.cs", SearchOption.AllDirectories))
+            .Concat(Directory.EnumerateFiles(dir, "*.html", SearchOption.AllDirectories))
+            .Where(p => !p.Contains($"{Path.DirectorySeparatorChar}obj{Path.DirectorySeparatorChar}", StringComparison.Ordinal)
+                     && !p.Contains($"{Path.DirectorySeparatorChar}bin{Path.DirectorySeparatorChar}", StringComparison.Ordinal));
     }
 
     private void TryWriteToFile(string css)
@@ -783,14 +501,6 @@ internal sealed class ClassDiscoveryService : IHostedService, IClassRegistry, ID
             _logger.LogWarning(ex, "MonorailCss discovery: failed to write CSS to {Path}", _options.WriteToFile);
         }
     }
-
-    private static string ComputeETag(string content)
-    {
-        var bytes = Encoding.UTF8.GetBytes(content);
-        var hash = SHA256.HashData(bytes);
-        var hex = Convert.ToHexString(hash, 0, 12);
-        return "\"" + hex + "\"";
-    }
 }
 
 /// <summary>
@@ -803,16 +513,5 @@ public sealed record DiagnosticsSnapshot(
     DateTime LastRegeneratedAt,
     int RegenerateCount,
     int HotReloadCount,
-    long MvidCacheHits,
-    long MvidCacheMisses,
-    int ValidationCacheSize,
-    IReadOnlyList<AssemblyDiagnostics> Assemblies,
+    int ImportedCssFileCount,
     IReadOnlyList<string> AllClasses);
-
-/// <summary>
-/// Per-assembly contribution to the global class set.
-/// </summary>
-public sealed record AssemblyDiagnostics(
-    string Name,
-    int ClassCount,
-    IReadOnlyList<string> SampleClasses);

@@ -3,27 +3,44 @@ namespace MonorailCss.Discovery;
 /// <summary>
 /// Shared candidate-class tokenizer. Walks a string and yields substrings that look like
 /// CSS-utility classes — leading-char restricted, balanced-bracket inside <c>[...]</c>, stopping
-/// at the first HTML/code boundary. Used by <see cref="AssemblyClassScanner"/> for raw IL #US
-/// strings and <see cref="SourceFileScanner"/> for .razor/.cs literals; both layer their own
-/// length and validation filtering on top of the raw token stream.
+/// at the first HTML/code boundary. Used by <c>AssemblyClassScanner</c> for raw IL #US strings,
+/// by <c>SourceFileScanner</c> for .razor/.cs literals, and by the build-task pipeline for
+/// PE-image and source-file scans; each layer adds its own length and validation filtering on
+/// top of the raw token stream.
 /// </summary>
-internal static class CandidateLexer
+public static class CandidateLexer
 {
     /// <summary>
     /// Tokenizes <paramref name="raw"/> into a sequence of candidate substrings. Returns a
     /// foreach-friendly value; iterate it with <c>foreach (var token in CandidateLexer.Tokenize(raw))</c>.
     /// </summary>
+    /// <param name="raw">A raw string (an IL user-string entry, a class attribute value, an
+    /// arbitrary literal) to scan for class-shaped substrings.</param>
+    /// <returns>An enumerable sequence of candidate token substrings.</returns>
     public static TokenSequence Tokenize(string raw) => new(raw);
 
+    /// <summary>
+    /// Foreach-friendly wrapper over the lexer state. Returned by <see cref="Tokenize"/>; use
+    /// <c>foreach</c> to iterate, or call <see cref="GetEnumerator"/> manually.
+    /// </summary>
     public readonly struct TokenSequence
     {
         private readonly string _raw;
 
         internal TokenSequence(string raw) => _raw = raw;
 
+        /// <summary>
+        /// Returns an enumerator that walks the candidate tokens.
+        /// </summary>
+        /// <returns>A new enumerator positioned before the first token.</returns>
         public Enumerator GetEnumerator() => new(_raw);
     }
 
+    /// <summary>
+    /// Mutable enumerator state for <see cref="TokenSequence"/>. Don't construct directly —
+    /// the foreach pattern handles allocation. Each call to <see cref="MoveNext"/> advances
+    /// to the next candidate token; <see cref="Current"/> exposes it.
+    /// </summary>
     public struct Enumerator
     {
         private readonly string _raw;
@@ -36,8 +53,15 @@ internal static class CandidateLexer
             Current = string.Empty;
         }
 
+        /// <summary>
+        /// Gets the current candidate token. Valid only after <see cref="MoveNext"/> returns true.
+        /// </summary>
         public string Current { get; private set; }
 
+        /// <summary>
+        /// Advances to the next candidate token in the source string.
+        /// </summary>
+        /// <returns>True when a token was found and stored in <see cref="Current"/>; false at end-of-input.</returns>
         public bool MoveNext()
         {
             // Razor compiles adjacent static markup into a single AddMarkupContent("<div class=\"foo bar\">...")

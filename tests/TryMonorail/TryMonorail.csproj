@@ -5,6 +5,12 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <LangVersion>preview</LangVersion>
         <RootNamespace>TryMonorail</RootNamespace>
+
+        <!-- Drive the in-tree MonorailCss.Build.Tasks targets file. Tells the UsingTask in
+             MonorailCss.Build.Tasks.targets to load the dev-build of the task DLL rather than
+             the NuGet-packed copy. -->
+        <MonorailCssEnabled>true</MonorailCssEnabled>
+        <MonorailCssDevelopment>true</MonorailCssDevelopment>
     </PropertyGroup>
 
     <ItemGroup>
@@ -15,5 +21,33 @@
     <ItemGroup>
         <ProjectReference Include="..\..\src\MonorailCss\MonorailCss.csproj" />
         <ProjectReference Include="..\..\src\MonorailCss.Discovery\MonorailCss.Discovery.csproj" />
+
+        <!-- Build-only reference: forces MSBuild to build MonorailCss.Build.Tasks first so its
+             task DLL exists when this project's UsingTask resolves. ReferenceOutputAssembly=false
+             keeps the task DLL out of TryMonorail's runtime output (it's an MSBuild-time tool,
+             not an app dependency). -->
+        <ProjectReference Include="..\..\src\MonorailCss.Build.Tasks\MonorailCss.Build.Tasks.csproj"
+                          ReferenceOutputAssembly="false"
+                          PrivateAssets="All" />
     </ItemGroup>
+
+    <!-- Build-time CSS generation. The build task and the runtime discovery service share a
+         MonorailCssGenerator in core, so they extract the same candidate set from the same
+         inputs (source files via SourceFileScanner, every @(ReferencePath) DLL via the
+         IlMetadataScanner heap walk).
+
+         MonorailCssExcludeAssembly mirrors the runtime exclusions in Program.cs — the
+         framework itself ships utility-class-shaped templates ("bg-{color}-500"), and the
+         FontAwesome icon pack bakes thousands of class-shaped strings into metadata. Skipping
+         them at scan time keeps the candidate set focused on what the playground actually uses. -->
+    <ItemGroup>
+        <MonorailCss Include="wwwroot/app.css">
+            <OutputFile>$(MSBuildProjectDirectory)/wwwroot/css/app.generated.css</OutputFile>
+        </MonorailCss>
+
+        <MonorailCssExcludeAssembly Include="MonorailCss" />
+        <MonorailCssExcludeAssembly Include="BadIdeas.Icons.FontAwesome" />
+    </ItemGroup>
+
+    <Import Project="..\..\src\MonorailCss.Build.Tasks\build\MonorailCss.Build.Tasks.targets" />
 </Project>

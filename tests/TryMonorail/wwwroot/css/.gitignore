@@ -1,0 +1,4 @@
+# Build-task-generated CSS (MonorailCss.Build.Tasks). Regenerated on every build.
+*.css
+*.css.gz
+*.css.br

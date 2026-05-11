@@ -11,6 +11,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <Description>MonorailCSS is a JIT CSS compiler inspired by Tailwind CSS</Description>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <Copyright>Phil Scott</Copyright>
     <PackageProjectUrl>https://github.com/phil-scott-78/monorail</PackageProjectUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>

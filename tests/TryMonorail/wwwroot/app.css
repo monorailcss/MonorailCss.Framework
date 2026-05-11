@@ -1,3 +1,8 @@
+/* The build task uses this file as its input; the source() modifier widens auto-detection
+   from wwwroot/ (where this file lives) up to the project root so Razor components get
+   scanned. The "tailwindcss" import target is special-cased and not loaded from disk. */
+@import "tailwindcss" source("..");
+
 html {
     --blazor-load-percentage: 0%;
 }

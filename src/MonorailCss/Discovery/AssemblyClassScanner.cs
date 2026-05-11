@@ -2,7 +2,6 @@ using System.Collections.Concurrent;
 using System.Collections.Immutable;
 using System.Reflection;
 using System.Reflection.Metadata;
-using System.Reflection.Metadata.Ecma335;
 
 namespace MonorailCss.Discovery;
 
@@ -10,7 +9,9 @@ namespace MonorailCss.Discovery;
 /// Scans the <c>#US</c> (User Strings) heap of a loaded assembly's IL metadata, extracting every
 /// string literal and validating each one against the framework's candidate parser.
 /// Reads in-memory metadata via <c>System.Reflection.Metadata.AssemblyExtensions.TryGetRawMetadata</c>,
-/// which exposes the live image including hot-reload deltas.
+/// which exposes the live image including hot-reload deltas. The actual heap walk and
+/// reference-assembly check live in <see cref="IlMetadataScanner"/> so the build-task DLL
+/// scanner shares one implementation.
 /// </summary>
 internal sealed class AssemblyClassScanner
 {
@@ -55,7 +56,7 @@ internal sealed class AssemblyClassScanner
             return false;
         }
 
-        if (HasReferenceAssemblyAttribute(md))
+        if (IlMetadataScanner.HasReferenceAssemblyAttribute(md))
         {
             return false;
         }
@@ -82,27 +83,7 @@ internal sealed class AssemblyClassScanner
         // Buffer into a local set so we can both populate the caller's collection and cache
         // the dedup'd, sorted result for the next rescan.
         var local = new HashSet<string>(StringComparer.Ordinal);
-        var heapSize = md.GetHeapSize(HeapIndex.UserString);
-
-        // ECMA-335 II.24.2.4: each #US entry is a compressed-length prefix followed by
-        // (UTF-16 chars * 2) bytes plus a 1-byte trailer. Offset 0 is reserved (empty/null).
-        var offset = 1;
-        while (offset < heapSize)
-        {
-            var handle = MetadataTokens.UserStringHandle(offset);
-            var raw = md.GetUserString(handle);
-            if (raw.Length == 0)
-            {
-                offset += 1;
-                continue;
-            }
-
-            _validationCache.CollectValid(raw, local);
-
-            var dataBytes = (raw.Length * 2) + 1;
-            var prefixBytes = dataBytes < 0x80 ? 1 : dataBytes < 0x4000 ? 2 : 4;
-            offset += prefixBytes + dataBytes;
-        }
+        IlMetadataScanner.ScanUserStringHeap(md, _validationCache, local);
 
         var snapshot = local.ToImmutableSortedSet(StringComparer.Ordinal);
         _mvidCache[mvid] = snapshot;
@@ -112,50 +93,5 @@ internal sealed class AssemblyClassScanner
         }
 
         return true;
-    }
-
-    private static bool HasReferenceAssemblyAttribute(MetadataReader md)
-    {
-        var assemblyDef = md.GetAssemblyDefinition();
-        foreach (var attrHandle in assemblyDef.GetCustomAttributes())
-        {
-            var attr = md.GetCustomAttribute(attrHandle);
-            if (IsAttributeOfType(md, attr, "System.Runtime.CompilerServices", "ReferenceAssemblyAttribute"))
-            {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    private static bool IsAttributeOfType(MetadataReader md, CustomAttribute attr, string ns, string typeName)
-    {
-        switch (attr.Constructor.Kind)
-        {
-            case HandleKind.MemberReference:
-                {
-                    var memberRef = md.GetMemberReference((MemberReferenceHandle)attr.Constructor);
-                    if (memberRef.Parent.Kind != HandleKind.TypeReference)
-                    {
-                        return false;
-                    }
-
-                    var typeRef = md.GetTypeReference((TypeReferenceHandle)memberRef.Parent);
-                    return md.StringComparer.Equals(typeRef.Namespace, ns)
-                           && md.StringComparer.Equals(typeRef.Name, typeName);
-                }
-
-            case HandleKind.MethodDefinition:
-                {
-                    var methodDef = md.GetMethodDefinition((MethodDefinitionHandle)attr.Constructor);
-                    var typeDef = md.GetTypeDefinition(methodDef.GetDeclaringType());
-                    return md.StringComparer.Equals(typeDef.Namespace, ns)
-                           && md.StringComparer.Equals(typeDef.Name, typeName);
-                }
-
-            default:
-                return false;
-        }
     }
 }
