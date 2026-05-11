@@ -1,10 +1,19 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+    <!-- MSBuild tasks are loaded by MSBuild itself, which targets a fixed runtime; we can't
+         multi-target the way the runtime libraries do. net9.0 covers current SDK installations. -->
     <TargetFramework>net9.0</TargetFramework>
     <LangVersion>13.0</LangVersion>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+
+    <!-- Reproducible build settings, mirroring MonorailCss + MonorailCss.Discovery. -->
+    <Deterministic>true</Deterministic>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>embedded</DebugType>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <MinVerSkip Condition="'$(Configuration)' == 'Debug' or '$(Vercel)' == '1'">true</MinVerSkip>
 
     <!-- MSBuild Task Configuration -->
     <DevelopmentDependency>true</DevelopmentDependency>
@@ -13,8 +22,13 @@
     <!-- Don't include build output automatically, we'll do it manually -->
     <IncludeBuildOutput>false</IncludeBuildOutput>
 
-    <!-- Suppress NU5118 warnings for duplicate files -->
-    <NoWarn>$(NoWarn);NU5118</NoWarn>
+    <!-- Suppress pack warnings inherent to MSBuild-task packaging:
+           NU5100: assemblies live in tasks/ rather than lib/ (deliberate — they're MSBuild
+                   task DLLs, not consumer-facing references)
+           NU5118: duplicate files (the PackTaskDependencies target adds DLLs the SDK has
+                   already considered)
+           NU5128: no lib/ entries for the declared TFM (same reason as NU5100) -->
+    <NoWarn>$(NoWarn);NU5100;NU5118;NU5128</NoWarn>
 
     <!-- Package Metadata -->
     <PackageId>MonorailCss.Build.Tasks</PackageId>
@@ -23,8 +37,13 @@
     <Copyright>Phil Scott</Copyright>
     <PackageProjectUrl>https://github.com/phil-scott-78/monorail</PackageProjectUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageTags>css;tailwind;msbuild;tasks</PackageTags>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\..\README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
 
   <ItemGroup>
     <InternalsVisibleTo Include="MonorailCss.Build.Tasks.Tests" />
@@ -34,7 +53,7 @@
     <PackageReference Include="JetBrains.Annotations" Version="2025.2.2" />
     <PackageReference Include="Microsoft.Build.Utilities.Core" Version="17.14.8" PrivateAssets="All" />
     <PackageReference Include="Microsoft.Extensions.FileSystemGlobbing" Version="9.0.9" PrivateAssets="All" />
-    <PackageReference Include="MinVer" PrivateAssets="all" Version="6.0.0" />
+    <PackageReference Include="MinVer" PrivateAssets="all" Version="7.0.0" />
     <PackageReference Include="System.Reflection.Metadata" Version="9.0.9" PrivateAssets="All" />
     <PackageReference Include="TestableIO.System.IO.Abstractions" Version="22.0.16" PrivateAssets="All" />
     <PackageReference Include="TestableIO.System.IO.Abstractions.Wrappers" Version="22.0.16" PrivateAssets="All" />
