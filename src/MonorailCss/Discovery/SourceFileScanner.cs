@@ -1,3 +1,5 @@
+using System.Collections.Concurrent;
+using System.Collections.Immutable;
 using System.Text.RegularExpressions;
 
 namespace MonorailCss.Discovery;
@@ -36,6 +38,8 @@ public sealed partial class SourceFileScanner
     private static partial Regex StringLiteralRegex();
 
     private readonly ValidationCache _validationCache;
+    private readonly ConcurrentDictionary<string, CachedScan> _scanCache =
+        new(StringComparer.OrdinalIgnoreCase);
 
     /// <summary>
     /// Initializes a new instance of the <see cref="SourceFileScanner"/> class.
@@ -57,6 +61,30 @@ public sealed partial class SourceFileScanner
     /// <param name="output">Destination for extracted+validated candidates.</param>
     public void ScanFile(string path, ICollection<string> output)
     {
+        // Per-file cache: if the on-disk mtime hasn't changed, replay the previously-extracted
+        // candidate set. Without this, every regeneration trigger (late-load, hot-reload, even a
+        // single-file source-watcher) re-reads + re-tokenizes hundreds of files when only one
+        // (or none) actually changed.
+        DateTime mtime;
+        try
+        {
+            mtime = File.GetLastWriteTimeUtc(path);
+        }
+        catch
+        {
+            return;
+        }
+
+        if (_scanCache.TryGetValue(path, out var cached) && cached.MTime == mtime)
+        {
+            foreach (var token in cached.Tokens)
+            {
+                output.Add(token);
+            }
+
+            return;
+        }
+
         string content;
         try
         {
@@ -67,6 +95,7 @@ public sealed partial class SourceFileScanner
             return;
         }
 
+        var local = new HashSet<string>(StringComparer.Ordinal);
         var ext = Path.GetExtension(path).ToLowerInvariant();
         switch (ext)
         {
@@ -77,7 +106,7 @@ public sealed partial class SourceFileScanner
             case ".aspx":
             case ".ascx":
             case ".master":
-                ScanMarkup(content, output);
+                ScanMarkup(content, local);
                 break;
 
             // .razor and .cshtml mix markup with embedded C# (verbatim strings, @code blocks,
@@ -87,18 +116,27 @@ public sealed partial class SourceFileScanner
             // catches them all (along with the occasional false positive from a comment).
             case ".razor":
             case ".cshtml":
-                ScanGeneric(content, output);
+                ScanGeneric(content, local);
                 break;
 
             case ".cs":
-                ScanCSharp(content, output);
+                ScanCSharp(content, local);
                 break;
 
             default:
-                ScanGeneric(content, output);
+                ScanGeneric(content, local);
                 break;
         }
+
+        _scanCache[path] = new CachedScan(mtime, local.ToImmutableArray());
+
+        foreach (var token in local)
+        {
+            output.Add(token);
+        }
     }
+
+    private readonly record struct CachedScan(DateTime MTime, ImmutableArray<string> Tokens);
 
     /// <summary>
     /// Extracts every <c>class="…"</c> or <c>class='…'</c> attribute value from

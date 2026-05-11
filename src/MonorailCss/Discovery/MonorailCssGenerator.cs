@@ -120,6 +120,10 @@ public sealed class MonorailCssGenerator
     private ValidationCache? _validationCache;
     private AssemblyClassScanner? _assemblyScanner;
     private SourceFileScanner? _sourceFileScanner;
+    private HashSet<string>? _lastClasses;
+    private string? _lastRawCss;
+    private MonorailCssGenerationResult? _lastResult;
+    private ResolveCache? _resolveCache;
 
     /// <summary>
     /// Runs the discovery pipeline against <paramref name="request"/> and returns the
@@ -133,7 +137,7 @@ public sealed class MonorailCssGenerator
         lock (_lock)
         {
             // Step 1: resolve framework (process source CSS if any, else use the supplied base).
-            var (framework, rawCss, importedFiles, sourceConfiguration) = ResolveFramework(request);
+            var (framework, rawCss, importedFiles, sourceConfiguration) = ResolveFrameworkCached(request);
 
             // Step 2: rebuild caches when the framework changed (validation answers may differ).
             if (!ReferenceEquals(framework, _lastFramework))
@@ -142,6 +146,9 @@ public sealed class MonorailCssGenerator
                 _assemblyScanner = new AssemblyClassScanner(_validationCache);
                 _sourceFileScanner = new SourceFileScanner(_validationCache);
                 _lastFramework = framework;
+                _lastResult = null;
+                _lastClasses = null;
+                _lastRawCss = null;
             }
 
             var validationCache = _validationCache!;
@@ -163,6 +170,16 @@ public sealed class MonorailCssGenerator
                 }
             }
 
+            // Short-circuit: same framework + same raw CSS + same candidate set → reuse last result.
+            // framework.Process() dominates the call cost; HashSet.SetEquals is O(n) and cheap.
+            if (_lastResult is not null
+                && _lastClasses is not null
+                && string.Equals(rawCss, _lastRawCss, StringComparison.Ordinal)
+                && classes.SetEquals(_lastClasses))
+            {
+                return _lastResult;
+            }
+
             var sortedClasses = classes.ToImmutableSortedSet(StringComparer.Ordinal);
 
             // Step 5: compose final CSS.
@@ -171,24 +188,59 @@ public sealed class MonorailCssGenerator
                 ? generatedCss
                 : rawCss + Environment.NewLine + Environment.NewLine + generatedCss;
 
-            return new MonorailCssGenerationResult(
+            var result = new MonorailCssGenerationResult(
                 Css: finalCss,
                 ETag: ComputeETag(finalCss),
                 Classes: sortedClasses,
                 ImportedCssFiles: importedFiles,
                 Framework: framework,
                 SourceConfiguration: sourceConfiguration);
+
+            _lastClasses = new HashSet<string>(classes, StringComparer.Ordinal);
+            _lastRawCss = rawCss;
+            _lastResult = result;
+            return result;
         }
     }
 
-    private static (CssFramework Framework, string RawCss, ImmutableList<string> ImportedFiles, SourceConfiguration SourceConfiguration) ResolveFramework(MonorailCssGenerationRequest request)
+    private (CssFramework Framework, string RawCss, ImmutableList<string> ImportedFiles, SourceConfiguration SourceConfiguration) ResolveFrameworkCached(MonorailCssGenerationRequest request)
     {
         var hasSourceCss = !string.IsNullOrWhiteSpace(request.SourceCss);
         var hasSourceCssPath = !string.IsNullOrWhiteSpace(request.SourceCssPath);
 
+        // No source CSS: framework is BaseFramework (or a default). Cache by reference identity
+        // so callers that reuse the same BaseFramework across calls get a stable result.
         if (!hasSourceCss && !hasSourceCssPath)
         {
-            return (request.BaseFramework ?? new CssFramework(), string.Empty, ImmutableList<string>.Empty, new SourceConfiguration());
+            if (_resolveCache is { SourceCss: null, SourceCssPath: null } cached
+                && ReferenceEquals(cached.BaseFramework, request.BaseFramework))
+            {
+                return (cached.Framework, cached.RawCss, cached.ImportedFiles, cached.SourceConfiguration);
+            }
+
+            var fw = request.BaseFramework ?? new CssFramework();
+            _resolveCache = new ResolveCache(
+                SourceCss: null,
+                SourceCssPath: null,
+                BaseFramework: request.BaseFramework,
+                Framework: fw,
+                RawCss: string.Empty,
+                ImportedFiles: ImmutableList<string>.Empty,
+                SourceConfiguration: new SourceConfiguration(),
+                FileTimes: ImmutableDictionary<string, DateTime>.Empty);
+            return (fw, string.Empty, ImmutableList<string>.Empty, new SourceConfiguration());
+        }
+
+        // Source CSS present: cache by (SourceCss, SourceCssPath, file mtimes). BaseFramework is
+        // intentionally ignored from the key — the discovery service rewrites _options.Framework
+        // to result.Framework after every call, so its reference changes every call even when
+        // the CSS hasn't. The CSS content fully determines what the framework should look like.
+        if (_resolveCache is { } c
+            && string.Equals(c.SourceCss, request.SourceCss, StringComparison.Ordinal)
+            && string.Equals(c.SourceCssPath, request.SourceCssPath, StringComparison.Ordinal)
+            && FileTimesUnchanged(c.FileTimes))
+        {
+            return (c.Framework, c.RawCss, c.ImportedFiles, c.SourceConfiguration);
         }
 
         var processor = new CssSourceProcessor();
@@ -212,8 +264,75 @@ public sealed class MonorailCssGenerator
             result = processor.ProcessSource(request.SourceCss!, basePath: null, baseSettings);
         }
 
-        return (new CssFramework(result.Settings), result.RawCss, result.ImportedFiles, result.SourceConfiguration);
+        var resolvedFramework = new CssFramework(result.Settings);
+        _resolveCache = new ResolveCache(
+            SourceCss: request.SourceCss,
+            SourceCssPath: request.SourceCssPath,
+            BaseFramework: request.BaseFramework,
+            Framework: resolvedFramework,
+            RawCss: result.RawCss,
+            ImportedFiles: result.ImportedFiles,
+            SourceConfiguration: result.SourceConfiguration,
+            FileTimes: SnapshotFileTimes(result.ImportedFiles));
+        return (resolvedFramework, result.RawCss, result.ImportedFiles, result.SourceConfiguration);
     }
+
+    private static ImmutableDictionary<string, DateTime> SnapshotFileTimes(ImmutableList<string> files)
+    {
+        var builder = ImmutableDictionary.CreateBuilder<string, DateTime>(StringComparer.OrdinalIgnoreCase);
+        foreach (var path in files)
+        {
+            if (string.IsNullOrEmpty(path))
+            {
+                continue;
+            }
+
+            try
+            {
+                builder[path] = File.GetLastWriteTimeUtc(path);
+            }
+            catch
+            {
+                // If we can't stat the file now, record a sentinel so any later read can't match.
+                builder[path] = DateTime.MinValue;
+            }
+        }
+
+        return builder.ToImmutable();
+    }
+
+    private static bool FileTimesUnchanged(ImmutableDictionary<string, DateTime> snapshot)
+    {
+        foreach (var (path, stamp) in snapshot)
+        {
+            DateTime current;
+            try
+            {
+                current = File.GetLastWriteTimeUtc(path);
+            }
+            catch
+            {
+                return false;
+            }
+
+            if (current != stamp)
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private sealed record ResolveCache(
+        string? SourceCss,
+        string? SourceCssPath,
+        CssFramework? BaseFramework,
+        CssFramework Framework,
+        string RawCss,
+        ImmutableList<string> ImportedFiles,
+        SourceConfiguration SourceConfiguration,
+        ImmutableDictionary<string, DateTime> FileTimes);
 
     private static void ScanLoadedAssemblies(
         MonorailCssGenerationRequest request,

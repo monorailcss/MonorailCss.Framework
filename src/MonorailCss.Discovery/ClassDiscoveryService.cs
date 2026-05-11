@@ -25,6 +25,7 @@ internal sealed class ClassDiscoveryService : IHostedService, IClassRegistry, ID
     private readonly object _lock = new();
     private readonly System.Threading.Timer _debounce;
     private readonly System.Threading.Timer _cssDebounce;
+    private readonly System.Threading.Timer _lateLoadDebounce;
     private readonly HashSet<string> _pendingFiles = new(StringComparer.OrdinalIgnoreCase);
 
     private MonorailCssGenerationResult _result;
@@ -50,6 +51,7 @@ internal sealed class ClassDiscoveryService : IHostedService, IClassRegistry, ID
             SourceConfiguration: new MonorailCss.Parser.SourceCss.SourceConfiguration());
         _debounce = new System.Threading.Timer(OnDebounceTick, null, Timeout.Infinite, Timeout.Infinite);
         _cssDebounce = new System.Threading.Timer(OnCssDebounceTick, null, Timeout.Infinite, Timeout.Infinite);
+        _lateLoadDebounce = new System.Threading.Timer(OnLateLoadDebounceTick, null, Timeout.Infinite, Timeout.Infinite);
     }
 
     public IReadOnlyCollection<string> GetClasses()
@@ -211,6 +213,7 @@ internal sealed class ClassDiscoveryService : IHostedService, IClassRegistry, ID
         StopCssFileWatchers();
         _debounce.Dispose();
         _cssDebounce.Dispose();
+        _lateLoadDebounce.Dispose();
     }
 
     private void StartFileWatchers()
@@ -415,15 +418,22 @@ internal sealed class ClassDiscoveryService : IHostedService, IClassRegistry, ID
             return;
         }
 
-        // Late-loaded assembly. The generator will pick it up on its next regeneration via the
-        // AppDomain.GetAssemblies() snapshot, and its MVID cache means the rescan cost for the
-        // already-known assemblies is negligible.
+        // ASP.NET / Blazor JIT-loads many referenced assemblies in a burst the first time a page
+        // is served, but the loads can be spread out over hundreds of ms each (one per component
+        // resolved). 750ms is wide enough to absorb the typical burst yet still feels responsive
+        // when an assembly is genuinely loaded out-of-band later.
+        _lateLoadDebounce.Change(750, Timeout.Infinite);
+    }
+
+    private void OnLateLoadDebounceTick(object? state)
+    {
         Regenerate("late-load");
     }
 
     private void Regenerate(string trigger)
     {
         var sw = Stopwatch.StartNew();
+        var previousEtag = _result.ETag;
         var result = _generator.Generate(new MonorailCssGenerationRequest
         {
             SourceCss = _options.SourceCss,
@@ -436,6 +446,8 @@ internal sealed class ClassDiscoveryService : IHostedService, IClassRegistry, ID
         });
         sw.Stop();
 
+        var unchanged = string.Equals(result.ETag, previousEtag, StringComparison.Ordinal);
+
         lock (_lock)
         {
             _result = result;
@@ -443,6 +455,14 @@ internal sealed class ClassDiscoveryService : IHostedService, IClassRegistry, ID
             _regenerateCount++;
             // Surface the generator-built framework so options consumers can read it back.
             _options.Framework = result.Framework;
+        }
+
+        if (unchanged)
+        {
+            _logger.LogDebug(
+                "MonorailCss discovery: no-op regen (trigger={Trigger}, etag={Etag}, in {ElapsedMs} ms)",
+                trigger, result.ETag, sw.ElapsedMilliseconds);
+            return;
         }
 
         _logger.LogInformation(
