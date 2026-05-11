@@ -50,13 +50,13 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="JetBrains.Annotations" Version="2025.2.2" />
-    <PackageReference Include="Microsoft.Build.Utilities.Core" Version="17.14.8" PrivateAssets="All" />
+    <PackageReference Include="JetBrains.Annotations" Version="2025.2.4" />
+    <PackageReference Include="Microsoft.Build.Utilities.Core" Version="17.14.28" PrivateAssets="All" />
     <PackageReference Include="Microsoft.Extensions.FileSystemGlobbing" Version="9.0.9" PrivateAssets="All" />
     <PackageReference Include="MinVer" PrivateAssets="all" Version="7.0.0" />
     <PackageReference Include="System.Reflection.Metadata" Version="9.0.9" PrivateAssets="All" />
-    <PackageReference Include="TestableIO.System.IO.Abstractions" Version="22.0.16" PrivateAssets="All" />
-    <PackageReference Include="TestableIO.System.IO.Abstractions.Wrappers" Version="22.0.16" PrivateAssets="All" />
+    <PackageReference Include="TestableIO.System.IO.Abstractions" Version="22.1.1" PrivateAssets="All" />
+    <PackageReference Include="TestableIO.System.IO.Abstractions.Wrappers" Version="22.1.1" PrivateAssets="All" />
   </ItemGroup>
 
   <ItemGroup>
