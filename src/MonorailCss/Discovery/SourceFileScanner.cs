@@ -85,6 +85,36 @@ public sealed partial class SourceFileScanner
             return;
         }
 
+        ReadTokenizeCacheAndEmit(path, mtime, output);
+    }
+
+    /// <summary>
+    /// Reads, tokenises, and caches <paramref name="path"/> unconditionally — skipping the
+    /// mtime short-circuit used by <see cref="ScanFile"/>. Use this when the caller already
+    /// knows the file changed (e.g. a <see cref="System.IO.FileSystemWatcher"/> just reported
+    /// it) and the mtime check would just be wasted I/O.
+    /// </summary>
+    /// <param name="path">Absolute path to the source file.</param>
+    /// <param name="output">Destination for extracted+validated candidates.</param>
+    public void ScanFileForceRescan(string path, ICollection<string> output)
+    {
+        DateTime mtime;
+        try
+        {
+            mtime = File.GetLastWriteTimeUtc(path);
+        }
+        catch
+        {
+            // Best-effort: if we can't stat, fall back to a sentinel mtime so a later mtime-
+            // aware ScanFile call will be forced to re-read this file.
+            mtime = DateTime.MinValue;
+        }
+
+        ReadTokenizeCacheAndEmit(path, mtime, output);
+    }
+
+    private void ReadTokenizeCacheAndEmit(string path, DateTime mtime, ICollection<string> output)
+    {
         string content;
         try
         {

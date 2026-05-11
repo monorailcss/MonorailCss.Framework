@@ -361,6 +361,11 @@ internal sealed class ClassDiscoveryService : IHostedService, IClassRegistry, ID
 
     private void QueueSourceFile(string path)
     {
+        if (IsInIgnoredDirectory(path))
+        {
+            return;
+        }
+
         lock (_pendingFiles)
         {
             _pendingFiles.Add(path);
@@ -388,7 +393,7 @@ internal sealed class ClassDiscoveryService : IHostedService, IClassRegistry, ID
             paths.Length,
             string.Join(", ", paths.Select(Path.GetFileName)));
 
-        Regenerate("source-watcher");
+        Regenerate("source-watcher", paths);
     }
 
     /// <summary>
@@ -430,17 +435,20 @@ internal sealed class ClassDiscoveryService : IHostedService, IClassRegistry, ID
         Regenerate("late-load");
     }
 
-    private void Regenerate(string trigger)
+    private void Regenerate(string trigger, IReadOnlyCollection<string>? changedSourceFiles = null)
     {
         var sw = Stopwatch.StartNew();
         var previousEtag = _result.ETag;
 
         // Late-load and hot-reload events don't touch source files; signaling
         // SkipSourceFileScan lets the generator skip the directory walk and per-file mtime
-        // checks and replay the previous source-file token contribution. Source-watcher,
-        // css-watcher, and startup all need a fresh scan because either the source files or
-        // the source CSS (which can carry safelist directives) just changed.
+        // checks and replay the previous source-file token contribution. Source-watcher
+        // passes the exact set of changed files so the generator can rescan just those
+        // (Tailwind-style incremental). css-watcher and startup need a fresh full scan
+        // because either the source CSS just changed (and its @source/@safelist may have
+        // shifted) or we have no prior state to incrementally update.
         var skipSourceFileScan = trigger is "late-load" or "hot-reload";
+        var hasChangedFiles = changedSourceFiles is { Count: > 0 };
 
         var result = _generator.Generate(new MonorailCssGenerationRequest
         {
@@ -448,10 +456,11 @@ internal sealed class ClassDiscoveryService : IHostedService, IClassRegistry, ID
             SourceCssPath = _options.SourceCssPath,
             BaseFramework = _options.Framework,
             Assemblies = AppDomain.CurrentDomain.GetAssemblies(),
-            SourceFiles = skipSourceFileScan ? Array.Empty<string>() : EnumerateWatchedSourceFiles(),
+            SourceFiles = (skipSourceFileScan || hasChangedFiles) ? Array.Empty<string>() : EnumerateWatchedSourceFiles(),
             ExtraSafelist = _options.ExtraSafelist,
             ExcludeAssemblies = _options.ExcludeAssemblies,
             SkipSourceFileScan = skipSourceFileScan,
+            ChangedSourceFiles = changedSourceFiles,
         });
         sw.Stop();
 
@@ -484,6 +493,23 @@ internal sealed class ClassDiscoveryService : IHostedService, IClassRegistry, ID
         }
     }
 
+    /// <summary>
+    /// Directory names that are never worth walking into. Mirrors Tailwind v4's
+    /// <c>ignored-content-dirs.txt</c> (<c>B:\tailwindcss\crates\oxide\fixtures</c>) plus
+    /// the .NET-specific <c>bin</c>/<c>obj</c> and Visual Studio's <c>.vs</c>. Matched as
+    /// segment names anywhere in the path. <c>.gitignore</c> parsing is intentionally not
+    /// implemented; this hard-coded set covers the 95% case without pulling in a parser.
+    /// </summary>
+    private static readonly HashSet<string> IgnoredDirectoryNames = new(StringComparer.OrdinalIgnoreCase)
+    {
+        ".git", ".hg", ".svn", ".jj",
+        ".vs", ".idea", ".vscode",
+        "bin", "obj",
+        "node_modules", ".next", ".nuxt", ".svelte-kit", ".parcel-cache",
+        ".turbo", ".vercel", ".pnpm-store", ".yarn",
+        ".venv", "venv", "__pycache__",
+    };
+
     private List<string> EnumerateWatchedSourceFiles()
     {
         var files = new List<string>();
@@ -494,20 +520,104 @@ internal sealed class ClassDiscoveryService : IHostedService, IClassRegistry, ID
                 continue;
             }
 
-            files.AddRange(EnumerateSourceFiles(dir));
+            EnumerateSourceFilesInto(dir, files);
         }
 
         return files;
     }
 
-    private static IEnumerable<string> EnumerateSourceFiles(string dir)
+    private static void EnumerateSourceFilesInto(string root, List<string> output)
     {
-        return Directory.EnumerateFiles(dir, "*.razor", SearchOption.AllDirectories)
-            .Concat(Directory.EnumerateFiles(dir, "*.cshtml", SearchOption.AllDirectories))
-            .Concat(Directory.EnumerateFiles(dir, "*.cs", SearchOption.AllDirectories))
-            .Concat(Directory.EnumerateFiles(dir, "*.html", SearchOption.AllDirectories))
-            .Where(p => !p.Contains($"{Path.DirectorySeparatorChar}obj{Path.DirectorySeparatorChar}", StringComparison.Ordinal)
-                     && !p.Contains($"{Path.DirectorySeparatorChar}bin{Path.DirectorySeparatorChar}", StringComparison.Ordinal));
+        // Iterative DFS so we can prune subtrees by directory name before recursing into them.
+        // Using TopDirectoryOnly + a stack is dramatically cheaper than
+        // SearchOption.AllDirectories + a post-filter when the tree contains node_modules /
+        // .git / bin / obj — those subtrees can dwarf the rest of the project.
+        var stack = new Stack<string>();
+        stack.Push(root);
+
+        while (stack.Count > 0)
+        {
+            var dir = stack.Pop();
+
+            // Collect files first so a malformed subdirectory enumeration doesn't lose them.
+            IEnumerable<string>? files = null;
+            try
+            {
+                files = Directory.EnumerateFiles(dir, "*", SearchOption.TopDirectoryOnly);
+            }
+            catch
+            {
+                // best-effort
+            }
+
+            if (files is not null)
+            {
+                foreach (var path in files)
+                {
+                    if (HasSupportedExtension(path))
+                    {
+                        output.Add(path);
+                    }
+                }
+            }
+
+            IEnumerable<string>? subdirs = null;
+            try
+            {
+                subdirs = Directory.EnumerateDirectories(dir, "*", SearchOption.TopDirectoryOnly);
+            }
+            catch
+            {
+                // best-effort
+            }
+
+            if (subdirs is not null)
+            {
+                foreach (var sub in subdirs)
+                {
+                    var name = Path.GetFileName(sub);
+                    if (!string.IsNullOrEmpty(name) && !IgnoredDirectoryNames.Contains(name))
+                    {
+                        stack.Push(sub);
+                    }
+                }
+            }
+        }
+    }
+
+    private static bool HasSupportedExtension(string path)
+    {
+        var ext = Path.GetExtension(path);
+        return ext.Equals(".razor", StringComparison.OrdinalIgnoreCase)
+            || ext.Equals(".cshtml", StringComparison.OrdinalIgnoreCase)
+            || ext.Equals(".cs", StringComparison.OrdinalIgnoreCase)
+            || ext.Equals(".html", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static bool IsInIgnoredDirectory(string path)
+    {
+        // Walk path segments to detect any ignored directory name. Faster than allocating
+        // through Path.GetDirectoryName in a loop — a single string scan suffices.
+        var span = path.AsSpan();
+        var start = 0;
+        for (var i = 0; i <= span.Length; i++)
+        {
+            if (i == span.Length || span[i] == Path.DirectorySeparatorChar || span[i] == Path.AltDirectorySeparatorChar)
+            {
+                if (i > start)
+                {
+                    var segment = span.Slice(start, i - start).ToString();
+                    if (IgnoredDirectoryNames.Contains(segment))
+                    {
+                        return true;
+                    }
+                }
+
+                start = i + 1;
+            }
+        }
+
+        return false;
     }
 
     private void TryWriteToFile(string css)

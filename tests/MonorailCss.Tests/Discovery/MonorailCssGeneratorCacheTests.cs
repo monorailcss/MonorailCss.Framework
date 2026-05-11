@@ -116,4 +116,121 @@ public class MonorailCssGeneratorCacheTests
         first.Css.ShouldContain("red");
         second.Css.ShouldContain("blue");
     }
+
+    [Fact]
+    public void Generate_With_Empty_ChangedSourceFiles_Returns_Cached_Result()
+    {
+        var generator = new MonorailCssGenerator();
+        var framework = new CssFramework();
+
+        var first = generator.Generate(new MonorailCssGenerationRequest
+        {
+            BaseFramework = framework,
+            ExtraSafelist = new[] { "bg-red-500", "p-4" },
+        });
+
+        // Empty (non-null) changed-file list means "nothing changed since last call".
+        var second = generator.Generate(new MonorailCssGenerationRequest
+        {
+            BaseFramework = framework,
+            ExtraSafelist = new[] { "bg-red-500", "p-4" },
+            ChangedSourceFiles = Array.Empty<string>(),
+        });
+
+        ReferenceEquals(first, second).ShouldBeTrue();
+    }
+
+    [Fact]
+    public void Generate_With_ChangedSourceFiles_Only_Rescans_Listed_Files()
+    {
+        var dir = TempDir();
+        try
+        {
+            var fileA = Path.Combine(dir, "a.razor");
+            var fileB = Path.Combine(dir, "b.razor");
+            File.WriteAllText(fileA, """<div class="bg-red-500"></div>""");
+            File.WriteAllText(fileB, """<div class="p-4"></div>""");
+
+            var generator = new MonorailCssGenerator();
+            var framework = new CssFramework();
+
+            // First pass: full scan picks up both files.
+            var first = generator.Generate(new MonorailCssGenerationRequest
+            {
+                BaseFramework = framework,
+                SourceFiles = new[] { fileA, fileB },
+            });
+            first.Classes.ShouldContain("bg-red-500");
+            first.Classes.ShouldContain("p-4");
+
+            // Modify file A only and rebuild via the incremental path (ChangedSourceFiles=[fileA]).
+            // Bump mtime via timestamps to guarantee the per-file cache invalidates even when the
+            // write completes within the same filesystem-time tick.
+            File.WriteAllText(fileA, """<div class="bg-red-500 rotate-12"></div>""");
+            File.SetLastWriteTimeUtc(fileA, DateTime.UtcNow.AddSeconds(1));
+
+            var second = generator.Generate(new MonorailCssGenerationRequest
+            {
+                BaseFramework = framework,
+                ChangedSourceFiles = new[] { fileA },
+            });
+
+            second.Classes.ShouldContain("rotate-12"); // new token from A
+            second.Classes.ShouldContain("bg-red-500"); // still there
+            second.Classes.ShouldContain("p-4"); // B not rescanned, but still in cache
+        }
+        finally
+        {
+            Directory.Delete(dir, recursive: true);
+        }
+    }
+
+    [Fact]
+    public void Generate_With_ChangedSourceFiles_Retains_Tokens_From_Previous_File_Version()
+    {
+        // Matches Tailwind's documented trade-off (packages/@tailwindcss-cli/.../build/index.ts:478-480):
+        // tokens contributed by a previous version of a file are NOT removed when the file
+        // is rescanned. A class that was deleted from the source lingers in the output until
+        // a full rescan (startup, css-watcher) flushes the cache.
+        var dir = TempDir();
+        try
+        {
+            var file = Path.Combine(dir, "page.razor");
+            File.WriteAllText(file, """<div class="rotate-12"></div>""");
+
+            var generator = new MonorailCssGenerator();
+            var framework = new CssFramework();
+
+            var first = generator.Generate(new MonorailCssGenerationRequest
+            {
+                BaseFramework = framework,
+                SourceFiles = new[] { file },
+            });
+            first.Classes.ShouldContain("rotate-12");
+
+            // Remove the class from the file and trigger an incremental rescan.
+            File.WriteAllText(file, """<div></div>""");
+            File.SetLastWriteTimeUtc(file, DateTime.UtcNow.AddSeconds(1));
+
+            var second = generator.Generate(new MonorailCssGenerationRequest
+            {
+                BaseFramework = framework,
+                ChangedSourceFiles = new[] { file },
+            });
+
+            // Token from the previous version is preserved — this is the trade-off, not a bug.
+            second.Classes.ShouldContain("rotate-12");
+        }
+        finally
+        {
+            Directory.Delete(dir, recursive: true);
+        }
+    }
+
+    private static string TempDir()
+    {
+        var dir = Path.Combine(Path.GetTempPath(), "monorail-generator-cache-tests-" + Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(dir);
+        return dir;
+    }
 }

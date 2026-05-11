@@ -72,6 +72,18 @@ public sealed record MonorailCssGenerationRequest
     /// skipped entirely. The first call with this flag set still does a full scan, since
     /// there is nothing cached yet.</summary>
     public bool SkipSourceFileScan { get; init; }
+
+    /// <summary>Gets the source files that may have changed since the last call. When non-null
+    /// and a previous source-file token contribution is cached, the generator scans only
+    /// these files (force-bypassing the per-file mtime cache for them) and folds the
+    /// resulting tokens into the previous contribution. When null, behaviour is unchanged:
+    /// the full <see cref="SourceFiles"/> list is walked and each file's mtime decides
+    /// whether it gets rescanned. An empty (non-null) collection is a valid signal meaning
+    /// "nothing changed". Note: tokens contributed by a previous version of a changed file
+    /// are not removed — a class no longer used in the source lingers in the output until
+    /// a full rescan (startup, css-watcher) reseeds the cache. This matches Tailwind's
+    /// trade-off and avoids needing a token-to-file reverse index.</summary>
+    public IReadOnlyCollection<string>? ChangedSourceFiles { get; init; }
 }
 
 /// <summary>
@@ -173,7 +185,24 @@ public sealed class MonorailCssGenerator
             ScanLoadedAssemblies(request, assemblyScanner, classes);
             ScanAssemblyFiles(request, validationCache, classes);
 
-            if (request.SkipSourceFileScan && _lastSourceFileTokens is not null)
+            if (request.ChangedSourceFiles is { } changedFiles && _lastSourceFileTokens is not null)
+            {
+                // Tailwind-style incremental: only the listed files are re-tokenised; everything
+                // else carries over from the previous call. We deliberately do NOT remove tokens
+                // contributed by a prior version of a changed file — matches Tailwind's
+                // documented trade-off and avoids needing a token-to-file reverse index. The
+                // stale tokens are flushed by any startup / css-watcher rescan.
+                foreach (var path in changedFiles)
+                {
+                    if (!string.IsNullOrEmpty(path))
+                    {
+                        sourceFileScanner.ScanFileForceRescan(path, _lastSourceFileTokens);
+                    }
+                }
+
+                classes.UnionWith(_lastSourceFileTokens);
+            }
+            else if (request.SkipSourceFileScan && _lastSourceFileTokens is not null)
             {
                 classes.UnionWith(_lastSourceFileTokens);
             }
