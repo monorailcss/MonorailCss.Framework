@@ -62,6 +62,16 @@ public sealed record MonorailCssGenerationRequest
     /// contributing real utilities.</summary>
     public IReadOnlyCollection<string> ExcludeAssemblies { get; init; } =
         new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+    /// <summary>Gets a value indicating whether the generator may reuse the source-file token
+    /// contribution from the previous call instead of walking and re-scanning
+    /// <see cref="SourceFiles"/>. Set this when the caller knows source files cannot have
+    /// changed since the previous <see cref="MonorailCssGenerator.Generate"/> call (e.g.
+    /// a late-load assembly event, a hot-reload metadata-update event). When true and the
+    /// generator has a previous result on hand, the directory walk and per-file scans are
+    /// skipped entirely. The first call with this flag set still does a full scan, since
+    /// there is nothing cached yet.</summary>
+    public bool SkipSourceFileScan { get; init; }
 }
 
 /// <summary>
@@ -124,6 +134,7 @@ public sealed class MonorailCssGenerator
     private string? _lastRawCss;
     private MonorailCssGenerationResult? _lastResult;
     private ResolveCache? _resolveCache;
+    private HashSet<string>? _lastSourceFileTokens;
 
     /// <summary>
     /// Runs the discovery pipeline against <paramref name="request"/> and returns the
@@ -149,17 +160,30 @@ public sealed class MonorailCssGenerator
                 _lastResult = null;
                 _lastClasses = null;
                 _lastRawCss = null;
+                _lastSourceFileTokens = null;
             }
 
             var validationCache = _validationCache!;
             var assemblyScanner = _assemblyScanner!;
             var sourceFileScanner = _sourceFileScanner!;
 
-            // Step 3: scan all sources into a unified candidate set.
+            // Step 3: scan all sources into a unified candidate set. Source files get their own
+            // bucket so we can replay it when SkipSourceFileScan is set on a later call.
             var classes = new HashSet<string>(StringComparer.Ordinal);
             ScanLoadedAssemblies(request, assemblyScanner, classes);
             ScanAssemblyFiles(request, validationCache, classes);
-            ScanSourceFiles(request, sourceFileScanner, classes);
+
+            if (request.SkipSourceFileScan && _lastSourceFileTokens is not null)
+            {
+                classes.UnionWith(_lastSourceFileTokens);
+            }
+            else
+            {
+                var sourceFileTokens = new HashSet<string>(StringComparer.Ordinal);
+                ScanSourceFiles(request, sourceFileScanner, sourceFileTokens);
+                classes.UnionWith(sourceFileTokens);
+                _lastSourceFileTokens = sourceFileTokens;
+            }
 
             // Step 4: merge safelist (always included, no validation gate).
             foreach (var safe in request.ExtraSafelist)

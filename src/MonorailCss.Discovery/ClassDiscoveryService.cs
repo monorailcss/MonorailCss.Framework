@@ -434,15 +434,24 @@ internal sealed class ClassDiscoveryService : IHostedService, IClassRegistry, ID
     {
         var sw = Stopwatch.StartNew();
         var previousEtag = _result.ETag;
+
+        // Late-load and hot-reload events don't touch source files; signaling
+        // SkipSourceFileScan lets the generator skip the directory walk and per-file mtime
+        // checks and replay the previous source-file token contribution. Source-watcher,
+        // css-watcher, and startup all need a fresh scan because either the source files or
+        // the source CSS (which can carry safelist directives) just changed.
+        var skipSourceFileScan = trigger is "late-load" or "hot-reload";
+
         var result = _generator.Generate(new MonorailCssGenerationRequest
         {
             SourceCss = _options.SourceCss,
             SourceCssPath = _options.SourceCssPath,
             BaseFramework = _options.Framework,
             Assemblies = AppDomain.CurrentDomain.GetAssemblies(),
-            SourceFiles = EnumerateWatchedSourceFiles(),
+            SourceFiles = skipSourceFileScan ? Array.Empty<string>() : EnumerateWatchedSourceFiles(),
             ExtraSafelist = _options.ExtraSafelist,
             ExcludeAssemblies = _options.ExcludeAssemblies,
+            SkipSourceFileScan = skipSourceFileScan,
         });
         sw.Stop();
 
