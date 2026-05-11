@@ -16,7 +16,7 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.Build.Utilities.Core" Version="17.14.8" />
     <PackageReference Include="Shouldly" Version="4.3.0" />
-    <PackageReference Include="TestableIO.System.IO.Abstractions.TestingHelpers" Version="22.0.16" />
+    <PackageReference Include="TestableIO.System.IO.Abstractions.TestingHelpers" Version="22.1.1" />
     <PackageReference Include="xunit.v3.mtp-v2" Version="3.2.2" />
   </ItemGroup>
 
