@@ -34,36 +34,4 @@ internal static class ProseUtilityHelpers
     {
         return Math.Round(num, 7).ToString("0.#######");
     }
-
-    /// <summary>
-    /// Converts a hexadecimal color code to an RGB space-separated string format.
-    /// </summary>
-    /// <param name="hex">The hexadecimal color code, with or without a leading '#' character.</param>
-    /// <returns>A string representing the color in "R G B" format. Returns "0 0 0" if the conversion fails or the input is invalid.</returns>
-    public static string HexToRgb(string hex)
-    {
-        try
-        {
-            hex = hex.TrimStart('#');
-            if (hex.Length == 3)
-            {
-                hex = $"{hex[0]}{hex[0]}{hex[1]}{hex[1]}{hex[2]}{hex[2]}";
-            }
-
-            if (hex.Length != 6)
-            {
-                return "0 0 0"; // Return black as fallback
-            }
-
-            var r = Convert.ToInt32(hex.Substring(0, 2), 16);
-            var g = Convert.ToInt32(hex.Substring(2, 2), 16);
-            var b = Convert.ToInt32(hex.Substring(4, 2), 16);
-
-            return $"{r} {g} {b}";
-        }
-        catch
-        {
-            return "0 0 0"; // Return black as fallback for any conversion errors
-        }
-    }
 }

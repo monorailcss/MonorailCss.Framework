@@ -81,6 +81,17 @@ internal class ProseColorUtility : IUtility
                     var resolvedValue = ResolveColorValue(value, theme);
                     declarations.Add(new Declaration($"--tw-prose-{prop}", resolvedValue));
                 }
+
+                var invertValue = theme.ResolveValue(
+                    colorTheme == "gray" ?
+                        $"--typography-color-invert-{prop}" :
+                        $"--typography-color-{colorTheme}-invert-{prop}",
+                    ["--typography-color"]);
+                if (invertValue != null)
+                {
+                    var resolvedInvertValue = ResolveColorValue(invertValue, theme);
+                    declarations.Add(new Declaration($"--tw-prose-invert-{prop}", resolvedInvertValue));
+                }
             }
         }
         else

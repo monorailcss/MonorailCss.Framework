@@ -129,15 +129,13 @@ public static class ProseThemeDefaults
         builder.Add("--typography-base-ol-li-padding-inline-start", Em(6, 16));
         builder.Add("--typography-base-ul-li-padding-inline-start", Em(6, 16));
 
-        // Nested lists
-        builder.Add("--typography-base-ul-ul-margin-top", Em(12, 16));
-        builder.Add("--typography-base-ul-ul-margin-bottom", Em(12, 16));
-        builder.Add("--typography-base-ul-ol-margin-top", Em(12, 16));
-        builder.Add("--typography-base-ul-ol-margin-bottom", Em(12, 16));
-        builder.Add("--typography-base-ol-ul-margin-top", Em(12, 16));
-        builder.Add("--typography-base-ol-ul-margin-bottom", Em(12, 16));
-        builder.Add("--typography-base-ol-ol-margin-top", Em(12, 16));
-        builder.Add("--typography-base-ol-ol-margin-bottom", Em(12, 16));
+        // Nested lists (ul ul, ul ol, ol ul, ol ol)
+        builder.Add("--typography-base-nested-list-margin-top", Em(12, 16));
+        builder.Add("--typography-base-nested-list-margin-bottom", Em(12, 16));
+
+        // Paragraphs nested inside list items (.prose > ul > li p)
+        builder.Add("--typography-base-list-paragraph-margin-top", Em(12, 16));
+        builder.Add("--typography-base-list-paragraph-margin-bottom", Em(12, 16));
 
         // Definition lists
         builder.Add("--typography-base-dl-margin-top", Em(20, 16));
@@ -237,14 +235,10 @@ public static class ProseThemeDefaults
         builder.Add("--typography-sm-li-margin-bottom", Em(4, 14));
         builder.Add("--typography-sm-ol-li-padding-inline-start", Em(6, 14));
         builder.Add("--typography-sm-ul-li-padding-inline-start", Em(6, 14));
-        builder.Add("--typography-sm-ul-ul-margin-top", Em(8, 14));
-        builder.Add("--typography-sm-ul-ul-margin-bottom", Em(8, 14));
-        builder.Add("--typography-sm-ul-ol-margin-top", Em(8, 14));
-        builder.Add("--typography-sm-ul-ol-margin-bottom", Em(8, 14));
-        builder.Add("--typography-sm-ol-ul-margin-top", Em(8, 14));
-        builder.Add("--typography-sm-ol-ul-margin-bottom", Em(8, 14));
-        builder.Add("--typography-sm-ol-ol-margin-top", Em(8, 14));
-        builder.Add("--typography-sm-ol-ol-margin-bottom", Em(8, 14));
+        builder.Add("--typography-sm-nested-list-margin-top", Em(8, 14));
+        builder.Add("--typography-sm-nested-list-margin-bottom", Em(8, 14));
+        builder.Add("--typography-sm-list-paragraph-margin-top", Em(8, 14));
+        builder.Add("--typography-sm-list-paragraph-margin-bottom", Em(8, 14));
         builder.Add("--typography-sm-dl-margin-top", Em(16, 14));
         builder.Add("--typography-sm-dl-margin-bottom", Em(16, 14));
         builder.Add("--typography-sm-dt-margin-top", Em(16, 14));
@@ -329,14 +323,10 @@ public static class ProseThemeDefaults
         builder.Add("--typography-lg-li-margin-bottom", Em(12, 18));
         builder.Add("--typography-lg-ol-li-padding-inline-start", Em(8, 18));
         builder.Add("--typography-lg-ul-li-padding-inline-start", Em(8, 18));
-        builder.Add("--typography-lg-ul-ul-margin-top", Em(12, 18));
-        builder.Add("--typography-lg-ul-ul-margin-bottom", Em(12, 18));
-        builder.Add("--typography-lg-ul-ol-margin-top", Em(12, 18));
-        builder.Add("--typography-lg-ul-ol-margin-bottom", Em(12, 18));
-        builder.Add("--typography-lg-ol-ul-margin-top", Em(12, 18));
-        builder.Add("--typography-lg-ol-ul-margin-bottom", Em(12, 18));
-        builder.Add("--typography-lg-ol-ol-margin-top", Em(12, 18));
-        builder.Add("--typography-lg-ol-ol-margin-bottom", Em(12, 18));
+        builder.Add("--typography-lg-nested-list-margin-top", Em(16, 18));
+        builder.Add("--typography-lg-nested-list-margin-bottom", Em(16, 18));
+        builder.Add("--typography-lg-list-paragraph-margin-top", Em(16, 18));
+        builder.Add("--typography-lg-list-paragraph-margin-bottom", Em(16, 18));
         builder.Add("--typography-lg-dl-margin-top", Em(24, 18));
         builder.Add("--typography-lg-dl-margin-bottom", Em(24, 18));
         builder.Add("--typography-lg-dt-margin-top", Em(24, 18));
@@ -391,7 +381,7 @@ public static class ProseThemeDefaults
         builder.Add("--typography-xl-pre-line-height", Round(32.0 / 18.0));
         builder.Add("--typography-xl-pre-margin-top", Em(36, 18));
         builder.Add("--typography-xl-pre-margin-bottom", Em(36, 18));
-        builder.Add("--typography-xl-pre-border-radius", Rem(6));
+        builder.Add("--typography-xl-pre-border-radius", Rem(8));
         builder.Add("--typography-xl-pre-padding-top", Em(20, 18));
         builder.Add("--typography-xl-pre-padding-inline-end", Em(24, 18));
         builder.Add("--typography-xl-pre-padding-bottom", Em(20, 18));
@@ -421,14 +411,10 @@ public static class ProseThemeDefaults
         builder.Add("--typography-xl-li-margin-bottom", Em(12, 20));
         builder.Add("--typography-xl-ol-li-padding-inline-start", Em(8, 20));
         builder.Add("--typography-xl-ul-li-padding-inline-start", Em(8, 20));
-        builder.Add("--typography-xl-ul-ul-margin-top", Em(12, 20));
-        builder.Add("--typography-xl-ul-ul-margin-bottom", Em(12, 20));
-        builder.Add("--typography-xl-ul-ol-margin-top", Em(12, 20));
-        builder.Add("--typography-xl-ul-ol-margin-bottom", Em(12, 20));
-        builder.Add("--typography-xl-ol-ul-margin-top", Em(12, 20));
-        builder.Add("--typography-xl-ol-ul-margin-bottom", Em(12, 20));
-        builder.Add("--typography-xl-ol-ol-margin-top", Em(12, 20));
-        builder.Add("--typography-xl-ol-ol-margin-bottom", Em(12, 20));
+        builder.Add("--typography-xl-nested-list-margin-top", Em(16, 20));
+        builder.Add("--typography-xl-nested-list-margin-bottom", Em(16, 20));
+        builder.Add("--typography-xl-list-paragraph-margin-top", Em(16, 20));
+        builder.Add("--typography-xl-list-paragraph-margin-bottom", Em(16, 20));
         builder.Add("--typography-xl-dl-margin-top", Em(24, 20));
         builder.Add("--typography-xl-dl-margin-bottom", Em(24, 20));
         builder.Add("--typography-xl-dt-margin-top", Em(24, 20));
@@ -513,14 +499,10 @@ public static class ProseThemeDefaults
         builder.Add("--typography-2xl-li-margin-bottom", Em(12, 24));
         builder.Add("--typography-2xl-ol-li-padding-inline-start", Em(10, 24));
         builder.Add("--typography-2xl-ul-li-padding-inline-start", Em(10, 24));
-        builder.Add("--typography-2xl-ul-ul-margin-top", Em(16, 24));
-        builder.Add("--typography-2xl-ul-ul-margin-bottom", Em(16, 24));
-        builder.Add("--typography-2xl-ul-ol-margin-top", Em(16, 24));
-        builder.Add("--typography-2xl-ul-ol-margin-bottom", Em(16, 24));
-        builder.Add("--typography-2xl-ol-ul-margin-top", Em(16, 24));
-        builder.Add("--typography-2xl-ol-ul-margin-bottom", Em(16, 24));
-        builder.Add("--typography-2xl-ol-ol-margin-top", Em(16, 24));
-        builder.Add("--typography-2xl-ol-ol-margin-bottom", Em(16, 24));
+        builder.Add("--typography-2xl-nested-list-margin-top", Em(16, 24));
+        builder.Add("--typography-2xl-nested-list-margin-bottom", Em(16, 24));
+        builder.Add("--typography-2xl-list-paragraph-margin-top", Em(20, 24));
+        builder.Add("--typography-2xl-list-paragraph-margin-bottom", Em(20, 24));
         builder.Add("--typography-2xl-dl-margin-top", Em(32, 24));
         builder.Add("--typography-2xl-dl-margin-bottom", Em(32, 24));
         builder.Add("--typography-2xl-dt-margin-top", Em(32, 24));
@@ -545,7 +527,7 @@ public static class ProseThemeDefaults
         builder.Add("--typography-color-quote-borders", "var(--color-gray-200)");
         builder.Add("--typography-color-captions", "var(--color-gray-500)");
         builder.Add("--typography-color-kbd", "var(--color-gray-900)");
-        builder.Add("--typography-color-kbd-shadows", HexToRgb("#6b7280")); // gray-500
+        builder.Add("--typography-color-kbd-shadows", "color-mix(in oklab, oklch(21% 0.034 264.665) 10%, transparent)");
         builder.Add("--typography-color-code", "var(--color-gray-900)");
         builder.Add("--typography-color-pre-code", "var(--color-gray-200)");
         builder.Add("--typography-color-pre-bg", "var(--color-gray-800)");
@@ -565,7 +547,7 @@ public static class ProseThemeDefaults
         builder.Add("--typography-color-invert-quote-borders", "var(--color-gray-700)");
         builder.Add("--typography-color-invert-captions", "var(--color-gray-400)");
         builder.Add("--typography-color-invert-kbd", "var(--color-white)");
-        builder.Add("--typography-color-invert-kbd-shadows", HexToRgb("#ffffff"));
+        builder.Add("--typography-color-invert-kbd-shadows", "rgb(255 255 255 / 10%)");
         builder.Add("--typography-color-invert-code", "var(--color-white)");
         builder.Add("--typography-color-invert-pre-code", "var(--color-gray-300)");
         builder.Add("--typography-color-invert-pre-bg", "rgb(0 0 0 / 50%)");
@@ -585,7 +567,7 @@ public static class ProseThemeDefaults
         builder.Add("--typography-color-slate-quote-borders", "var(--color-slate-200)");
         builder.Add("--typography-color-slate-captions", "var(--color-slate-500)");
         builder.Add("--typography-color-slate-kbd", "var(--color-slate-900)");
-        builder.Add("--typography-color-slate-kbd-shadows", HexToRgb("#64748b")); // slate-500
+        builder.Add("--typography-color-slate-kbd-shadows", "color-mix(in oklab, oklch(20.8% 0.042 265.755) 10%, transparent)");
         builder.Add("--typography-color-slate-code", "var(--color-slate-900)");
         builder.Add("--typography-color-slate-pre-code", "var(--color-slate-200)");
         builder.Add("--typography-color-slate-pre-bg", "var(--color-slate-800)");
@@ -603,7 +585,7 @@ public static class ProseThemeDefaults
         builder.Add("--typography-color-slate-invert-quote-borders", "var(--color-slate-700)");
         builder.Add("--typography-color-slate-invert-captions", "var(--color-slate-400)");
         builder.Add("--typography-color-slate-invert-kbd", "var(--color-white)");
-        builder.Add("--typography-color-slate-invert-kbd-shadows", HexToRgb("#ffffff"));
+        builder.Add("--typography-color-slate-invert-kbd-shadows", "rgb(255 255 255 / 10%)");
         builder.Add("--typography-color-slate-invert-code", "var(--color-white)");
         builder.Add("--typography-color-slate-invert-pre-code", "var(--color-slate-300)");
         builder.Add("--typography-color-slate-invert-pre-bg", "rgb(0 0 0 / 50%)");
@@ -626,7 +608,14 @@ public static class ProseThemeDefaults
             builder.Add($"--typography-color-{theme}-quote-borders", $"var(--color-{theme}-200)");
             builder.Add($"--typography-color-{theme}-captions", $"var(--color-{theme}-500)");
             builder.Add($"--typography-color-{theme}-kbd", $"var(--color-{theme}-900)");
-            builder.Add($"--typography-color-{theme}-kbd-shadows", theme == "zinc" ? HexToRgb("#71717a") : theme == "neutral" ? HexToRgb("#737373") : HexToRgb("#78716c"));
+            var kbdShadowOklch = theme switch
+            {
+                "zinc" => "oklch(21% 0.006 285.885)",
+                "neutral" => "oklch(20.5% 0 0)",
+                "stone" => "oklch(21.6% 0.006 56.043)",
+                _ => "oklch(21% 0.034 264.665)",
+            };
+            builder.Add($"--typography-color-{theme}-kbd-shadows", $"color-mix(in oklab, {kbdShadowOklch} 10%, transparent)");
             builder.Add($"--typography-color-{theme}-code", $"var(--color-{theme}-900)");
             builder.Add($"--typography-color-{theme}-pre-code", $"var(--color-{theme}-200)");
             builder.Add($"--typography-color-{theme}-pre-bg", $"var(--color-{theme}-800)");
@@ -644,7 +633,7 @@ public static class ProseThemeDefaults
             builder.Add($"--typography-color-{theme}-invert-quote-borders", $"var(--color-{theme}-700)");
             builder.Add($"--typography-color-{theme}-invert-captions", $"var(--color-{theme}-400)");
             builder.Add($"--typography-color-{theme}-invert-kbd", "var(--color-white)");
-            builder.Add($"--typography-color-{theme}-invert-kbd-shadows", HexToRgb("#ffffff"));
+            builder.Add($"--typography-color-{theme}-invert-kbd-shadows", "rgb(255 255 255 / 10%)");
             builder.Add($"--typography-color-{theme}-invert-code", "var(--color-white)");
             builder.Add($"--typography-color-{theme}-invert-pre-code", $"var(--color-{theme}-300)");
             builder.Add($"--typography-color-{theme}-invert-pre-bg", "rgb(0 0 0 / 50%)");
