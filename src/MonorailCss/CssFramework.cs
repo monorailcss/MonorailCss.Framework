@@ -245,6 +245,7 @@ public class CssFramework
             new ThemeVariableTrackingStage(_settings.Theme),
             new ArbitraryValueValidationStage(),
             new NegativeValueNormalizationStage(),
+            new TailwindFunctionExpansionStage(),
             new ColorModifierStage(_settings.Theme),
             new ImportantFlagStage(),
             new VariableFallbackStage(),
@@ -281,6 +282,11 @@ public class CssFramework
         if (_settings.Applies.Count > 0)
         {
             componentNodes = _applyProcessor.ProcessApplies(_settings.Applies, UtilityRegistry, _settings.Theme, propertyRegistry, themeTracker);
+
+            // Component nodes bypass the main pipeline, so they miss TailwindFunctionExpansionStage.
+            // Apply the same rewrites here so applies emit portable CSS too.
+            var rewritten = TailwindFunctionExpander.ExpandTree(componentNodes.ToImmutableList());
+            componentNodes = [..rewritten];
 
             // Add theme variables used by applies
             foreach (var (key, value) in themeTracker.GetUsedValuesWithValues())

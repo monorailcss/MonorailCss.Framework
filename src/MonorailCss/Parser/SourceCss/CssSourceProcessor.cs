@@ -1,4 +1,5 @@
 using System.Collections.Immutable;
+using MonorailCss.Css;
 
 namespace MonorailCss.Parser.SourceCss;
 
@@ -135,6 +136,14 @@ public class CssSourceProcessor
         var rawCss = imported.RawCssRules.Count == 0
             ? string.Empty
             : string.Join(Environment.NewLine + Environment.NewLine, imported.RawCssRules.Select(r => r.Content));
+
+        // Imported user CSS (fonts.css, prism.css, typography.css, etc.) can also contain
+        // Tailwind v4 build-time macros like --spacing(5). They bypass the framework pipeline
+        // because we emit raw content verbatim, so expand them here at the string level.
+        if (rawCss.Length > 0)
+        {
+            rawCss = TailwindFunctionExpander.Expand(rawCss);
+        }
 
         return new CssSourceResult(newSettings, rawCss, imported.ImportedFiles, imported.SourceConfiguration);
     }

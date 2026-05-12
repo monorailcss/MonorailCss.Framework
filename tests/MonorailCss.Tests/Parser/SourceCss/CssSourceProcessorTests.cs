@@ -78,6 +78,33 @@ public class CssSourceProcessorTests
     }
 
     [Fact]
+    public void Process_Source_Expands_Alpha_In_Theme_Inline_Value()
+    {
+        // Lumexui's _theme.css uses --alpha(...) inside @theme inline values to bake an opacity
+        // into a color token. The generated utility output must contain a real color-mix(...) — not
+        // the literal --alpha(...) macro, which browsers don't understand.
+        const string css = """
+                           @theme static inline {
+                               --color-divider: --alpha(var(--lumex-divider) / var(--lumex-opacity-divider));
+                           }
+                           """;
+
+        var baseSettings = new CssFrameworkSettings
+        {
+            Theme = MonorailCss.Theme.Theme.CreateWithDefaults(),
+        };
+
+        var processor = new CssSourceProcessor();
+        var result = processor.ProcessSource(css, basePath: null, baseSettings);
+
+        var framework = new CssFramework(result.Settings with { IncludePreflight = false });
+        var generated = framework.Process(["bg-divider"]);
+
+        generated.ShouldContain("color-mix(in oklab, var(--lumex-divider) var(--lumex-opacity-divider), transparent)");
+        generated.ShouldNotContain("--alpha(");
+    }
+
+    [Fact]
     public void Process_Source_Resolves_Theme_Inline_Variables_Through_Add_Inline()
     {
         // `var(--color-zinc-500)` is a known Tailwind default; AddInline should resolve it

@@ -246,6 +246,38 @@ public class CssVariableIntegrationTests
     }
 
     [Fact]
+    public void DynamicUtility_WithModifierAndAlpha_ExpandsToColorMix()
+    {
+        // Mirrors lumexui's highlight-* utility:
+        //   @utility highlight-* {
+        //       box-shadow: inset 0 1px 0 0 --alpha(--value(--color-*) / --modifier(integer)%);
+        //   }
+        // For candidate `highlight-orange-500/50`:
+        //   --value(--color-*) → var(--color-orange-500)
+        //   --modifier(integer) → 50
+        //   --alpha(... / 50%)  → color-mix(in oklab, var(--color-orange-500) 50%, transparent)
+        var definition = new UtilityDefinition
+        {
+            Pattern = "highlight-*",
+            IsWildcard = true,
+            Declarations = ImmutableList.Create(
+                new CssDeclaration("box-shadow", "inset 0 1px 0 0 --alpha(--value(--color-*) / --modifier(integer)%)")
+            )
+        };
+
+        var utility = CustomUtilityFactory.CreateDynamicUtility(definition);
+        _framework.AddUtility(utility);
+
+        var result = _framework.Process("highlight-orange-500/50");
+
+        result.ShouldNotBeNull();
+        result.ShouldContain("inset 0 1px 0 0 color-mix(in oklab, var(--color-orange-500) 50%, transparent)");
+        result.ShouldNotContain("--alpha(");
+        result.ShouldNotContain("--modifier(");
+        result.ShouldNotContain("--value(");
+    }
+
+    [Fact]
     public void DynamicUtility_WithThemeVariableResolution_GeneratesCssVariable()
     {
         // Arrange

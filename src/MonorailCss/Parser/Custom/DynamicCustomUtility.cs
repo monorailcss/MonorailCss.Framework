@@ -207,25 +207,67 @@ public partial class DynamicCustomUtility : IUtility
 
     /// <summary>
     /// Processes a value string with substitutions for captured wildcard values.
-    /// Handles --value() function calls and direct replacements.
+    /// Handles <c>--value()</c> (wildcard match), <c>--modifier()</c> (candidate modifier portion),
+    /// and direct <c>*</c> placeholder replacement. Tailwind v4 build-time macros like
+    /// <c>--alpha()</c> and <c>--spacing()</c> are intentionally left alone — they're handled
+    /// uniformly by <see cref="Pipeline.Stages.TailwindFunctionExpansionStage"/> downstream.
     /// </summary>
     private string? ProcessValueWithSubstitutions(string value, List<string> capturedValues, Theme.Theme theme, Candidate candidate)
     {
-        // Handle --value() function
-        if (value.Contains("--value("))
+        // Resolve --value(...) first (substitutes from the wildcard match).
+        if (value.Contains("--value(", StringComparison.Ordinal) && capturedValues.Count > 0)
         {
-            return ProcessValueFunction(value, capturedValues[0], theme, candidate);
+            var afterValue = ProcessValueFunction(value, capturedValues[0], theme, candidate);
+            if (afterValue == null)
+            {
+                return null;
+            }
+
+            value = afterValue;
         }
 
-        // Direct substitution with first captured value
-        if (value.Contains("*") && capturedValues.Count > 0)
+        // Then --modifier(...) (substitutes from the candidate's /modifier portion).
+        if (value.Contains("--modifier(", StringComparison.Ordinal))
         {
-            // Replace * with the captured value
+            var afterModifier = ProcessModifierFunction(value, candidate);
+            if (afterModifier == null)
+            {
+                return null;
+            }
+
+            value = afterModifier;
+        }
+
+        // Direct substitution with first captured value if any remaining * placeholders.
+        if (value.Contains('*') && capturedValues.Count > 0)
+        {
             return value.Replace("*", ResolveValue(capturedValues[0], theme, candidate));
         }
 
-        // Return the value as-is if no substitution needed
         return value;
+    }
+
+    /// <summary>
+    /// Replaces <c>--modifier(typeHint)</c> calls with the candidate's modifier value (the portion
+    /// after <c>/</c> in e.g. <c>highlight-orange-500/50</c>). Returns null when the body
+    /// references <c>--modifier</c> but the candidate has no modifier — that disqualifies the
+    /// utility match, matching Tailwind's behaviour. The type hint is currently accepted but
+    /// not strictly validated.
+    /// </summary>
+    private static string? ProcessModifierFunction(string value, Candidate candidate)
+    {
+        if (candidate.Modifier == null)
+        {
+            return null;
+        }
+
+        var modifierValue = candidate.Modifier.Value;
+
+        // Replace every --modifier(...) occurrence in the value. The regex stops at the first ')'
+        // which is fine — the modifier type hints (integer, number, length, [length]) never
+        // contain nested parens in practice.
+        var rewritten = ExtractArgumentFromModifierFunctionRegexDefinition().Replace(value, _ => modifierValue);
+        return rewritten;
     }
 
     /// <summary>
@@ -357,4 +399,7 @@ public partial class DynamicCustomUtility : IUtility
 
     [GeneratedRegex(@"--value\(([^)]+)\)")]
     private static partial Regex ExtractArgumentFromValueFunctionRegexDefinition();
+
+    [GeneratedRegex(@"--modifier\(([^)]+)\)")]
+    private static partial Regex ExtractArgumentFromModifierFunctionRegexDefinition();
 }
