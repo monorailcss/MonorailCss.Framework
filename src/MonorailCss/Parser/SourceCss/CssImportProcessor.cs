@@ -376,6 +376,13 @@ public partial class CssImportProcessor
         stripped = ImportDirectiveRegex().Replace(stripped, string.Empty);
         stripped = CustomVariantDirectiveRegex().Replace(stripped, string.Empty);
 
+        foreach (Match plugin in PluginDirectiveRegex().Matches(stripped))
+        {
+            _log?.Invoke($"@plugin directive ignored — MonorailCss does not support tailwind plugins: {plugin.Value.Trim()}");
+        }
+
+        stripped = PluginDirectiveRegex().Replace(stripped, string.Empty);
+
         var trimmed = stripped.Trim();
         if (trimmed.Length > 0)
         {
@@ -434,4 +441,7 @@ public partial class CssImportProcessor
 
     [GeneratedRegex(@"@custom-variant\s+[^;]+;", RegexOptions.IgnoreCase)]
     private static partial Regex CustomVariantDirectiveRegex();
+
+    [GeneratedRegex(@"@plugin\s+[^;]+;", RegexOptions.IgnoreCase)]
+    private static partial Regex PluginDirectiveRegex();
 }
