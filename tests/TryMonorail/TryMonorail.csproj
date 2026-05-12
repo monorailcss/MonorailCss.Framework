@@ -9,8 +9,14 @@
         <!-- Drive the in-tree MonorailCss.Build.Tasks targets file. Tells the UsingTask in
              MonorailCss.Build.Tasks.targets to load the dev-build of the task DLL rather than
              the NuGet-packed copy. -->
-        <MonorailCssEnabled>true</MonorailCssEnabled>
         <MonorailCssDevelopment>true</MonorailCssDevelopment>
+
+        <!-- Hybrid pattern: build the static CSS only on Release. In Debug (and dotnet watch),
+             leave it unset so the build task skips, and runtime Discovery in Program.cs serves
+             /css/app.css live. Release builds produce wwwroot/css/app.css and ship it as a
+             static web asset; Program.cs doesn't register Discovery in Production, so the
+             static-file middleware wins. See docs/.../aspnet-integration.md. -->
+        <MonorailCssEnabled Condition="'$(Configuration)' == 'Release'">true</MonorailCssEnabled>
     </PropertyGroup>
 
     <ItemGroup>
@@ -45,9 +51,12 @@
         <MonorailCssExcludeAssemblies>BadIdeas.Icons.FontAwesome</MonorailCssExcludeAssemblies>
     </PropertyGroup>
 
+    <!-- Output to the same URL the runtime Discovery endpoint serves on (/css/app.css) so the
+         <link rel="stylesheet"> in App.razor stays invariant across dev and prod. UseStaticFiles
+         picks the file up automatically. -->
     <ItemGroup>
         <MonorailCss Include="wwwroot/app.css">
-            <OutputFile>$(MSBuildProjectDirectory)/wwwroot/css/app.generated.css</OutputFile>
+            <OutputFile>$(MSBuildProjectDirectory)/wwwroot/css/app.css</OutputFile>
         </MonorailCss>
     </ItemGroup>
 

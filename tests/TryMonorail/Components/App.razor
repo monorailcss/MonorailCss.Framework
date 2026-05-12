@@ -1,10 +1,15 @@
 @inject IHostEnvironment Env
-@inject MonorailCss.Discovery.IClassRegistry Registry
+@inject IServiceProvider Services
 @{
+    // IClassRegistry is only registered in Development (see Program.cs). In Production the
+    // build task pre-generated wwwroot/css/app.css and static-file middleware serves it with
+    // its own ETag, so no cache-bust query param is needed.
+    var registry = Services.GetService<MonorailCss.Discovery.IClassRegistry>();
     // Strip the RFC 7232 quotes — keep the URL clean while still cache-busting on every
     // content change. Each unique value becomes its own cache key so a stale body from a
     // previous server run can never bind to a freshly-restarted server's response.
-    var cssVersion = Registry.Version.Trim('"');
+    var cssVersion = registry?.Version.Trim('"');
+    var cssHref = cssVersion is null ? "/css/app.css" : $"/css/app.css?v={cssVersion}";
 }
 <!DOCTYPE html>
 <html lang="en">
@@ -14,7 +19,7 @@
     <base href="/" />
     <title>Try MonorailCss</title>
     <link href="_content/BlazorMonaco/lib/monaco-editor/min/vs/editor/editor.main.css" rel="stylesheet" />
-    <link id="monorail-css" rel="stylesheet" href="/css/app.css?v=@cssVersion" />
+    <link id="monorail-css" rel="stylesheet" href="@cssHref" />
     <script src="https://unpkg.com/split-grid/dist/split-grid.js"></script>
     <HeadOutlet />
     @if (Env.IsDevelopment())
