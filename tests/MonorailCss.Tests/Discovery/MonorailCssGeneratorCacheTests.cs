@@ -227,6 +227,126 @@ public class MonorailCssGeneratorCacheTests
         }
     }
 
+    [Fact]
+    public void SnapshotCache_Then_SeedCache_Into_Fresh_Generator_Preserves_Output()
+    {
+        // Simulates two consecutive dotnet-watch builds: process 1 generates + snapshots,
+        // process 2 seeds with the snapshot, and on a no-change build both must produce
+        // byte-identical CSS.
+        var dir = TempDir();
+        try
+        {
+            var fileA = Path.Combine(dir, "a.razor");
+            var fileB = Path.Combine(dir, "b.razor");
+            File.WriteAllText(fileA, """<div class="bg-red-500"></div>""");
+            File.WriteAllText(fileB, """<div class="p-4"></div>""");
+
+            var first = new MonorailCssGenerator();
+            var firstResult = first.Generate(new MonorailCssGenerationRequest
+            {
+                BaseFramework = new CssFramework(),
+                SourceFiles = new[] { fileA, fileB },
+            });
+
+            var snapshot = first.SnapshotCache();
+            snapshot.SourceFiles.Count.ShouldBe(2);
+
+            var second = new MonorailCssGenerator();
+            second.SeedCache(new GenerationCacheSeed(snapshot.SourceFiles, snapshot.Assemblies));
+            var secondResult = second.Generate(new MonorailCssGenerationRequest
+            {
+                BaseFramework = new CssFramework(),
+                SourceFiles = new[] { fileA, fileB },
+            });
+
+            secondResult.ETag.ShouldBe(firstResult.ETag);
+            secondResult.Css.ShouldBe(firstResult.Css);
+            secondResult.Classes.ShouldBe(firstResult.Classes);
+        }
+        finally
+        {
+            Directory.Delete(dir, recursive: true);
+        }
+    }
+
+    [Fact]
+    public void Seeded_Generator_With_ChangedSourceFiles_Reuses_Unchanged_Files_From_Seed()
+    {
+        // Real dotnet-watch scenario: one .razor changes, ChangedSourceFiles lists just that
+        // one, all others are replayed from the seeded cache.
+        var dir = TempDir();
+        try
+        {
+            var fileA = Path.Combine(dir, "a.razor");
+            var fileB = Path.Combine(dir, "b.razor");
+            File.WriteAllText(fileA, """<div class="bg-red-500"></div>""");
+            File.WriteAllText(fileB, """<div class="p-4"></div>""");
+
+            var first = new MonorailCssGenerator();
+            first.Generate(new MonorailCssGenerationRequest
+            {
+                BaseFramework = new CssFramework(),
+                SourceFiles = new[] { fileA, fileB },
+            });
+            var snapshot = first.SnapshotCache();
+
+            // User edits A in the next build cycle. Bump mtime explicitly so the same-tick
+            // write doesn't confuse the cache check.
+            File.WriteAllText(fileA, """<div class="bg-red-500 rotate-12"></div>""");
+            File.SetLastWriteTimeUtc(fileA, DateTime.UtcNow.AddSeconds(1));
+
+            var second = new MonorailCssGenerator();
+            second.SeedCache(new GenerationCacheSeed(snapshot.SourceFiles, snapshot.Assemblies));
+            var result = second.Generate(new MonorailCssGenerationRequest
+            {
+                BaseFramework = new CssFramework(),
+                SourceFiles = new[] { fileA, fileB },
+                ChangedSourceFiles = new[] { fileA },
+            });
+
+            result.Classes.ShouldContain("rotate-12");
+            result.Classes.ShouldContain("bg-red-500");
+            result.Classes.ShouldContain("p-4"); // B replayed from seed without re-reading
+        }
+        finally
+        {
+            Directory.Delete(dir, recursive: true);
+        }
+    }
+
+    [Fact]
+    public void SnapshotCache_Filters_To_Caller_Path_Set()
+    {
+        // sourceFilePathFilter drops paths that are no longer in the active scan list so
+        // deleted / excluded files don't accumulate in the persisted cache.
+        var dir = TempDir();
+        try
+        {
+            var fileA = Path.Combine(dir, "a.razor");
+            var fileB = Path.Combine(dir, "b.razor");
+            File.WriteAllText(fileA, """<div class="bg-red-500"></div>""");
+            File.WriteAllText(fileB, """<div class="p-4"></div>""");
+
+            var generator = new MonorailCssGenerator();
+            generator.Generate(new MonorailCssGenerationRequest
+            {
+                BaseFramework = new CssFramework(),
+                SourceFiles = new[] { fileA, fileB },
+            });
+
+            var full = generator.SnapshotCache();
+            full.SourceFiles.Count.ShouldBe(2);
+
+            var filtered = generator.SnapshotCache(new[] { fileA });
+            filtered.SourceFiles.Count.ShouldBe(1);
+            filtered.SourceFiles[0].Path.ShouldBe(fileA);
+        }
+        finally
+        {
+            Directory.Delete(dir, recursive: true);
+        }
+    }
+
     private static string TempDir()
     {
         var dir = Path.Combine(Path.GetTempPath(), "monorail-generator-cache-tests-" + Guid.NewGuid().ToString("N"));

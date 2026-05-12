@@ -1,6 +1,8 @@
+using System.Diagnostics;
 using System.IO.Abstractions;
 using JetBrains.Annotations;
 using Microsoft.Build.Framework;
+using MonorailCss.Build.Tasks.BuildCache;
 using MonorailCss.Build.Tasks.Parsing;
 using MonorailCss.Build.Tasks.Scanning;
 using MonorailCss.Discovery;
@@ -105,6 +107,14 @@ public class ProcessCssTask : Microsoft.Build.Utilities.Task
     /// </summary>
     public string? RuntimeIdentifier { get; set; }
 
+    /// <summary>
+    /// Gets or sets the directory used to persist per-assembly (MVID-keyed) and per-source-file
+    /// (mtime-keyed) scan caches across builds. Set from the targets file to
+    /// <c>$(IntermediateOutputPath)MonorailCss</c>. When unset, the task runs cold every time —
+    /// fine for one-shot CI builds, painful under <c>dotnet watch</c>.
+    /// </summary>
+    public string? CacheDirectory { get; set; }
+
     private static readonly string[] _defaultContentPatterns =
     [
         "**/*.html",
@@ -131,12 +141,12 @@ public class ProcessCssTask : Microsoft.Build.Utilities.Task
     {
         try
         {
-            if (IsOutputUpToDate())
-            {
-                Log.LogMessage(MessageImportance.Low, "MonorailCss: Output is up-to-date, skipping regeneration");
-                return true;
-            }
-
+            // No inner up-to-date short-circuit: MSBuild's Inputs/Outputs metadata on the
+            // ProcessMonorailCss target already gates this, and the previous mtime check here
+            // only compared InputFile vs OutputFile — so a .razor/.cs edit would trigger the
+            // target then immediately bail "up to date" and leave generated CSS stale. The
+            // persistent cache (PersistentGenerationCache) handles the precise short-circuit
+            // inside the generator itself.
             Log.LogMessage(MessageImportance.Normal, $"MonorailCss: Processing {InputFile}");
 
             var rootDir = Path.GetDirectoryName(InputFile);
@@ -164,6 +174,24 @@ public class ProcessCssTask : Microsoft.Build.Utilities.Task
                 $"MonorailCss: scanning {assemblyFiles.Count} assembly reference(s), {sourceFiles.Count} source file(s)");
 
             var generator = new MonorailCssGenerator();
+
+            // Persistent cache seed: load per-assembly + per-source-file scan results from the
+            // previous build, hand them to the generator, and only the files actually changed
+            // (by mtime) will be re-scanned this run.
+            var persistentCache = string.IsNullOrEmpty(CacheDirectory)
+                ? null
+                : new PersistentGenerationCache(CacheDirectory);
+
+            var seedSw = Stopwatch.StartNew();
+            var seed = persistentCache?.TryLoad();
+            if (seed is not null)
+            {
+                generator.SeedCache(seed);
+                Log.LogMessage(
+                    MessageImportance.Low,
+                    $"MonorailCss: seeded cache from {persistentCache!.CacheFilePath} ({seed.SourceFiles.Count} source, {seed.Assemblies.Count} assembly entries, {seedSw.ElapsedMilliseconds}ms)");
+            }
+
             var result = generator.Generate(new MonorailCssGenerationRequest
             {
                 SourceCssPath = _fileSystem.File.Exists(InputFile) ? InputFile : null,
@@ -189,7 +217,27 @@ public class ProcessCssTask : Microsoft.Build.Utilities.Task
                 MessageImportance.High,
                 $"MonorailCss: Generated {OutputFile} ({_fileSystem.FileInfo.New(OutputFile).Length / 1024.0:F1} KB, {result.Classes.Count} classes)");
 
-            FileWrites = [new Microsoft.Build.Utilities.TaskItem(OutputFile)];
+            // Persist the updated cache for the next invocation. Filter source-file entries to
+            // the current scan list so deleted / no-longer-included files drop out.
+            if (persistentCache is not null)
+            {
+                var saveSw = Stopwatch.StartNew();
+                var snapshot = generator.SnapshotCache(sourceFiles);
+                persistentCache.Save(snapshot);
+                Log.LogMessage(
+                    MessageImportance.Low,
+                    $"MonorailCss: saved cache ({snapshot.SourceFiles.Count} source, {snapshot.Assemblies.Count} assembly entries, {saveSw.ElapsedMilliseconds}ms)");
+
+                FileWrites = [
+                    new Microsoft.Build.Utilities.TaskItem(OutputFile),
+                    new Microsoft.Build.Utilities.TaskItem(persistentCache.CacheFilePath),
+                ];
+            }
+            else
+            {
+                FileWrites = [new Microsoft.Build.Utilities.TaskItem(OutputFile)];
+            }
+
             return true;
         }
         catch (Exception ex)
@@ -198,18 +246,6 @@ public class ProcessCssTask : Microsoft.Build.Utilities.Task
             Log.LogMessage(MessageImportance.Low, ex.ToString());
             return false;
         }
-    }
-
-    private bool IsOutputUpToDate()
-    {
-        if (!_fileSystem.File.Exists(OutputFile) || !_fileSystem.File.Exists(InputFile))
-        {
-            return false;
-        }
-
-        var inputTime = _fileSystem.File.GetLastWriteTimeUtc(InputFile);
-        var outputTime = _fileSystem.File.GetLastWriteTimeUtc(OutputFile);
-        return outputTime >= inputTime;
     }
 
     private void EnsureOutputDirectory()

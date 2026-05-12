@@ -166,6 +166,70 @@ public sealed partial class SourceFileScanner
         }
     }
 
+    /// <summary>
+    /// Imports cached per-file scan results from a prior process, typically read from
+    /// <c>obj/MonorailCss/source-tokens.json</c>. Subsequent <see cref="ScanFile"/> calls will
+    /// hit the cache and skip re-reading + re-tokenizing the underlying file when its mtime
+    /// still matches the seeded value. Existing entries are overwritten.
+    /// </summary>
+    /// <param name="entries">Cache entries from a prior <see cref="SnapshotCache"/> call.</param>
+    public void SeedCache(IEnumerable<SourceFileCacheEntry> entries)
+    {
+        foreach (var entry in entries)
+        {
+            if (string.IsNullOrEmpty(entry.Path))
+            {
+                continue;
+            }
+
+            var tokens = entry.Tokens is ImmutableArray<string> arr
+                ? arr
+                : entry.Tokens.ToImmutableArray();
+            _scanCache[entry.Path] = new CachedScan(entry.Mtime, tokens);
+        }
+    }
+
+    /// <summary>
+    /// Snapshots the per-file scan cache for persistence. Optionally filters to a caller-
+    /// supplied set of paths so deleted / no-longer-scanned files drop out of the persisted
+    /// cache instead of accumulating across builds.
+    /// </summary>
+    /// <param name="pathFilter">When non-null, only entries whose key is present in this set
+    /// are returned. When null, every cached entry is returned.</param>
+    /// <returns>One entry per surviving cached file.</returns>
+    public IReadOnlyList<SourceFileCacheEntry> SnapshotCache(IReadOnlyCollection<string>? pathFilter = null)
+    {
+        var filter = pathFilter is null
+            ? null
+            : new HashSet<string>(pathFilter, StringComparer.OrdinalIgnoreCase);
+
+        var result = new List<SourceFileCacheEntry>(_scanCache.Count);
+        foreach (var kvp in _scanCache)
+        {
+            if (filter is not null && !filter.Contains(kvp.Key))
+            {
+                continue;
+            }
+
+            result.Add(new SourceFileCacheEntry(kvp.Key, kvp.Value.MTime, kvp.Value.Tokens));
+        }
+
+        return result;
+    }
+
+    /// <summary>
+    /// Returns true when a cache entry for <paramref name="path"/> exists with the supplied
+    /// mtime. The build task uses this to decide whether to include a file in
+    /// <c>ChangedSourceFiles</c> on the next <c>Generate</c> call.
+    /// </summary>
+    /// <param name="path">Absolute path to the source file.</param>
+    /// <param name="mtime">Mtime to compare against the cached entry.</param>
+    /// <returns>True when the cache has a matching entry.</returns>
+    public bool IsUpToDate(string path, DateTime mtime)
+    {
+        return _scanCache.TryGetValue(path, out var entry) && entry.MTime == mtime;
+    }
+
     private readonly record struct CachedScan(DateTime MTime, ImmutableArray<string> Tokens);
 
     /// <summary>
@@ -210,3 +274,9 @@ public sealed partial class SourceFileScanner
         _validationCache.CollectValid(content, output);
     }
 }
+
+/// <summary>
+/// One entry in the persistent source-file token cache: an absolute path, the file's
+/// last-known mtime, and the validated candidate strings extracted from it.
+/// </summary>
+public sealed record SourceFileCacheEntry(string Path, DateTime Mtime, IReadOnlyCollection<string> Tokens);

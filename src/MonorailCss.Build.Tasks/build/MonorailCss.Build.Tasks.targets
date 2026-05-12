@@ -1,4 +1,4 @@
-﻿<Project>
+<Project>
   <!-- MonorailCss Build Task Definition -->
   <UsingTask TaskName="MonorailCss.Build.Tasks.ProcessCssTask"
              AssemblyFile="$(MSBuildThisFileDirectory)..\bin\$(Configuration)\net9.0\MonorailCss.Build.Tasks.dll"
@@ -14,8 +14,27 @@
        for libraries (icon packs, MonorailCss itself) whose IL strings would inflate output. -->
   <ItemGroup>
     <AvailableItemName Include="MonorailCss" />
-    <AvailableItemName Include="MonorailCssExcludeAssembly" />
   </ItemGroup>
+
+  <!-- IDE hint: MonorailCssExcludeAssembly values are bare assembly names ("MonorailCss",
+       "BadIdeas.Icons.FontAwesome"), not file paths. Rider/VS would otherwise render them as
+       missing-file tree nodes in Solution Explorer. <Visible>false</Visible> is the standard
+       metadata both IDEs honour to suppress that. -->
+  <ItemDefinitionGroup>
+    <MonorailCssExcludeAssembly>
+      <Visible>false</Visible>
+    </MonorailCssExcludeAssembly>
+  </ItemDefinitionGroup>
+
+  <PropertyGroup>
+    <!-- Hook into dotnet watch's file-set collection. _CollectWatchItems in the SDK depends on
+         every target name listed in $(CustomCollectWatchItems); appending our target here lets
+         us contribute @(MonorailCss) inputs without overriding what Razor SDK already added.
+         Property evaluation: this targets file imports BEFORE Sdk.targets in SDK-style
+         projects, so $(IntermediateOutputPath) isn't set here yet — properties that need it
+         (e.g. the cache directory) live inside the target body instead. -->
+    <CustomCollectWatchItems>$(CustomCollectWatchItems);_MonorailCssCollectWatchItems</CustomCollectWatchItems>
+  </PropertyGroup>
 
   <!-- Process each MonorailCss file.
        BeforeTargets="CoreCompile" runs after ResolveAssemblyReferences populates
@@ -38,6 +57,14 @@
       </MonorailCss>
     </ItemGroup>
 
+    <!-- Persistent scan cache directory. Defaulted inside the target so it can reference
+         $(IntermediateOutputPath), which Sdk.targets sets after our top-level Import. -->
+    <PropertyGroup>
+      <MonorailCssCacheDirectory Condition="'$(MonorailCssCacheDirectory)' == ''">$(IntermediateOutputPath)MonorailCss\</MonorailCssCacheDirectory>
+    </PropertyGroup>
+
+    <MakeDir Directories="$(MonorailCssCacheDirectory)" />
+
     <ProcessCssTask
       InputFile="%(MonorailCss.Identity)"
       OutputFile="%(MonorailCss.OutputFile)"
@@ -45,8 +72,24 @@
       ExcludeAssemblies="@(MonorailCssExcludeAssembly)"
       Configuration="$(Configuration)"
       TargetFramework="$(TargetFramework)"
-      RuntimeIdentifier="$(RuntimeIdentifier)" />
+      RuntimeIdentifier="$(RuntimeIdentifier)"
+      CacheDirectory="$(MonorailCssCacheDirectory)">
+      <Output TaskParameter="FileWrites" ItemName="FileWrites" />
+    </ProcessCssTask>
 
+  </Target>
+
+  <!-- dotnet watch integration. The SDK's _CollectWatchItems target reads target names from
+       the $(CustomCollectWatchItems) property and runs each as a dependency, mirroring how
+       Razor SDK contributes .razor/.cshtml files via _RazorSdkCustomCollectWatchItems. We
+       append our @(MonorailCss) input CSS files so editing app.css triggers dotnet watch's
+       rebuild path instead of falling through to static-asset hot-push (which would skip
+       ProcessCssTask entirely). .razor and .cs are already covered by Razor SDK / @(Compile). -->
+  <Target Name="_MonorailCssCollectWatchItems"
+          Condition="'$(MonorailCssEnabled)' == 'true' and '@(MonorailCss)' != ''">
+    <ItemGroup>
+      <Watch Include="@(MonorailCss)" />
+    </ItemGroup>
   </Target>
 
   <!-- Clean target to remove generated files -->
@@ -54,5 +97,6 @@
           BeforeTargets="Clean"
           Condition="'$(MonorailCssEnabled)' == 'true'">
     <Delete Files="@(MonorailCss->'%(OutputFile)')" />
+    <RemoveDir Directories="$(MonorailCssCacheDirectory)" Condition="Exists('$(MonorailCssCacheDirectory)')" />
   </Target>
 </Project>

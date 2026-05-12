@@ -304,23 +304,32 @@ public class ProcessCssTaskGlobTests
     }
 
     [Fact]
-    public void Execute_WhenOutputIsUpToDate_SkipsRegeneration()
+    public void Execute_RegeneratesEvenWhenOutputIsNewerThanInput()
     {
+        // The old inner `IsOutputUpToDate` check compared only InputFile vs OutputFile mtimes,
+        // which sabotaged the .razor / .cs change path under `dotnet watch` (MSBuild would fire
+        // the target on a Compile-input change and the task would immediately bail because the
+        // CSS file hadn't been touched). MSBuild's outer Inputs/Outputs gate is authoritative;
+        // when the task does run, it regenerates regardless of OutputFile mtime.
         using var ws = new TestWorkspace();
 
         var inputPath = ws.WriteFile("app.css", """
             @import "tailwindcss" source(none);
             @source inline("bg-blue-500 text-white");
             """);
-        var outputPath = ws.WriteFile("wwwroot/app.css", "/* existing CSS */");
+        var outputPath = ws.WriteFile("wwwroot/app.css", "/* placeholder */");
 
-        // Force the output's mtime to be newer than the input so the up-to-date check fires.
+        // Pre-existing output that's "newer" than the input — the broken inner skip used to
+        // honour this and leave the placeholder in place.
         File.SetLastWriteTimeUtc(outputPath, File.GetLastWriteTimeUtc(inputPath).AddSeconds(10));
 
         var task = ws.CreateTask(inputPath, outputPath);
 
         task.Execute().ShouldBeTrue();
-        File.ReadAllText(outputPath).ShouldBe("/* existing CSS */");
+        var output = File.ReadAllText(outputPath);
+        output.ShouldNotBe("/* placeholder */");
+        output.ShouldContain("bg-blue-500");
+        output.ShouldContain("text-white");
     }
 
     [Fact]

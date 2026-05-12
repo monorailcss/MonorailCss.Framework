@@ -1,7 +1,6 @@
 using System.Collections.Immutable;
 using System.Reflection;
 using System.Reflection.Metadata;
-using System.Reflection.PortableExecutable;
 using System.Security.Cryptography;
 using System.Text;
 using MonorailCss.Parser.SourceCss;
@@ -39,7 +38,7 @@ public sealed record MonorailCssGenerationRequest
     /// <c>AppDomain.CurrentDomain.GetAssemblies()</c> here; build task leaves empty.</summary>
     public IReadOnlyList<Assembly> Assemblies { get; init; } = [];
 
-    /// <summary>Gets the on-disk DLL paths to scan via <see cref="PEReader"/>. Build task
+    /// <summary>Gets the on-disk DLL paths to scan via <c>PEReader</c>. Build task
     /// supplies MSBuild's <c>@(ReferencePath)</c> here; runtime leaves empty.</summary>
     public IReadOnlyList<string> AssemblyFiles { get; init; } = [];
 
@@ -148,6 +147,14 @@ public sealed class MonorailCssGenerator
     private ResolveCache? _resolveCache;
     private HashSet<string>? _lastSourceFileTokens;
 
+    // Pending seeds applied to the scanners on the next Generate() call, once the framework
+    // (and the scanners it owns) have been resolved. SeedCache may be called before any
+    // Generate() — at which point no scanners exist yet — so we hold the seed here and apply
+    // it after framework resolution.
+    private IReadOnlyList<SourceFileCacheEntry>? _pendingSourceSeed;
+    private IReadOnlyList<AssemblyCacheEntry>? _pendingAssemblySeed;
+    private IReadOnlyCollection<string>? _pendingSourceTokenUnion;
+
     /// <summary>
     /// Runs the discovery pipeline against <paramref name="request"/> and returns the
     /// composed CSS plus diagnostics. Thread-safe; concurrent calls serialize on an
@@ -175,15 +182,19 @@ public sealed class MonorailCssGenerator
                 _lastSourceFileTokens = null;
             }
 
-            var validationCache = _validationCache!;
             var assemblyScanner = _assemblyScanner!;
             var sourceFileScanner = _sourceFileScanner!;
+
+            // Apply any pending persistent-cache seed now that scanners exist. Done here (not in
+            // SeedCache) because the scanners get rebuilt whenever the framework changes — a
+            // seed applied to a stale scanner would be lost.
+            ApplyPendingSeed(sourceFileScanner, assemblyScanner);
 
             // Step 3: scan all sources into a unified candidate set. Source files get their own
             // bucket so we can replay it when SkipSourceFileScan is set on a later call.
             var classes = new HashSet<string>(StringComparer.Ordinal);
             ScanLoadedAssemblies(request, assemblyScanner, classes);
-            ScanAssemblyFiles(request, validationCache, classes);
+            ScanAssemblyFiles(request, assemblyScanner, classes);
 
             if (request.ChangedSourceFiles is { } changedFiles && _lastSourceFileTokens is not null)
             {
@@ -253,6 +264,97 @@ public sealed class MonorailCssGenerator
             _lastRawCss = rawCss;
             _lastResult = result;
             return result;
+        }
+    }
+
+    /// <summary>
+    /// Imports a prior cache snapshot (typically read from
+    /// <c>obj/MonorailCss/*.json</c> at the start of an MSBuild task invocation) so the
+    /// following <see cref="Generate"/> call can skip re-scanning assemblies and source files
+    /// that haven't changed since the snapshot was taken.
+    /// <para>
+    /// The seed is held until <see cref="Generate"/> resolves the framework and instantiates
+    /// the scanners — the scanners get rebuilt whenever the framework changes, so applying
+    /// the seed eagerly would risk it being thrown away. Callers usually pair this with
+    /// <see cref="MonorailCssGenerationRequest.ChangedSourceFiles"/> so only files known to
+    /// have changed since the seed are actually re-scanned.
+    /// </para>
+    /// </summary>
+    /// <param name="seed">Per-source-file and per-MVID entries from a prior
+    /// <see cref="SnapshotCache"/> call.</param>
+    public void SeedCache(GenerationCacheSeed seed)
+    {
+        lock (_lock)
+        {
+            _pendingSourceSeed = seed.SourceFiles;
+            _pendingAssemblySeed = seed.Assemblies;
+
+            // Pre-compute the union of all seeded source-file tokens so the ChangedSourceFiles
+            // branch in Generate() has something to fold the freshly-scanned changed files into.
+            if (seed.SourceFiles is { Count: > 0 })
+            {
+                var union = new HashSet<string>(StringComparer.Ordinal);
+                foreach (var entry in seed.SourceFiles)
+                {
+                    foreach (var token in entry.Tokens)
+                    {
+                        union.Add(token);
+                    }
+                }
+
+                _pendingSourceTokenUnion = union;
+            }
+            else
+            {
+                _pendingSourceTokenUnion = null;
+            }
+        }
+    }
+
+    /// <summary>
+    /// Snapshots the current cache state — per-MVID assembly tokens (joined to their path +
+    /// mtime) and per-source-file tokens — for persistence to disk. Pair with
+    /// <see cref="SeedCache"/> in the next process to restore the state.
+    /// </summary>
+    /// <param name="sourceFilePathFilter">When non-null, only source-file entries whose path
+    /// is in this set are returned. Use to drop files no longer in the scan list from the
+    /// persisted cache.</param>
+    /// <returns>A snapshot suitable for round-tripping through <see cref="SeedCache"/>.</returns>
+    public GenerationCacheSnapshot SnapshotCache(IReadOnlyCollection<string>? sourceFilePathFilter = null)
+    {
+        lock (_lock)
+        {
+            var sourceFiles = _sourceFileScanner?.SnapshotCache(sourceFilePathFilter)
+                              ?? (IReadOnlyList<SourceFileCacheEntry>)Array.Empty<SourceFileCacheEntry>();
+            var assemblies = _assemblyScanner?.SnapshotCache()
+                             ?? (IReadOnlyList<AssemblyCacheEntry>)Array.Empty<AssemblyCacheEntry>();
+
+            return new GenerationCacheSnapshot(sourceFiles, assemblies);
+        }
+    }
+
+    private void ApplyPendingSeed(SourceFileScanner sourceFileScanner, AssemblyClassScanner assemblyScanner)
+    {
+        if (_pendingSourceSeed is { Count: > 0 } sourceSeed)
+        {
+            sourceFileScanner.SeedCache(sourceSeed);
+            _pendingSourceSeed = null;
+        }
+
+        if (_pendingAssemblySeed is { Count: > 0 } assemblySeed)
+        {
+            assemblyScanner.SeedCache(assemblySeed);
+            _pendingAssemblySeed = null;
+        }
+
+        // The token union seeded above becomes _lastSourceFileTokens so the ChangedSourceFiles
+        // branch in Generate() (which unions changed-file output into _lastSourceFileTokens)
+        // has the prior contribution to start from. Only set when not already populated by a
+        // prior in-process call.
+        if (_pendingSourceTokenUnion is { } union && _lastSourceFileTokens is null)
+        {
+            _lastSourceFileTokens = new HashSet<string>(union, StringComparer.Ordinal);
+            _pendingSourceTokenUnion = null;
         }
     }
 
@@ -413,7 +515,7 @@ public sealed class MonorailCssGenerator
 
     private static void ScanAssemblyFiles(
         MonorailCssGenerationRequest request,
-        ValidationCache validationCache,
+        AssemblyClassScanner scanner,
         ICollection<string> output)
     {
         foreach (var path in request.AssemblyFiles)
@@ -430,28 +532,7 @@ public sealed class MonorailCssGenerator
                 continue;
             }
 
-            try
-            {
-                using var stream = File.OpenRead(path);
-                using var peReader = new PEReader(stream);
-                if (!peReader.HasMetadata)
-                {
-                    continue;
-                }
-
-                var reader = peReader.GetMetadataReader();
-                if (!reader.IsAssembly || IlMetadataScanner.HasReferenceAssemblyAttribute(reader))
-                {
-                    continue;
-                }
-
-                IlMetadataScanner.ScanUserStringHeap(reader, validationCache, output);
-            }
-            catch
-            {
-                // Best-effort: a malformed DLL or a transient read error shouldn't fail the
-                // whole generation. The candidate set is still useful from the rest.
-            }
+            scanner.ScanFile(path, output);
         }
     }
 
@@ -477,3 +558,21 @@ public sealed class MonorailCssGenerator
         return "\"" + hex + "\"";
     }
 }
+
+/// <summary>
+/// Cache state to feed into <see cref="MonorailCssGenerator.SeedCache"/>. The build task
+/// constructs this from <c>obj/MonorailCss/*.json</c> at the start of a task invocation so
+/// per-file source tokens and per-MVID assembly tokens carry over from the previous build.
+/// </summary>
+public sealed record GenerationCacheSeed(
+    IReadOnlyList<SourceFileCacheEntry> SourceFiles,
+    IReadOnlyList<AssemblyCacheEntry> Assemblies);
+
+/// <summary>
+/// Cache state returned by <see cref="MonorailCssGenerator.SnapshotCache"/> for persistence.
+/// The build task serializes this to <c>obj/MonorailCss/*.json</c> after each generation so
+/// the next process can avoid redoing work.
+/// </summary>
+public sealed record GenerationCacheSnapshot(
+    IReadOnlyList<SourceFileCacheEntry> SourceFiles,
+    IReadOnlyList<AssemblyCacheEntry> Assemblies);
