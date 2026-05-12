@@ -111,7 +111,8 @@ public class ProcessCssTask : Microsoft.Build.Utilities.Task
     /// Gets or sets the directory used to persist per-assembly (MVID-keyed) and per-source-file
     /// (mtime-keyed) scan caches across builds. Set from the targets file to
     /// <c>$(IntermediateOutputPath)MonorailCss</c>. When unset, the task runs cold every time —
-    /// fine for one-shot CI builds, painful under <c>dotnet watch</c>.
+    /// fine for one-shot CI builds, slow on incremental rebuilds when MSBuild does decide to
+    /// re-enter the target.
     /// </summary>
     public string? CacheDirectory { get; set; }
 
@@ -146,7 +147,7 @@ public class ProcessCssTask : Microsoft.Build.Utilities.Task
             // only compared InputFile vs OutputFile — so a .razor/.cs edit would trigger the
             // target then immediately bail "up to date" and leave generated CSS stale. The
             // persistent cache (PersistentGenerationCache) handles the precise short-circuit
-            // inside the generator itself.
+            // inside the generator instead, keyed by MVID + per-file mtime.
             Log.LogMessage(MessageImportance.Normal, $"MonorailCss: Processing {InputFile}");
 
             var rootDir = Path.GetDirectoryName(InputFile);

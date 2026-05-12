@@ -26,16 +26,6 @@
     </MonorailCssExcludeAssembly>
   </ItemDefinitionGroup>
 
-  <PropertyGroup>
-    <!-- Hook into dotnet watch's file-set collection. _CollectWatchItems in the SDK depends on
-         every target name listed in $(CustomCollectWatchItems); appending our target here lets
-         us contribute @(MonorailCss) inputs without overriding what Razor SDK already added.
-         Property evaluation: this targets file imports BEFORE Sdk.targets in SDK-style
-         projects, so $(IntermediateOutputPath) isn't set here yet — properties that need it
-         (e.g. the cache directory) live inside the target body instead. -->
-    <CustomCollectWatchItems>$(CustomCollectWatchItems);_MonorailCssCollectWatchItems</CustomCollectWatchItems>
-  </PropertyGroup>
-
   <!-- Process each MonorailCss file.
        BeforeTargets="CoreCompile" runs after ResolveAssemblyReferences populates
        @(ReferencePath) with absolute paths to every project + package + framework reference
@@ -86,19 +76,6 @@
       <Output TaskParameter="FileWrites" ItemName="FileWrites" />
     </ProcessCssTask>
 
-  </Target>
-
-  <!-- dotnet watch integration. The SDK's _CollectWatchItems target reads target names from
-       the $(CustomCollectWatchItems) property and runs each as a dependency, mirroring how
-       Razor SDK contributes .razor/.cshtml files via _RazorSdkCustomCollectWatchItems. We
-       append our @(MonorailCss) input CSS files so editing app.css triggers dotnet watch's
-       rebuild path instead of falling through to static-asset hot-push (which would skip
-       ProcessCssTask entirely). .razor and .cs are already covered by Razor SDK / @(Compile). -->
-  <Target Name="_MonorailCssCollectWatchItems"
-          Condition="'$(MonorailCssEnabled)' == 'true' and '@(MonorailCss)' != ''">
-    <ItemGroup>
-      <Watch Include="@(MonorailCss)" />
-    </ItemGroup>
   </Target>
 
   <!-- Clean target to remove generated files -->

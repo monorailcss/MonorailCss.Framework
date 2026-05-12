@@ -10,10 +10,10 @@ namespace MonorailCss.Build.Tasks.BuildCache;
 /// <c>$(IntermediateOutputPath)MonorailCss/</c> so it's cleaned by <c>dotnet clean</c> and
 /// follows the project's intermediate output convention.
 /// <para>
-/// Without this, each <c>dotnet build</c> invocation (including those triggered by
-/// <c>dotnet watch</c>) starts the generator with empty caches and re-scans every assembly +
-/// source file from scratch. With it, an unchanged DLL is replayed from cache, an unchanged
-/// source file is replayed by mtime, and only the file the user just touched is re-tokenized.
+/// Without this, every <c>dotnet build</c> invocation starts the generator with empty caches
+/// and re-scans every assembly + source file from scratch. With it, an unchanged DLL is
+/// replayed from cache, an unchanged source file is replayed by mtime, and only the file the
+/// user just touched is re-tokenized — the standard win an incremental build expects.
 /// </para>
 /// </summary>
 internal sealed class PersistentGenerationCache
@@ -86,8 +86,8 @@ internal sealed class PersistentGenerationCache
     /// <summary>
     /// Writes <paramref name="snapshot"/> to disk atomically: serialize to a sibling
     /// <c>.tmp</c> file, then <see cref="File.Move(string, string, bool)"/> over the real
-    /// path. A killed <c>dotnet watch</c> mid-write can leave a leftover <c>.tmp</c> but
-    /// never a half-written <c>cache.json</c>.
+    /// path. A killed build mid-write can leave a leftover <c>.tmp</c> but never a
+    /// half-written <c>cache.json</c>.
     /// </summary>
     public void Save(GenerationCacheSnapshot snapshot)
     {
