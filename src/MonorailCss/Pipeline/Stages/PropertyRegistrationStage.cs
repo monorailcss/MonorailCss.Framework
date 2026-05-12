@@ -104,8 +104,11 @@ internal partial class PropertyRegistrationStage : IPipelineStage
         ["--tw-pinch-zoom"] = ("*", false, null),
         ["--tw-scroll-snap-strictness"] = ("*", false, "proximity"),
 
-        // Content property - needed for before/after content
-        ["--tw-content"] = ("*", false, null),
+        // Content property - needed for before/after content. The empty-string initial value
+        // is critical: `before:`/`after:` variants emit `content: var(--tw-content)`, and if
+        // --tw-content has no initial value the var() resolves to invalid → the content
+        // declaration is invalid → the pseudo-element never renders. Tailwind v4 sets this too.
+        ["--tw-content"] = ("*", false, "\"\""),
 
         // Typography properties - needed for font features
         ["--tw-leading"] = ("*", false, null),

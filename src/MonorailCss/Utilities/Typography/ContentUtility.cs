@@ -73,8 +73,10 @@ internal class ContentUtility : IUtility
             return false;
         }
 
-        // Register the --tw-content CSS property
-        propertyRegistry.Register("--tw-content", "*", false, null);
+        // Register the --tw-content CSS property with empty-string initial value so
+        // before:/after: variants' `content: var(--tw-content)` resolves to "" by default
+        // (otherwise the pseudo-element never renders).
+        propertyRegistry.Register("--tw-content", "*", false, "\"\"");
 
         // Call the base implementation
         return TryCompile(candidate, theme, out results);
