@@ -80,6 +80,30 @@ Typically consumed via NuGet package. The task is automatically invoked during b
 </ItemGroup>
 ```
 
+### Excluding Assemblies from Scanning
+
+`@(ReferencePath)` flows every project/package/framework reference through the IL scanner. Most assemblies are fine; a few (icon packs, validation libraries, the framework's own templates) bake class-shaped strings into IL and would inflate the candidate set.
+
+**Auto-excluded** (no config needed):
+- `Microsoft.*`, `System.*`, `netstandard*`, `mscorlib`, `WindowsBase` (`IlMetadataScanner.IsKnownFrameworkAssembly`)
+- `MonorailCss`, `MonorailCss.Build.Tasks`, `MonorailCss.Discovery` (the task self-excludes these)
+
+**Property form** (recommended — no `Include=` ceremony):
+```xml
+<PropertyGroup>
+  <MonorailCssExcludeAssemblies>FluentValidation;LumexUI.Motion;BadIdeas.Icons.FontAwesome</MonorailCssExcludeAssemblies>
+</PropertyGroup>
+```
+
+**Item form** (use when you need per-item metadata or contributions from multiple `Directory.Build.targets` layers — MSBuild's `Include` accepts a semicolon list natively):
+```xml
+<ItemGroup>
+  <MonorailCssExcludeAssembly Include="FluentValidation;LumexUI.Motion;BadIdeas.Icons.FontAwesome" />
+</ItemGroup>
+```
+
+Both forms can be mixed; the targets file unions them into the final exclusion set. Matching is bare assembly name, case-insensitive — no wildcards (yet).
+
 ### Source Configuration Examples
 
 **Basic auto-detection** (default behavior):
@@ -186,11 +210,7 @@ The placeholders are resolved in `ProcessCssTask` using values passed from MSBui
 
 ## Unsupported Directives
 
-The following Tailwind v4 directives are **not yet parsed**:
-- `@plugin` - Plugin loading (e.g., `@plugin "@tailwindcss/typography"`)
-- CSS import processing - `@import` paths are not resolved or merged into output
-
-These may be added in future versions.
+- `@plugin` — Plugin loading (e.g., `@plugin "@tailwindcss/typography"`). Stripped from output and logged once per occurrence; MonorailCss doesn't run npm plugins. Use the built-in `prose` utility in place of `@tailwindcss/typography`.
 
 ## Testing
 

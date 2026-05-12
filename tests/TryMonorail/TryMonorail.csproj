@@ -40,13 +40,15 @@
          framework itself ships utility-class-shaped templates ("bg-{color}-500"), and the
          FontAwesome icon pack bakes thousands of class-shaped strings into metadata. Skipping
          them at scan time keeps the candidate set focused on what the playground actually uses. -->
+    <PropertyGroup>
+        <!-- MonorailCss itself is auto-excluded by the task. -->
+        <MonorailCssExcludeAssemblies>BadIdeas.Icons.FontAwesome</MonorailCssExcludeAssemblies>
+    </PropertyGroup>
+
     <ItemGroup>
         <MonorailCss Include="wwwroot/app.css">
             <OutputFile>$(MSBuildProjectDirectory)/wwwroot/css/app.generated.css</OutputFile>
         </MonorailCss>
-
-        <MonorailCssExcludeAssembly Include="MonorailCss" />
-        <MonorailCssExcludeAssembly Include="BadIdeas.Icons.FontAwesome" />
     </ItemGroup>
 
     <Import Project="..\..\src\MonorailCss.Build.Tasks\build\MonorailCss.Build.Tasks.targets" />

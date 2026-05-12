@@ -65,11 +65,20 @@
 
     <MakeDir Directories="$(MonorailCssCacheDirectory)" />
 
+    <!-- Accept assembly exclusions in two forms and union them. The property form keeps the
+         consumer csproj free of "Exclude … Include=" noise; the item form is still useful when
+         per-item metadata is needed or when multiple Directory.Build.targets layers contribute. -->
+    <ItemGroup>
+      <_MonorailCssExcludeAssembly Include="$(MonorailCssExcludeAssemblies)"
+                                   Condition="'$(MonorailCssExcludeAssemblies)' != ''" />
+      <_MonorailCssExcludeAssembly Include="@(MonorailCssExcludeAssembly)" />
+    </ItemGroup>
+
     <ProcessCssTask
       InputFile="%(MonorailCss.Identity)"
       OutputFile="%(MonorailCss.OutputFile)"
       ReferencePaths="@(ReferencePath)"
-      ExcludeAssemblies="@(MonorailCssExcludeAssembly)"
+      ExcludeAssemblies="@(_MonorailCssExcludeAssembly)"
       Configuration="$(Configuration)"
       TargetFramework="$(TargetFramework)"
       RuntimeIdentifier="$(RuntimeIdentifier)"

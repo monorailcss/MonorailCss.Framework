@@ -276,9 +276,26 @@ public class ProcessCssTask : Microsoft.Build.Utilities.Task
         return new CssSourceParser().Parse(content);
     }
 
-    private HashSet<string> BuildExcludeSet()
+    // Framework assemblies that always contain utility-class-shaped strings (templates,
+    // canonical-test fixtures, prose defaults, etc.) and would inflate the candidate set if
+    // scanned. Seeded unconditionally so consumers don't have to repeat them in every csproj.
+    // Microsoft.* and System.* are filtered separately by IlMetadataScanner.IsKnownFrameworkAssembly.
+    private static readonly string[] _frameworkAssemblies =
+    [
+        "MonorailCss",
+        "MonorailCss.Build.Tasks",
+        "MonorailCss.Discovery",
+    ];
+
+    internal HashSet<string> BuildExcludeSet()
     {
         var set = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+        foreach (var name in _frameworkAssemblies)
+        {
+            set.Add(name);
+        }
+
         if (ExcludeAssemblies is null)
         {
             return set;

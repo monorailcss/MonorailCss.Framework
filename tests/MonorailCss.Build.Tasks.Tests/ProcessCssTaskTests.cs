@@ -1,3 +1,5 @@
+using Microsoft.Build.Framework;
+using Microsoft.Build.Utilities;
 using Shouldly;
 
 namespace MonorailCss.Build.Tasks.Tests;
@@ -74,6 +76,47 @@ public class ProcessCssTaskTests
         var output = File.ReadAllText(outputPath);
         output.ShouldContain(".scrollbar-hide");
         output.ShouldContain("scrollbar-width: none");
+    }
+
+    [Fact]
+    public void BuildExcludeSet_SeedsFrameworkAssemblies_EvenWhenInputIsNull()
+    {
+        var task = new ProcessCssTask
+        {
+            InputFile = "ignored.css",
+            OutputFile = "ignored-out.css",
+            BuildEngine = new MockBuildEngine(),
+            ExcludeAssemblies = null,
+        };
+
+        var set = task.BuildExcludeSet();
+
+        // Self-exclusion so consumers don't need to list these in every csproj.
+        set.ShouldContain("MonorailCss");
+        set.ShouldContain("MonorailCss.Build.Tasks");
+        set.ShouldContain("MonorailCss.Discovery");
+    }
+
+    [Fact]
+    public void BuildExcludeSet_MergesFrameworkSeedsWithUserSuppliedItems()
+    {
+        var task = new ProcessCssTask
+        {
+            InputFile = "ignored.css",
+            OutputFile = "ignored-out.css",
+            BuildEngine = new MockBuildEngine(),
+            ExcludeAssemblies = [new TaskItem("FluentValidation"), new TaskItem("LumexUI.Motion")],
+        };
+
+        var set = task.BuildExcludeSet();
+
+        set.ShouldContain("MonorailCss");
+        set.ShouldContain("FluentValidation");
+        set.ShouldContain("LumexUI.Motion");
+
+        // Case-insensitive lookup matches the OrdinalIgnoreCase comparer.
+        set.Contains("monorailcss").ShouldBeTrue();
+        set.Contains("FLUENTVALIDATION").ShouldBeTrue();
     }
 
     [Fact]
