@@ -57,6 +57,60 @@ public class DiscoveryTokenizationTests
         css.ShouldContain("calc(1/4 * 100%)");
     }
 
+    [Fact]
+    public void PreFilter_Should_Not_Drop_Any_Token_The_Parser_Accepts()
+    {
+        var framework = new CssFramework();
+        var cache = new ValidationCache(framework);
+
+        var corpus = string.Join(
+            ' ',
+            "flex block hidden grid underline italic uppercase",            // bare static utils
+            "bg-red-500 hover:text-white p-4 -mt-2 w-1/2 sm:grid-cols-3",    // structured
+            "bg-[#abcdef] opacity-[0.5] p-0.5 text-blue-700/25 !font-bold",  // arbitrary/modifier/important
+            "the quick brown fox jumps lazily over content section render"); // prose noise
+
+        var output = new HashSet<string>(StringComparer.Ordinal);
+        cache.CollectValid(corpus, output);
+
+        // The pre-filter must be conservative: every lexer token the parser accepts survives it.
+        foreach (var token in CandidateLexer.Tokenize(corpus))
+        {
+            if (framework.TryValidateCandidate(token))
+            {
+                output.ShouldContain(token);
+            }
+        }
+
+        // And the natural-language prose is dropped. Each word is first confirmed to be a
+        // non-utility so the assertion can't be invalidated by a word that is secretly valid.
+        foreach (var word in new[] { "quick", "brown", "jumps", "lazily" })
+        {
+            framework.TryValidateCandidate(word).ShouldBeFalse($"'{word}' should not be a utility");
+            output.ShouldNotContain(word);
+        }
+    }
+
+    [Fact]
+    public void PreFilter_Should_Keep_Every_Bare_Static_Utility()
+    {
+        var framework = new CssFramework();
+        var cache = new ValidationCache(framework);
+
+        var staticNames = framework.GetStaticUtilityNames();
+        var output = new HashSet<string>(StringComparer.Ordinal);
+        cache.CollectValid(string.Join(' ', staticNames), output);
+
+        foreach (var name in staticNames)
+        {
+            // The lexer's length window is 2..96; names below it are out of scope here.
+            if (name.Length >= 2)
+            {
+                output.ShouldContain(name);
+            }
+        }
+    }
+
     private static string WriteTempFile(string extension, string content)
     {
         var path = Path.Combine(Path.GetTempPath(), $"monorail-discovery-{Guid.NewGuid():N}{extension}");

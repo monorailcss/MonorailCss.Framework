@@ -489,11 +489,65 @@ public sealed class MonorailCssGenerator
         SourceConfiguration SourceConfiguration,
         ImmutableDictionary<string, DateTime> FileTimes);
 
+    // Below this item count, Parallel.ForEach's task-spawn + per-partition merge overhead
+    // outweighs the gain, so the scan runs inline on the calling thread. Mirrors oxide's
+    // choice to use a synchronous walk for the first (small) build.
+    private const int ParallelScanThreshold = 8;
+
+    /// <summary>
+    /// Scans <paramref name="items"/> into <paramref name="output"/>, in parallel once the
+    /// item count clears <see cref="ParallelScanThreshold"/>. Each worker accumulates into a
+    /// thread-local set and merges into the shared collection once, under a lock, so the only
+    /// contention is the merge — the per-item scan runs lock-free. Relies on the scanners
+    /// being safe to call concurrently (their caches are <c>ConcurrentDictionary</c>
+    /// and the parse path holds no mutable state).
+    /// </summary>
+    private static void ScanItemsParallel<T>(
+        IReadOnlyList<T> items,
+        Action<T, ICollection<string>> scanItem,
+        ICollection<string> output)
+    {
+        if (items.Count == 0)
+        {
+            return;
+        }
+
+        if (items.Count < ParallelScanThreshold)
+        {
+            foreach (var item in items)
+            {
+                scanItem(item, output);
+            }
+
+            return;
+        }
+
+        Parallel.ForEach(
+            items,
+            () => new HashSet<string>(StringComparer.Ordinal),
+            (item, _, local) =>
+            {
+                scanItem(item, local);
+                return local;
+            },
+            local =>
+            {
+                lock (output)
+                {
+                    foreach (var token in local)
+                    {
+                        output.Add(token);
+                    }
+                }
+            });
+    }
+
     private static void ScanLoadedAssemblies(
         MonorailCssGenerationRequest request,
         AssemblyClassScanner scanner,
         ICollection<string> output)
     {
+        var targets = new List<Assembly>(request.Assemblies.Count);
         foreach (var assembly in request.Assemblies)
         {
             if (assembly.IsDynamic)
@@ -509,8 +563,10 @@ public sealed class MonorailCssGenerator
                 continue;
             }
 
-            scanner.Scan(assembly, output);
+            targets.Add(assembly);
         }
+
+        ScanItemsParallel(targets, (assembly, sink) => scanner.Scan(assembly, sink), output);
     }
 
     private static void ScanAssemblyFiles(
@@ -518,6 +574,7 @@ public sealed class MonorailCssGenerator
         AssemblyClassScanner scanner,
         ICollection<string> output)
     {
+        var targets = new List<string>(request.AssemblyFiles.Count);
         foreach (var path in request.AssemblyFiles)
         {
             if (string.IsNullOrEmpty(path))
@@ -532,8 +589,10 @@ public sealed class MonorailCssGenerator
                 continue;
             }
 
-            scanner.ScanFile(path, output);
+            targets.Add(path);
         }
+
+        ScanItemsParallel(targets, (path, sink) => scanner.ScanFile(path, sink), output);
     }
 
     private static void ScanSourceFiles(
@@ -541,13 +600,16 @@ public sealed class MonorailCssGenerator
         SourceFileScanner scanner,
         ICollection<string> output)
     {
+        var targets = new List<string>(request.SourceFiles.Count);
         foreach (var path in request.SourceFiles)
         {
             if (!string.IsNullOrEmpty(path))
             {
-                scanner.ScanFile(path, output);
+                targets.Add(path);
             }
         }
+
+        ScanItemsParallel(targets, (path, sink) => scanner.ScanFile(path, sink), output);
     }
 
     private static string ComputeETag(string content)
