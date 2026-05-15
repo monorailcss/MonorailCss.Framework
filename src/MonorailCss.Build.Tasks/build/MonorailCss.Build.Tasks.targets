@@ -11,12 +11,14 @@
          <MonorailCss Include="path/to/app.css" />              — input CSS files to process
          <MonorailCssExcludeAssembly Include="AssemblyName" />  — assemblies to skip during reference scan
        The latter mirrors MonorailDiscoveryOptions.ExcludeAssemblies on the runtime side; useful
-       for libraries (icon packs, MonorailCss itself) whose IL strings would inflate output. -->
+       for third-party libraries (icon packs, validation libs) whose IL strings would inflate
+       output. The MonorailCss framework assemblies self-exclude via [assembly: MonorailCssNoScan]
+       and never need listing here. -->
   <ItemGroup>
     <AvailableItemName Include="MonorailCss" />
   </ItemGroup>
 
-  <!-- IDE hint: MonorailCssExcludeAssembly values are bare assembly names ("MonorailCss",
+  <!-- IDE hint: MonorailCssExcludeAssembly values are bare assembly names ("FluentValidation",
        "BadIdeas.Icons.FontAwesome"), not file paths. Rider/VS would otherwise render them as
        missing-file tree nodes in Solution Explorer. <Visible>false</Visible> is the standard
        metadata both IDEs honour to suppress that. -->

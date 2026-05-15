@@ -55,10 +55,11 @@ public sealed record MonorailCssGenerationRequest
 
     /// <summary>Gets the assembly names (no <c>.dll</c>, no version) to skip during
     /// scanning. Matched against <c>Assembly.GetName().Name</c> for loaded assemblies and
-    /// <c>Path.GetFileNameWithoutExtension</c> for on-disk DLLs. Useful for the MonorailCss
-    /// framework itself (it ships <c>"bg-{color}-500"</c>-shaped templates), icon packs, or
+    /// <c>Path.GetFileNameWithoutExtension</c> for on-disk DLLs. Useful for icon packs or
     /// anything whose IL-embedded strings would inflate the candidate set without
-    /// contributing real utilities.</summary>
+    /// contributing real utilities. Assemblies marked <c>[assembly: MonorailCssNoScan]</c>
+    /// — including the MonorailCss framework assemblies — are skipped automatically and do
+    /// not need listing here.</summary>
     public IReadOnlyCollection<string> ExcludeAssemblies { get; init; } =
         new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 

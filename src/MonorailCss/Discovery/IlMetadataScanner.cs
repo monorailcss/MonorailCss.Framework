@@ -88,6 +88,30 @@ public static class IlMetadataScanner
         return false;
     }
 
+    /// <summary>
+    /// True when the assembly's metadata carries <see cref="MonorailCssNoScanAttribute"/>.
+    /// Assemblies opt out of utility-class discovery by applying
+    /// <c>[assembly: MonorailCssNoScan]</c> to themselves — used by the MonorailCss framework
+    /// assemblies (whose IL holds class-shaped template strings) and available to consumers.
+    /// Callers should skip such assemblies entirely.
+    /// </summary>
+    /// <param name="reader">The metadata reader to inspect.</param>
+    /// <returns>True when the assembly is marked with <c>[assembly: MonorailCssNoScan]</c>.</returns>
+    public static bool HasMonorailCssNoScanAttribute(MetadataReader reader)
+    {
+        var assemblyDef = reader.GetAssemblyDefinition();
+        foreach (var attrHandle in assemblyDef.GetCustomAttributes())
+        {
+            var attr = reader.GetCustomAttribute(attrHandle);
+            if (IsAttributeOfType(reader, attr, "MonorailCss.Discovery", "MonorailCssNoScanAttribute"))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     private static bool IsAttributeOfType(MetadataReader reader, CustomAttribute attr, string ns, string typeName)
     {
         switch (attr.Constructor.Kind)

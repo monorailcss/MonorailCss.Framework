@@ -86,7 +86,7 @@ Typically consumed via NuGet package. The task is automatically invoked during b
 
 **Auto-excluded** (no config needed):
 - `Microsoft.*`, `System.*`, `netstandard*`, `mscorlib`, `WindowsBase` (`IlMetadataScanner.IsKnownFrameworkAssembly`)
-- `MonorailCss`, `MonorailCss.Build.Tasks`, `MonorailCss.Discovery` (the task self-excludes these)
+- Any assembly marked `[assembly: MonorailCssNoScan]` — detected in IL metadata, so it applies to both build-time and runtime scanning. The MonorailCss framework assemblies (`MonorailCss`, `MonorailCss.Build.Tasks`, `MonorailCss.Discovery`) apply it to themselves; consumers can apply it to their own assemblies as a code-side alternative to listing them in `MonorailCssExcludeAssemblies`.
 
 **Property form** (recommended — no `Include=` ceremony):
 ```xml

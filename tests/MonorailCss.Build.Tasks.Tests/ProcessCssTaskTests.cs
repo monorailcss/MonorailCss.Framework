@@ -79,7 +79,7 @@ public class ProcessCssTaskTests
     }
 
     [Fact]
-    public void BuildExcludeSet_SeedsFrameworkAssemblies_EvenWhenInputIsNull()
+    public void BuildExcludeSet_IsEmpty_WhenNoUserAssembliesSupplied()
     {
         var task = new ProcessCssTask
         {
@@ -89,16 +89,13 @@ public class ProcessCssTaskTests
             ExcludeAssemblies = null,
         };
 
-        var set = task.BuildExcludeSet();
-
-        // Self-exclusion so consumers don't need to list these in every csproj.
-        set.ShouldContain("MonorailCss");
-        set.ShouldContain("MonorailCss.Build.Tasks");
-        set.ShouldContain("MonorailCss.Discovery");
+        // Framework assemblies self-exclude via [assembly: MonorailCssNoScan]; the exclude
+        // set now carries only user-supplied names.
+        task.BuildExcludeSet().ShouldBeEmpty();
     }
 
     [Fact]
-    public void BuildExcludeSet_MergesFrameworkSeedsWithUserSuppliedItems()
+    public void BuildExcludeSet_CollectsUserSuppliedItems_CaseInsensitively()
     {
         var task = new ProcessCssTask
         {
@@ -110,12 +107,10 @@ public class ProcessCssTaskTests
 
         var set = task.BuildExcludeSet();
 
-        set.ShouldContain("MonorailCss");
         set.ShouldContain("FluentValidation");
         set.ShouldContain("LumexUI.Motion");
 
         // Case-insensitive lookup matches the OrdinalIgnoreCase comparer.
-        set.Contains("monorailcss").ShouldBeTrue();
         set.Contains("FLUENTVALIDATION").ShouldBeTrue();
     }
 

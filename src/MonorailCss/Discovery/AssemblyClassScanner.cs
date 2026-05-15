@@ -23,8 +23,8 @@ namespace MonorailCss.Discovery;
 ///     changed since the previous task invocation.</description></item>
 /// </list>
 /// <para>
-/// The actual heap walk and reference-assembly check live in <see cref="IlMetadataScanner"/>
-/// so both entry points share one implementation.
+/// The actual heap walk and the skip checks (reference assembly, <c>[assembly: MonorailCssNoScan]</c>)
+/// live in <see cref="IlMetadataScanner"/> so both entry points share one implementation.
 /// </para>
 /// </summary>
 internal sealed class AssemblyClassScanner
@@ -78,6 +78,11 @@ internal sealed class AssemblyClassScanner
         }
 
         if (IlMetadataScanner.HasReferenceAssemblyAttribute(md))
+        {
+            return false;
+        }
+
+        if (IlMetadataScanner.HasMonorailCssNoScanAttribute(md))
         {
             return false;
         }
@@ -170,7 +175,9 @@ internal sealed class AssemblyClassScanner
             }
 
             var reader = peReader.GetMetadataReader();
-            if (!reader.IsAssembly || IlMetadataScanner.HasReferenceAssemblyAttribute(reader))
+            if (!reader.IsAssembly
+                || IlMetadataScanner.HasReferenceAssemblyAttribute(reader)
+                || IlMetadataScanner.HasMonorailCssNoScanAttribute(reader))
             {
                 return false;
             }
