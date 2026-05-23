@@ -106,6 +106,22 @@ internal class FontWeightUtility : BaseFunctionalUtility
     }
 
     /// <summary>
+    /// Routes arbitrary values: defer family-name/generic-name hints to
+    /// <see cref="FontFamilyUtility"/>; everything else (numbers, var(), calc())
+    /// is validated as a font-weight by the base via <see cref="IsValidArbitraryValue"/>.
+    /// </summary>
+    protected override bool TryResolveValue(CandidateValue value, Theme.Theme theme, bool isNegative, out string resolvedValue)
+    {
+        if (value.Kind == ValueKind.Arbitrary && value.DataTypeHint is "family-name" or "generic-name")
+        {
+            resolvedValue = string.Empty;
+            return false;
+        }
+
+        return base.TryResolveValue(value, theme, isNegative, out resolvedValue);
+    }
+
+    /// <summary>
     /// Validates arbitrary values for font-weight.
     /// </summary>
     protected override bool IsValidArbitraryValue(string value)

@@ -79,7 +79,7 @@ internal abstract class BaseColorUtility : IUtility
                 // and theme() where inference can't tell us the type — the
                 // utility's namespace (bg, text, border-color, …) implies color.
                 var arbitrary = resolvedCandidate.Value;
-                if (!IsOpaqueColorExpression(arbitrary))
+                if (!DataTypeInference.IsOpaqueColorExpression(arbitrary))
                 {
                     var inferredType = DataTypeInference.InferDataType(
                         arbitrary,
@@ -109,18 +109,6 @@ internal abstract class BaseColorUtility : IUtility
     protected virtual bool TryResolveColor(CandidateValue value, Theme.Theme theme, [NotNullWhen(true)] out string? color)
     {
         return ValueResolver.TryResolveColor(value, theme, ColorNamespaces, out color);
-    }
-
-    // Treat opaque CSS-function values as colors when no type hint is given.
-    // The utility's namespace already commits to color semantics; without this
-    // we'd reject `bg-[var(--my-color)]` because the inference engine can't
-    // peek inside `var()` to detect a color.
-    private static bool IsOpaqueColorExpression(string value)
-    {
-        return value.StartsWith("var(", StringComparison.Ordinal)
-            || value.StartsWith("theme(", StringComparison.Ordinal)
-            || value.StartsWith("color-mix(", StringComparison.Ordinal)
-            || value.StartsWith("light-dark(", StringComparison.Ordinal);
     }
 
     /// <summary>

@@ -128,6 +128,45 @@ public partial class CssFrameworkTests
     }
 
     [Fact]
+    public void Process_ShouldEmitArbitraryVarValues_ForTextSymmetricallyWithBgAndBorder()
+    {
+        // Regression: bare var() emitted for bg-/border- but was silently dropped for text-.
+        var testCases = new[]
+        {
+            ("bg-[var(--x)]", "background-color: var(--x)"),
+            ("border-[var(--x)]", "border-color: var(--x)"),
+            ("text-[var(--x)]", "color: var(--x)"),
+            ("text-[color:var(--x)]", "color: var(--x)"),
+        };
+
+        foreach (var (input, expected) in testCases)
+        {
+            _framework.Process(input).ShouldContain(expected);
+        }
+    }
+
+    [Fact]
+    public void Process_ShouldHonorVariantAndOpacityModifier_OnArbitraryTextVar()
+    {
+        var hover = _framework.Process("hover:text-[var(--oxblood)]");
+        hover.ShouldContain("color: var(--oxblood)");
+        hover.ShouldContain(":hover");
+
+        _framework.Process("text-[var(--oxblood)]/50")
+            .ShouldContain("color-mix(in oklab, var(--oxblood) 50%, transparent)");
+    }
+
+    [Fact]
+    public void Process_ShouldRouteArbitraryFontValues_LikeTailwind()
+    {
+        // Bare var()/number -> font-weight; family-name/generic-name hint or inferred family -> font-family.
+        _framework.Process("font-[var(--x)]").ShouldContain("font-weight: var(--x)");
+        _framework.Process("font-[600]").ShouldContain("font-weight: 600");
+        _framework.Process("font-[family-name:var(--x)]").ShouldContain("font-family: var(--x)");
+        _framework.Process("font-[Helvetica]").ShouldContain("font-family: Helvetica");
+    }
+
+    [Fact]
     public void Process_ShouldHandleArbitraryGradientBackgroundImage()
     {
         var testCases = new[]

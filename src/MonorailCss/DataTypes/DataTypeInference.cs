@@ -401,6 +401,20 @@ internal static partial class DataTypeInference
     }
 
     /// <summary>
+    /// Checks if a value is an opaque CSS-function expression whose type cannot be
+    /// introspected at compile time (e.g. <c>var()</c>, <c>theme()</c>, <c>color-mix()</c>,
+    /// <c>light-dark()</c>). Color utilities treat these as colors because their namespace
+    /// already commits to color semantics — see <see cref="InferDataType"/> bailing on <c>var(</c>.
+    /// </summary>
+    public static bool IsOpaqueColorExpression(string value)
+    {
+        return value.StartsWith("var(", StringComparison.Ordinal)
+            || value.StartsWith("theme(", StringComparison.Ordinal)
+            || value.StartsWith("color-mix(", StringComparison.Ordinal)
+            || value.StartsWith("light-dark(", StringComparison.Ordinal);
+    }
+
+    /// <summary>
     /// Checks if a value contains CSS math functions.
     /// </summary>
     public static bool HasMathFunction(string value)

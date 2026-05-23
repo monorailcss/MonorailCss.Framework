@@ -1,5 +1,7 @@
 using System.Collections.Immutable;
 using MonorailCss.Ast;
+using MonorailCss.Candidates;
+using MonorailCss.DataTypes;
 using MonorailCss.Utilities.Base;
 
 namespace MonorailCss.Utilities.Typography;
@@ -15,33 +17,51 @@ internal class FontFamilyUtility : BaseFunctionalUtility
     protected override string[] ThemeKeys => ["--font"];
 
     /// <summary>
-    /// Check if a value represents a font-family (not font-weight).
+    /// Routes arbitrary values: only family/generic values become a font-family.
+    /// Numbers, var()/calc() and other type hints fall through (return false) so
+    /// <see cref="FontWeightUtility"/> handles them as font-weight — matching Tailwind,
+    /// where `font` infers ['number','generic-name','family-name'] and only the last
+    /// two map to font-family.
     /// </summary>
-    private static bool IsFontFamilyValue(string value)
+    protected override bool TryResolveValue(CandidateValue value, Theme.Theme theme, bool isNegative, out string resolvedValue)
     {
-        // If it's a numeric value or known weight name, it's font-weight
-        if (int.TryParse(value, out _) || IsWeightName(value))
+        if (value.Kind == ValueKind.Arbitrary)
+        {
+            resolvedValue = string.Empty;
+            if (!AcceptsAsFamily(value))
+            {
+                return false;
+            }
+
+            resolvedValue = value.Value;
+            return true;
+        }
+
+        return base.TryResolveValue(value, theme, isNegative, out resolvedValue);
+    }
+
+    /// <summary>
+    /// Determines whether an arbitrary value should be treated as a font-family.
+    /// </summary>
+    private static bool AcceptsAsFamily(CandidateValue value)
+    {
+        if (value.DataTypeHint is "family-name" or "generic-name")
+        {
+            return true;
+        }
+
+        // Any other explicit hint (length, number, color, …) belongs to a sibling utility.
+        if (value.DataTypeHint != null)
         {
             return false;
         }
 
-        // For other values, assume it's font-family if it's not obviously weight
-        // This allows custom font families like "display", "body", "code" etc.
-        return true;
-    }
-
-    /// <summary>
-    /// Check if a value is a font-weight name.
-    /// </summary>
-    private static bool IsWeightName(string value)
-    {
-        var weightNames = new HashSet<string>
-        {
-            "thin", "extralight", "light", "normal", "medium",
-            "semibold", "bold", "extrabold", "black",
-        };
-
-        return weightNames.Contains(value);
+        // No hint: infer. var()/calc() resolve to null here, so they fall through
+        // to font-weight just like bare numbers do.
+        var inferred = DataTypeInference.InferDataType(
+            value.Value,
+            [DataType.Number, DataType.GenericName, DataType.FamilyName]);
+        return inferred is DataType.FamilyName or DataType.GenericName;
     }
 
     protected override ImmutableList<AstNode> GenerateDeclarations(string pattern, string value, bool important)
