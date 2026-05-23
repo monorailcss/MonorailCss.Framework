@@ -46248,6 +46248,18 @@
       "font-family"
     ]
   },
+  "font-[var(--my-family)]": {
+    "css": "font-weight: var(--my-family);",
+    "cssProperties": [
+      "font-weight"
+    ]
+  },
+  "font-[600]": {
+    "css": "font-weight: 600;",
+    "cssProperties": [
+      "font-weight"
+    ]
+  },
   "text-2xl": {
     "css": "font-size: var(--text-2xl);\n    line-height: var(--tw-leading, var(--text-2xl--line-height));",
     "cssProperties": [
@@ -46493,6 +46505,12 @@
     ]
   },
   "text-[color:var(--my-color)]": {
+    "css": "color: var(--my-color);",
+    "cssProperties": [
+      "color"
+    ]
+  },
+  "text-[var(--my-color)]": {
     "css": "color: var(--my-color);",
     "cssProperties": [
       "color"

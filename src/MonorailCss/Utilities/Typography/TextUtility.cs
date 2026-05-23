@@ -41,12 +41,14 @@ internal class TextUtility : IUtility
         // Handle arbitrary values
         if (functionalUtility.Value.Kind == ValueKind.Arbitrary)
         {
+            // Substitute `theme(...)` calls up-front so the hint check and
+            // inference below operate on a concrete value (mirrors BaseColorUtility).
+            value = ValueResolver.SubstituteThemeFunctions(value, theme);
+
             var hint = functionalUtility.Value.DataTypeHint;
 
             // Type-hint dispatch: `text-[length:var(--x)]` forces font-size,
-            // `text-[color:var(--x)]` forces color. Without a hint we fall back
-            // to inference, accepting opaque CSS functions (var(), theme(), …)
-            // as colors since the namespace defaults to color.
+            // `text-[color:var(--x)]` forces color.
             if (hint != null)
             {
                 switch (hint)
@@ -71,6 +73,22 @@ internal class TextUtility : IUtility
                     default:
                         return false;
                 }
+            }
+
+            // No hint: opaque CSS functions (var(), color-mix(), light-dark()) can't
+            // be introspected by the inference engine. The text namespace defaults to
+            // color, so treat them as colors — keeping text-[var(--x)] symmetric with
+            // bg-[var(--x)] / border-[var(--x)].
+            if (DataTypeInference.IsOpaqueColorExpression(value))
+            {
+                if (TryApplyColorWithModifier(value, candidate.Modifier, theme, out var opaqueColor))
+                {
+                    results = ImmutableList.Create<AstNode>(
+                        new Declaration("color", opaqueColor, candidate.Important));
+                    return true;
+                }
+
+                return false;
             }
 
             var inferredType = DataTypeInference.InferDataType(
