@@ -445,6 +445,45 @@ public partial class CssFrameworkTests
     }
 
     [Fact]
+    public void Process_ShouldGuardArbitraryMinBreakpointWithMediaQuery()
+    {
+        // Regression: min-[1100px]: previously dropped the variant and emitted opacity
+        // unguarded at every width. It must now be wrapped in a min-width media query.
+        var css = _framework.Process("min-[1100px]:opacity-35");
+
+        css.ShouldContain("@media (min-width: 1100px)");
+        css.ShouldContain(".min-\\[1100px\\]\\:opacity-35");
+
+        // The declaration must live inside the media query, not at the top level.
+        var mediaIndex = css.IndexOf("@media (min-width: 1100px)", StringComparison.Ordinal);
+        var ruleIndex = css.IndexOf(".min-\\[1100px\\]\\:opacity-35", StringComparison.Ordinal);
+        mediaIndex.ShouldBeGreaterThan(-1);
+        ruleIndex.ShouldBeGreaterThan(mediaIndex);
+    }
+
+    [Fact]
+    public void Process_ShouldGuardArbitraryMaxBreakpointWithMediaQuery()
+    {
+        var css = _framework.Process("max-[1100px]:flex");
+
+        css.ShouldContain("@media not all and (min-width: 1100px)");
+        css.ShouldContain(".max-\\[1100px\\]\\:flex");
+        css.ShouldContain("display: flex");
+    }
+
+    [Fact]
+    public void Process_ShouldResolveNamedCustomBreakpoint()
+    {
+        var customTheme = new MonorailCss.Theme.Theme().Add("--breakpoint-tablet", "1100px");
+        var customFramework = new CssFramework(new CssFrameworkSettings { Theme = customTheme });
+
+        var css = customFramework.Process("min-tablet:flex max-tablet:hidden");
+
+        css.ShouldContain("@media (min-width: 1100px)");
+        css.ShouldContain("@media not all and (min-width: 1100px)");
+    }
+
+    [Fact]
     public void Process_ShouldHandleGroupAndPeerVariants()
     {
         var css = _framework.Process("group-hover:bg-red-500 peer-focus:text-blue-700");

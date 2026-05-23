@@ -47,7 +47,7 @@ public readonly record struct VariantToken(
     /// <summary>
     /// Gets a value indicating whether checks if this is a media query variant.
     /// </summary>
-    public bool IsMediaQuery => Raw.StartsWith("[@media") || Name is "sm" or "md" or "lg" or "xl" or "2xl";
+    public bool IsMediaQuery => Raw.StartsWith("[@media") || Name is "sm" or "md" or "lg" or "xl" or "2xl" or "min" or "max";
 
     /// <summary>
     /// Gets a value indicating whether checks if this is a container query variant.

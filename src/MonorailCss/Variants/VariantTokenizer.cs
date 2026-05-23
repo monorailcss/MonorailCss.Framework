@@ -126,6 +126,14 @@ internal class VariantTokenizer
             return VariantToken.Static(containerRoot);
         }
 
+        // Check for functional responsive breakpoints (min-*, max-*). The value keeps its
+        // brackets so the variant can distinguish arbitrary lengths (min-[1100px]) from named
+        // breakpoints (min-tablet) resolved against --breakpoint-*.
+        if (segment.StartsWith("min-") || segment.StartsWith("max-"))
+        {
+            return VariantToken.Functional(segment[..3], segment[4..]);
+        }
+
         // Check for media query breakpoints
         if (IsBreakpointVariant(segment))
         {
@@ -255,7 +263,9 @@ internal class VariantTokenizer
     /// </summary>
     private bool IsBreakpointVariant(string segment)
     {
+        // Note: min-*/max-* are handled earlier as functional breakpoint variants; the bare
+        // "min"/"max" words are not breakpoints on their own.
         return segment is "sm" or "md" or "lg" or "xl" or "2xl" or
-               "min" or "max" or "portrait" or "landscape";
+               "portrait" or "landscape";
     }
 }

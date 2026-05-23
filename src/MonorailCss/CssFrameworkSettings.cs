@@ -48,7 +48,11 @@ public record CssFrameworkSettings
     public bool IncludePreflight { get; init; }
 
     /// <summary>
-    /// Gets a map of custom apply rules where the key is a selector or alias and the value is a space-separated list of utilities or raw CSS to apply.
+    /// Gets a map of custom apply rules where the key is a CSS selector (or alias) and the value is a
+    /// space-separated list of utility class names to apply. Each utility may carry variants such as
+    /// <c>hover:</c> or <c>md:</c>. Raw CSS declarations are <b>not</b> supported (mirroring Tailwind's
+    /// <c>@apply</c>, which accepts utilities only); use arbitrary-value utilities like
+    /// <c>bg-[color-mix(in_oklab,red,blue)]</c> to emit literal values.
     /// </summary>
     public ImmutableDictionary<string, string> Applies { get; init; }
 

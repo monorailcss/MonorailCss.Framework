@@ -189,6 +189,66 @@ public class VariantIntegrationTests
         result.Wrappers[0].Params.ShouldBe("(min-width: 640px)");
     }
 
+    [Theory]
+    [InlineData("min-[1100px]:opacity-35", "min", "[1100px]", "opacity-35")]
+    [InlineData("max-[1100px]:flex", "max", "[1100px]", "flex")]
+    [InlineData("min-tablet:flex", "min", "tablet", "flex")]
+    [InlineData("max-lg:hidden", "max", "lg", "hidden")]
+    public void ParseMinMaxBreakpointVariant_ShouldExtractFunctionalVariant(
+        string input, string expectedName, string expectedValue, string expectedUtility)
+    {
+        _parser.TryParseCandidate(input, out var candidate);
+
+        candidate.ShouldNotBeNull();
+        candidate.Variants.Length.ShouldBe(1);
+        candidate.Variants[0].Name.ShouldBe(expectedName);
+        candidate.Variants[0].Value.ShouldBe(expectedValue);
+        candidate.Variants[0].IsArbitrary.ShouldBeFalse();
+        GetUtilityName(candidate).ShouldBe(expectedUtility);
+    }
+
+    [Fact]
+    public void ApplyArbitraryMinBreakpoint_ShouldAddMinWidthMediaWrapper()
+    {
+        _parser.TryParseCandidate("min-[1100px]:opacity-35", out var candidate);
+        var result = _registry.ApplyVariants("opacity-35", candidate!.Variants);
+
+        result.Selector.Value.ShouldBe(".opacity-35");
+        result.Wrappers.Length.ShouldBe(1);
+        result.Wrappers[0].Name.ShouldBe("media");
+        result.Wrappers[0].Params.ShouldBe("(min-width: 1100px)");
+    }
+
+    [Fact]
+    public void ApplyArbitraryMaxBreakpoint_ShouldAddNotAllMinWidthMediaWrapper()
+    {
+        // Tailwind v4 emits max-* as an exclusive upper bound: not all and (min-width: X).
+        _parser.TryParseCandidate("max-[1100px]:flex", out var candidate);
+        var result = _registry.ApplyVariants("flex", candidate!.Variants);
+
+        result.Selector.Value.ShouldBe(".flex");
+        result.Wrappers.Length.ShouldBe(1);
+        result.Wrappers[0].Name.ShouldBe("media");
+        result.Wrappers[0].Params.ShouldBe("not all and (min-width: 1100px)");
+    }
+
+    [Fact]
+    public void ApplyNamedBreakpoint_ShouldResolveFromBreakpointThemeNamespace()
+    {
+        var customRegistry = new VariantRegistry();
+        var theme = new MonorailCss.Theme.Theme().Add("--breakpoint-tablet", "1100px");
+        customRegistry.RegisterBuiltInVariants(theme);
+
+        _parser.TryParseCandidate("min-tablet:flex", out var candidate);
+        candidate.ShouldNotBeNull();
+
+        var result = customRegistry.ApplyVariants("flex", candidate.Variants);
+
+        result.Wrappers.Length.ShouldBe(1);
+        result.Wrappers[0].Name.ShouldBe("media");
+        result.Wrappers[0].Params.ShouldBe("(min-width: 1100px)");
+    }
+
     [Fact]
     public void ApplyGroupVariant_ShouldCreateDescendantSelector()
     {
