@@ -79,4 +79,56 @@ public class AppliesWithPseudoElementTest
         result.ShouldContain("position: absolute");
         result.ShouldContain("color: var(--color-blue-500)");
     }
+
+    [Fact]
+    public void Process_WithPseudoElementKeyAndVariant_ComposesWithoutDoublingPseudoElement()
+    {
+        // Regression: a pseudo-element in the Applies KEY plus a variant utility produced a
+        // doubled, malformed selector (".p-fetch-line::after::after:where(...)"). The variant
+        // fragment must be inserted before the pseudo-element, which stays terminal.
+        var settings = new CssFrameworkSettings
+        {
+            IncludePreflight = false,
+            Applies = ImmutableDictionary<string, string>.Empty
+                .Add(".p-fetch-line::after", "content-['→'] dark:text-red-300")
+        };
+
+        var framework = new CssFramework(settings);
+
+        var result = framework.Process("");
+        Console.WriteLine("Generated CSS:");
+        Console.WriteLine(result);
+
+        // Base rule keeps the pseudo-element from the key.
+        result.ShouldContain(".p-fetch-line::after");
+        result.ShouldContain("--tw-content: '→'");
+
+        // Variant rule: :where(...) inserted before the (still terminal) pseudo-element.
+        result.ShouldContain(".p-fetch-line:where(.dark, .dark *)::after");
+        result.ShouldContain("color: var(--color-red-300)");
+
+        // No doubled pseudo-element.
+        result.ShouldNotContain("::after::after");
+    }
+
+    [Fact]
+    public void Process_WithPseudoElementKeyAndPseudoClassVariant_KeepsPseudoElementLast()
+    {
+        var settings = new CssFrameworkSettings
+        {
+            IncludePreflight = false,
+            Applies = ImmutableDictionary<string, string>.Empty
+                .Add(".p-shard::before", "hover:text-red-500")
+        };
+
+        var framework = new CssFramework(settings);
+
+        var result = framework.Process("");
+        Console.WriteLine("Generated CSS:");
+        Console.WriteLine(result);
+
+        result.ShouldContain(".p-shard:hover::before");
+        result.ShouldNotContain("::before::before");
+        result.ShouldNotContain("::before:hover");
+    }
 }

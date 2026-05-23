@@ -258,6 +258,11 @@ internal sealed class VariantRegistry
         Register(new BreakpointVariant("xl", "(min-width: 1280px)", 630));
         Register(new BreakpointVariant("2xl", "(min-width: 1536px)", 640));
 
+        // Functional responsive breakpoints: min-[1100px], max-[1100px], min-tablet, max-lg, etc.
+        // (per-value ordering within min/max is not modeled by the single-weight system).
+        Register(new BreakpointRangeVariant("min", isMax: false, theme, 641));
+        Register(new BreakpointRangeVariant("max", isMax: true, theme, 648));
+
         Register(new PrintVariant(650));
         Register(new ContrastVariant("contrast-more", 660));
         Register(new ContrastVariant("contrast-less", 670));

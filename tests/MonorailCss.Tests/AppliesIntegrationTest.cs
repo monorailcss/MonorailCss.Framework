@@ -332,4 +332,48 @@ public class AppliesIntegrationTest
         result.ShouldContain(".btn .inner:where(.dark, .dark *) {");
 
     }
+
+    [Fact]
+    public void Process_WithRawCssAppliesValue_EmitsNothing()
+    {
+        // Applies values are utility class names only (matching Tailwind's @apply). Raw CSS
+        // declarations are not parsed and produce no output; arbitrary-value utilities are the
+        // supported way to emit literal values.
+        var settings = new CssFrameworkSettings
+        {
+            IncludePreflight = false,
+            Applies = ImmutableDictionary<string, string>.Empty
+                .Add(".p-shard-file", "background: red; border: 1px solid black;")
+        };
+
+        var framework = new CssFramework(settings);
+
+        var result = framework.Process("");
+        Console.WriteLine(result);
+
+        // The raw declarations are ignored entirely (treated as unknown utilities).
+        result.ShouldNotContain("background: red");
+        result.ShouldNotContain("border: 1px solid black");
+        result.ShouldNotContain(".p-shard-file {");
+    }
+
+    [Fact]
+    public void Process_WithArbitraryValueUtility_EmitsLiteralValue()
+    {
+        // The supported alternative to raw CSS: an arbitrary-value utility.
+        var settings = new CssFrameworkSettings
+        {
+            IncludePreflight = false,
+            Applies = ImmutableDictionary<string, string>.Empty
+                .Add(".p-shard-file", "bg-[color-mix(in_oklab,red,blue)]")
+        };
+
+        var framework = new CssFramework(settings);
+
+        var result = framework.Process("");
+        Console.WriteLine(result);
+
+        result.ShouldContain(".p-shard-file");
+        result.ShouldContain("background-color: color-mix(");
+    }
 }

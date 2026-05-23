@@ -39,6 +39,32 @@ internal class ApplyProcessor
     }
 
     /// <summary>
+    /// Splits a trailing pseudo-element (e.g. <c>::after</c>) off the end of an Applies selector key
+    /// so variants can be composed against the base selector and the pseudo-element re-appended last
+    /// (pseudo-elements must always terminate a selector). Returns the original selector with an
+    /// empty pseudo-element when there is no terminal pseudo-element.
+    /// </summary>
+    private static (string Base, string PseudoElement) SplitTrailingPseudoElement(string selector)
+    {
+        var idx = selector.IndexOf("::", StringComparison.Ordinal);
+        if (idx < 0)
+        {
+            return (selector, string.Empty);
+        }
+
+        var pseudo = selector[idx..];
+
+        // Only treat it as a terminal pseudo-element; anything with a combinator after it is a
+        // more complex selector we leave untouched.
+        if (pseudo.Contains(' ') || pseudo.Contains('>'))
+        {
+            return (selector, string.Empty);
+        }
+
+        return (selector[..idx], pseudo);
+    }
+
+    /// <summary>
     /// Converts an AppliedSelector (which uses class selector format) to component selector format.
     /// </summary>
     private static string ConvertAppliedSelectorToComponentSelector(AppliedSelector appliedSelector, string componentSelector)
@@ -235,14 +261,19 @@ internal class ApplyProcessor
                 {
                     var firstCandidate = group[0].Candidate;
 
+                    // A trailing pseudo-element in the key (e.g. ".card::after") must be composed
+                    // against the base selector and re-appended last, otherwise variants append
+                    // their fragments after the pseudo-element and the pseudo-element is doubled.
+                    var (selectorBase, pseudoElement) = SplitTrailingPseudoElement(selector);
+
                     // Use the VariantRegistry to apply variants properly
                     // For descendant selectors, we need to pass them properly to the variant system
                     AppliedSelector appliedSelector;
-                    if (selector.Contains(' '))
+                    if (selectorBase.Contains(' '))
                     {
                         // For descendant selectors, create an AppliedSelector directly with the full selector
                         // Don't use FromClass since it's not a simple class name
-                        appliedSelector = AppliedSelector.FromSelector(new Selector(selector));
+                        appliedSelector = AppliedSelector.FromSelector(new Selector(selectorBase));
 
                         // Now apply the variants to this selector
                         foreach (var variant in firstCandidate.Variants)
@@ -263,12 +294,12 @@ internal class ApplyProcessor
                     else
                     {
                         // Simple class selector - use the existing logic
-                        var baseSelector = selector.StartsWith(".") ? selector.Substring(1) : selector;
+                        var baseSelector = selectorBase.StartsWith(".") ? selectorBase.Substring(1) : selectorBase;
                         appliedSelector = _variantRegistry.ApplyVariants(baseSelector, firstCandidate.Variants);
                     }
 
                     // Extract the final selector and handle any at-rule wrappers
-                    var finalSelector = ConvertAppliedSelectorToComponentSelector(appliedSelector, selector);
+                    var finalSelector = ConvertAppliedSelectorToComponentSelector(appliedSelector, selectorBase) + pseudoElement;
                     var styleRule = new StyleRule(finalSelector, mergedDeclarations.Cast<AstNode>().ToImmutableList());
 
                     // Wrap in any at-rules (media queries, supports, etc.)
