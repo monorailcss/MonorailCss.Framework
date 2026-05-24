@@ -8,6 +8,13 @@ on:
     - 'readme.md'
     - 'src/TryMonorail/**'
     branches: [main]
+  pull_request:
+    paths-ignore:
+    - 'changelog.md'
+    - 'license.md'
+    - 'readme.md'
+    - 'src/TryMonorail/**'
+    branches: [main]
 
 jobs:
   build:
@@ -23,7 +30,7 @@ jobs:
       uses: actions/setup-dotnet@v5
       with:
         global-json-file: global.json
-    - name: Build, Test (Debug & Release), Publish (main only)
+    - name: Build, Test (Debug & Release); publish on main/tag
       shell: bash
       run: |
         dotnet tool install --global dotnet-releaser
