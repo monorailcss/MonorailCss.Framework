@@ -29483,6 +29483,42 @@
       "scroll-padding-left"
     ]
   },
+  "scrollbar-auto": {
+    "css": "scrollbar-width: auto;",
+    "cssProperties": [
+      "scrollbar-width"
+    ]
+  },
+  "scrollbar-none": {
+    "css": "scrollbar-width: none;",
+    "cssProperties": [
+      "scrollbar-width"
+    ]
+  },
+  "scrollbar-thin": {
+    "css": "scrollbar-width: thin;",
+    "cssProperties": [
+      "scrollbar-width"
+    ]
+  },
+  "scrollbar-gutter-auto": {
+    "css": "scrollbar-gutter: auto;",
+    "cssProperties": [
+      "scrollbar-gutter"
+    ]
+  },
+  "scrollbar-gutter-both": {
+    "css": "scrollbar-gutter: stable both-edges;",
+    "cssProperties": [
+      "scrollbar-gutter"
+    ]
+  },
+  "scrollbar-gutter-stable": {
+    "css": "scrollbar-gutter: stable;",
+    "cssProperties": [
+      "scrollbar-gutter"
+    ]
+  },
   "place-content-around": {
     "css": "place-content: space-around;",
     "cssProperties": [
@@ -30125,105 +30161,6 @@
       }
     ]
   },
-  "to-20%": {
-    "css": "--tw-gradient-to-position: 20%;",
-    "atProperties": [
-      {
-        "name": "--tw-gradient-to-position",
-        "syntax": "<length-percentage>",
-        "inherits": false,
-        "initialValue": "100%"
-      }
-    ]
-  },
-  "to-25%": {
-    "css": "--tw-gradient-to-position: 25%;",
-    "atProperties": [
-      {
-        "name": "--tw-gradient-to-position",
-        "syntax": "<length-percentage>",
-        "inherits": false,
-        "initialValue": "100%"
-      }
-    ]
-  },
-  "to-30%": {
-    "css": "--tw-gradient-to-position: 30%;",
-    "atProperties": [
-      {
-        "name": "--tw-gradient-to-position",
-        "syntax": "<length-percentage>",
-        "inherits": false,
-        "initialValue": "100%"
-      }
-    ]
-  },
-  "to-35%": {
-    "css": "--tw-gradient-to-position: 35%;",
-    "atProperties": [
-      {
-        "name": "--tw-gradient-to-position",
-        "syntax": "<length-percentage>",
-        "inherits": false,
-        "initialValue": "100%"
-      }
-    ]
-  },
-  "to-40%": {
-    "css": "--tw-gradient-to-position: 40%;",
-    "atProperties": [
-      {
-        "name": "--tw-gradient-to-position",
-        "syntax": "<length-percentage>",
-        "inherits": false,
-        "initialValue": "100%"
-      }
-    ]
-  },
-  "to-45%": {
-    "css": "--tw-gradient-to-position: 45%;",
-    "atProperties": [
-      {
-        "name": "--tw-gradient-to-position",
-        "syntax": "<length-percentage>",
-        "inherits": false,
-        "initialValue": "100%"
-      }
-    ]
-  },
-  "to-50%": {
-    "css": "--tw-gradient-to-position: 50%;",
-    "atProperties": [
-      {
-        "name": "--tw-gradient-to-position",
-        "syntax": "<length-percentage>",
-        "inherits": false,
-        "initialValue": "100%"
-      }
-    ]
-  },
-  "to-55%": {
-    "css": "--tw-gradient-to-position: 55%;",
-    "atProperties": [
-      {
-        "name": "--tw-gradient-to-position",
-        "syntax": "<length-percentage>",
-        "inherits": false,
-        "initialValue": "100%"
-      }
-    ]
-  },
-  "to-60%": {
-    "css": "--tw-gradient-to-position: 60%;",
-    "atProperties": [
-      {
-        "name": "--tw-gradient-to-position",
-        "syntax": "<length-percentage>",
-        "inherits": false,
-        "initialValue": "100%"
-      }
-    ]
-  },
   "stroke-none": {
     "css": "stroke: none;",
     "cssProperties": [
@@ -30390,6 +30327,24 @@
     "css": "text-overflow: ellipsis;",
     "cssProperties": [
       "text-overflow"
+    ]
+  },
+  "tab-2": {
+    "css": "tab-size: 2;",
+    "cssProperties": [
+      "tab-size"
+    ]
+  },
+  "tab-4": {
+    "css": "tab-size: 4;",
+    "cssProperties": [
+      "tab-size"
+    ]
+  },
+  "tab-8": {
+    "css": "tab-size: 8;",
+    "cssProperties": [
+      "tab-size"
     ]
   },
   "ordinal": {
@@ -32953,6 +32908,66 @@
       "transform"
     ]
   },
+  "zoom-50": {
+    "css": "zoom: 50%;",
+    "cssProperties": [
+      "zoom"
+    ]
+  },
+  "zoom-75": {
+    "css": "zoom: 75%;",
+    "cssProperties": [
+      "zoom"
+    ]
+  },
+  "zoom-90": {
+    "css": "zoom: 90%;",
+    "cssProperties": [
+      "zoom"
+    ]
+  },
+  "zoom-95": {
+    "css": "zoom: 95%;",
+    "cssProperties": [
+      "zoom"
+    ]
+  },
+  "zoom-100": {
+    "css": "zoom: 100%;",
+    "cssProperties": [
+      "zoom"
+    ]
+  },
+  "zoom-105": {
+    "css": "zoom: 105%;",
+    "cssProperties": [
+      "zoom"
+    ]
+  },
+  "zoom-110": {
+    "css": "zoom: 110%;",
+    "cssProperties": [
+      "zoom"
+    ]
+  },
+  "zoom-125": {
+    "css": "zoom: 125%;",
+    "cssProperties": [
+      "zoom"
+    ]
+  },
+  "zoom-150": {
+    "css": "zoom: 150%;",
+    "cssProperties": [
+      "zoom"
+    ]
+  },
+  "zoom-200": {
+    "css": "zoom: 200%;",
+    "cssProperties": [
+      "zoom"
+    ]
+  },
   "touch-pan-left": {
     "css": "--tw-pan-x: pan-left;\n    touch-action: var(--tw-pan-x,) var(--tw-pan-y,) var(--tw-pinch-zoom,);",
     "cssProperties": [
@@ -34471,24 +34486,6 @@
       "--color-emerald-500": "oklch(69.6% 0.17 162.48)"
     }
   },
-  "border-b-fuchsia-500": {
-    "css": "border-bottom-color: var(--color-fuchsia-500);",
-    "cssProperties": [
-      "border-bottom-color"
-    ],
-    "customProperties": {
-      "--color-fuchsia-500": "oklch(66.7% 0.295 322.15)"
-    }
-  },
-  "border-b-gray-500": {
-    "css": "border-bottom-color: var(--color-gray-500);",
-    "cssProperties": [
-      "border-bottom-color"
-    ],
-    "customProperties": {
-      "--color-gray-500": "oklch(55.1% 0.027 264.364)"
-    }
-  },
   "border-b-green-500": {
     "css": "border-bottom-color: var(--color-green-500);",
     "cssProperties": [
@@ -34522,42 +34519,6 @@
       "--color-lime-500": "oklch(76.8% 0.233 130.85)"
     }
   },
-  "border-b-mauve-500": {
-    "css": "border-bottom-color: var(--color-mauve-500);",
-    "cssProperties": [
-      "border-bottom-color"
-    ],
-    "customProperties": {
-      "--color-mauve-500": "oklch(54.2% 0.034 322.5)"
-    }
-  },
-  "border-b-mist-500": {
-    "css": "border-bottom-color: var(--color-mist-500);",
-    "cssProperties": [
-      "border-bottom-color"
-    ],
-    "customProperties": {
-      "--color-mist-500": "oklch(56% 0.021 213.5)"
-    }
-  },
-  "border-b-neutral-500": {
-    "css": "border-bottom-color: var(--color-neutral-500);",
-    "cssProperties": [
-      "border-bottom-color"
-    ],
-    "customProperties": {
-      "--color-neutral-500": "oklch(55.6% 0 0)"
-    }
-  },
-  "border-b-olive-500": {
-    "css": "border-bottom-color: var(--color-olive-500);",
-    "cssProperties": [
-      "border-bottom-color"
-    ],
-    "customProperties": {
-      "--color-olive-500": "oklch(58% 0.031 107.3)"
-    }
-  },
   "border-b-orange-500": {
     "css": "border-bottom-color: var(--color-orange-500);",
     "cssProperties": [
@@ -34565,15 +34526,6 @@
     ],
     "customProperties": {
       "--color-orange-500": "oklch(70.5% 0.213 47.604)"
-    }
-  },
-  "border-b-pink-500": {
-    "css": "border-bottom-color: var(--color-pink-500);",
-    "cssProperties": [
-      "border-bottom-color"
-    ],
-    "customProperties": {
-      "--color-pink-500": "oklch(65.6% 0.241 354.308)"
     }
   },
   "border-b-purple-500": {
@@ -34594,15 +34546,6 @@
       "--color-red-500": "oklch(63.7% 0.237 25.331)"
     }
   },
-  "border-b-rose-500": {
-    "css": "border-bottom-color: var(--color-rose-500);",
-    "cssProperties": [
-      "border-bottom-color"
-    ],
-    "customProperties": {
-      "--color-rose-500": "oklch(64.5% 0.246 16.439)"
-    }
-  },
   "border-b-sky-500": {
     "css": "border-bottom-color: var(--color-sky-500);",
     "cssProperties": [
@@ -34610,33 +34553,6 @@
     ],
     "customProperties": {
       "--color-sky-500": "oklch(68.5% 0.169 237.323)"
-    }
-  },
-  "border-b-slate-500": {
-    "css": "border-bottom-color: var(--color-slate-500);",
-    "cssProperties": [
-      "border-bottom-color"
-    ],
-    "customProperties": {
-      "--color-slate-500": "oklch(55.4% 0.046 257.417)"
-    }
-  },
-  "border-b-stone-500": {
-    "css": "border-bottom-color: var(--color-stone-500);",
-    "cssProperties": [
-      "border-bottom-color"
-    ],
-    "customProperties": {
-      "--color-stone-500": "oklch(55.3% 0.013 58.071)"
-    }
-  },
-  "border-b-taupe-500": {
-    "css": "border-bottom-color: var(--color-taupe-500);",
-    "cssProperties": [
-      "border-bottom-color"
-    ],
-    "customProperties": {
-      "--color-taupe-500": "oklch(54.7% 0.021 43.1)"
     }
   },
   "border-b-teal-500": {
@@ -34679,69 +34595,6 @@
     ],
     "customProperties": {
       "--color-yellow-500": "oklch(79.5% 0.184 86.047)"
-    }
-  },
-  "border-b-zinc-500": {
-    "css": "border-bottom-color: var(--color-zinc-500);",
-    "cssProperties": [
-      "border-bottom-color"
-    ],
-    "customProperties": {
-      "--color-zinc-500": "oklch(55.2% 0.016 285.938)"
-    }
-  },
-  "border-l-black": {
-    "css": "border-left-color: var(--color-black);",
-    "cssProperties": [
-      "border-left-color"
-    ],
-    "customProperties": {
-      "--color-black": "#000"
-    }
-  },
-  "border-l-current": {
-    "css": "border-left-color: currentcolor;",
-    "cssProperties": [
-      "border-left-color"
-    ]
-  },
-  "border-l-inherit": {
-    "css": "border-left-color: inherit;",
-    "cssProperties": [
-      "border-left-color"
-    ]
-  },
-  "border-l-orange-500": {
-    "css": "border-left-color: var(--color-orange-500);",
-    "cssProperties": [
-      "border-left-color"
-    ],
-    "customProperties": {
-      "--color-orange-500": "oklch(70.5% 0.213 47.604)"
-    }
-  },
-  "border-l-red-500": {
-    "css": "border-left-color: var(--color-red-500);",
-    "cssProperties": [
-      "border-left-color"
-    ],
-    "customProperties": {
-      "--color-red-500": "oklch(63.7% 0.237 25.331)"
-    }
-  },
-  "border-l-transparent": {
-    "css": "border-left-color: transparent;",
-    "cssProperties": [
-      "border-left-color"
-    ]
-  },
-  "border-l-white": {
-    "css": "border-left-color: var(--color-white);",
-    "cssProperties": [
-      "border-left-color"
-    ],
-    "customProperties": {
-      "--color-white": "#fff"
     }
   },
   "bg-amber-500": {
@@ -35252,6 +35105,105 @@
         "syntax": "<length-percentage>",
         "inherits": false,
         "initialValue": "50%"
+      }
+    ]
+  },
+  "to-20%": {
+    "css": "--tw-gradient-to-position: 20%;",
+    "atProperties": [
+      {
+        "name": "--tw-gradient-to-position",
+        "syntax": "<length-percentage>",
+        "inherits": false,
+        "initialValue": "100%"
+      }
+    ]
+  },
+  "to-25%": {
+    "css": "--tw-gradient-to-position: 25%;",
+    "atProperties": [
+      {
+        "name": "--tw-gradient-to-position",
+        "syntax": "<length-percentage>",
+        "inherits": false,
+        "initialValue": "100%"
+      }
+    ]
+  },
+  "to-30%": {
+    "css": "--tw-gradient-to-position: 30%;",
+    "atProperties": [
+      {
+        "name": "--tw-gradient-to-position",
+        "syntax": "<length-percentage>",
+        "inherits": false,
+        "initialValue": "100%"
+      }
+    ]
+  },
+  "to-35%": {
+    "css": "--tw-gradient-to-position: 35%;",
+    "atProperties": [
+      {
+        "name": "--tw-gradient-to-position",
+        "syntax": "<length-percentage>",
+        "inherits": false,
+        "initialValue": "100%"
+      }
+    ]
+  },
+  "to-40%": {
+    "css": "--tw-gradient-to-position: 40%;",
+    "atProperties": [
+      {
+        "name": "--tw-gradient-to-position",
+        "syntax": "<length-percentage>",
+        "inherits": false,
+        "initialValue": "100%"
+      }
+    ]
+  },
+  "to-45%": {
+    "css": "--tw-gradient-to-position: 45%;",
+    "atProperties": [
+      {
+        "name": "--tw-gradient-to-position",
+        "syntax": "<length-percentage>",
+        "inherits": false,
+        "initialValue": "100%"
+      }
+    ]
+  },
+  "to-50%": {
+    "css": "--tw-gradient-to-position: 50%;",
+    "atProperties": [
+      {
+        "name": "--tw-gradient-to-position",
+        "syntax": "<length-percentage>",
+        "inherits": false,
+        "initialValue": "100%"
+      }
+    ]
+  },
+  "to-55%": {
+    "css": "--tw-gradient-to-position: 55%;",
+    "atProperties": [
+      {
+        "name": "--tw-gradient-to-position",
+        "syntax": "<length-percentage>",
+        "inherits": false,
+        "initialValue": "100%"
+      }
+    ]
+  },
+  "to-60%": {
+    "css": "--tw-gradient-to-position: 60%;",
+    "atProperties": [
+      {
+        "name": "--tw-gradient-to-position",
+        "syntax": "<length-percentage>",
+        "inherits": false,
+        "initialValue": "100%"
       }
     ]
   },
@@ -35847,6 +35799,906 @@
       "transform-box"
     ]
   },
+  "scrollbar-thumb-amber-500": {
+    "css": "--tw-scrollbar-thumb: var(--color-amber-500);\n    scrollbar-color: var(--tw-scrollbar-thumb) var(--tw-scrollbar-track);",
+    "cssProperties": [
+      "scrollbar-color"
+    ],
+    "customProperties": {
+      "--color-amber-500": "oklch(76.9% 0.188 70.08)"
+    },
+    "atProperties": [
+      {
+        "name": "--tw-scrollbar-thumb",
+        "syntax": "<color>",
+        "inherits": false,
+        "initialValue": "#0000"
+      }
+    ]
+  },
+  "scrollbar-thumb-black": {
+    "css": "--tw-scrollbar-thumb: var(--color-black);\n    scrollbar-color: var(--tw-scrollbar-thumb) var(--tw-scrollbar-track);",
+    "cssProperties": [
+      "scrollbar-color"
+    ],
+    "customProperties": {
+      "--color-black": "#000"
+    },
+    "atProperties": [
+      {
+        "name": "--tw-scrollbar-thumb",
+        "syntax": "<color>",
+        "inherits": false,
+        "initialValue": "#0000"
+      }
+    ]
+  },
+  "scrollbar-thumb-blue-500": {
+    "css": "--tw-scrollbar-thumb: var(--color-blue-500);\n    scrollbar-color: var(--tw-scrollbar-thumb) var(--tw-scrollbar-track);",
+    "cssProperties": [
+      "scrollbar-color"
+    ],
+    "customProperties": {
+      "--color-blue-500": "oklch(62.3% 0.214 259.815)"
+    },
+    "atProperties": [
+      {
+        "name": "--tw-scrollbar-thumb",
+        "syntax": "<color>",
+        "inherits": false,
+        "initialValue": "#0000"
+      }
+    ]
+  },
+  "scrollbar-thumb-current": {
+    "css": "--tw-scrollbar-thumb: currentcolor;\n    scrollbar-color: var(--tw-scrollbar-thumb) var(--tw-scrollbar-track);",
+    "cssProperties": [
+      "scrollbar-color"
+    ],
+    "atProperties": [
+      {
+        "name": "--tw-scrollbar-thumb",
+        "syntax": "<color>",
+        "inherits": false,
+        "initialValue": "#0000"
+      }
+    ]
+  },
+  "scrollbar-thumb-cyan-500": {
+    "css": "--tw-scrollbar-thumb: var(--color-cyan-500);\n    scrollbar-color: var(--tw-scrollbar-thumb) var(--tw-scrollbar-track);",
+    "cssProperties": [
+      "scrollbar-color"
+    ],
+    "customProperties": {
+      "--color-cyan-500": "oklch(71.5% 0.143 215.221)"
+    },
+    "atProperties": [
+      {
+        "name": "--tw-scrollbar-thumb",
+        "syntax": "<color>",
+        "inherits": false,
+        "initialValue": "#0000"
+      }
+    ]
+  },
+  "scrollbar-thumb-emerald-500": {
+    "css": "--tw-scrollbar-thumb: var(--color-emerald-500);\n    scrollbar-color: var(--tw-scrollbar-thumb) var(--tw-scrollbar-track);",
+    "cssProperties": [
+      "scrollbar-color"
+    ],
+    "customProperties": {
+      "--color-emerald-500": "oklch(69.6% 0.17 162.48)"
+    },
+    "atProperties": [
+      {
+        "name": "--tw-scrollbar-thumb",
+        "syntax": "<color>",
+        "inherits": false,
+        "initialValue": "#0000"
+      }
+    ]
+  },
+  "scrollbar-thumb-fuchsia-500": {
+    "css": "--tw-scrollbar-thumb: var(--color-fuchsia-500);\n    scrollbar-color: var(--tw-scrollbar-thumb) var(--tw-scrollbar-track);",
+    "cssProperties": [
+      "scrollbar-color"
+    ],
+    "customProperties": {
+      "--color-fuchsia-500": "oklch(66.7% 0.295 322.15)"
+    },
+    "atProperties": [
+      {
+        "name": "--tw-scrollbar-thumb",
+        "syntax": "<color>",
+        "inherits": false,
+        "initialValue": "#0000"
+      }
+    ]
+  },
+  "scrollbar-thumb-gray-500": {
+    "css": "--tw-scrollbar-thumb: var(--color-gray-500);\n    scrollbar-color: var(--tw-scrollbar-thumb) var(--tw-scrollbar-track);",
+    "cssProperties": [
+      "scrollbar-color"
+    ],
+    "customProperties": {
+      "--color-gray-500": "oklch(55.1% 0.027 264.364)"
+    },
+    "atProperties": [
+      {
+        "name": "--tw-scrollbar-thumb",
+        "syntax": "<color>",
+        "inherits": false,
+        "initialValue": "#0000"
+      }
+    ]
+  },
+  "scrollbar-thumb-green-500": {
+    "css": "--tw-scrollbar-thumb: var(--color-green-500);\n    scrollbar-color: var(--tw-scrollbar-thumb) var(--tw-scrollbar-track);",
+    "cssProperties": [
+      "scrollbar-color"
+    ],
+    "customProperties": {
+      "--color-green-500": "oklch(72.3% 0.219 149.579)"
+    },
+    "atProperties": [
+      {
+        "name": "--tw-scrollbar-thumb",
+        "syntax": "<color>",
+        "inherits": false,
+        "initialValue": "#0000"
+      }
+    ]
+  },
+  "scrollbar-thumb-indigo-500": {
+    "css": "--tw-scrollbar-thumb: var(--color-indigo-500);\n    scrollbar-color: var(--tw-scrollbar-thumb) var(--tw-scrollbar-track);",
+    "cssProperties": [
+      "scrollbar-color"
+    ],
+    "customProperties": {
+      "--color-indigo-500": "oklch(58.5% 0.233 277.117)"
+    },
+    "atProperties": [
+      {
+        "name": "--tw-scrollbar-thumb",
+        "syntax": "<color>",
+        "inherits": false,
+        "initialValue": "#0000"
+      }
+    ]
+  },
+  "scrollbar-thumb-inherit": {
+    "css": "--tw-scrollbar-thumb: inherit;\n    scrollbar-color: var(--tw-scrollbar-thumb) var(--tw-scrollbar-track);",
+    "cssProperties": [
+      "scrollbar-color"
+    ],
+    "atProperties": [
+      {
+        "name": "--tw-scrollbar-thumb",
+        "syntax": "<color>",
+        "inherits": false,
+        "initialValue": "#0000"
+      }
+    ]
+  },
+  "scrollbar-thumb-lime-500": {
+    "css": "--tw-scrollbar-thumb: var(--color-lime-500);\n    scrollbar-color: var(--tw-scrollbar-thumb) var(--tw-scrollbar-track);",
+    "cssProperties": [
+      "scrollbar-color"
+    ],
+    "customProperties": {
+      "--color-lime-500": "oklch(76.8% 0.233 130.85)"
+    },
+    "atProperties": [
+      {
+        "name": "--tw-scrollbar-thumb",
+        "syntax": "<color>",
+        "inherits": false,
+        "initialValue": "#0000"
+      }
+    ]
+  },
+  "scrollbar-thumb-mauve-500": {
+    "css": "--tw-scrollbar-thumb: var(--color-mauve-500);\n    scrollbar-color: var(--tw-scrollbar-thumb) var(--tw-scrollbar-track);",
+    "cssProperties": [
+      "scrollbar-color"
+    ],
+    "customProperties": {
+      "--color-mauve-500": "oklch(54.2% 0.034 322.5)"
+    },
+    "atProperties": [
+      {
+        "name": "--tw-scrollbar-thumb",
+        "syntax": "<color>",
+        "inherits": false,
+        "initialValue": "#0000"
+      }
+    ]
+  },
+  "scrollbar-thumb-mist-500": {
+    "css": "--tw-scrollbar-thumb: var(--color-mist-500);\n    scrollbar-color: var(--tw-scrollbar-thumb) var(--tw-scrollbar-track);",
+    "cssProperties": [
+      "scrollbar-color"
+    ],
+    "customProperties": {
+      "--color-mist-500": "oklch(56% 0.021 213.5)"
+    },
+    "atProperties": [
+      {
+        "name": "--tw-scrollbar-thumb",
+        "syntax": "<color>",
+        "inherits": false,
+        "initialValue": "#0000"
+      }
+    ]
+  },
+  "scrollbar-thumb-neutral-500": {
+    "css": "--tw-scrollbar-thumb: var(--color-neutral-500);\n    scrollbar-color: var(--tw-scrollbar-thumb) var(--tw-scrollbar-track);",
+    "cssProperties": [
+      "scrollbar-color"
+    ],
+    "customProperties": {
+      "--color-neutral-500": "oklch(55.6% 0 0)"
+    },
+    "atProperties": [
+      {
+        "name": "--tw-scrollbar-thumb",
+        "syntax": "<color>",
+        "inherits": false,
+        "initialValue": "#0000"
+      }
+    ]
+  },
+  "scrollbar-thumb-olive-500": {
+    "css": "--tw-scrollbar-thumb: var(--color-olive-500);\n    scrollbar-color: var(--tw-scrollbar-thumb) var(--tw-scrollbar-track);",
+    "cssProperties": [
+      "scrollbar-color"
+    ],
+    "customProperties": {
+      "--color-olive-500": "oklch(58% 0.031 107.3)"
+    },
+    "atProperties": [
+      {
+        "name": "--tw-scrollbar-thumb",
+        "syntax": "<color>",
+        "inherits": false,
+        "initialValue": "#0000"
+      }
+    ]
+  },
+  "scrollbar-thumb-orange-500": {
+    "css": "--tw-scrollbar-thumb: var(--color-orange-500);\n    scrollbar-color: var(--tw-scrollbar-thumb) var(--tw-scrollbar-track);",
+    "cssProperties": [
+      "scrollbar-color"
+    ],
+    "customProperties": {
+      "--color-orange-500": "oklch(70.5% 0.213 47.604)"
+    },
+    "atProperties": [
+      {
+        "name": "--tw-scrollbar-thumb",
+        "syntax": "<color>",
+        "inherits": false,
+        "initialValue": "#0000"
+      }
+    ]
+  },
+  "scrollbar-thumb-pink-500": {
+    "css": "--tw-scrollbar-thumb: var(--color-pink-500);\n    scrollbar-color: var(--tw-scrollbar-thumb) var(--tw-scrollbar-track);",
+    "cssProperties": [
+      "scrollbar-color"
+    ],
+    "customProperties": {
+      "--color-pink-500": "oklch(65.6% 0.241 354.308)"
+    },
+    "atProperties": [
+      {
+        "name": "--tw-scrollbar-thumb",
+        "syntax": "<color>",
+        "inherits": false,
+        "initialValue": "#0000"
+      }
+    ]
+  },
+  "scrollbar-thumb-purple-500": {
+    "css": "--tw-scrollbar-thumb: var(--color-purple-500);\n    scrollbar-color: var(--tw-scrollbar-thumb) var(--tw-scrollbar-track);",
+    "cssProperties": [
+      "scrollbar-color"
+    ],
+    "customProperties": {
+      "--color-purple-500": "oklch(62.7% 0.265 303.9)"
+    },
+    "atProperties": [
+      {
+        "name": "--tw-scrollbar-thumb",
+        "syntax": "<color>",
+        "inherits": false,
+        "initialValue": "#0000"
+      }
+    ]
+  },
+  "scrollbar-thumb-red-500": {
+    "css": "--tw-scrollbar-thumb: var(--color-red-500);\n    scrollbar-color: var(--tw-scrollbar-thumb) var(--tw-scrollbar-track);",
+    "cssProperties": [
+      "scrollbar-color"
+    ],
+    "customProperties": {
+      "--color-red-500": "oklch(63.7% 0.237 25.331)"
+    },
+    "atProperties": [
+      {
+        "name": "--tw-scrollbar-thumb",
+        "syntax": "<color>",
+        "inherits": false,
+        "initialValue": "#0000"
+      }
+    ]
+  },
+  "scrollbar-thumb-rose-500": {
+    "css": "--tw-scrollbar-thumb: var(--color-rose-500);\n    scrollbar-color: var(--tw-scrollbar-thumb) var(--tw-scrollbar-track);",
+    "cssProperties": [
+      "scrollbar-color"
+    ],
+    "customProperties": {
+      "--color-rose-500": "oklch(64.5% 0.246 16.439)"
+    },
+    "atProperties": [
+      {
+        "name": "--tw-scrollbar-thumb",
+        "syntax": "<color>",
+        "inherits": false,
+        "initialValue": "#0000"
+      }
+    ]
+  },
+  "scrollbar-thumb-sky-500": {
+    "css": "--tw-scrollbar-thumb: var(--color-sky-500);\n    scrollbar-color: var(--tw-scrollbar-thumb) var(--tw-scrollbar-track);",
+    "cssProperties": [
+      "scrollbar-color"
+    ],
+    "customProperties": {
+      "--color-sky-500": "oklch(68.5% 0.169 237.323)"
+    },
+    "atProperties": [
+      {
+        "name": "--tw-scrollbar-thumb",
+        "syntax": "<color>",
+        "inherits": false,
+        "initialValue": "#0000"
+      }
+    ]
+  },
+  "scrollbar-thumb-slate-500": {
+    "css": "--tw-scrollbar-thumb: var(--color-slate-500);\n    scrollbar-color: var(--tw-scrollbar-thumb) var(--tw-scrollbar-track);",
+    "cssProperties": [
+      "scrollbar-color"
+    ],
+    "customProperties": {
+      "--color-slate-500": "oklch(55.4% 0.046 257.417)"
+    },
+    "atProperties": [
+      {
+        "name": "--tw-scrollbar-thumb",
+        "syntax": "<color>",
+        "inherits": false,
+        "initialValue": "#0000"
+      }
+    ]
+  },
+  "scrollbar-thumb-stone-500": {
+    "css": "--tw-scrollbar-thumb: var(--color-stone-500);\n    scrollbar-color: var(--tw-scrollbar-thumb) var(--tw-scrollbar-track);",
+    "cssProperties": [
+      "scrollbar-color"
+    ],
+    "customProperties": {
+      "--color-stone-500": "oklch(55.3% 0.013 58.071)"
+    },
+    "atProperties": [
+      {
+        "name": "--tw-scrollbar-thumb",
+        "syntax": "<color>",
+        "inherits": false,
+        "initialValue": "#0000"
+      }
+    ]
+  },
+  "scrollbar-thumb-taupe-500": {
+    "css": "--tw-scrollbar-thumb: var(--color-taupe-500);\n    scrollbar-color: var(--tw-scrollbar-thumb) var(--tw-scrollbar-track);",
+    "cssProperties": [
+      "scrollbar-color"
+    ],
+    "customProperties": {
+      "--color-taupe-500": "oklch(54.7% 0.021 43.1)"
+    },
+    "atProperties": [
+      {
+        "name": "--tw-scrollbar-thumb",
+        "syntax": "<color>",
+        "inherits": false,
+        "initialValue": "#0000"
+      }
+    ]
+  },
+  "scrollbar-thumb-teal-500": {
+    "css": "--tw-scrollbar-thumb: var(--color-teal-500);\n    scrollbar-color: var(--tw-scrollbar-thumb) var(--tw-scrollbar-track);",
+    "cssProperties": [
+      "scrollbar-color"
+    ],
+    "customProperties": {
+      "--color-teal-500": "oklch(70.4% 0.14 182.503)"
+    },
+    "atProperties": [
+      {
+        "name": "--tw-scrollbar-thumb",
+        "syntax": "<color>",
+        "inherits": false,
+        "initialValue": "#0000"
+      }
+    ]
+  },
+  "scrollbar-thumb-transparent": {
+    "css": "--tw-scrollbar-thumb: transparent;\n    scrollbar-color: var(--tw-scrollbar-thumb) var(--tw-scrollbar-track);",
+    "cssProperties": [
+      "scrollbar-color"
+    ],
+    "atProperties": [
+      {
+        "name": "--tw-scrollbar-thumb",
+        "syntax": "<color>",
+        "inherits": false,
+        "initialValue": "#0000"
+      }
+    ]
+  },
+  "scrollbar-thumb-violet-500": {
+    "css": "--tw-scrollbar-thumb: var(--color-violet-500);\n    scrollbar-color: var(--tw-scrollbar-thumb) var(--tw-scrollbar-track);",
+    "cssProperties": [
+      "scrollbar-color"
+    ],
+    "customProperties": {
+      "--color-violet-500": "oklch(60.6% 0.25 292.717)"
+    },
+    "atProperties": [
+      {
+        "name": "--tw-scrollbar-thumb",
+        "syntax": "<color>",
+        "inherits": false,
+        "initialValue": "#0000"
+      }
+    ]
+  },
+  "scrollbar-thumb-white": {
+    "css": "--tw-scrollbar-thumb: var(--color-white);\n    scrollbar-color: var(--tw-scrollbar-thumb) var(--tw-scrollbar-track);",
+    "cssProperties": [
+      "scrollbar-color"
+    ],
+    "customProperties": {
+      "--color-white": "#fff"
+    },
+    "atProperties": [
+      {
+        "name": "--tw-scrollbar-thumb",
+        "syntax": "<color>",
+        "inherits": false,
+        "initialValue": "#0000"
+      }
+    ]
+  },
+  "scrollbar-thumb-yellow-500": {
+    "css": "--tw-scrollbar-thumb: var(--color-yellow-500);\n    scrollbar-color: var(--tw-scrollbar-thumb) var(--tw-scrollbar-track);",
+    "cssProperties": [
+      "scrollbar-color"
+    ],
+    "customProperties": {
+      "--color-yellow-500": "oklch(79.5% 0.184 86.047)"
+    },
+    "atProperties": [
+      {
+        "name": "--tw-scrollbar-thumb",
+        "syntax": "<color>",
+        "inherits": false,
+        "initialValue": "#0000"
+      }
+    ]
+  },
+  "scrollbar-thumb-zinc-500": {
+    "css": "--tw-scrollbar-thumb: var(--color-zinc-500);\n    scrollbar-color: var(--tw-scrollbar-thumb) var(--tw-scrollbar-track);",
+    "cssProperties": [
+      "scrollbar-color"
+    ],
+    "customProperties": {
+      "--color-zinc-500": "oklch(55.2% 0.016 285.938)"
+    },
+    "atProperties": [
+      {
+        "name": "--tw-scrollbar-thumb",
+        "syntax": "<color>",
+        "inherits": false,
+        "initialValue": "#0000"
+      }
+    ]
+  },
+  "scrollbar-track-amber-500": {
+    "css": "--tw-scrollbar-track: var(--color-amber-500);\n    scrollbar-color: var(--tw-scrollbar-thumb) var(--tw-scrollbar-track);",
+    "cssProperties": [
+      "scrollbar-color"
+    ],
+    "customProperties": {
+      "--color-amber-500": "oklch(76.9% 0.188 70.08)"
+    },
+    "atProperties": [
+      {
+        "name": "--tw-scrollbar-track",
+        "syntax": "<color>",
+        "inherits": false,
+        "initialValue": "#0000"
+      }
+    ]
+  },
+  "scrollbar-track-black": {
+    "css": "--tw-scrollbar-track: var(--color-black);\n    scrollbar-color: var(--tw-scrollbar-thumb) var(--tw-scrollbar-track);",
+    "cssProperties": [
+      "scrollbar-color"
+    ],
+    "customProperties": {
+      "--color-black": "#000"
+    },
+    "atProperties": [
+      {
+        "name": "--tw-scrollbar-track",
+        "syntax": "<color>",
+        "inherits": false,
+        "initialValue": "#0000"
+      }
+    ]
+  },
+  "scrollbar-track-blue-500": {
+    "css": "--tw-scrollbar-track: var(--color-blue-500);\n    scrollbar-color: var(--tw-scrollbar-thumb) var(--tw-scrollbar-track);",
+    "cssProperties": [
+      "scrollbar-color"
+    ],
+    "customProperties": {
+      "--color-blue-500": "oklch(62.3% 0.214 259.815)"
+    },
+    "atProperties": [
+      {
+        "name": "--tw-scrollbar-track",
+        "syntax": "<color>",
+        "inherits": false,
+        "initialValue": "#0000"
+      }
+    ]
+  },
+  "scrollbar-track-current": {
+    "css": "--tw-scrollbar-track: currentcolor;\n    scrollbar-color: var(--tw-scrollbar-thumb) var(--tw-scrollbar-track);",
+    "cssProperties": [
+      "scrollbar-color"
+    ],
+    "atProperties": [
+      {
+        "name": "--tw-scrollbar-track",
+        "syntax": "<color>",
+        "inherits": false,
+        "initialValue": "#0000"
+      }
+    ]
+  },
+  "scrollbar-track-cyan-500": {
+    "css": "--tw-scrollbar-track: var(--color-cyan-500);\n    scrollbar-color: var(--tw-scrollbar-thumb) var(--tw-scrollbar-track);",
+    "cssProperties": [
+      "scrollbar-color"
+    ],
+    "customProperties": {
+      "--color-cyan-500": "oklch(71.5% 0.143 215.221)"
+    },
+    "atProperties": [
+      {
+        "name": "--tw-scrollbar-track",
+        "syntax": "<color>",
+        "inherits": false,
+        "initialValue": "#0000"
+      }
+    ]
+  },
+  "scrollbar-track-emerald-500": {
+    "css": "--tw-scrollbar-track: var(--color-emerald-500);\n    scrollbar-color: var(--tw-scrollbar-thumb) var(--tw-scrollbar-track);",
+    "cssProperties": [
+      "scrollbar-color"
+    ],
+    "customProperties": {
+      "--color-emerald-500": "oklch(69.6% 0.17 162.48)"
+    },
+    "atProperties": [
+      {
+        "name": "--tw-scrollbar-track",
+        "syntax": "<color>",
+        "inherits": false,
+        "initialValue": "#0000"
+      }
+    ]
+  },
+  "scrollbar-track-fuchsia-500": {
+    "css": "--tw-scrollbar-track: var(--color-fuchsia-500);\n    scrollbar-color: var(--tw-scrollbar-thumb) var(--tw-scrollbar-track);",
+    "cssProperties": [
+      "scrollbar-color"
+    ],
+    "customProperties": {
+      "--color-fuchsia-500": "oklch(66.7% 0.295 322.15)"
+    },
+    "atProperties": [
+      {
+        "name": "--tw-scrollbar-track",
+        "syntax": "<color>",
+        "inherits": false,
+        "initialValue": "#0000"
+      }
+    ]
+  },
+  "scrollbar-track-green-500": {
+    "css": "--tw-scrollbar-track: var(--color-green-500);\n    scrollbar-color: var(--tw-scrollbar-thumb) var(--tw-scrollbar-track);",
+    "cssProperties": [
+      "scrollbar-color"
+    ],
+    "customProperties": {
+      "--color-green-500": "oklch(72.3% 0.219 149.579)"
+    },
+    "atProperties": [
+      {
+        "name": "--tw-scrollbar-track",
+        "syntax": "<color>",
+        "inherits": false,
+        "initialValue": "#0000"
+      }
+    ]
+  },
+  "scrollbar-track-indigo-500": {
+    "css": "--tw-scrollbar-track: var(--color-indigo-500);\n    scrollbar-color: var(--tw-scrollbar-thumb) var(--tw-scrollbar-track);",
+    "cssProperties": [
+      "scrollbar-color"
+    ],
+    "customProperties": {
+      "--color-indigo-500": "oklch(58.5% 0.233 277.117)"
+    },
+    "atProperties": [
+      {
+        "name": "--tw-scrollbar-track",
+        "syntax": "<color>",
+        "inherits": false,
+        "initialValue": "#0000"
+      }
+    ]
+  },
+  "scrollbar-track-inherit": {
+    "css": "--tw-scrollbar-track: inherit;\n    scrollbar-color: var(--tw-scrollbar-thumb) var(--tw-scrollbar-track);",
+    "cssProperties": [
+      "scrollbar-color"
+    ],
+    "atProperties": [
+      {
+        "name": "--tw-scrollbar-track",
+        "syntax": "<color>",
+        "inherits": false,
+        "initialValue": "#0000"
+      }
+    ]
+  },
+  "scrollbar-track-lime-500": {
+    "css": "--tw-scrollbar-track: var(--color-lime-500);\n    scrollbar-color: var(--tw-scrollbar-thumb) var(--tw-scrollbar-track);",
+    "cssProperties": [
+      "scrollbar-color"
+    ],
+    "customProperties": {
+      "--color-lime-500": "oklch(76.8% 0.233 130.85)"
+    },
+    "atProperties": [
+      {
+        "name": "--tw-scrollbar-track",
+        "syntax": "<color>",
+        "inherits": false,
+        "initialValue": "#0000"
+      }
+    ]
+  },
+  "scrollbar-track-orange-500": {
+    "css": "--tw-scrollbar-track: var(--color-orange-500);\n    scrollbar-color: var(--tw-scrollbar-thumb) var(--tw-scrollbar-track);",
+    "cssProperties": [
+      "scrollbar-color"
+    ],
+    "customProperties": {
+      "--color-orange-500": "oklch(70.5% 0.213 47.604)"
+    },
+    "atProperties": [
+      {
+        "name": "--tw-scrollbar-track",
+        "syntax": "<color>",
+        "inherits": false,
+        "initialValue": "#0000"
+      }
+    ]
+  },
+  "scrollbar-track-pink-500": {
+    "css": "--tw-scrollbar-track: var(--color-pink-500);\n    scrollbar-color: var(--tw-scrollbar-thumb) var(--tw-scrollbar-track);",
+    "cssProperties": [
+      "scrollbar-color"
+    ],
+    "customProperties": {
+      "--color-pink-500": "oklch(65.6% 0.241 354.308)"
+    },
+    "atProperties": [
+      {
+        "name": "--tw-scrollbar-track",
+        "syntax": "<color>",
+        "inherits": false,
+        "initialValue": "#0000"
+      }
+    ]
+  },
+  "scrollbar-track-purple-500": {
+    "css": "--tw-scrollbar-track: var(--color-purple-500);\n    scrollbar-color: var(--tw-scrollbar-thumb) var(--tw-scrollbar-track);",
+    "cssProperties": [
+      "scrollbar-color"
+    ],
+    "customProperties": {
+      "--color-purple-500": "oklch(62.7% 0.265 303.9)"
+    },
+    "atProperties": [
+      {
+        "name": "--tw-scrollbar-track",
+        "syntax": "<color>",
+        "inherits": false,
+        "initialValue": "#0000"
+      }
+    ]
+  },
+  "scrollbar-track-red-500": {
+    "css": "--tw-scrollbar-track: var(--color-red-500);\n    scrollbar-color: var(--tw-scrollbar-thumb) var(--tw-scrollbar-track);",
+    "cssProperties": [
+      "scrollbar-color"
+    ],
+    "customProperties": {
+      "--color-red-500": "oklch(63.7% 0.237 25.331)"
+    },
+    "atProperties": [
+      {
+        "name": "--tw-scrollbar-track",
+        "syntax": "<color>",
+        "inherits": false,
+        "initialValue": "#0000"
+      }
+    ]
+  },
+  "scrollbar-track-rose-500": {
+    "css": "--tw-scrollbar-track: var(--color-rose-500);\n    scrollbar-color: var(--tw-scrollbar-thumb) var(--tw-scrollbar-track);",
+    "cssProperties": [
+      "scrollbar-color"
+    ],
+    "customProperties": {
+      "--color-rose-500": "oklch(64.5% 0.246 16.439)"
+    },
+    "atProperties": [
+      {
+        "name": "--tw-scrollbar-track",
+        "syntax": "<color>",
+        "inherits": false,
+        "initialValue": "#0000"
+      }
+    ]
+  },
+  "scrollbar-track-sky-500": {
+    "css": "--tw-scrollbar-track: var(--color-sky-500);\n    scrollbar-color: var(--tw-scrollbar-thumb) var(--tw-scrollbar-track);",
+    "cssProperties": [
+      "scrollbar-color"
+    ],
+    "customProperties": {
+      "--color-sky-500": "oklch(68.5% 0.169 237.323)"
+    },
+    "atProperties": [
+      {
+        "name": "--tw-scrollbar-track",
+        "syntax": "<color>",
+        "inherits": false,
+        "initialValue": "#0000"
+      }
+    ]
+  },
+  "scrollbar-track-slate-500": {
+    "css": "--tw-scrollbar-track: var(--color-slate-500);\n    scrollbar-color: var(--tw-scrollbar-thumb) var(--tw-scrollbar-track);",
+    "cssProperties": [
+      "scrollbar-color"
+    ],
+    "customProperties": {
+      "--color-slate-500": "oklch(55.4% 0.046 257.417)"
+    },
+    "atProperties": [
+      {
+        "name": "--tw-scrollbar-track",
+        "syntax": "<color>",
+        "inherits": false,
+        "initialValue": "#0000"
+      }
+    ]
+  },
+  "scrollbar-track-teal-500": {
+    "css": "--tw-scrollbar-track: var(--color-teal-500);\n    scrollbar-color: var(--tw-scrollbar-thumb) var(--tw-scrollbar-track);",
+    "cssProperties": [
+      "scrollbar-color"
+    ],
+    "customProperties": {
+      "--color-teal-500": "oklch(70.4% 0.14 182.503)"
+    },
+    "atProperties": [
+      {
+        "name": "--tw-scrollbar-track",
+        "syntax": "<color>",
+        "inherits": false,
+        "initialValue": "#0000"
+      }
+    ]
+  },
+  "scrollbar-track-transparent": {
+    "css": "--tw-scrollbar-track: transparent;\n    scrollbar-color: var(--tw-scrollbar-thumb) var(--tw-scrollbar-track);",
+    "cssProperties": [
+      "scrollbar-color"
+    ],
+    "atProperties": [
+      {
+        "name": "--tw-scrollbar-track",
+        "syntax": "<color>",
+        "inherits": false,
+        "initialValue": "#0000"
+      }
+    ]
+  },
+  "scrollbar-track-violet-500": {
+    "css": "--tw-scrollbar-track: var(--color-violet-500);\n    scrollbar-color: var(--tw-scrollbar-thumb) var(--tw-scrollbar-track);",
+    "cssProperties": [
+      "scrollbar-color"
+    ],
+    "customProperties": {
+      "--color-violet-500": "oklch(60.6% 0.25 292.717)"
+    },
+    "atProperties": [
+      {
+        "name": "--tw-scrollbar-track",
+        "syntax": "<color>",
+        "inherits": false,
+        "initialValue": "#0000"
+      }
+    ]
+  },
+  "scrollbar-track-white": {
+    "css": "--tw-scrollbar-track: var(--color-white);\n    scrollbar-color: var(--tw-scrollbar-thumb) var(--tw-scrollbar-track);",
+    "cssProperties": [
+      "scrollbar-color"
+    ],
+    "customProperties": {
+      "--color-white": "#fff"
+    },
+    "atProperties": [
+      {
+        "name": "--tw-scrollbar-track",
+        "syntax": "<color>",
+        "inherits": false,
+        "initialValue": "#0000"
+      }
+    ]
+  },
+  "scrollbar-track-yellow-500": {
+    "css": "--tw-scrollbar-track: var(--color-yellow-500);\n    scrollbar-color: var(--tw-scrollbar-thumb) var(--tw-scrollbar-track);",
+    "cssProperties": [
+      "scrollbar-color"
+    ],
+    "customProperties": {
+      "--color-yellow-500": "oklch(79.5% 0.184 86.047)"
+    },
+    "atProperties": [
+      {
+        "name": "--tw-scrollbar-track",
+        "syntax": "<color>",
+        "inherits": false,
+        "initialValue": "#0000"
+      }
+    ]
+  },
   "divide-amber-500": {
     "css": ":where(& > :not(:last-child)) {\n      border-color: var(--color-amber-500);\n    }",
     "cssProperties": [
@@ -36117,6 +36969,114 @@
       "--color-zinc-500": "oklch(55.2% 0.016 285.938)"
     }
   },
+  "border-b-fuchsia-500": {
+    "css": "border-bottom-color: var(--color-fuchsia-500);",
+    "cssProperties": [
+      "border-bottom-color"
+    ],
+    "customProperties": {
+      "--color-fuchsia-500": "oklch(66.7% 0.295 322.15)"
+    }
+  },
+  "border-b-gray-500": {
+    "css": "border-bottom-color: var(--color-gray-500);",
+    "cssProperties": [
+      "border-bottom-color"
+    ],
+    "customProperties": {
+      "--color-gray-500": "oklch(55.1% 0.027 264.364)"
+    }
+  },
+  "border-b-mauve-500": {
+    "css": "border-bottom-color: var(--color-mauve-500);",
+    "cssProperties": [
+      "border-bottom-color"
+    ],
+    "customProperties": {
+      "--color-mauve-500": "oklch(54.2% 0.034 322.5)"
+    }
+  },
+  "border-b-mist-500": {
+    "css": "border-bottom-color: var(--color-mist-500);",
+    "cssProperties": [
+      "border-bottom-color"
+    ],
+    "customProperties": {
+      "--color-mist-500": "oklch(56% 0.021 213.5)"
+    }
+  },
+  "border-b-neutral-500": {
+    "css": "border-bottom-color: var(--color-neutral-500);",
+    "cssProperties": [
+      "border-bottom-color"
+    ],
+    "customProperties": {
+      "--color-neutral-500": "oklch(55.6% 0 0)"
+    }
+  },
+  "border-b-olive-500": {
+    "css": "border-bottom-color: var(--color-olive-500);",
+    "cssProperties": [
+      "border-bottom-color"
+    ],
+    "customProperties": {
+      "--color-olive-500": "oklch(58% 0.031 107.3)"
+    }
+  },
+  "border-b-pink-500": {
+    "css": "border-bottom-color: var(--color-pink-500);",
+    "cssProperties": [
+      "border-bottom-color"
+    ],
+    "customProperties": {
+      "--color-pink-500": "oklch(65.6% 0.241 354.308)"
+    }
+  },
+  "border-b-rose-500": {
+    "css": "border-bottom-color: var(--color-rose-500);",
+    "cssProperties": [
+      "border-bottom-color"
+    ],
+    "customProperties": {
+      "--color-rose-500": "oklch(64.5% 0.246 16.439)"
+    }
+  },
+  "border-b-slate-500": {
+    "css": "border-bottom-color: var(--color-slate-500);",
+    "cssProperties": [
+      "border-bottom-color"
+    ],
+    "customProperties": {
+      "--color-slate-500": "oklch(55.4% 0.046 257.417)"
+    }
+  },
+  "border-b-stone-500": {
+    "css": "border-bottom-color: var(--color-stone-500);",
+    "cssProperties": [
+      "border-bottom-color"
+    ],
+    "customProperties": {
+      "--color-stone-500": "oklch(55.3% 0.013 58.071)"
+    }
+  },
+  "border-b-taupe-500": {
+    "css": "border-bottom-color: var(--color-taupe-500);",
+    "cssProperties": [
+      "border-bottom-color"
+    ],
+    "customProperties": {
+      "--color-taupe-500": "oklch(54.7% 0.021 43.1)"
+    }
+  },
+  "border-b-zinc-500": {
+    "css": "border-bottom-color: var(--color-zinc-500);",
+    "cssProperties": [
+      "border-bottom-color"
+    ],
+    "customProperties": {
+      "--color-zinc-500": "oklch(55.2% 0.016 285.938)"
+    }
+  },
   "border-l-amber-500": {
     "css": "border-left-color: var(--color-amber-500);",
     "cssProperties": [
@@ -36124,6 +37084,15 @@
     ],
     "customProperties": {
       "--color-amber-500": "oklch(76.9% 0.188 70.08)"
+    }
+  },
+  "border-l-black": {
+    "css": "border-left-color: var(--color-black);",
+    "cssProperties": [
+      "border-left-color"
+    ],
+    "customProperties": {
+      "--color-black": "#000"
     }
   },
   "border-l-blue-500": {
@@ -36134,6 +37103,12 @@
     "customProperties": {
       "--color-blue-500": "oklch(62.3% 0.214 259.815)"
     }
+  },
+  "border-l-current": {
+    "css": "border-left-color: currentcolor;",
+    "cssProperties": [
+      "border-left-color"
+    ]
   },
   "border-l-cyan-500": {
     "css": "border-left-color: var(--color-cyan-500);",
@@ -36189,6 +37164,12 @@
       "--color-indigo-500": "oklch(58.5% 0.233 277.117)"
     }
   },
+  "border-l-inherit": {
+    "css": "border-left-color: inherit;",
+    "cssProperties": [
+      "border-left-color"
+    ]
+  },
   "border-l-lime-500": {
     "css": "border-left-color: var(--color-lime-500);",
     "cssProperties": [
@@ -36234,6 +37215,15 @@
       "--color-olive-500": "oklch(58% 0.031 107.3)"
     }
   },
+  "border-l-orange-500": {
+    "css": "border-left-color: var(--color-orange-500);",
+    "cssProperties": [
+      "border-left-color"
+    ],
+    "customProperties": {
+      "--color-orange-500": "oklch(70.5% 0.213 47.604)"
+    }
+  },
   "border-l-pink-500": {
     "css": "border-left-color: var(--color-pink-500);",
     "cssProperties": [
@@ -36250,6 +37240,15 @@
     ],
     "customProperties": {
       "--color-purple-500": "oklch(62.7% 0.265 303.9)"
+    }
+  },
+  "border-l-red-500": {
+    "css": "border-left-color: var(--color-red-500);",
+    "cssProperties": [
+      "border-left-color"
+    ],
+    "customProperties": {
+      "--color-red-500": "oklch(63.7% 0.237 25.331)"
     }
   },
   "border-l-rose-500": {
@@ -36306,6 +37305,12 @@
       "--color-teal-500": "oklch(70.4% 0.14 182.503)"
     }
   },
+  "border-l-transparent": {
+    "css": "border-left-color: transparent;",
+    "cssProperties": [
+      "border-left-color"
+    ]
+  },
   "border-l-violet-500": {
     "css": "border-left-color: var(--color-violet-500);",
     "cssProperties": [
@@ -36313,6 +37318,15 @@
     ],
     "customProperties": {
       "--color-violet-500": "oklch(60.6% 0.25 292.717)"
+    }
+  },
+  "border-l-white": {
+    "css": "border-left-color: var(--color-white);",
+    "cssProperties": [
+      "border-left-color"
+    ],
+    "customProperties": {
+      "--color-white": "#fff"
     }
   },
   "border-l-yellow-500": {
@@ -38766,564 +39780,6 @@
     ],
     "customProperties": {
       "--color-zinc-500": "oklch(55.2% 0.016 285.938)"
-    }
-  },
-  "p-0": {
-    "css": "padding: calc(var(--spacing) * 0);",
-    "cssProperties": [
-      "padding"
-    ],
-    "customProperties": {
-      "--spacing": "0.25rem"
-    }
-  },
-  "p-0.5": {
-    "css": "padding: calc(var(--spacing) * 0.5);",
-    "cssProperties": [
-      "padding"
-    ],
-    "customProperties": {
-      "--spacing": "0.25rem"
-    }
-  },
-  "p-1": {
-    "css": "padding: calc(var(--spacing) * 1);",
-    "cssProperties": [
-      "padding"
-    ],
-    "customProperties": {
-      "--spacing": "0.25rem"
-    }
-  },
-  "p-4": {
-    "css": "padding: calc(var(--spacing) * 4);",
-    "cssProperties": [
-      "padding"
-    ],
-    "customProperties": {
-      "--spacing": "0.25rem"
-    }
-  },
-  "p-8": {
-    "css": "padding: calc(var(--spacing) * 8);",
-    "cssProperties": [
-      "padding"
-    ],
-    "customProperties": {
-      "--spacing": "0.25rem"
-    }
-  },
-  "p-16": {
-    "css": "padding: calc(var(--spacing) * 16);",
-    "cssProperties": [
-      "padding"
-    ],
-    "customProperties": {
-      "--spacing": "0.25rem"
-    }
-  },
-  "px-0": {
-    "css": "padding-inline: calc(var(--spacing) * 0);",
-    "cssProperties": [
-      "padding-inline"
-    ],
-    "customProperties": {
-      "--spacing": "0.25rem"
-    }
-  },
-  "px-0.5": {
-    "css": "padding-inline: calc(var(--spacing) * 0.5);",
-    "cssProperties": [
-      "padding-inline"
-    ],
-    "customProperties": {
-      "--spacing": "0.25rem"
-    }
-  },
-  "px-1": {
-    "css": "padding-inline: calc(var(--spacing) * 1);",
-    "cssProperties": [
-      "padding-inline"
-    ],
-    "customProperties": {
-      "--spacing": "0.25rem"
-    }
-  },
-  "px-4": {
-    "css": "padding-inline: calc(var(--spacing) * 4);",
-    "cssProperties": [
-      "padding-inline"
-    ],
-    "customProperties": {
-      "--spacing": "0.25rem"
-    }
-  },
-  "px-8": {
-    "css": "padding-inline: calc(var(--spacing) * 8);",
-    "cssProperties": [
-      "padding-inline"
-    ],
-    "customProperties": {
-      "--spacing": "0.25rem"
-    }
-  },
-  "px-16": {
-    "css": "padding-inline: calc(var(--spacing) * 16);",
-    "cssProperties": [
-      "padding-inline"
-    ],
-    "customProperties": {
-      "--spacing": "0.25rem"
-    }
-  },
-  "py-0": {
-    "css": "padding-block: calc(var(--spacing) * 0);",
-    "cssProperties": [
-      "padding-block"
-    ],
-    "customProperties": {
-      "--spacing": "0.25rem"
-    }
-  },
-  "py-0.5": {
-    "css": "padding-block: calc(var(--spacing) * 0.5);",
-    "cssProperties": [
-      "padding-block"
-    ],
-    "customProperties": {
-      "--spacing": "0.25rem"
-    }
-  },
-  "py-1": {
-    "css": "padding-block: calc(var(--spacing) * 1);",
-    "cssProperties": [
-      "padding-block"
-    ],
-    "customProperties": {
-      "--spacing": "0.25rem"
-    }
-  },
-  "py-4": {
-    "css": "padding-block: calc(var(--spacing) * 4);",
-    "cssProperties": [
-      "padding-block"
-    ],
-    "customProperties": {
-      "--spacing": "0.25rem"
-    }
-  },
-  "py-8": {
-    "css": "padding-block: calc(var(--spacing) * 8);",
-    "cssProperties": [
-      "padding-block"
-    ],
-    "customProperties": {
-      "--spacing": "0.25rem"
-    }
-  },
-  "py-16": {
-    "css": "padding-block: calc(var(--spacing) * 16);",
-    "cssProperties": [
-      "padding-block"
-    ],
-    "customProperties": {
-      "--spacing": "0.25rem"
-    }
-  },
-  "ps-0": {
-    "css": "padding-inline-start: calc(var(--spacing) * 0);",
-    "cssProperties": [
-      "padding-inline-start"
-    ],
-    "customProperties": {
-      "--spacing": "0.25rem"
-    }
-  },
-  "ps-0.5": {
-    "css": "padding-inline-start: calc(var(--spacing) * 0.5);",
-    "cssProperties": [
-      "padding-inline-start"
-    ],
-    "customProperties": {
-      "--spacing": "0.25rem"
-    }
-  },
-  "ps-1": {
-    "css": "padding-inline-start: calc(var(--spacing) * 1);",
-    "cssProperties": [
-      "padding-inline-start"
-    ],
-    "customProperties": {
-      "--spacing": "0.25rem"
-    }
-  },
-  "ps-4": {
-    "css": "padding-inline-start: calc(var(--spacing) * 4);",
-    "cssProperties": [
-      "padding-inline-start"
-    ],
-    "customProperties": {
-      "--spacing": "0.25rem"
-    }
-  },
-  "ps-8": {
-    "css": "padding-inline-start: calc(var(--spacing) * 8);",
-    "cssProperties": [
-      "padding-inline-start"
-    ],
-    "customProperties": {
-      "--spacing": "0.25rem"
-    }
-  },
-  "ps-16": {
-    "css": "padding-inline-start: calc(var(--spacing) * 16);",
-    "cssProperties": [
-      "padding-inline-start"
-    ],
-    "customProperties": {
-      "--spacing": "0.25rem"
-    }
-  },
-  "pe-0": {
-    "css": "padding-inline-end: calc(var(--spacing) * 0);",
-    "cssProperties": [
-      "padding-inline-end"
-    ],
-    "customProperties": {
-      "--spacing": "0.25rem"
-    }
-  },
-  "pe-0.5": {
-    "css": "padding-inline-end: calc(var(--spacing) * 0.5);",
-    "cssProperties": [
-      "padding-inline-end"
-    ],
-    "customProperties": {
-      "--spacing": "0.25rem"
-    }
-  },
-  "pe-1": {
-    "css": "padding-inline-end: calc(var(--spacing) * 1);",
-    "cssProperties": [
-      "padding-inline-end"
-    ],
-    "customProperties": {
-      "--spacing": "0.25rem"
-    }
-  },
-  "pe-4": {
-    "css": "padding-inline-end: calc(var(--spacing) * 4);",
-    "cssProperties": [
-      "padding-inline-end"
-    ],
-    "customProperties": {
-      "--spacing": "0.25rem"
-    }
-  },
-  "pe-8": {
-    "css": "padding-inline-end: calc(var(--spacing) * 8);",
-    "cssProperties": [
-      "padding-inline-end"
-    ],
-    "customProperties": {
-      "--spacing": "0.25rem"
-    }
-  },
-  "pe-16": {
-    "css": "padding-inline-end: calc(var(--spacing) * 16);",
-    "cssProperties": [
-      "padding-inline-end"
-    ],
-    "customProperties": {
-      "--spacing": "0.25rem"
-    }
-  },
-  "pbs-0": {
-    "css": "padding-block-start: calc(var(--spacing) * 0);",
-    "cssProperties": [
-      "padding-block-start"
-    ],
-    "customProperties": {
-      "--spacing": "0.25rem"
-    }
-  },
-  "pbs-0.5": {
-    "css": "padding-block-start: calc(var(--spacing) * 0.5);",
-    "cssProperties": [
-      "padding-block-start"
-    ],
-    "customProperties": {
-      "--spacing": "0.25rem"
-    }
-  },
-  "pbs-1": {
-    "css": "padding-block-start: calc(var(--spacing) * 1);",
-    "cssProperties": [
-      "padding-block-start"
-    ],
-    "customProperties": {
-      "--spacing": "0.25rem"
-    }
-  },
-  "pbs-4": {
-    "css": "padding-block-start: calc(var(--spacing) * 4);",
-    "cssProperties": [
-      "padding-block-start"
-    ],
-    "customProperties": {
-      "--spacing": "0.25rem"
-    }
-  },
-  "pbs-8": {
-    "css": "padding-block-start: calc(var(--spacing) * 8);",
-    "cssProperties": [
-      "padding-block-start"
-    ],
-    "customProperties": {
-      "--spacing": "0.25rem"
-    }
-  },
-  "pbs-16": {
-    "css": "padding-block-start: calc(var(--spacing) * 16);",
-    "cssProperties": [
-      "padding-block-start"
-    ],
-    "customProperties": {
-      "--spacing": "0.25rem"
-    }
-  },
-  "pbe-0": {
-    "css": "padding-block-end: calc(var(--spacing) * 0);",
-    "cssProperties": [
-      "padding-block-end"
-    ],
-    "customProperties": {
-      "--spacing": "0.25rem"
-    }
-  },
-  "pbe-0.5": {
-    "css": "padding-block-end: calc(var(--spacing) * 0.5);",
-    "cssProperties": [
-      "padding-block-end"
-    ],
-    "customProperties": {
-      "--spacing": "0.25rem"
-    }
-  },
-  "pt-0": {
-    "css": "padding-top: calc(var(--spacing) * 0);",
-    "cssProperties": [
-      "padding-top"
-    ],
-    "customProperties": {
-      "--spacing": "0.25rem"
-    }
-  },
-  "pt-0.5": {
-    "css": "padding-top: calc(var(--spacing) * 0.5);",
-    "cssProperties": [
-      "padding-top"
-    ],
-    "customProperties": {
-      "--spacing": "0.25rem"
-    }
-  },
-  "pt-1": {
-    "css": "padding-top: calc(var(--spacing) * 1);",
-    "cssProperties": [
-      "padding-top"
-    ],
-    "customProperties": {
-      "--spacing": "0.25rem"
-    }
-  },
-  "pt-4": {
-    "css": "padding-top: calc(var(--spacing) * 4);",
-    "cssProperties": [
-      "padding-top"
-    ],
-    "customProperties": {
-      "--spacing": "0.25rem"
-    }
-  },
-  "pt-8": {
-    "css": "padding-top: calc(var(--spacing) * 8);",
-    "cssProperties": [
-      "padding-top"
-    ],
-    "customProperties": {
-      "--spacing": "0.25rem"
-    }
-  },
-  "pt-16": {
-    "css": "padding-top: calc(var(--spacing) * 16);",
-    "cssProperties": [
-      "padding-top"
-    ],
-    "customProperties": {
-      "--spacing": "0.25rem"
-    }
-  },
-  "pr-0": {
-    "css": "padding-right: calc(var(--spacing) * 0);",
-    "cssProperties": [
-      "padding-right"
-    ],
-    "customProperties": {
-      "--spacing": "0.25rem"
-    }
-  },
-  "pr-0.5": {
-    "css": "padding-right: calc(var(--spacing) * 0.5);",
-    "cssProperties": [
-      "padding-right"
-    ],
-    "customProperties": {
-      "--spacing": "0.25rem"
-    }
-  },
-  "pr-1": {
-    "css": "padding-right: calc(var(--spacing) * 1);",
-    "cssProperties": [
-      "padding-right"
-    ],
-    "customProperties": {
-      "--spacing": "0.25rem"
-    }
-  },
-  "pr-4": {
-    "css": "padding-right: calc(var(--spacing) * 4);",
-    "cssProperties": [
-      "padding-right"
-    ],
-    "customProperties": {
-      "--spacing": "0.25rem"
-    }
-  },
-  "pr-8": {
-    "css": "padding-right: calc(var(--spacing) * 8);",
-    "cssProperties": [
-      "padding-right"
-    ],
-    "customProperties": {
-      "--spacing": "0.25rem"
-    }
-  },
-  "pr-16": {
-    "css": "padding-right: calc(var(--spacing) * 16);",
-    "cssProperties": [
-      "padding-right"
-    ],
-    "customProperties": {
-      "--spacing": "0.25rem"
-    }
-  },
-  "pb-0": {
-    "css": "padding-bottom: calc(var(--spacing) * 0);",
-    "cssProperties": [
-      "padding-bottom"
-    ],
-    "customProperties": {
-      "--spacing": "0.25rem"
-    }
-  },
-  "pb-0.5": {
-    "css": "padding-bottom: calc(var(--spacing) * 0.5);",
-    "cssProperties": [
-      "padding-bottom"
-    ],
-    "customProperties": {
-      "--spacing": "0.25rem"
-    }
-  },
-  "pb-1": {
-    "css": "padding-bottom: calc(var(--spacing) * 1);",
-    "cssProperties": [
-      "padding-bottom"
-    ],
-    "customProperties": {
-      "--spacing": "0.25rem"
-    }
-  },
-  "pb-4": {
-    "css": "padding-bottom: calc(var(--spacing) * 4);",
-    "cssProperties": [
-      "padding-bottom"
-    ],
-    "customProperties": {
-      "--spacing": "0.25rem"
-    }
-  },
-  "pb-8": {
-    "css": "padding-bottom: calc(var(--spacing) * 8);",
-    "cssProperties": [
-      "padding-bottom"
-    ],
-    "customProperties": {
-      "--spacing": "0.25rem"
-    }
-  },
-  "pb-16": {
-    "css": "padding-bottom: calc(var(--spacing) * 16);",
-    "cssProperties": [
-      "padding-bottom"
-    ],
-    "customProperties": {
-      "--spacing": "0.25rem"
-    }
-  },
-  "pl-0": {
-    "css": "padding-left: calc(var(--spacing) * 0);",
-    "cssProperties": [
-      "padding-left"
-    ],
-    "customProperties": {
-      "--spacing": "0.25rem"
-    }
-  },
-  "pl-0.5": {
-    "css": "padding-left: calc(var(--spacing) * 0.5);",
-    "cssProperties": [
-      "padding-left"
-    ],
-    "customProperties": {
-      "--spacing": "0.25rem"
-    }
-  },
-  "pl-1": {
-    "css": "padding-left: calc(var(--spacing) * 1);",
-    "cssProperties": [
-      "padding-left"
-    ],
-    "customProperties": {
-      "--spacing": "0.25rem"
-    }
-  },
-  "pl-4": {
-    "css": "padding-left: calc(var(--spacing) * 4);",
-    "cssProperties": [
-      "padding-left"
-    ],
-    "customProperties": {
-      "--spacing": "0.25rem"
-    }
-  },
-  "pl-8": {
-    "css": "padding-left: calc(var(--spacing) * 8);",
-    "cssProperties": [
-      "padding-left"
-    ],
-    "customProperties": {
-      "--spacing": "0.25rem"
-    }
-  },
-  "pl-16": {
-    "css": "padding-left: calc(var(--spacing) * 16);",
-    "cssProperties": [
-      "padding-left"
-    ],
-    "customProperties": {
-      "--spacing": "0.25rem"
     }
   },
   "decoration-amber-500": {
@@ -42192,15 +42648,6 @@
       "--spacing": "0.25rem"
     }
   },
-  "-inset-s-16": {
-    "css": "inset-inline-start: calc(var(--spacing) * -16);",
-    "cssProperties": [
-      "inset-inline-start"
-    ],
-    "customProperties": {
-      "--spacing": "0.25rem"
-    }
-  },
   "inset-s-0": {
     "css": "inset-inline-start: calc(var(--spacing) * 0);",
     "cssProperties": [
@@ -42241,312 +42688,6 @@
     "css": "inset-inline-start: calc(var(--spacing) * 8);",
     "cssProperties": [
       "inset-inline-start"
-    ],
-    "customProperties": {
-      "--spacing": "0.25rem"
-    }
-  },
-  "inset-s-16": {
-    "css": "inset-inline-start: calc(var(--spacing) * 16);",
-    "cssProperties": [
-      "inset-inline-start"
-    ],
-    "customProperties": {
-      "--spacing": "0.25rem"
-    }
-  },
-  "-inset-e-0.5": {
-    "css": "inset-inline-end: calc(var(--spacing) * -0.5);",
-    "cssProperties": [
-      "inset-inline-end"
-    ],
-    "customProperties": {
-      "--spacing": "0.25rem"
-    }
-  },
-  "-inset-e-1": {
-    "css": "inset-inline-end: calc(var(--spacing) * -1);",
-    "cssProperties": [
-      "inset-inline-end"
-    ],
-    "customProperties": {
-      "--spacing": "0.25rem"
-    }
-  },
-  "-inset-e-4": {
-    "css": "inset-inline-end: calc(var(--spacing) * -4);",
-    "cssProperties": [
-      "inset-inline-end"
-    ],
-    "customProperties": {
-      "--spacing": "0.25rem"
-    }
-  },
-  "-inset-e-8": {
-    "css": "inset-inline-end: calc(var(--spacing) * -8);",
-    "cssProperties": [
-      "inset-inline-end"
-    ],
-    "customProperties": {
-      "--spacing": "0.25rem"
-    }
-  },
-  "-inset-e-16": {
-    "css": "inset-inline-end: calc(var(--spacing) * -16);",
-    "cssProperties": [
-      "inset-inline-end"
-    ],
-    "customProperties": {
-      "--spacing": "0.25rem"
-    }
-  },
-  "inset-e-0": {
-    "css": "inset-inline-end: calc(var(--spacing) * 0);",
-    "cssProperties": [
-      "inset-inline-end"
-    ],
-    "customProperties": {
-      "--spacing": "0.25rem"
-    }
-  },
-  "inset-e-0.5": {
-    "css": "inset-inline-end: calc(var(--spacing) * 0.5);",
-    "cssProperties": [
-      "inset-inline-end"
-    ],
-    "customProperties": {
-      "--spacing": "0.25rem"
-    }
-  },
-  "inset-e-1": {
-    "css": "inset-inline-end: calc(var(--spacing) * 1);",
-    "cssProperties": [
-      "inset-inline-end"
-    ],
-    "customProperties": {
-      "--spacing": "0.25rem"
-    }
-  },
-  "inset-e-4": {
-    "css": "inset-inline-end: calc(var(--spacing) * 4);",
-    "cssProperties": [
-      "inset-inline-end"
-    ],
-    "customProperties": {
-      "--spacing": "0.25rem"
-    }
-  },
-  "inset-e-8": {
-    "css": "inset-inline-end: calc(var(--spacing) * 8);",
-    "cssProperties": [
-      "inset-inline-end"
-    ],
-    "customProperties": {
-      "--spacing": "0.25rem"
-    }
-  },
-  "inset-e-16": {
-    "css": "inset-inline-end: calc(var(--spacing) * 16);",
-    "cssProperties": [
-      "inset-inline-end"
-    ],
-    "customProperties": {
-      "--spacing": "0.25rem"
-    }
-  },
-  "-inset-bs-0.5": {
-    "css": "inset-block-start: calc(var(--spacing) * -0.5);",
-    "cssProperties": [
-      "inset-block-start"
-    ],
-    "customProperties": {
-      "--spacing": "0.25rem"
-    }
-  },
-  "-inset-bs-1": {
-    "css": "inset-block-start: calc(var(--spacing) * -1);",
-    "cssProperties": [
-      "inset-block-start"
-    ],
-    "customProperties": {
-      "--spacing": "0.25rem"
-    }
-  },
-  "-inset-bs-4": {
-    "css": "inset-block-start: calc(var(--spacing) * -4);",
-    "cssProperties": [
-      "inset-block-start"
-    ],
-    "customProperties": {
-      "--spacing": "0.25rem"
-    }
-  },
-  "-inset-bs-8": {
-    "css": "inset-block-start: calc(var(--spacing) * -8);",
-    "cssProperties": [
-      "inset-block-start"
-    ],
-    "customProperties": {
-      "--spacing": "0.25rem"
-    }
-  },
-  "-inset-bs-16": {
-    "css": "inset-block-start: calc(var(--spacing) * -16);",
-    "cssProperties": [
-      "inset-block-start"
-    ],
-    "customProperties": {
-      "--spacing": "0.25rem"
-    }
-  },
-  "inset-bs-0": {
-    "css": "inset-block-start: calc(var(--spacing) * 0);",
-    "cssProperties": [
-      "inset-block-start"
-    ],
-    "customProperties": {
-      "--spacing": "0.25rem"
-    }
-  },
-  "inset-bs-0.5": {
-    "css": "inset-block-start: calc(var(--spacing) * 0.5);",
-    "cssProperties": [
-      "inset-block-start"
-    ],
-    "customProperties": {
-      "--spacing": "0.25rem"
-    }
-  },
-  "inset-bs-1": {
-    "css": "inset-block-start: calc(var(--spacing) * 1);",
-    "cssProperties": [
-      "inset-block-start"
-    ],
-    "customProperties": {
-      "--spacing": "0.25rem"
-    }
-  },
-  "inset-bs-4": {
-    "css": "inset-block-start: calc(var(--spacing) * 4);",
-    "cssProperties": [
-      "inset-block-start"
-    ],
-    "customProperties": {
-      "--spacing": "0.25rem"
-    }
-  },
-  "inset-bs-8": {
-    "css": "inset-block-start: calc(var(--spacing) * 8);",
-    "cssProperties": [
-      "inset-block-start"
-    ],
-    "customProperties": {
-      "--spacing": "0.25rem"
-    }
-  },
-  "inset-bs-16": {
-    "css": "inset-block-start: calc(var(--spacing) * 16);",
-    "cssProperties": [
-      "inset-block-start"
-    ],
-    "customProperties": {
-      "--spacing": "0.25rem"
-    }
-  },
-  "-inset-be-0.5": {
-    "css": "inset-block-end: calc(var(--spacing) * -0.5);",
-    "cssProperties": [
-      "inset-block-end"
-    ],
-    "customProperties": {
-      "--spacing": "0.25rem"
-    }
-  },
-  "-inset-be-1": {
-    "css": "inset-block-end: calc(var(--spacing) * -1);",
-    "cssProperties": [
-      "inset-block-end"
-    ],
-    "customProperties": {
-      "--spacing": "0.25rem"
-    }
-  },
-  "-inset-be-4": {
-    "css": "inset-block-end: calc(var(--spacing) * -4);",
-    "cssProperties": [
-      "inset-block-end"
-    ],
-    "customProperties": {
-      "--spacing": "0.25rem"
-    }
-  },
-  "-inset-be-8": {
-    "css": "inset-block-end: calc(var(--spacing) * -8);",
-    "cssProperties": [
-      "inset-block-end"
-    ],
-    "customProperties": {
-      "--spacing": "0.25rem"
-    }
-  },
-  "-inset-be-16": {
-    "css": "inset-block-end: calc(var(--spacing) * -16);",
-    "cssProperties": [
-      "inset-block-end"
-    ],
-    "customProperties": {
-      "--spacing": "0.25rem"
-    }
-  },
-  "inset-be-0": {
-    "css": "inset-block-end: calc(var(--spacing) * 0);",
-    "cssProperties": [
-      "inset-block-end"
-    ],
-    "customProperties": {
-      "--spacing": "0.25rem"
-    }
-  },
-  "inset-be-0.5": {
-    "css": "inset-block-end: calc(var(--spacing) * 0.5);",
-    "cssProperties": [
-      "inset-block-end"
-    ],
-    "customProperties": {
-      "--spacing": "0.25rem"
-    }
-  },
-  "inset-be-1": {
-    "css": "inset-block-end: calc(var(--spacing) * 1);",
-    "cssProperties": [
-      "inset-block-end"
-    ],
-    "customProperties": {
-      "--spacing": "0.25rem"
-    }
-  },
-  "inset-be-4": {
-    "css": "inset-block-end: calc(var(--spacing) * 4);",
-    "cssProperties": [
-      "inset-block-end"
-    ],
-    "customProperties": {
-      "--spacing": "0.25rem"
-    }
-  },
-  "inset-be-8": {
-    "css": "inset-block-end: calc(var(--spacing) * 8);",
-    "cssProperties": [
-      "inset-block-end"
-    ],
-    "customProperties": {
-      "--spacing": "0.25rem"
-    }
-  },
-  "inset-be-16": {
-    "css": "inset-block-end: calc(var(--spacing) * 16);",
-    "cssProperties": [
-      "inset-block-end"
     ],
     "customProperties": {
       "--spacing": "0.25rem"
@@ -44577,6 +44718,142 @@
       "--spacing": "0.25rem"
     }
   },
+  "scrollbar-track-gray-500": {
+    "css": "--tw-scrollbar-track: var(--color-gray-500);\n    scrollbar-color: var(--tw-scrollbar-thumb) var(--tw-scrollbar-track);",
+    "cssProperties": [
+      "scrollbar-color"
+    ],
+    "customProperties": {
+      "--color-gray-500": "oklch(55.1% 0.027 264.364)"
+    },
+    "atProperties": [
+      {
+        "name": "--tw-scrollbar-track",
+        "syntax": "<color>",
+        "inherits": false,
+        "initialValue": "#0000"
+      }
+    ]
+  },
+  "scrollbar-track-mauve-500": {
+    "css": "--tw-scrollbar-track: var(--color-mauve-500);\n    scrollbar-color: var(--tw-scrollbar-thumb) var(--tw-scrollbar-track);",
+    "cssProperties": [
+      "scrollbar-color"
+    ],
+    "customProperties": {
+      "--color-mauve-500": "oklch(54.2% 0.034 322.5)"
+    },
+    "atProperties": [
+      {
+        "name": "--tw-scrollbar-track",
+        "syntax": "<color>",
+        "inherits": false,
+        "initialValue": "#0000"
+      }
+    ]
+  },
+  "scrollbar-track-mist-500": {
+    "css": "--tw-scrollbar-track: var(--color-mist-500);\n    scrollbar-color: var(--tw-scrollbar-thumb) var(--tw-scrollbar-track);",
+    "cssProperties": [
+      "scrollbar-color"
+    ],
+    "customProperties": {
+      "--color-mist-500": "oklch(56% 0.021 213.5)"
+    },
+    "atProperties": [
+      {
+        "name": "--tw-scrollbar-track",
+        "syntax": "<color>",
+        "inherits": false,
+        "initialValue": "#0000"
+      }
+    ]
+  },
+  "scrollbar-track-neutral-500": {
+    "css": "--tw-scrollbar-track: var(--color-neutral-500);\n    scrollbar-color: var(--tw-scrollbar-thumb) var(--tw-scrollbar-track);",
+    "cssProperties": [
+      "scrollbar-color"
+    ],
+    "customProperties": {
+      "--color-neutral-500": "oklch(55.6% 0 0)"
+    },
+    "atProperties": [
+      {
+        "name": "--tw-scrollbar-track",
+        "syntax": "<color>",
+        "inherits": false,
+        "initialValue": "#0000"
+      }
+    ]
+  },
+  "scrollbar-track-olive-500": {
+    "css": "--tw-scrollbar-track: var(--color-olive-500);\n    scrollbar-color: var(--tw-scrollbar-thumb) var(--tw-scrollbar-track);",
+    "cssProperties": [
+      "scrollbar-color"
+    ],
+    "customProperties": {
+      "--color-olive-500": "oklch(58% 0.031 107.3)"
+    },
+    "atProperties": [
+      {
+        "name": "--tw-scrollbar-track",
+        "syntax": "<color>",
+        "inherits": false,
+        "initialValue": "#0000"
+      }
+    ]
+  },
+  "scrollbar-track-stone-500": {
+    "css": "--tw-scrollbar-track: var(--color-stone-500);\n    scrollbar-color: var(--tw-scrollbar-thumb) var(--tw-scrollbar-track);",
+    "cssProperties": [
+      "scrollbar-color"
+    ],
+    "customProperties": {
+      "--color-stone-500": "oklch(55.3% 0.013 58.071)"
+    },
+    "atProperties": [
+      {
+        "name": "--tw-scrollbar-track",
+        "syntax": "<color>",
+        "inherits": false,
+        "initialValue": "#0000"
+      }
+    ]
+  },
+  "scrollbar-track-taupe-500": {
+    "css": "--tw-scrollbar-track: var(--color-taupe-500);\n    scrollbar-color: var(--tw-scrollbar-thumb) var(--tw-scrollbar-track);",
+    "cssProperties": [
+      "scrollbar-color"
+    ],
+    "customProperties": {
+      "--color-taupe-500": "oklch(54.7% 0.021 43.1)"
+    },
+    "atProperties": [
+      {
+        "name": "--tw-scrollbar-track",
+        "syntax": "<color>",
+        "inherits": false,
+        "initialValue": "#0000"
+      }
+    ]
+  },
+  "scrollbar-track-zinc-500": {
+    "css": "--tw-scrollbar-track: var(--color-zinc-500);\n    scrollbar-color: var(--tw-scrollbar-thumb) var(--tw-scrollbar-track);",
+    "cssProperties": [
+      "scrollbar-color"
+    ],
+    "customProperties": {
+      "--color-zinc-500": "oklch(55.2% 0.016 285.938)"
+    },
+    "atProperties": [
+      {
+        "name": "--tw-scrollbar-track",
+        "syntax": "<color>",
+        "inherits": false,
+        "initialValue": "#0000"
+      }
+    ]
+  },
   "gap-0": {
     "css": "gap: calc(var(--spacing) * 0);",
     "cssProperties": [
@@ -45163,6 +45440,348 @@
       "border-block-end-width"
     ]
   },
+  "p-0": {
+    "css": "padding: calc(var(--spacing) * 0);",
+    "cssProperties": [
+      "padding"
+    ],
+    "customProperties": {
+      "--spacing": "0.25rem"
+    }
+  },
+  "p-0.5": {
+    "css": "padding: calc(var(--spacing) * 0.5);",
+    "cssProperties": [
+      "padding"
+    ],
+    "customProperties": {
+      "--spacing": "0.25rem"
+    }
+  },
+  "p-1": {
+    "css": "padding: calc(var(--spacing) * 1);",
+    "cssProperties": [
+      "padding"
+    ],
+    "customProperties": {
+      "--spacing": "0.25rem"
+    }
+  },
+  "p-4": {
+    "css": "padding: calc(var(--spacing) * 4);",
+    "cssProperties": [
+      "padding"
+    ],
+    "customProperties": {
+      "--spacing": "0.25rem"
+    }
+  },
+  "p-8": {
+    "css": "padding: calc(var(--spacing) * 8);",
+    "cssProperties": [
+      "padding"
+    ],
+    "customProperties": {
+      "--spacing": "0.25rem"
+    }
+  },
+  "p-16": {
+    "css": "padding: calc(var(--spacing) * 16);",
+    "cssProperties": [
+      "padding"
+    ],
+    "customProperties": {
+      "--spacing": "0.25rem"
+    }
+  },
+  "px-0": {
+    "css": "padding-inline: calc(var(--spacing) * 0);",
+    "cssProperties": [
+      "padding-inline"
+    ],
+    "customProperties": {
+      "--spacing": "0.25rem"
+    }
+  },
+  "px-0.5": {
+    "css": "padding-inline: calc(var(--spacing) * 0.5);",
+    "cssProperties": [
+      "padding-inline"
+    ],
+    "customProperties": {
+      "--spacing": "0.25rem"
+    }
+  },
+  "px-1": {
+    "css": "padding-inline: calc(var(--spacing) * 1);",
+    "cssProperties": [
+      "padding-inline"
+    ],
+    "customProperties": {
+      "--spacing": "0.25rem"
+    }
+  },
+  "px-4": {
+    "css": "padding-inline: calc(var(--spacing) * 4);",
+    "cssProperties": [
+      "padding-inline"
+    ],
+    "customProperties": {
+      "--spacing": "0.25rem"
+    }
+  },
+  "px-8": {
+    "css": "padding-inline: calc(var(--spacing) * 8);",
+    "cssProperties": [
+      "padding-inline"
+    ],
+    "customProperties": {
+      "--spacing": "0.25rem"
+    }
+  },
+  "px-16": {
+    "css": "padding-inline: calc(var(--spacing) * 16);",
+    "cssProperties": [
+      "padding-inline"
+    ],
+    "customProperties": {
+      "--spacing": "0.25rem"
+    }
+  },
+  "py-0": {
+    "css": "padding-block: calc(var(--spacing) * 0);",
+    "cssProperties": [
+      "padding-block"
+    ],
+    "customProperties": {
+      "--spacing": "0.25rem"
+    }
+  },
+  "py-0.5": {
+    "css": "padding-block: calc(var(--spacing) * 0.5);",
+    "cssProperties": [
+      "padding-block"
+    ],
+    "customProperties": {
+      "--spacing": "0.25rem"
+    }
+  },
+  "py-1": {
+    "css": "padding-block: calc(var(--spacing) * 1);",
+    "cssProperties": [
+      "padding-block"
+    ],
+    "customProperties": {
+      "--spacing": "0.25rem"
+    }
+  },
+  "py-4": {
+    "css": "padding-block: calc(var(--spacing) * 4);",
+    "cssProperties": [
+      "padding-block"
+    ],
+    "customProperties": {
+      "--spacing": "0.25rem"
+    }
+  },
+  "py-8": {
+    "css": "padding-block: calc(var(--spacing) * 8);",
+    "cssProperties": [
+      "padding-block"
+    ],
+    "customProperties": {
+      "--spacing": "0.25rem"
+    }
+  },
+  "py-16": {
+    "css": "padding-block: calc(var(--spacing) * 16);",
+    "cssProperties": [
+      "padding-block"
+    ],
+    "customProperties": {
+      "--spacing": "0.25rem"
+    }
+  },
+  "ps-0": {
+    "css": "padding-inline-start: calc(var(--spacing) * 0);",
+    "cssProperties": [
+      "padding-inline-start"
+    ],
+    "customProperties": {
+      "--spacing": "0.25rem"
+    }
+  },
+  "ps-0.5": {
+    "css": "padding-inline-start: calc(var(--spacing) * 0.5);",
+    "cssProperties": [
+      "padding-inline-start"
+    ],
+    "customProperties": {
+      "--spacing": "0.25rem"
+    }
+  },
+  "ps-1": {
+    "css": "padding-inline-start: calc(var(--spacing) * 1);",
+    "cssProperties": [
+      "padding-inline-start"
+    ],
+    "customProperties": {
+      "--spacing": "0.25rem"
+    }
+  },
+  "ps-4": {
+    "css": "padding-inline-start: calc(var(--spacing) * 4);",
+    "cssProperties": [
+      "padding-inline-start"
+    ],
+    "customProperties": {
+      "--spacing": "0.25rem"
+    }
+  },
+  "ps-8": {
+    "css": "padding-inline-start: calc(var(--spacing) * 8);",
+    "cssProperties": [
+      "padding-inline-start"
+    ],
+    "customProperties": {
+      "--spacing": "0.25rem"
+    }
+  },
+  "ps-16": {
+    "css": "padding-inline-start: calc(var(--spacing) * 16);",
+    "cssProperties": [
+      "padding-inline-start"
+    ],
+    "customProperties": {
+      "--spacing": "0.25rem"
+    }
+  },
+  "pe-0": {
+    "css": "padding-inline-end: calc(var(--spacing) * 0);",
+    "cssProperties": [
+      "padding-inline-end"
+    ],
+    "customProperties": {
+      "--spacing": "0.25rem"
+    }
+  },
+  "pe-0.5": {
+    "css": "padding-inline-end: calc(var(--spacing) * 0.5);",
+    "cssProperties": [
+      "padding-inline-end"
+    ],
+    "customProperties": {
+      "--spacing": "0.25rem"
+    }
+  },
+  "pe-1": {
+    "css": "padding-inline-end: calc(var(--spacing) * 1);",
+    "cssProperties": [
+      "padding-inline-end"
+    ],
+    "customProperties": {
+      "--spacing": "0.25rem"
+    }
+  },
+  "pe-4": {
+    "css": "padding-inline-end: calc(var(--spacing) * 4);",
+    "cssProperties": [
+      "padding-inline-end"
+    ],
+    "customProperties": {
+      "--spacing": "0.25rem"
+    }
+  },
+  "pe-8": {
+    "css": "padding-inline-end: calc(var(--spacing) * 8);",
+    "cssProperties": [
+      "padding-inline-end"
+    ],
+    "customProperties": {
+      "--spacing": "0.25rem"
+    }
+  },
+  "pe-16": {
+    "css": "padding-inline-end: calc(var(--spacing) * 16);",
+    "cssProperties": [
+      "padding-inline-end"
+    ],
+    "customProperties": {
+      "--spacing": "0.25rem"
+    }
+  },
+  "pbs-0": {
+    "css": "padding-block-start: calc(var(--spacing) * 0);",
+    "cssProperties": [
+      "padding-block-start"
+    ],
+    "customProperties": {
+      "--spacing": "0.25rem"
+    }
+  },
+  "pbs-0.5": {
+    "css": "padding-block-start: calc(var(--spacing) * 0.5);",
+    "cssProperties": [
+      "padding-block-start"
+    ],
+    "customProperties": {
+      "--spacing": "0.25rem"
+    }
+  },
+  "pbs-1": {
+    "css": "padding-block-start: calc(var(--spacing) * 1);",
+    "cssProperties": [
+      "padding-block-start"
+    ],
+    "customProperties": {
+      "--spacing": "0.25rem"
+    }
+  },
+  "pbs-4": {
+    "css": "padding-block-start: calc(var(--spacing) * 4);",
+    "cssProperties": [
+      "padding-block-start"
+    ],
+    "customProperties": {
+      "--spacing": "0.25rem"
+    }
+  },
+  "pbs-8": {
+    "css": "padding-block-start: calc(var(--spacing) * 8);",
+    "cssProperties": [
+      "padding-block-start"
+    ],
+    "customProperties": {
+      "--spacing": "0.25rem"
+    }
+  },
+  "pbs-16": {
+    "css": "padding-block-start: calc(var(--spacing) * 16);",
+    "cssProperties": [
+      "padding-block-start"
+    ],
+    "customProperties": {
+      "--spacing": "0.25rem"
+    }
+  },
+  "pbe-0": {
+    "css": "padding-block-end: calc(var(--spacing) * 0);",
+    "cssProperties": [
+      "padding-block-end"
+    ],
+    "customProperties": {
+      "--spacing": "0.25rem"
+    }
+  },
+  "pbe-0.5": {
+    "css": "padding-block-end: calc(var(--spacing) * 0.5);",
+    "cssProperties": [
+      "padding-block-end"
+    ],
+    "customProperties": {
+      "--spacing": "0.25rem"
+    }
+  },
   "pbe-1": {
     "css": "padding-block-end: calc(var(--spacing) * 1);",
     "cssProperties": [
@@ -45194,6 +45813,222 @@
     "css": "padding-block-end: calc(var(--spacing) * 16);",
     "cssProperties": [
       "padding-block-end"
+    ],
+    "customProperties": {
+      "--spacing": "0.25rem"
+    }
+  },
+  "pt-0": {
+    "css": "padding-top: calc(var(--spacing) * 0);",
+    "cssProperties": [
+      "padding-top"
+    ],
+    "customProperties": {
+      "--spacing": "0.25rem"
+    }
+  },
+  "pt-0.5": {
+    "css": "padding-top: calc(var(--spacing) * 0.5);",
+    "cssProperties": [
+      "padding-top"
+    ],
+    "customProperties": {
+      "--spacing": "0.25rem"
+    }
+  },
+  "pt-1": {
+    "css": "padding-top: calc(var(--spacing) * 1);",
+    "cssProperties": [
+      "padding-top"
+    ],
+    "customProperties": {
+      "--spacing": "0.25rem"
+    }
+  },
+  "pt-4": {
+    "css": "padding-top: calc(var(--spacing) * 4);",
+    "cssProperties": [
+      "padding-top"
+    ],
+    "customProperties": {
+      "--spacing": "0.25rem"
+    }
+  },
+  "pt-8": {
+    "css": "padding-top: calc(var(--spacing) * 8);",
+    "cssProperties": [
+      "padding-top"
+    ],
+    "customProperties": {
+      "--spacing": "0.25rem"
+    }
+  },
+  "pt-16": {
+    "css": "padding-top: calc(var(--spacing) * 16);",
+    "cssProperties": [
+      "padding-top"
+    ],
+    "customProperties": {
+      "--spacing": "0.25rem"
+    }
+  },
+  "pr-0": {
+    "css": "padding-right: calc(var(--spacing) * 0);",
+    "cssProperties": [
+      "padding-right"
+    ],
+    "customProperties": {
+      "--spacing": "0.25rem"
+    }
+  },
+  "pr-0.5": {
+    "css": "padding-right: calc(var(--spacing) * 0.5);",
+    "cssProperties": [
+      "padding-right"
+    ],
+    "customProperties": {
+      "--spacing": "0.25rem"
+    }
+  },
+  "pr-1": {
+    "css": "padding-right: calc(var(--spacing) * 1);",
+    "cssProperties": [
+      "padding-right"
+    ],
+    "customProperties": {
+      "--spacing": "0.25rem"
+    }
+  },
+  "pr-4": {
+    "css": "padding-right: calc(var(--spacing) * 4);",
+    "cssProperties": [
+      "padding-right"
+    ],
+    "customProperties": {
+      "--spacing": "0.25rem"
+    }
+  },
+  "pr-8": {
+    "css": "padding-right: calc(var(--spacing) * 8);",
+    "cssProperties": [
+      "padding-right"
+    ],
+    "customProperties": {
+      "--spacing": "0.25rem"
+    }
+  },
+  "pr-16": {
+    "css": "padding-right: calc(var(--spacing) * 16);",
+    "cssProperties": [
+      "padding-right"
+    ],
+    "customProperties": {
+      "--spacing": "0.25rem"
+    }
+  },
+  "pb-0": {
+    "css": "padding-bottom: calc(var(--spacing) * 0);",
+    "cssProperties": [
+      "padding-bottom"
+    ],
+    "customProperties": {
+      "--spacing": "0.25rem"
+    }
+  },
+  "pb-0.5": {
+    "css": "padding-bottom: calc(var(--spacing) * 0.5);",
+    "cssProperties": [
+      "padding-bottom"
+    ],
+    "customProperties": {
+      "--spacing": "0.25rem"
+    }
+  },
+  "pb-1": {
+    "css": "padding-bottom: calc(var(--spacing) * 1);",
+    "cssProperties": [
+      "padding-bottom"
+    ],
+    "customProperties": {
+      "--spacing": "0.25rem"
+    }
+  },
+  "pb-4": {
+    "css": "padding-bottom: calc(var(--spacing) * 4);",
+    "cssProperties": [
+      "padding-bottom"
+    ],
+    "customProperties": {
+      "--spacing": "0.25rem"
+    }
+  },
+  "pb-8": {
+    "css": "padding-bottom: calc(var(--spacing) * 8);",
+    "cssProperties": [
+      "padding-bottom"
+    ],
+    "customProperties": {
+      "--spacing": "0.25rem"
+    }
+  },
+  "pb-16": {
+    "css": "padding-bottom: calc(var(--spacing) * 16);",
+    "cssProperties": [
+      "padding-bottom"
+    ],
+    "customProperties": {
+      "--spacing": "0.25rem"
+    }
+  },
+  "pl-0": {
+    "css": "padding-left: calc(var(--spacing) * 0);",
+    "cssProperties": [
+      "padding-left"
+    ],
+    "customProperties": {
+      "--spacing": "0.25rem"
+    }
+  },
+  "pl-0.5": {
+    "css": "padding-left: calc(var(--spacing) * 0.5);",
+    "cssProperties": [
+      "padding-left"
+    ],
+    "customProperties": {
+      "--spacing": "0.25rem"
+    }
+  },
+  "pl-1": {
+    "css": "padding-left: calc(var(--spacing) * 1);",
+    "cssProperties": [
+      "padding-left"
+    ],
+    "customProperties": {
+      "--spacing": "0.25rem"
+    }
+  },
+  "pl-4": {
+    "css": "padding-left: calc(var(--spacing) * 4);",
+    "cssProperties": [
+      "padding-left"
+    ],
+    "customProperties": {
+      "--spacing": "0.25rem"
+    }
+  },
+  "pl-8": {
+    "css": "padding-left: calc(var(--spacing) * 8);",
+    "cssProperties": [
+      "padding-left"
+    ],
+    "customProperties": {
+      "--spacing": "0.25rem"
+    }
+  },
+  "pl-16": {
+    "css": "padding-left: calc(var(--spacing) * 16);",
+    "cssProperties": [
+      "padding-left"
     ],
     "customProperties": {
       "--spacing": "0.25rem"
@@ -45523,6 +46358,341 @@
       "--spacing": "0.25rem"
     }
   },
+  "-inset-s-16": {
+    "css": "inset-inline-start: calc(var(--spacing) * -16);",
+    "cssProperties": [
+      "inset-inline-start"
+    ],
+    "customProperties": {
+      "--spacing": "0.25rem"
+    }
+  },
+  "inset-s-16": {
+    "css": "inset-inline-start: calc(var(--spacing) * 16);",
+    "cssProperties": [
+      "inset-inline-start"
+    ],
+    "customProperties": {
+      "--spacing": "0.25rem"
+    }
+  },
+  "-inset-e-0.5": {
+    "css": "inset-inline-end: calc(var(--spacing) * -0.5);",
+    "cssProperties": [
+      "inset-inline-end"
+    ],
+    "customProperties": {
+      "--spacing": "0.25rem"
+    }
+  },
+  "-inset-e-1": {
+    "css": "inset-inline-end: calc(var(--spacing) * -1);",
+    "cssProperties": [
+      "inset-inline-end"
+    ],
+    "customProperties": {
+      "--spacing": "0.25rem"
+    }
+  },
+  "-inset-e-4": {
+    "css": "inset-inline-end: calc(var(--spacing) * -4);",
+    "cssProperties": [
+      "inset-inline-end"
+    ],
+    "customProperties": {
+      "--spacing": "0.25rem"
+    }
+  },
+  "-inset-e-8": {
+    "css": "inset-inline-end: calc(var(--spacing) * -8);",
+    "cssProperties": [
+      "inset-inline-end"
+    ],
+    "customProperties": {
+      "--spacing": "0.25rem"
+    }
+  },
+  "-inset-e-16": {
+    "css": "inset-inline-end: calc(var(--spacing) * -16);",
+    "cssProperties": [
+      "inset-inline-end"
+    ],
+    "customProperties": {
+      "--spacing": "0.25rem"
+    }
+  },
+  "inset-e-0": {
+    "css": "inset-inline-end: calc(var(--spacing) * 0);",
+    "cssProperties": [
+      "inset-inline-end"
+    ],
+    "customProperties": {
+      "--spacing": "0.25rem"
+    }
+  },
+  "inset-e-0.5": {
+    "css": "inset-inline-end: calc(var(--spacing) * 0.5);",
+    "cssProperties": [
+      "inset-inline-end"
+    ],
+    "customProperties": {
+      "--spacing": "0.25rem"
+    }
+  },
+  "inset-e-1": {
+    "css": "inset-inline-end: calc(var(--spacing) * 1);",
+    "cssProperties": [
+      "inset-inline-end"
+    ],
+    "customProperties": {
+      "--spacing": "0.25rem"
+    }
+  },
+  "inset-e-4": {
+    "css": "inset-inline-end: calc(var(--spacing) * 4);",
+    "cssProperties": [
+      "inset-inline-end"
+    ],
+    "customProperties": {
+      "--spacing": "0.25rem"
+    }
+  },
+  "inset-e-8": {
+    "css": "inset-inline-end: calc(var(--spacing) * 8);",
+    "cssProperties": [
+      "inset-inline-end"
+    ],
+    "customProperties": {
+      "--spacing": "0.25rem"
+    }
+  },
+  "inset-e-16": {
+    "css": "inset-inline-end: calc(var(--spacing) * 16);",
+    "cssProperties": [
+      "inset-inline-end"
+    ],
+    "customProperties": {
+      "--spacing": "0.25rem"
+    }
+  },
+  "-inset-bs-0.5": {
+    "css": "inset-block-start: calc(var(--spacing) * -0.5);",
+    "cssProperties": [
+      "inset-block-start"
+    ],
+    "customProperties": {
+      "--spacing": "0.25rem"
+    }
+  },
+  "-inset-bs-1": {
+    "css": "inset-block-start: calc(var(--spacing) * -1);",
+    "cssProperties": [
+      "inset-block-start"
+    ],
+    "customProperties": {
+      "--spacing": "0.25rem"
+    }
+  },
+  "-inset-bs-4": {
+    "css": "inset-block-start: calc(var(--spacing) * -4);",
+    "cssProperties": [
+      "inset-block-start"
+    ],
+    "customProperties": {
+      "--spacing": "0.25rem"
+    }
+  },
+  "-inset-bs-8": {
+    "css": "inset-block-start: calc(var(--spacing) * -8);",
+    "cssProperties": [
+      "inset-block-start"
+    ],
+    "customProperties": {
+      "--spacing": "0.25rem"
+    }
+  },
+  "-inset-bs-16": {
+    "css": "inset-block-start: calc(var(--spacing) * -16);",
+    "cssProperties": [
+      "inset-block-start"
+    ],
+    "customProperties": {
+      "--spacing": "0.25rem"
+    }
+  },
+  "inset-bs-0": {
+    "css": "inset-block-start: calc(var(--spacing) * 0);",
+    "cssProperties": [
+      "inset-block-start"
+    ],
+    "customProperties": {
+      "--spacing": "0.25rem"
+    }
+  },
+  "inset-bs-0.5": {
+    "css": "inset-block-start: calc(var(--spacing) * 0.5);",
+    "cssProperties": [
+      "inset-block-start"
+    ],
+    "customProperties": {
+      "--spacing": "0.25rem"
+    }
+  },
+  "inset-bs-1": {
+    "css": "inset-block-start: calc(var(--spacing) * 1);",
+    "cssProperties": [
+      "inset-block-start"
+    ],
+    "customProperties": {
+      "--spacing": "0.25rem"
+    }
+  },
+  "inset-bs-4": {
+    "css": "inset-block-start: calc(var(--spacing) * 4);",
+    "cssProperties": [
+      "inset-block-start"
+    ],
+    "customProperties": {
+      "--spacing": "0.25rem"
+    }
+  },
+  "inset-bs-8": {
+    "css": "inset-block-start: calc(var(--spacing) * 8);",
+    "cssProperties": [
+      "inset-block-start"
+    ],
+    "customProperties": {
+      "--spacing": "0.25rem"
+    }
+  },
+  "inset-bs-16": {
+    "css": "inset-block-start: calc(var(--spacing) * 16);",
+    "cssProperties": [
+      "inset-block-start"
+    ],
+    "customProperties": {
+      "--spacing": "0.25rem"
+    }
+  },
+  "-inset-be-0.5": {
+    "css": "inset-block-end: calc(var(--spacing) * -0.5);",
+    "cssProperties": [
+      "inset-block-end"
+    ],
+    "customProperties": {
+      "--spacing": "0.25rem"
+    }
+  },
+  "-inset-be-1": {
+    "css": "inset-block-end: calc(var(--spacing) * -1);",
+    "cssProperties": [
+      "inset-block-end"
+    ],
+    "customProperties": {
+      "--spacing": "0.25rem"
+    }
+  },
+  "-inset-be-4": {
+    "css": "inset-block-end: calc(var(--spacing) * -4);",
+    "cssProperties": [
+      "inset-block-end"
+    ],
+    "customProperties": {
+      "--spacing": "0.25rem"
+    }
+  },
+  "-inset-be-8": {
+    "css": "inset-block-end: calc(var(--spacing) * -8);",
+    "cssProperties": [
+      "inset-block-end"
+    ],
+    "customProperties": {
+      "--spacing": "0.25rem"
+    }
+  },
+  "-inset-be-16": {
+    "css": "inset-block-end: calc(var(--spacing) * -16);",
+    "cssProperties": [
+      "inset-block-end"
+    ],
+    "customProperties": {
+      "--spacing": "0.25rem"
+    }
+  },
+  "inset-be-0": {
+    "css": "inset-block-end: calc(var(--spacing) * 0);",
+    "cssProperties": [
+      "inset-block-end"
+    ],
+    "customProperties": {
+      "--spacing": "0.25rem"
+    }
+  },
+  "inset-be-0.5": {
+    "css": "inset-block-end: calc(var(--spacing) * 0.5);",
+    "cssProperties": [
+      "inset-block-end"
+    ],
+    "customProperties": {
+      "--spacing": "0.25rem"
+    }
+  },
+  "inset-be-1": {
+    "css": "inset-block-end: calc(var(--spacing) * 1);",
+    "cssProperties": [
+      "inset-block-end"
+    ],
+    "customProperties": {
+      "--spacing": "0.25rem"
+    }
+  },
+  "inset-be-4": {
+    "css": "inset-block-end: calc(var(--spacing) * 4);",
+    "cssProperties": [
+      "inset-block-end"
+    ],
+    "customProperties": {
+      "--spacing": "0.25rem"
+    }
+  },
+  "inset-be-8": {
+    "css": "inset-block-end: calc(var(--spacing) * 8);",
+    "cssProperties": [
+      "inset-block-end"
+    ],
+    "customProperties": {
+      "--spacing": "0.25rem"
+    }
+  },
+  "inset-be-16": {
+    "css": "inset-block-end: calc(var(--spacing) * 16);",
+    "cssProperties": [
+      "inset-block-end"
+    ],
+    "customProperties": {
+      "--spacing": "0.25rem"
+    }
+  },
+  "@container-size/main": {
+    "css": "container-type: size;\n    container-name: main;",
+    "cssProperties": [
+      "container-type",
+      "container-name"
+    ]
+  },
+  "@container-size/sidebar": {
+    "css": "container-type: size;\n    container-name: sidebar;",
+    "cssProperties": [
+      "container-type",
+      "container-name"
+    ]
+  },
+  "@container-size": {
+    "css": "container-type: size;",
+    "cssProperties": [
+      "container-type"
+    ]
+  },
   "inset-[4px]": {
     "css": "inset: 4px;",
     "cssProperties": [
@@ -45845,6 +47015,200 @@
         "name": "--tw-skew-x",
         "syntax": "*",
         "inherits": false
+      }
+    ]
+  },
+  "zoom-(--my-zoom)": {
+    "css": "zoom: var(--my-zoom);",
+    "cssProperties": [
+      "zoom"
+    ]
+  },
+  "zoom-0": {
+    "css": "zoom: 0%;",
+    "cssProperties": [
+      "zoom"
+    ]
+  },
+  "zoom-25": {
+    "css": "zoom: 25%;",
+    "cssProperties": [
+      "zoom"
+    ]
+  },
+  "zoom-175": {
+    "css": "zoom: 175%;",
+    "cssProperties": [
+      "zoom"
+    ]
+  },
+  "zoom-250": {
+    "css": "zoom: 250%;",
+    "cssProperties": [
+      "zoom"
+    ]
+  },
+  "zoom-300": {
+    "css": "zoom: 300%;",
+    "cssProperties": [
+      "zoom"
+    ]
+  },
+  "zoom-[1.5]": {
+    "css": "zoom: 1.5;",
+    "cssProperties": [
+      "zoom"
+    ]
+  },
+  "zoom-[2]": {
+    "css": "zoom: 2;",
+    "cssProperties": [
+      "zoom"
+    ]
+  },
+  "zoom-[number:2]": {
+    "css": "zoom: 2;",
+    "cssProperties": [
+      "zoom"
+    ]
+  },
+  "scrollbar-thumb-(--my-color)": {
+    "css": "--tw-scrollbar-thumb: var(--my-color);\n    scrollbar-color: var(--tw-scrollbar-thumb) var(--tw-scrollbar-track);",
+    "cssProperties": [
+      "scrollbar-color"
+    ],
+    "atProperties": [
+      {
+        "name": "--tw-scrollbar-thumb",
+        "syntax": "<color>",
+        "inherits": false,
+        "initialValue": "#0000"
+      }
+    ]
+  },
+  "scrollbar-thumb-(color:--my-color)": {
+    "css": "--tw-scrollbar-thumb: var(--my-color);\n    scrollbar-color: var(--tw-scrollbar-thumb) var(--tw-scrollbar-track);",
+    "cssProperties": [
+      "scrollbar-color"
+    ],
+    "atProperties": [
+      {
+        "name": "--tw-scrollbar-thumb",
+        "syntax": "<color>",
+        "inherits": false,
+        "initialValue": "#0000"
+      }
+    ]
+  },
+  "scrollbar-thumb-[#0088cc]": {
+    "css": "--tw-scrollbar-thumb: #0088cc;\n    scrollbar-color: var(--tw-scrollbar-thumb) var(--tw-scrollbar-track);",
+    "cssProperties": [
+      "scrollbar-color"
+    ],
+    "atProperties": [
+      {
+        "name": "--tw-scrollbar-thumb",
+        "syntax": "<color>",
+        "inherits": false,
+        "initialValue": "#0000"
+      }
+    ]
+  },
+  "scrollbar-thumb-[#0088cc]/50": {
+    "css": "--tw-scrollbar-thumb: color-mix(in oklab, #0088cc 50%, transparent);\n    scrollbar-color: var(--tw-scrollbar-thumb) var(--tw-scrollbar-track);",
+    "cssProperties": [
+      "scrollbar-color"
+    ],
+    "atProperties": [
+      {
+        "name": "--tw-scrollbar-thumb",
+        "syntax": "<color>",
+        "inherits": false,
+        "initialValue": "#0000"
+      }
+    ]
+  },
+  "scrollbar-thumb-[color:var(--my-color)]": {
+    "css": "--tw-scrollbar-thumb: var(--my-color);\n    scrollbar-color: var(--tw-scrollbar-thumb) var(--tw-scrollbar-track);",
+    "cssProperties": [
+      "scrollbar-color"
+    ],
+    "atProperties": [
+      {
+        "name": "--tw-scrollbar-thumb",
+        "syntax": "<color>",
+        "inherits": false,
+        "initialValue": "#0000"
+      }
+    ]
+  },
+  "scrollbar-track-(--my-color)": {
+    "css": "--tw-scrollbar-track: var(--my-color);\n    scrollbar-color: var(--tw-scrollbar-thumb) var(--tw-scrollbar-track);",
+    "cssProperties": [
+      "scrollbar-color"
+    ],
+    "atProperties": [
+      {
+        "name": "--tw-scrollbar-track",
+        "syntax": "<color>",
+        "inherits": false,
+        "initialValue": "#0000"
+      }
+    ]
+  },
+  "scrollbar-track-(color:--my-color)": {
+    "css": "--tw-scrollbar-track: var(--my-color);\n    scrollbar-color: var(--tw-scrollbar-thumb) var(--tw-scrollbar-track);",
+    "cssProperties": [
+      "scrollbar-color"
+    ],
+    "atProperties": [
+      {
+        "name": "--tw-scrollbar-track",
+        "syntax": "<color>",
+        "inherits": false,
+        "initialValue": "#0000"
+      }
+    ]
+  },
+  "scrollbar-track-[#0088cc]": {
+    "css": "--tw-scrollbar-track: #0088cc;\n    scrollbar-color: var(--tw-scrollbar-thumb) var(--tw-scrollbar-track);",
+    "cssProperties": [
+      "scrollbar-color"
+    ],
+    "atProperties": [
+      {
+        "name": "--tw-scrollbar-track",
+        "syntax": "<color>",
+        "inherits": false,
+        "initialValue": "#0000"
+      }
+    ]
+  },
+  "scrollbar-track-[#0088cc]/50": {
+    "css": "--tw-scrollbar-track: color-mix(in oklab, #0088cc 50%, transparent);\n    scrollbar-color: var(--tw-scrollbar-thumb) var(--tw-scrollbar-track);",
+    "cssProperties": [
+      "scrollbar-color"
+    ],
+    "atProperties": [
+      {
+        "name": "--tw-scrollbar-track",
+        "syntax": "<color>",
+        "inherits": false,
+        "initialValue": "#0000"
+      }
+    ]
+  },
+  "scrollbar-track-[color:var(--my-color)]": {
+    "css": "--tw-scrollbar-track: var(--my-color);\n    scrollbar-color: var(--tw-scrollbar-thumb) var(--tw-scrollbar-track);",
+    "cssProperties": [
+      "scrollbar-color"
+    ],
+    "atProperties": [
+      {
+        "name": "--tw-scrollbar-track",
+        "syntax": "<color>",
+        "inherits": false,
+        "initialValue": "#0000"
       }
     ]
   },
@@ -46248,18 +47612,6 @@
       "font-family"
     ]
   },
-  "font-[var(--my-family)]": {
-    "css": "font-weight: var(--my-family);",
-    "cssProperties": [
-      "font-weight"
-    ]
-  },
-  "font-[600]": {
-    "css": "font-weight: 600;",
-    "cssProperties": [
-      "font-weight"
-    ]
-  },
   "text-2xl": {
     "css": "font-size: var(--text-2xl);\n    line-height: var(--tw-leading, var(--text-2xl--line-height));",
     "cssProperties": [
@@ -46486,6 +47838,60 @@
       }
     ]
   },
+  "tab-(--my-tab)": {
+    "css": "tab-size: var(--my-tab);",
+    "cssProperties": [
+      "tab-size"
+    ]
+  },
+  "tab-1": {
+    "css": "tab-size: 1;",
+    "cssProperties": [
+      "tab-size"
+    ]
+  },
+  "tab-3": {
+    "css": "tab-size: 3;",
+    "cssProperties": [
+      "tab-size"
+    ]
+  },
+  "tab-6": {
+    "css": "tab-size: 6;",
+    "cssProperties": [
+      "tab-size"
+    ]
+  },
+  "tab-10": {
+    "css": "tab-size: 10;",
+    "cssProperties": [
+      "tab-size"
+    ]
+  },
+  "tab-12": {
+    "css": "tab-size: 12;",
+    "cssProperties": [
+      "tab-size"
+    ]
+  },
+  "tab-16": {
+    "css": "tab-size: 16;",
+    "cssProperties": [
+      "tab-size"
+    ]
+  },
+  "tab-[10]": {
+    "css": "tab-size: 10;",
+    "cssProperties": [
+      "tab-size"
+    ]
+  },
+  "tab-[number:5]": {
+    "css": "tab-size: 5;",
+    "cssProperties": [
+      "tab-size"
+    ]
+  },
   "[color:red]": {
     "css": "color: red;",
     "cssProperties": [
@@ -46505,12 +47911,6 @@
     ]
   },
   "text-[color:var(--my-color)]": {
-    "css": "color: var(--my-color);",
-    "cssProperties": [
-      "color"
-    ]
-  },
-  "text-[var(--my-color)]": {
     "css": "color: var(--my-color);",
     "cssProperties": [
       "color"
