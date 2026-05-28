@@ -42,10 +42,6 @@ public class CanonicalTypographyTest(CssFrameworkFixture fixture) : IClassFixtur
         }
     }
 
-    // Tracking dictionary for known gaps. Key is "{utilityClass}::{elementSelector}".
-    // Removing an entry means MonorailCss now matches Tailwind for that pair.
-    private static readonly Dictionary<string, string> KnownGaps = new();
-
     public static IEnumerable<TheoryDataRow<string, string, TypographyDeclarations>> GetCanonicalTypographyData()
     {
         var jsonPath = Path.Combine(AppContext.BaseDirectory, "canonical-typography.json");
@@ -68,9 +64,6 @@ public class CanonicalTypographyTest(CssFrameworkFixture fixture) : IClassFixtur
                     utilityClass, selector, new TypographyDeclarations(declarations));
 
                 row.TestDisplayName = $"{utilityClass} :: {selector}";
-
-                var gapKey = $"{utilityClass}::{selector}";
-                row.Skip = KnownGaps.TryGetValue(gapKey, out var reason) ? reason : null;
 
                 row.Traits.Add("Category", ["CanonicalTypography"]);
                 row.Traits.Add("UtilityClass", [utilityClass]);

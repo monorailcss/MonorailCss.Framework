@@ -37,11 +37,6 @@ public class CanonicalVariantsTest(CssFrameworkFixture fixture) : IClassFixture<
         }
     }
 
-    // Variants where MonorailCss does not yet emit the expected CSS. Each entry
-    // is a TODO; removing one means MonorailCss now compiles that variant
-    // correctly. Keeps the suite green while the gaps stay visible.
-    private static readonly Dictionary<string, string> KnownGaps = new();
-
     public static IEnumerable<TheoryDataRow<string, CanonicalUtilityData>> GetCanonicalVariantData()
     {
         var jsonPath = Path.Combine(AppContext.BaseDirectory, "canonical-variants.json");
@@ -64,7 +59,6 @@ public class CanonicalVariantsTest(CssFrameworkFixture fixture) : IClassFixture<
         {
             var row = new TheoryDataRow<string, CanonicalUtilityData>(kvp.Key, kvp.Value);
             row.TestDisplayName = kvp.Key;
-            row.Skip = KnownGaps.TryGetValue(kvp.Key, out var reason) ? reason : null;
             row.Traits.Add("Category", ["CanonicalVariants"]);
 
             // Group by variant prefix (everything before the final `:`) so

@@ -31,33 +31,25 @@ public class CanonicalUtilitiesTest(CssFrameworkFixture fixture) : IClassFixture
     [MemberData(nameof(GetCanonicalTestData))]
     public void CanonicalUtility_ShouldGenerateExpectedCss(string utilityClass, CanonicalUtilityData expectedData)
     {
-        // Act
         var result = _cssFramework.Process(utilityClass);
 
-        // Assert
         Console.WriteLine($"Testing: {utilityClass}");
         Console.WriteLine($"Result: {result}");
         Console.WriteLine($"Expected CSS Properties: {string.Join(", ", expectedData.cssProperties)}");
 
-        // Normalize the result for comparison
         var normalizedResult = NormalizeCss(result);
 
-        // Check if each expected CSS property is present
         foreach (var expectedProperty in expectedData.cssProperties)
         {
-            // The generated CSS should contain the property
-            // We're more flexible here since the exact value might differ slightly
             var containsProperty = normalizedResult.Contains(expectedProperty);
             containsProperty.ShouldBeTrue(
                 $"Property '{expectedProperty}' not found in generated CSS for utility '{utilityClass}'");
         }
 
-        // If custom properties are defined, verify they exist
         if (expectedData.customProperties != null)
         {
             foreach (var customProp in expectedData.customProperties)
             {
-                // Check if the custom property is referenced or defined
                 var shouldContainCustomProp = normalizedResult.Contains($"var({customProp.Key})") ||
                                              normalizedResult.Contains($"{customProp.Key}:");
                 shouldContainCustomProp.ShouldBeTrue(
@@ -65,41 +57,33 @@ public class CanonicalUtilitiesTest(CssFrameworkFixture fixture) : IClassFixture
             }
         }
 
-        // Verify nested selectors if present in expected CSS
         if (expectedData.css.Contains(":where(") || expectedData.css.Contains(">"))
         {
-            // Just verify that the generated CSS has some selector structure
-            // The exact selector might differ but it should have some nesting
             var hasSelector = result.Contains("{") && result.Contains("}");
             hasSelector.ShouldBeTrue(
                 $"Expected nested selector structure not found in generated CSS for utility '{utilityClass}'");
         }
 
-        // If @property definitions are expected, verify they exist
         if (expectedData.atProperties != null)
         {
             foreach (var atProperty in expectedData.atProperties)
             {
-                // Check if @property declaration exists
                 var propertyDeclaration = $"@property {atProperty.name}";
                 var containsPropertyDeclaration = result.Contains(propertyDeclaration);
                 containsPropertyDeclaration.ShouldBeTrue(
                     $"@property declaration for '{atProperty.name}' not found in generated CSS for utility '{utilityClass}'");
 
-                // Verify syntax
                 var syntaxDeclaration = $"syntax: \"{atProperty.syntax}\"";
                 var containsSyntax = result.Contains(syntaxDeclaration);
                 containsSyntax.ShouldBeTrue(
                     $"Incorrect syntax for @property '{atProperty.name}' in utility '{utilityClass}'. Expected: {syntaxDeclaration}");
 
-                // Verify inherits
                 var inheritsValue = atProperty.inherits ? "true" : "false";
                 var inheritsDeclaration = $"inherits: {inheritsValue}";
                 var containsInherits = result.Contains(inheritsDeclaration);
                 containsInherits.ShouldBeTrue(
                     $"Incorrect inherits value for @property '{atProperty.name}' in utility '{utilityClass}'. Expected: {inheritsDeclaration}");
 
-                // Verify initial-value if not empty
                 if (!string.IsNullOrEmpty(atProperty.initialValue))
                 {
                     var initialValueDeclaration = $"initial-value: {atProperty.initialValue}";
@@ -110,12 +94,6 @@ public class CanonicalUtilitiesTest(CssFrameworkFixture fixture) : IClassFixture
             }
         }
     }
-
-    // Known-failing canonical entries. Each entry maps a class name to a tracking
-    // note explaining the gap. Removing an entry here means MonorailCss now
-    // supports the utility correctly. Used to keep the suite green while making
-    // gaps visible in code review.
-    private static readonly Dictionary<string, string> KnownGaps = new();
 
     public static IEnumerable<TheoryDataRow<string, CanonicalUtilityData>> GetCanonicalTestData()
     {
@@ -144,7 +122,6 @@ public class CanonicalUtilitiesTest(CssFrameworkFixture fixture) : IClassFixture
             var row = new TheoryDataRow<string, CanonicalUtilityData>(kvp.Key, kvp.Value);
 
             row.TestDisplayName = $"{kvp.Key}";
-            row.Skip = KnownGaps.TryGetValue(kvp.Key, out var reason) ? reason : null;
             row.Traits.Add("Category", ["Canonical"]);
 
             // Add trait based on utility prefix for better grouping
