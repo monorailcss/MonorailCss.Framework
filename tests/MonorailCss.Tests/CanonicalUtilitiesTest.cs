@@ -122,11 +122,6 @@ public class CanonicalUtilitiesTest(CssFrameworkFixture fixture) : IClassFixture
         ["@container-size/main"] = "Tailwind 4.3 — not yet implemented",
         ["@container-size/sidebar"] = "Tailwind 4.3 — not yet implemented",
 
-        // Tailwind 4.3 — scrollbar-gutter utilities
-        ["scrollbar-gutter-auto"] = "Tailwind 4.3 — not yet implemented",
-        ["scrollbar-gutter-both"] = "Tailwind 4.3 — not yet implemented",
-        ["scrollbar-gutter-stable"] = "Tailwind 4.3 — not yet implemented",
-
         // Tailwind 4.3 — scrollbar-color (thumb)
         ["scrollbar-thumb-(--my-color)"] = "Tailwind 4.3 — not yet implemented",
         ["scrollbar-thumb-(color:--my-color)"] = "Tailwind 4.3 — not yet implemented",
