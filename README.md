@@ -2,7 +2,7 @@
 
 [![Nuget (with prereleases)](https://img.shields.io/nuget/vpre/MonorailCss)](https://www.nuget.org/packages/MonorailCss/)
 
-MonorailCSS is a utility-first CSS library inspired heavily by Tailwind CSS. It's a JIT CSS compiler written in .NET that aims to be Tailwind CSS 4.2 compatible.
+MonorailCSS is a utility-first CSS library inspired heavily by Tailwind CSS. It's a JIT CSS compiler written in .NET that aims to be Tailwind CSS 4.3 compatible.
 
 ## Basic Usage
 
