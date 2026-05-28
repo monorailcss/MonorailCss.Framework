@@ -307,9 +307,11 @@ public class CssVariableIntegrationTests
     public void MultipleDynamicUtilities_WithSharedCssVariables_WorkTogether()
     {
         // Arrange
+        // Custom prefixes (my-scrollbar-*) sidestep collision with the built-in
+        // scrollbar-thumb/track color utilities.
         var thumbDef = new UtilityDefinition
         {
-            Pattern = "scrollbar-thumb-*",
+            Pattern = "my-scrollbar-thumb-*",
             IsWildcard = true,
             Declarations = ImmutableList.Create(
                 new CssDeclaration("--tw-scrollbar-thumb-color", "--value(--color-*)")
@@ -318,7 +320,7 @@ public class CssVariableIntegrationTests
 
         var trackDef = new UtilityDefinition
         {
-            Pattern = "scrollbar-track-*",
+            Pattern = "my-scrollbar-track-*",
             IsWildcard = true,
             Declarations = ImmutableList.Create(
                 new CssDeclaration("--tw-scrollbar-track-color", "--value(--color-*)")
@@ -327,7 +329,7 @@ public class CssVariableIntegrationTests
 
         var colorDef = new UtilityDefinition
         {
-            Pattern = "scrollbar-color",
+            Pattern = "my-scrollbar-color",
             Declarations = ImmutableList.Create(
                 new CssDeclaration("scrollbar-color", "var(--tw-scrollbar-thumb-color) var(--tw-scrollbar-track-color)")
             )
@@ -338,7 +340,7 @@ public class CssVariableIntegrationTests
         _framework.AddUtility(CustomUtilityFactory.CreateStaticUtility(colorDef));
 
         // Act
-        var result = _framework.Process("scrollbar-thumb-blue-600 scrollbar-track-gray-100 scrollbar-color");
+        var result = _framework.Process("my-scrollbar-thumb-blue-600 my-scrollbar-track-gray-100 my-scrollbar-color");
 
         // Assert
         result.ShouldNotBeNull();

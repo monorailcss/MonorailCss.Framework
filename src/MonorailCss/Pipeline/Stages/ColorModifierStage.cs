@@ -39,6 +39,8 @@ internal class ColorModifierStage : IPipelineStage
         "--tw-divide-color",
         "--tw-shadow-color",
         "--tw-text-shadow-color",
+        "--tw-scrollbar-thumb",
+        "--tw-scrollbar-track",
     ];
 
     public string Name => "Color Modifier Application";
