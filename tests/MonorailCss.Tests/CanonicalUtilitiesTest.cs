@@ -193,26 +193,6 @@ public class CanonicalUtilitiesTest(CssFrameworkFixture fixture) : IClassFixture
         ["scrollbar-track-yellow-500"] = "Tailwind 4.3 — not yet implemented",
         ["scrollbar-track-zinc-500"] = "Tailwind 4.3 — not yet implemented",
 
-        // Tailwind 4.3 — zoom utility
-        ["zoom-(--my-zoom)"] = "Tailwind 4.3 — not yet implemented",
-        ["zoom-0"] = "Tailwind 4.3 — not yet implemented",
-        ["zoom-100"] = "Tailwind 4.3 — not yet implemented",
-        ["zoom-105"] = "Tailwind 4.3 — not yet implemented",
-        ["zoom-110"] = "Tailwind 4.3 — not yet implemented",
-        ["zoom-125"] = "Tailwind 4.3 — not yet implemented",
-        ["zoom-150"] = "Tailwind 4.3 — not yet implemented",
-        ["zoom-175"] = "Tailwind 4.3 — not yet implemented",
-        ["zoom-200"] = "Tailwind 4.3 — not yet implemented",
-        ["zoom-25"] = "Tailwind 4.3 — not yet implemented",
-        ["zoom-250"] = "Tailwind 4.3 — not yet implemented",
-        ["zoom-300"] = "Tailwind 4.3 — not yet implemented",
-        ["zoom-50"] = "Tailwind 4.3 — not yet implemented",
-        ["zoom-75"] = "Tailwind 4.3 — not yet implemented",
-        ["zoom-90"] = "Tailwind 4.3 — not yet implemented",
-        ["zoom-95"] = "Tailwind 4.3 — not yet implemented",
-        ["zoom-[1.5]"] = "Tailwind 4.3 — not yet implemented",
-        ["zoom-[2]"] = "Tailwind 4.3 — not yet implemented",
-        ["zoom-[number:2]"] = "Tailwind 4.3 — not yet implemented",
     };
 
     public static IEnumerable<TheoryDataRow<string, CanonicalUtilityData>> GetCanonicalTestData()
