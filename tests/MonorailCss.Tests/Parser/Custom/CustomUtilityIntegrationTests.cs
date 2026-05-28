@@ -38,7 +38,7 @@ public class CustomUtilityIntegrationTests
     {
         // Arrange
         var css = @"
-            @utility scrollbar-none {
+            @utility no-scrollbar {
                 scrollbar-width: none;
                 &::-webkit-scrollbar {
                     display: none;
@@ -51,10 +51,10 @@ public class CustomUtilityIntegrationTests
         _framework.AddUtilities(utilities);
 
         // Act
-        var output = _framework.Process("scrollbar-none");
+        var output = _framework.Process("no-scrollbar");
 
         // Assert
-        output.ShouldContain(".scrollbar-none");
+        output.ShouldContain(".no-scrollbar");
         output.ShouldContain("scrollbar-width: none");
         output.ShouldContain("::-webkit-scrollbar");
         output.ShouldContain("display: none");

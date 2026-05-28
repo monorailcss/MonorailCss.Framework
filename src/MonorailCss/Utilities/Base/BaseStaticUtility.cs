@@ -30,6 +30,13 @@ internal abstract class BaseStaticUtility : IUtility
             return false;
         }
 
+        // Static utilities ignore modifiers by default; utilities that support a
+        // modifier (e.g. @container/<name>) override TryCompile to read it.
+        if (candidate.Modifier != null)
+        {
+            return false;
+        }
+
         if (!StaticValues.TryGetValue(staticUtility.Root, out var cssDeclaration))
         {
             return false;
