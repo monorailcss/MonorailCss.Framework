@@ -5,17 +5,18 @@ using ThemeModel = MonorailCss.Theme.Theme;
 namespace MonorailCss.Docs.Samples.Custom;
 
 /// <summary>
-/// Adds a small family of scrollbar utilities. Two static utilities
-/// (<c>scrollbar-thin</c> and <c>scrollbar-color</c>) plus two wildcard
-/// ones (<c>scrollbar-thumb-*</c>, <c>scrollbar-track-*</c>) that pick up
-/// theme colors via <c>--value(--color-*)</c>.
+/// MonorailCss ships scrollbar-thin/none/thumb-*/track-*/gutter-* as built-in
+/// utilities, but the underlying recipe — wildcard prefixes plus a shared
+/// composing utility — is still the canonical way to build any other family
+/// of related utilities. This sample re-implements the same shape under the
+/// <c>my-scrollbar-*</c> prefix so it doesn't shadow the built-ins.
 /// </summary>
 public static class ScrollbarUtilities
 {
     /// <summary>
-    /// Builds a framework with the four scrollbar utilities wired up.
-    /// Use them like <c>scrollbar-thin scrollbar-thumb-blue-500
-    /// scrollbar-track-slate-200 scrollbar-color</c>.
+    /// Builds a framework with a four-utility set demonstrating composition
+    /// via shared CSS variables. Use like
+    /// <c>my-scrollbar-tiny my-scrollbar-thumb-blue-500 my-scrollbar-track-slate-200 my-scrollbar-color</c>.
     /// </summary>
     public static CssFramework Build()
     {
@@ -23,27 +24,27 @@ public static class ScrollbarUtilities
         [
             new UtilityDefinition
             {
-                Pattern = "scrollbar-thin",
+                Pattern = "my-scrollbar-tiny",
                 Declarations = new CssDeclaration("scrollbar-width", "thin"),
             },
             new UtilityDefinition
             {
-                Pattern = "scrollbar-thumb-*",
+                Pattern = "my-scrollbar-thumb-*",
                 IsWildcard = true,
-                Declarations = new CssDeclaration("--tw-scrollbar-thumb-color", "--value(--color-*)"),
+                Declarations = new CssDeclaration("--my-scrollbar-thumb-color", "--value(--color-*)"),
             },
             new UtilityDefinition
             {
-                Pattern = "scrollbar-track-*",
+                Pattern = "my-scrollbar-track-*",
                 IsWildcard = true,
-                Declarations = new CssDeclaration("--tw-scrollbar-track-color", "--value(--color-*)"),
+                Declarations = new CssDeclaration("--my-scrollbar-track-color", "--value(--color-*)"),
             },
             new UtilityDefinition
             {
-                Pattern = "scrollbar-color",
+                Pattern = "my-scrollbar-color",
                 Declarations = new CssDeclaration(
                     "scrollbar-color",
-                    "var(--tw-scrollbar-thumb-color) var(--tw-scrollbar-track-color)"),
+                    "var(--my-scrollbar-thumb-color) var(--my-scrollbar-track-color)"),
             },
         ];
 
