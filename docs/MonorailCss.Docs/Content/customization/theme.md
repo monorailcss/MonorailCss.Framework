@@ -12,8 +12,8 @@ The theme is where your design tokens live. Colors, fonts, spacing, breakpoints 
 
 The most common customization: introduce a new palette so utilities like `bg-brand-500` and `text-brand-700` resolve to your brand colors.
 
-```csharp:xmldocid
-M:MonorailCss.Docs.Samples.Theme.BrandPalette.Build
+```csharp:symbol
+Theme/BrandPalette.cs > BrandPalette.Build
 ```
 
 Once registered, every utility that consumes the `--color-*` namespace works with your new palette: `bg-brand-500`, `border-brand-200`, `ring-brand-300`, `from-brand-50`, etc.
@@ -26,8 +26,8 @@ The standard scale is `50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950` &md
 
 Need to nudge a single color without rebuilding a palette? Use `Theme.Add` directly with the fully-qualified key:
 
-```csharp:xmldocid
-M:MonorailCss.Docs.Samples.Theme.OverrideExistingColor.Build
+```csharp:symbol
+Theme/OverrideExistingColor.cs > OverrideExistingColor.Build
 ```
 
 This changes only `--color-blue-500` and `--color-blue-600`. The rest of the blue scale, and every other palette, are untouched.
@@ -36,8 +36,8 @@ This changes only `--color-blue-500` and `--color-blue-600`. The rest of the blu
 
 Aliases let you give a semantic name (`primary`, `accent`, `surface`) to an existing palette. Behind the scenes the alias becomes a thin layer of CSS variables pointing at the source palette, so swapping the source later is a one-line change.
 
-```csharp:xmldocid
-M:MonorailCss.Docs.Samples.Theme.PaletteAlias.Build
+```csharp:symbol
+Theme/PaletteAlias.cs > PaletteAlias.Build
 ```
 
 After this runs, `bg-primary-500` emits the same color as `bg-sky-500`, but the markup is in design-system terms.
@@ -46,8 +46,8 @@ After this runs, `bg-primary-500` emits the same color as `bg-sky-500`, but the 
 
 If you don't want any of the built-in defaults &mdash; no Tailwind palette, no preset spacing scale &mdash; start from `Theme.CreateEmpty()` and build up only what you need:
 
-```csharp:xmldocid
-M:MonorailCss.Docs.Samples.Theme.EmptyTheme.Build
+```csharp:symbol
+Theme/EmptyTheme.cs > EmptyTheme.Build
 ```
 
 This is useful for design systems that ship a constrained token set.
@@ -56,8 +56,8 @@ This is useful for design systems that ship a constrained token set.
 
 Font families are stored under the `--font-*` namespace and surface as `font-{name}` utilities.
 
-```csharp:xmldocid
-M:MonorailCss.Docs.Samples.Theme.FontFamily.Build
+```csharp:symbol
+Theme/FontFamily.cs > FontFamily.Build
 ```
 
 Now `font-display` and `font-mono` are available alongside the built-in `font-sans` and `font-serif`.

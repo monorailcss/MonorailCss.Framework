@@ -12,8 +12,8 @@ tags: [important, preflight, settings, configuration]
 
 `Important = true` emits every generated declaration with `!important`. The use case is narrow: MonorailCSS is being layered on top of another stylesheet that already wins specificity wars, and you can't reorder the cascade. In greenfield projects keep this `false` (the default) and let normal cascade rules do the work.
 
-```csharp:xmldocid
-M:MonorailCss.Docs.Samples.Settings.Important.Build
+```csharp:symbol
+Settings/Important.cs > Important.Build
 ```
 
 If you only need `!important` on a few utilities, use Tailwind's per-class `!` syntax instead &mdash; either trailing (`bg-red-500!`) or leading (`!bg-red-500`).
@@ -24,8 +24,8 @@ If you only need `!important` on a few utilities, use Tailwind's per-class `!` s
 
 Switch it off when MonorailCSS is generating just a slice of CSS that ships alongside another framework's reset (Bootstrap, an existing design system, a CMS theme), so you don't double-reset margins and form controls.
 
-```csharp:xmldocid
-M:MonorailCss.Docs.Samples.Settings.Preflight.Build
+```csharp:symbol
+Settings/Preflight.cs > Preflight.Build
 ```
 
 ## Next step

@@ -1,7 +1,7 @@
 @page "/api-reference"
-@using System.Text.RegularExpressions
-@using MonorailCss.Docs.Services
-@inject ApiReferenceService Api
+@using Pennington.ApiMetadata
+@inject IApiMetadataProvider Api
+@inject IXmlDocHtmlRenderer DocRenderer
 @layout MainLayout
 
 <PageTitle>API Reference - MonorailCss</PageTitle>
@@ -17,11 +17,11 @@
                 Public types you'll touch when configuring or extending the engine.
             </p>
             <div class="flex flex-wrap gap-x-6 gap-y-2 font-mono text-xs text-base-500 dark:text-base-400 pt-2">
-                <span><b class="text-base-900 dark:text-primary-50 font-medium">@Api.Types.Count</b> types</span>
-                <span><b class="text-base-900 dark:text-primary-50 font-medium">@MemberCount()</b> members</span>
+                <span><b class="text-base-900 dark:text-primary-50 font-medium">@_types.Count</b> types</span>
+                <span><b class="text-base-900 dark:text-primary-50 font-medium">@_types.Sum(t => t.MemberCount)</b> members</span>
                 <span>net10.0</span>
                 <span class="ml-auto flex flex-wrap gap-x-3 gap-y-1">
-                    @foreach (var t in Api.Types)
+                    @foreach (var t in _types)
                     {
                         <a href="#@t.Id" class="text-tertiary-one-900 dark:text-tertiary-one-400 hover:underline">@t.Name</a>
                     }
@@ -29,11 +29,11 @@
             </div>
         </header>
 
-        @foreach (var type in Api.Types)
+        @foreach (var type in _types)
         {
             <section id="@type.Id" class="scroll-mt-20 space-y-4">
                 <div class="flex items-baseline flex-wrap gap-x-3 gap-y-1 pb-3 border-b border-base-200 dark:border-base-800">
-                    <span class="font-mono text-[10px] uppercase tracking-[0.12em] px-2 py-0.5 rounded border @KindClasses(type.Kind)">
+                    <span class="font-mono text-[10px] uppercase tracking-[0.12em] px-2 py-0.5 rounded border @KindClasses(type.KindCode)">
                         @type.KindLabel
                     </span>
                     <span class="font-mono text-2xl font-medium text-base-900 dark:text-primary-50 tracking-tight">
@@ -42,69 +42,31 @@
                     <a href="#@type.Id" class="ml-auto font-mono text-xs text-base-400 dark:text-base-500 hover:text-tertiary-one-900 dark:hover:text-tertiary-one-400" aria-label="Anchor">#</a>
                 </div>
 
-                @if (!string.IsNullOrEmpty(type.Summary))
+                @if (!string.IsNullOrEmpty(type.SummaryHtml))
                 {
                     <p class="text-base-600 dark:text-base-400 text-[15px] leading-relaxed max-w-3xl">
-                        @((MarkupString)RenderInlineCode(type.Summary))
+                        @((MarkupString)type.SummaryHtml)
                     </p>
                 }
 
-                @if (type.Properties.Count > 0)
+                @foreach (var section in type.Sections)
                 {
                     <div class="pt-2">
                         <div class="flex items-center gap-3 mb-2">
-                            <span class="text-sm font-medium text-base-900 dark:text-primary-50">Properties</span>
-                            <span class="font-mono text-[11px] text-base-500 dark:text-base-400 px-1.5 py-0.5 bg-base-100 dark:bg-base-800 rounded">@type.Properties.Count</span>
+                            <span class="text-sm font-medium text-base-900 dark:text-primary-50">@section.Heading</span>
+                            <span class="font-mono text-[11px] text-base-500 dark:text-base-400 px-1.5 py-0.5 bg-base-100 dark:bg-base-800 rounded">@section.Rows.Count</span>
                             <span class="flex-1 h-px bg-gradient-to-r from-base-200 dark:from-base-800 to-transparent"></span>
                         </div>
                         <table class="w-full font-mono text-[13px] border-collapse">
                             <tbody>
-                                @foreach (var p in type.Properties)
-                                {
-                                    <tr class="border-b border-base-100 dark:border-base-800/60 last:border-0 hover:bg-base-50/50 dark:hover:bg-base-900/40">
-                                        <td class="py-2 pr-4 align-top whitespace-nowrap">
-                                            <span class="text-base-900 dark:text-primary-50 font-medium">@p.Name</span>
-                                            @foreach (var tag in p.Tags)
-                                            {
-                                                <span class="@TagClasses(tag) ml-1.5 inline-block font-sans text-[10px] font-medium uppercase tracking-wide px-1.5 py-px rounded border align-[2px]">@tag</span>
-                                            }
-                                        </td>
-                                        <td class="py-2 pr-4 align-top whitespace-nowrap text-[12.5px]">
-                                            @((MarkupString)RenderType(p.Type))
-                                        </td>
-                                        <td class="py-2 align-top font-sans text-[13px] text-base-600 dark:text-base-400 leading-snug">
-                                            @((MarkupString)RenderInlineCode(p.Summary))
-                                        </td>
-                                    </tr>
-                                }
-                            </tbody>
-                        </table>
-                    </div>
-                }
-
-                @{
-                    var ctors = type.Methods.Where(m => m.IsConstructor).ToList();
-                    var methods = type.Methods.Where(m => !m.IsConstructor).ToList();
-                }
-
-                @if (ctors.Count > 0)
-                {
-                    <div class="pt-2">
-                        <div class="flex items-center gap-3 mb-2">
-                            <span class="text-sm font-medium text-base-900 dark:text-primary-50">Constructors</span>
-                            <span class="font-mono text-[11px] text-base-500 dark:text-base-400 px-1.5 py-0.5 bg-base-100 dark:bg-base-800 rounded">@ctors.Count</span>
-                            <span class="flex-1 h-px bg-gradient-to-r from-base-200 dark:from-base-800 to-transparent"></span>
-                        </div>
-                        <table class="w-full font-mono text-[13px] border-collapse">
-                            <tbody>
-                                @foreach (var m in ctors)
+                                @foreach (var row in section.Rows)
                                 {
                                     <tr class="border-b border-base-100 dark:border-base-800/60 last:border-0 hover:bg-base-50/50 dark:hover:bg-base-900/40">
                                         <td class="py-2 pr-4 align-top">
-                                            <span class="text-base-900 dark:text-primary-50 font-medium">@m.Name</span><span class="text-base-400 dark:text-base-500">(@((MarkupString)RenderParams(m.Params)))</span>
+                                            @((MarkupString)row.SignatureHtml)
                                         </td>
                                         <td class="py-2 align-top font-sans text-[13px] text-base-600 dark:text-base-400 leading-snug">
-                                            @((MarkupString)RenderInlineCode(m.Summary))
+                                            @((MarkupString)row.SummaryHtml)
                                         </td>
                                     </tr>
                                 }
@@ -112,105 +74,26 @@
                         </table>
                     </div>
                 }
-
-                @if (methods.Count > 0)
-                {
-                    <div class="pt-2">
-                        <div class="flex items-center gap-3 mb-2">
-                            <span class="text-sm font-medium text-base-900 dark:text-primary-50">Methods</span>
-                            <span class="font-mono text-[11px] text-base-500 dark:text-base-400 px-1.5 py-0.5 bg-base-100 dark:bg-base-800 rounded">@methods.Count</span>
-                            <span class="flex-1 h-px bg-gradient-to-r from-base-200 dark:from-base-800 to-transparent"></span>
-                        </div>
-                        <table class="w-full font-mono text-[13px] border-collapse">
-                            <tbody>
-                                @foreach (var m in methods)
-                                {
-                                    <tr class="border-b border-base-100 dark:border-base-800/60 last:border-0 hover:bg-base-50/50 dark:hover:bg-base-900/40">
-                                        <td class="py-2 pr-4 align-top">
-                                            <span class="text-base-900 dark:text-primary-50 font-medium">@m.Name</span><span class="text-base-400 dark:text-base-500">(@((MarkupString)RenderParams(m.Params)))</span>
-                                            @foreach (var tag in m.Tags)
-                                            {
-                                                <span class="@TagClasses(tag) ml-1.5 inline-block font-sans text-[10px] font-medium uppercase tracking-wide px-1.5 py-px rounded border align-[2px]">@tag</span>
-                                            }
-                                        </td>
-                                        <td class="py-2 pr-4 align-top whitespace-nowrap text-[12.5px]">
-                                            @if (!string.IsNullOrEmpty(m.ReturnType))
-                                            {
-                                                <span class="text-base-400 dark:text-base-500">→ </span>@((MarkupString)RenderType(m.ReturnType))
-                                            }
-                                        </td>
-                                        <td class="py-2 align-top font-sans text-[13px] text-base-600 dark:text-base-400 leading-snug">
-                                            @((MarkupString)RenderInlineCode(m.Summary))
-                                        </td>
-                                    </tr>
-                                }
-                            </tbody>
-                        </table>
-                    </div>
-                }
-
-                @if (type.EnumValues.Count > 0)
-                {
-                    <div class="pt-2">
-                        <div class="flex items-center gap-3 mb-2">
-                            <span class="text-sm font-medium text-base-900 dark:text-primary-50">Values</span>
-                            <span class="font-mono text-[11px] text-base-500 dark:text-base-400 px-1.5 py-0.5 bg-base-100 dark:bg-base-800 rounded">@type.EnumValues.Count</span>
-                            <span class="flex-1 h-px bg-gradient-to-r from-base-200 dark:from-base-800 to-transparent"></span>
-                        </div>
-                        <table class="w-full font-mono text-[13px] border-collapse">
-                            <tbody>
-                                @foreach (var v in type.EnumValues)
-                                {
-                                    <tr class="border-b border-base-100 dark:border-base-800/60 last:border-0 hover:bg-base-50/50 dark:hover:bg-base-900/40">
-                                        <td class="py-2 pr-4 align-top whitespace-nowrap">
-                                            <span class="text-base-900 dark:text-primary-50 font-medium">@v.Name</span>
-                                        </td>
-                                        <td class="py-2 pr-4 align-top whitespace-nowrap text-[12.5px] text-base-500 dark:text-base-400">
-                                            @if (!string.IsNullOrEmpty(v.Value))
-                                            {
-                                                <text>= @v.Value</text>
-                                            }
-                                        </td>
-                                        <td class="py-2 align-top font-sans text-[13px] text-base-600 dark:text-base-400 leading-snug">
-                                            @((MarkupString)RenderInlineCode(v.Summary))
-                                        </td>
-                                    </tr>
-                                }
-                            </tbody>
-                        </table>
-                    </div>
-                }
-
-                <div class="flex items-center gap-3 pt-2 font-mono text-[11px] text-base-500 dark:text-base-400">
-                    <span class="text-base-400 dark:text-base-500">SOURCE</span>
-                    <a href="https://github.com/monorailcss/MonorailCss.Framework/blob/main/@type.SourcePath"
-                       target="_blank" rel="noopener noreferrer"
-                       class="text-base-700 dark:text-base-300 hover:text-tertiary-one-900 dark:hover:text-tertiary-one-400 hover:underline">
-                        @type.SourcePath ↗
-                    </a>
-                </div>
             </section>
         }
     </div>
 </div>
 
 @code {
-    private static readonly HashSet<string> Primitives = new(StringComparer.Ordinal)
-    {
-        "string", "int", "long", "short", "byte", "bool", "float", "double", "decimal",
-        "object", "void", "char", "Task", "ValueTask",
-        "List", "IList", "IEnumerable", "IReadOnlyList", "IReadOnlyDictionary",
-        "Dictionary", "Action", "Func", "Predicate", "Span",
-        "ImmutableList", "ImmutableHashSet", "ImmutableDictionary", "ImmutableArray",
-        "params",
-    };
+    // Curated, ordered slice of the public surface — the types a consumer configures
+    // or extends. GetTypesAsync would return the entire assembly; we pin these by UID.
+    private static readonly string[] WantedUids =
+    [
+        "T:MonorailCss.CssFramework",
+        "T:MonorailCss.CssFrameworkSettings",
+        "T:MonorailCss.ColorEmissionMode",
+        "T:MonorailCss.CustomVariantDefinition",
+    ];
 
-    private static readonly Regex TokenSplitter = new(@"([A-Za-z_]\w*|[<>,?\[\]\s\.]+|[^A-Za-z_<>,?\[\]\s\.]+)", RegexOptions.Compiled);
-    private static readonly Regex CodeBackticks = new("`([^`]+)`", RegexOptions.Compiled);
-
+    private List<TypeSection> _types = [];
     private List<Breadcrumbs.BreadcrumbItem> _breadcrumbs = [];
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
         _breadcrumbs =
         [
@@ -218,10 +101,75 @@
             new() { Title = "Reference", Url = string.Empty },
             new() { Title = "API Reference", IsCurrent = true },
         ];
+
+        var sections = new List<TypeSection>();
+        foreach (var uid in WantedUids)
+        {
+            var detail = await Api.GetTypeAsync(uid);
+            if (detail is null)
+            {
+                continue;
+            }
+
+            var summary = detail.Summary;
+            var members = (await Api.GetMembersAsync(uid, MemberKind.All, AccessFilter.Public, MemberOrder.Declaration)).ToList();
+
+            var memberSections = new List<MemberSection>();
+            void Add(MemberKind kind, string heading)
+            {
+                var rows = members
+                    .Where(m => m.Kind == kind)
+                    .Select(m => new MemberRow(m.SignatureHtml ?? string.Empty, RenderSummary(m.Xmldoc)))
+                    .ToList();
+                if (rows.Count > 0)
+                {
+                    memberSections.Add(new MemberSection(heading, rows));
+                }
+            }
+
+            Add(MemberKind.Constructors, "Constructors");
+            Add(MemberKind.Properties, "Properties");
+            Add(MemberKind.Methods, "Methods");
+            Add(MemberKind.Fields, summary.Kind == ApiTypeKind.Enum ? "Values" : "Fields");
+            Add(MemberKind.Events, "Events");
+
+            sections.Add(new TypeSection(
+                Id: summary.Name,
+                Name: summary.Name,
+                Namespace: summary.Namespace,
+                KindLabel: KindLabel(summary.Kind),
+                KindCode: KindCode(summary.Kind),
+                SummaryHtml: RenderSummary(detail.Xmldoc),
+                MemberCount: members.Count,
+                Sections: memberSections));
+        }
+
+        _types = sections;
     }
 
-    private int MemberCount() =>
-        Api.Types.Sum(t => t.Properties.Count + t.Methods.Count + t.EnumValues.Count);
+    private string RenderSummary(ParsedXmlDoc? doc) =>
+        doc is { HasSummary: true } ? DocRenderer.RenderInlineHtml(doc.Summary) : string.Empty;
+
+    private static string KindLabel(ApiTypeKind kind) => kind switch
+    {
+        ApiTypeKind.Class => "Class",
+        ApiTypeKind.Record => "Record",
+        ApiTypeKind.Struct => "Struct",
+        ApiTypeKind.Interface => "Interface",
+        ApiTypeKind.Enum => "Enum",
+        ApiTypeKind.Delegate => "Delegate",
+        _ => kind.ToString(),
+    };
+
+    // Coloring buckets, mirrored from the original page: class/record share one accent,
+    // interfaces another, enums another, everything else falls through to neutral.
+    private static string KindCode(ApiTypeKind kind) => kind switch
+    {
+        ApiTypeKind.Class or ApiTypeKind.Record => "C",
+        ApiTypeKind.Interface => "I",
+        ApiTypeKind.Enum => "E",
+        _ => "S",
+    };
 
     private static string KindClasses(string kind) => kind switch
     {
@@ -231,69 +179,17 @@
         _ => "text-base-700 dark:text-base-300 border-base-200 dark:border-base-700 bg-base-50 dark:bg-base-900",
     };
 
-    private static string TagClasses(string tag) => tag switch
-    {
-        "static" => "text-primary-700 dark:text-primary-400 border-primary-200 dark:border-primary-800/60 bg-transparent",
-        "async" => "text-accent-700 dark:text-accent-400 border-accent-200 dark:border-accent-800/60 bg-transparent",
-        "virtual" => "text-tertiary-one-700 dark:text-tertiary-one-400 border-tertiary-one-200 dark:border-tertiary-one-800/60 bg-transparent",
-        _ => "text-base-500 dark:text-base-400 border-base-200 dark:border-base-700 bg-transparent",
-    };
+    private record MemberRow(string SignatureHtml, string SummaryHtml);
 
-    private string RenderType(string raw)
-    {
-        if (string.IsNullOrEmpty(raw))
-        {
-            return string.Empty;
-        }
+    private record MemberSection(string Heading, IReadOnlyList<MemberRow> Rows);
 
-        var sb = new System.Text.StringBuilder();
-        foreach (Match match in TokenSplitter.Matches(raw))
-        {
-            var token = match.Value;
-            if (Regex.IsMatch(token, @"^[A-Za-z_]\w*$"))
-            {
-                if (Primitives.Contains(token))
-                {
-                    sb.Append("<span class=\"text-base-600 dark:text-base-400\">").Append(System.Net.WebUtility.HtmlEncode(token)).Append("</span>");
-                }
-                else
-                {
-                    sb.Append("<span class=\"text-tertiary-one-900 dark:text-tertiary-one-400\">").Append(System.Net.WebUtility.HtmlEncode(token)).Append("</span>");
-                }
-            }
-            else
-            {
-                sb.Append("<span class=\"text-base-400 dark:text-base-500\">").Append(System.Net.WebUtility.HtmlEncode(token)).Append("</span>");
-            }
-        }
-
-        return sb.ToString();
-    }
-
-    private string RenderParams(System.Collections.Immutable.ImmutableList<ApiParamDoc> ps)
-    {
-        if (ps.Count == 0)
-        {
-            return string.Empty;
-        }
-
-        var parts = ps.Select(p =>
-            "<span class=\"text-base-700 dark:text-base-300\">" + System.Net.WebUtility.HtmlEncode(p.Name) + "</span>" +
-            "<span class=\"text-base-400 dark:text-base-500\">: </span>" +
-            RenderType(p.Type));
-
-        return string.Join("<span class=\"text-base-400 dark:text-base-500\">, </span>", parts);
-    }
-
-    private static string RenderInlineCode(string text)
-    {
-        if (string.IsNullOrEmpty(text))
-        {
-            return string.Empty;
-        }
-
-        var encoded = System.Net.WebUtility.HtmlEncode(text);
-        return CodeBackticks.Replace(encoded, m =>
-            "<code class=\"font-mono text-[12.5px] text-tertiary-one-900 dark:text-tertiary-one-400\">" + m.Groups[1].Value + "</code>");
-    }
+    private record TypeSection(
+        string Id,
+        string Name,
+        string Namespace,
+        string KindLabel,
+        string KindCode,
+        string SummaryHtml,
+        int MemberCount,
+        IReadOnlyList<MemberSection> Sections);
 }

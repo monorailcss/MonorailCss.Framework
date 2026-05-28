@@ -12,8 +12,8 @@ Variants are the prefixes you stack in front of utilities &mdash; `hover:bg-blue
 
 A variant has a name (the prefix users will type), a selector pattern (using `&` for the parent), and a weight that controls output order.
 
-```csharp:xmldocid
-M:MonorailCss.Docs.Samples.Custom.ScrollbarVariants.Build
+```csharp:symbol
+Custom/ScrollbarVariants.cs > ScrollbarVariants.Build
 ```
 
 With this in place, every utility in the framework can be retargeted at the scrollbar pseudo-elements:

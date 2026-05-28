@@ -12,8 +12,8 @@ When MonorailCSS doesn't already cover a property you need &mdash; mask gradient
 
 The simplest case: a utility that emits a fixed declaration.
 
-```csharp:xmldocid
-M:MonorailCss.Docs.Samples.Custom.ScrollbarUtilities.Build
+```csharp:symbol
+Custom/ScrollbarUtilities.cs > ScrollbarUtilities.Build
 ```
 
 That single block actually defines four utilities at once. Three of them are explained below. (MonorailCSS now ships scrollbar utilities out of the box; the example uses a `my-scrollbar-*` prefix to demonstrate the recipe without shadowing the built-ins.)
@@ -44,8 +44,8 @@ Notice that `my-scrollbar-color` in the example doesn't take a value &mdash; it 
 
 Sometimes a utility needs to target a pseudo-element on the same element. Use `NestedSelectors` with `&` standing in for the parent:
 
-```csharp:xmldocid
-M:MonorailCss.Docs.Samples.Custom.ScrollbarUtilitiesNested.Build
+```csharp:symbol
+Custom/ScrollbarUtilitiesNested.cs > ScrollbarUtilitiesNested.Build
 ```
 
 This emits both `.scrollbar-hide { scrollbar-width: none; }` and `.scrollbar-hide::-webkit-scrollbar { display: none; }`, hiding the scrollbar in both Firefox and WebKit-based browsers. (The built-in `scrollbar-none` covers the Firefox half; pair it with this custom utility when you also need to kill the WebKit pseudo-element.)
