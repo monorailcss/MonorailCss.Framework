@@ -2,7 +2,6 @@ using System.Collections.Immutable;
 using MonorailCss;
 using MonorailCss.Docs.Components;
 using MonorailCss.Docs.Services;
-using MonorailCss.Parser.Custom;
 using MonorailCss.Theme;
 using Pennington.Content;
 using Pennington.DocSite;
@@ -25,34 +24,6 @@ var colorScheme = new NamedColorScheme
         ["tertiary-one"] = "happily",
     },
 };
-
-ImmutableList<UtilityDefinition> customUtilities =
-[
-    new UtilityDefinition
-    {
-        Pattern = "scrollbar-thin",
-        Declarations = new CssDeclaration("scrollbar-width", "thin"),
-    },
-    new UtilityDefinition
-    {
-        Pattern = "scrollbar-thumb-*",
-        IsWildcard = true,
-        Declarations = new CssDeclaration("--tw-scrollbar-thumb-color", "--value(--color-*)"),
-    },
-    new UtilityDefinition
-    {
-        Pattern = "scrollbar-track-*",
-        IsWildcard = true,
-        Declarations = new CssDeclaration("--tw-scrollbar-track-color", "--value(--color-*)"),
-    },
-    new UtilityDefinition
-    {
-        Pattern = "scrollbar-color",
-        Declarations = new CssDeclaration(
-            "scrollbar-color",
-            "var(--tw-scrollbar-thumb-color) var(--tw-scrollbar-track-color)"),
-    },
-];
 
 Theme ApplyDocsTheme(Theme baseTheme) => baseTheme
     .AddColorPalette("sanibel", new Dictionary<string, string>
@@ -118,7 +89,7 @@ Theme ApplyDocsTheme(Theme baseTheme) => baseTheme
 builder.Services.AddDocSite(() => new DocSiteOptions
 {
     SiteTitle = "MonorailCss Documentation",
-    Description = "A JIT CSS compiler that aims to be Tailwind CSS 4.2 compatible, written in .NET",
+    Description = "A JIT CSS compiler that aims to be Tailwind CSS 4.3 compatible, written in .NET",
     ContentRootPath = new Pennington.Routing.FilePath("Content"),
     ColorScheme = colorScheme,
 });
@@ -130,7 +101,6 @@ builder.Services.AddMonorailCss(_ => new MonorailCssOptions
     ColorScheme = colorScheme,
     CustomCssFrameworkSettings = settings => settings with
     {
-        CustomUtilities = customUtilities,
         Theme = ApplyDocsTheme(settings.Theme),
     },
 });
@@ -151,7 +121,7 @@ builder.Services.AddSingleton<ApiReferenceService>();
 builder.Services.AddLlmsSubtree(new LlmsSubtree(
     routePrefix: "/utility/",
     title: "Utilities",
-    description: "Tailwind 4-compatible utility classes — one page per CSS property, grouped by category."));
+    description: "Tailwind 4.3-compatible utility classes — one page per CSS property, grouped by category."));
 
 // CssFramework consumed by UtilityDetailContent.razor to render the example
 // CSS pane on every utility-detail page. Mirrors the docs theme so examples
