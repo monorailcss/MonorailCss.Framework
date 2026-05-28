@@ -12,8 +12,8 @@ The `prose` utility styles long-form content &mdash; blog posts, documentation, 
 
 `ProseCustomization` takes a function that receives the current theme and returns a per-modifier dictionary of element rules. The modifier keys are `"DEFAULT"`, `"base"`, `"sm"`, `"lg"`, `"xl"`, `"2xl"`, and `"invert"` &mdash; the same set you reach for in markup with `prose-lg`, `prose-invert`, etc.
 
-```csharp:xmldocid
-M:MonorailCss.Docs.Samples.Prose.BoldLinks.Build
+```csharp:symbol
+Prose/BoldLinks.cs > BoldLinks.Build
 ```
 
 Two things are happening here: every link inside a `prose` block becomes bold and underlined (in `DEFAULT`), and blockquotes get a heavier font-weight when the user opts into `prose-lg` (in `lg`).

@@ -102,7 +102,7 @@
         var currentPath = NavigationManager.ToAbsoluteUri(NavigationManager.Uri).AbsolutePath;
         var tocItems = await ContentResolver.GetTocItemsAsync(string.Empty);
         var currentRoute = ContentRouteFactory.FromUrl(new UrlPath(currentPath), string.Empty);
-        _toc = NavigationBuilder.BuildTree(tocItems, currentRoute, string.Empty);
+        _toc = await NavigationBuilder.BuildTreeAsync(tocItems, currentRoute, string.Empty);
         await base.OnInitializedAsync();
     }
 }

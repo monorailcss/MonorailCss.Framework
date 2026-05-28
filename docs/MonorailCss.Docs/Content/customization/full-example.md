@@ -8,8 +8,8 @@ tags: [example, customization, settings]
 
 Real projects rarely use a single customization in isolation &mdash; you typically introduce a brand palette, alias it to semantic names, register a couple of component classes, and add a custom utility or two. This page shows all of that wired up at once so you can see how the pieces compose.
 
-```csharp:xmldocid
-M:MonorailCss.Docs.Samples.Combined.FullSetup.Build
+```csharp:symbol
+Combined/FullSetup.cs > FullSetup.Build
 ```
 
 That's the full customization surface in one place: a brand palette, an aliased "primary" name, a custom font, component classes, a custom utility, and a custom variant. Everything else MonorailCSS does &mdash; the variant system, the utility pipeline, theme resolution &mdash; runs on top of these settings.

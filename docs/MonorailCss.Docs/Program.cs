@@ -3,12 +3,14 @@ using MonorailCss;
 using MonorailCss.Docs.Components;
 using MonorailCss.Docs.Services;
 using MonorailCss.Theme;
+using Pennington.ApiMetadata;
+using Pennington.ApiMetadata.Reflection;
 using Pennington.Content;
 using Pennington.DocSite;
 using Pennington.Infrastructure;
 using Pennington.LlmsTxt;
 using Pennington.MonorailCss;
-using Pennington.Roslyn;
+using Pennington.TreeSitter;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -105,15 +107,23 @@ builder.Services.AddMonorailCss(_ => new MonorailCssOptions
     },
 });
 
-builder.Services.AddPenningtonRoslyn(roslyn =>
+builder.Services.AddPenningtonTreeSitter(treeSitter =>
 {
-    roslyn.SolutionPath = "MonorailCss.Docs.Samples.slnx";
+    treeSitter.ContentRoot = "../MonorailCss.Docs.Samples";
 });
 
-builder.Services.AddFileWatched<UtilityContentService>();
+builder.Services.AddSingleton<UtilityContentService>();
 builder.Services.AddTransient<IContentService>(sp => sp.GetRequiredService<UtilityContentService>());
 
-builder.Services.AddSingleton<ApiReferenceService>();
+// API reference data is reflected from the compiled MonorailCss assembly plus its
+// XML docs (Pennington.ApiMetadata.Reflection) — the native replacement for the old
+// Roslyn source-parsing service. MonorailCss.dll/.xml are copied next to the app via
+// the project reference. AddApiMetadataFromCompiledAssembly registers the provider
+// keyed "default"; bridge it to a plain registration so components can @inject it.
+builder.Services.AddApiMetadataFromCompiledAssembly(options =>
+    options.AssemblyFiles.Add(Path.Combine(AppContext.BaseDirectory, "MonorailCss.dll")));
+builder.Services.AddSingleton<IApiMetadataProvider>(sp =>
+    sp.GetRequiredKeyedService<IApiMetadataProvider>("default"));
 
 // Split the ~150 utility pages out of the main /llms.txt into /utility/llms.txt
 // so the front door stays scannable for an LLM. The main index gets a single

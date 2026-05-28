@@ -12,8 +12,8 @@ Utility classes are great until you find yourself typing `px-4 py-2 rounded-lg f
 
 Each entry in `Applies` maps a CSS selector to a space-separated list of utilities. Variants like `hover:`, `focus:`, and `md:` are honored inside that list.
 
-```csharp:xmldocid
-M:MonorailCss.Docs.Samples.Settings.Applies.Build
+```csharp:symbol
+Settings/Applies.cs > Applies.Build
 ```
 
 After this configuration, you can write `<button class="btn btn-primary">Save</button>` and the framework expands those classes into the right declarations &mdash; including the `:hover` rule.
