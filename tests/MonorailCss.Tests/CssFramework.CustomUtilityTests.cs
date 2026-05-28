@@ -309,10 +309,11 @@ public class DynamicCustomUtilityIntegrationTests
         // Arrange
         var framework = new CssFramework();
 
-        // Create a dynamic scrollbar utility
+        // Create a dynamic scrollbar utility (custom prefix to avoid collision
+        // with the built-in scrollbar-thumb-* color utility).
         var definition = new UtilityDefinition
         {
-            Pattern = "scrollbar-thumb-*",
+            Pattern = "my-scrollbar-thumb-*",
             IsWildcard = true,
             Declarations = ImmutableList.Create(
                 new CssDeclaration("--tw-scrollbar-thumb-color", "--value(--color-*)")
@@ -323,7 +324,7 @@ public class DynamicCustomUtilityIntegrationTests
         framework.AddUtility(dynamicUtility);
 
         // Act
-        var result = framework.Process("scrollbar-thumb-red-500");
+        var result = framework.Process("my-scrollbar-thumb-red-500");
 
         // Assert
         result.ShouldNotBeNull();
@@ -392,10 +393,10 @@ public class DynamicCustomUtilityIntegrationTests
         // Arrange
         var framework = new CssFramework();
 
-        // Create scrollbar thumb utility
+        // Create scrollbar thumb utility (custom prefix avoids built-in collision)
         var thumbDefinition = new UtilityDefinition
         {
-            Pattern = "scrollbar-thumb-*",
+            Pattern = "my-scrollbar-thumb-*",
             IsWildcard = true,
             Declarations = ImmutableList.Create(
                 new CssDeclaration("--tw-scrollbar-thumb-color", "--value(--color-*)")
@@ -405,7 +406,7 @@ public class DynamicCustomUtilityIntegrationTests
         // Create scrollbar track utility
         var trackDefinition = new UtilityDefinition
         {
-            Pattern = "scrollbar-track-*",
+            Pattern = "my-scrollbar-track-*",
             IsWildcard = true,
             Declarations = ImmutableList.Create(
                 new CssDeclaration("--tw-scrollbar-track-color", "--value(--color-*)")
@@ -418,7 +419,7 @@ public class DynamicCustomUtilityIntegrationTests
         ]);
 
         // Act
-        var result = framework.Process("scrollbar-thumb-red-500 scrollbar-track-gray-200");
+        var result = framework.Process("my-scrollbar-thumb-red-500 my-scrollbar-track-gray-200");
 
         // Assert
         result.ShouldNotBeNull();
