@@ -23,7 +23,7 @@ public class CssVariableIntegrationTests
         // Arrange
         var definition = new UtilityDefinition
         {
-            Pattern = "scrollbar-gutter-stable",
+            Pattern = "custom-gutter-stable",
             Declarations = ImmutableList.Create(
                 new CssDeclaration("--tw-scrollbar-gutter", "stable"),
                 new CssDeclaration("scrollbar-gutter", "var(--tw-scrollbar-gutter)")
@@ -34,7 +34,7 @@ public class CssVariableIntegrationTests
         _framework.AddUtility(utility);
 
         // Act
-        var result = _framework.Process("scrollbar-gutter-stable");
+        var result = _framework.Process("custom-gutter-stable");
 
         // Assert
         result.ShouldNotBeNull();

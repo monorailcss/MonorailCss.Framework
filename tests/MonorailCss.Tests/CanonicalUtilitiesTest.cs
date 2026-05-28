@@ -117,11 +117,6 @@ public class CanonicalUtilitiesTest(CssFrameworkFixture fixture) : IClassFixture
     // gaps visible in code review.
     private static readonly Dictionary<string, string> KnownGaps = new()
     {
-        // Tailwind 4.3 — @container-size (container-type: size + optional container-name)
-        ["@container-size"] = "Tailwind 4.3 — not yet implemented",
-        ["@container-size/main"] = "Tailwind 4.3 — not yet implemented",
-        ["@container-size/sidebar"] = "Tailwind 4.3 — not yet implemented",
-
         // Tailwind 4.3 — scrollbar-color (thumb)
         ["scrollbar-thumb-(--my-color)"] = "Tailwind 4.3 — not yet implemented",
         ["scrollbar-thumb-(color:--my-color)"] = "Tailwind 4.3 — not yet implemented",

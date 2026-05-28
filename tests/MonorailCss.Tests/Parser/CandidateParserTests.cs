@@ -868,12 +868,10 @@ public class CandidateParserTests
     [InlineData("bg-[red;color:blue]")]           // Semicolon in value
     [InlineData("[color:red}html{color:blue]")]   // Braces in value
 
-    // Invalid modifier combinations
-    [InlineData("flex/50")]            // Static utility with modifier
-    [InlineData("block/[0.5]")]        // Static utility with arbitrary modifier
-    [InlineData("hidden/(--opacity)")] // Static utility with CSS var modifier
-
     // Multiple modifiers (invalid)
+    // (Static utilities with named modifiers like `flex/50` now parse successfully —
+    // BaseStaticUtility.TryCompile drops them at compile time, while @container*
+    // utilities opt in to the modifier via their own TryCompile override.)
     [InlineData("bg-red-500/50/75")]   // Multiple modifiers
     [InlineData("text-blue-700/25/50/100")] // Many modifiers
 

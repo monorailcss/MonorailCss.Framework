@@ -66,12 +66,12 @@ internal sealed class CandidateParser
         switch (utilityMatch.Type)
         {
             case UtilityMatcher.UtilityType.Static:
-                if (modifierResult.Modifier != null)
-                {
-                    return false; // Static utilities don't support modifiers
-                }
-
-                candidate = CreateStaticUtility(input, utilityMatch, variants, tokenized.Important);
+                // Most static utilities ignore modifiers — BaseStaticUtility.TryCompile
+                // rejects a candidate with a non-null Modifier. A small set of static
+                // utilities (e.g. @container*) opt in by overriding TryCompile and
+                // reading candidate.Modifier themselves, so we always thread it through
+                // and let the utility decide.
+                candidate = CreateStaticUtility(input, utilityMatch, variants, tokenized.Important, modifierResult.Modifier);
                 return true;
 
             case UtilityMatcher.UtilityType.ArbitraryProperty:
@@ -104,16 +104,20 @@ internal sealed class CandidateParser
         }
     }
 
-    private StaticUtility CreateStaticUtility(string raw, UtilityMatcher.UtilityMatch utilityMatch, ImmutableList<VariantToken> variants, bool important)
+    private StaticUtility CreateStaticUtility(string raw, UtilityMatcher.UtilityMatch utilityMatch, ImmutableList<VariantToken> variants, bool important, Modifier? modifier)
     {
+        var normalizedRoot = modifier != null
+            ? $"{utilityMatch.Root}/{modifier}"
+            : utilityMatch.Root;
+
         return new StaticUtility
         {
             Raw = raw,
             Root = utilityMatch.Root,
             Variants = [.. variants],
             Important = important,
-            Modifier = null,
-            Normalized = GetNormalizedForm(variants, utilityMatch.Root, important),
+            Modifier = modifier,
+            Normalized = GetNormalizedForm(variants, normalizedRoot, important),
         };
     }
 
