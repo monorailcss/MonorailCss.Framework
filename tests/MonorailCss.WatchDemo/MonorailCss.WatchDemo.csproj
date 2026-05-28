@@ -8,7 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Pennington.UI" Version="0.1.0-alpha.0.72" />
+    <PackageReference Include="Pennington.UI" Version="0.1.0-alpha.0.240" />
   </ItemGroup>
 
   <ItemGroup>
