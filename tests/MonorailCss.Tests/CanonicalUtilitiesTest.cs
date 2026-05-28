@@ -193,20 +193,6 @@ public class CanonicalUtilitiesTest(CssFrameworkFixture fixture) : IClassFixture
         ["scrollbar-track-yellow-500"] = "Tailwind 4.3 — not yet implemented",
         ["scrollbar-track-zinc-500"] = "Tailwind 4.3 — not yet implemented",
 
-        // Tailwind 4.3 — tab-size utility
-        ["tab-(--my-tab)"] = "Tailwind 4.3 — not yet implemented",
-        ["tab-1"] = "Tailwind 4.3 — not yet implemented",
-        ["tab-10"] = "Tailwind 4.3 — not yet implemented",
-        ["tab-12"] = "Tailwind 4.3 — not yet implemented",
-        ["tab-16"] = "Tailwind 4.3 — not yet implemented",
-        ["tab-2"] = "Tailwind 4.3 — not yet implemented",
-        ["tab-3"] = "Tailwind 4.3 — not yet implemented",
-        ["tab-4"] = "Tailwind 4.3 — not yet implemented",
-        ["tab-6"] = "Tailwind 4.3 — not yet implemented",
-        ["tab-8"] = "Tailwind 4.3 — not yet implemented",
-        ["tab-[10]"] = "Tailwind 4.3 — not yet implemented",
-        ["tab-[number:5]"] = "Tailwind 4.3 — not yet implemented",
-
         // Tailwind 4.3 — zoom utility
         ["zoom-(--my-zoom)"] = "Tailwind 4.3 — not yet implemented",
         ["zoom-0"] = "Tailwind 4.3 — not yet implemented",
