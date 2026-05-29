@@ -25,6 +25,13 @@ public class CssFramework
     private readonly CssFrameworkSettings _settings;
     private readonly VariantRegistry _variantRegistry;
 
+    // The pipeline, its stages, and the generator depend only on framework-lifetime state
+    // (theme + variant registry), so they are built once here and reused across Process calls
+    // rather than reallocated (≈16 objects) on every call. All stages are stateless or hold
+    // only readonly framework-lifetime dependencies; per-call state lives in PipelineContext.
+    private readonly Pipeline.Pipeline _pipeline;
+    private readonly CssGenerator _generator;
+
     /// <summary>
     /// Initializes a new instance of the <see cref="CssFramework"/> class.
     /// Initializes a new instance of the CssFramework with default configuration.
@@ -80,6 +87,25 @@ public class CssFramework
         }
 
         _applyProcessor = new ApplyProcessor(UtilityRegistry, _variantRegistry, _settings.Theme);
+
+        // Build the processing pipeline and generator once. PostProcessor/SortingManager hold the
+        // (mutable) variant registry by reference, so variants added later via AddVariant remain
+        // visible; the theme is effectively immutable for the framework's lifetime.
+        var postProcessor = new PostProcessor(_variantRegistry);
+        var sortingManager = new SortingManager(_variantRegistry);
+        _pipeline = new Pipeline.Pipeline(
+            new ThemeVariableTrackingStage(_settings.Theme),
+            new NegativeValueNormalizationStage(),
+            new TailwindFunctionExpansionStage(),
+            new ColorModifierStage(_settings.Theme),
+            new ImportantFlagStage(),
+            new VariableFallbackStage(),
+            new PropertyRegistrationStage(),
+            new ProcessingAndSortingStage(postProcessor, sortingManager),
+            new DeclarationMergingStage(new DeclarationMerger()),
+            new MediaQueryConsolidationStage(),
+            new LayerAssignmentStage());
+        _generator = new CssGenerator();
 
         // Register custom utilities from settings
         if (settings.CustomUtilities.Count > 0)
@@ -197,6 +223,9 @@ public class CssFramework
         {
             if (candidate is StaticUtility staticUtility && UtilityRegistry.StaticUtilitiesLookup.TryGetValue(staticUtility.Root, out var value))
             {
+                // Roll back any @property registrations if the utility doesn't actually match,
+                // so probing never leaks custom properties into an unrelated class's output.
+                var checkpoint = propertyRegistry.Checkpoint();
                 if (value.TryCompile(candidate, _settings.Theme, propertyRegistry, out var astNodes))
                 {
                     processedClasses.Add(new ProcessedClass(
@@ -208,15 +237,22 @@ public class CssFramework
 
                     continue;
                 }
+
+                propertyRegistry.RollbackTo(checkpoint);
             }
 
             var processed = false;
 
-            // Try each registered utility
+            // Try each registered utility. The loop probes utilities in priority order until one
+            // matches, so a utility that registers @property metadata must only have it persist
+            // when it actually compiles the candidate — otherwise unrelated classes accumulate
+            // stray @property blocks. Checkpoint before each probe and roll back on no match.
             foreach (var utility in UtilityRegistry.RegisteredUtilities)
             {
+                var checkpoint = propertyRegistry.Checkpoint();
                 if (!utility.TryCompile(candidate, _settings.Theme, propertyRegistry, out var astNodes))
                 {
+                    propertyRegistry.RollbackTo(checkpoint);
                     continue;
                 }
 
@@ -236,32 +272,16 @@ public class CssFramework
             }
         }
 
-        // Process classes through the pipeline
-        var postProcessor = new PostProcessor(_variantRegistry);
-        var sortingManager = new SortingManager(_variantRegistry);
-
-        // Initialize pipeline with stages
-        var pipeline = new Pipeline.Pipeline(
-            new ThemeVariableTrackingStage(_settings.Theme),
-            new ArbitraryValueValidationStage(),
-            new NegativeValueNormalizationStage(),
-            new TailwindFunctionExpansionStage(),
-            new ColorModifierStage(_settings.Theme),
-            new ImportantFlagStage(),
-            new VariableFallbackStage(),
-            new PropertyRegistrationStage(),
-            new ProcessingAndSortingStage(postProcessor, sortingManager),
-            new DeclarationMergingStage(new DeclarationMerger()),
-            new MediaQueryConsolidationStage(),
-            new LayerAssignmentStage());
-
+        // Process classes through the framework-lifetime pipeline (built once in the constructor).
         var pipelineContext = new PipelineContext();
         pipelineContext.Metadata["processedClasses"] = processedClasses;
         pipelineContext.Metadata["propertyRegistry"] = propertyRegistry;
         pipelineContext.Metadata["themeTracker"] = themeTracker;
 
-        // Process through the pipeline - handles post-processing, sorting, merging, and layering
-        var cssRules = pipeline.Process(ImmutableList<AstNode>.Empty, pipelineContext).ToList();
+        // Process through the pipeline - handles post-processing, sorting, merging, and layering.
+        // Pipeline.Process already returns an ImmutableList; keep it as-is (the generator only
+        // enumerates it) rather than round-tripping through List and back to ImmutableList.
+        var cssRules = _pipeline.Process(ImmutableList<AstNode>.Empty, pipelineContext);
 
         // Collect used theme variables (optimized single-pass method)
         var usedVariablesImmutable = themeTracker.GetUsedValuesWithValues();
@@ -307,9 +327,8 @@ public class CssFramework
         var inlineKeys = ImmutableHashSet.CreateRange(
             usedVariables.Keys.Where(_settings.Theme.IsInline));
 
-        // Generate the final CSS
-        var generator = new CssGenerator();
-        var generatedCss = generator.GenerateCss(cssRules.ToImmutableList(), usedVariables, propertyRegistry, false, preflightCss, componentNodes, _settings.Keyframes, inlineKeys);
+        // Generate the final CSS using the framework-lifetime generator.
+        var generatedCss = _generator.GenerateCss(cssRules, usedVariables, propertyRegistry, false, preflightCss, componentNodes, _settings.Keyframes, inlineKeys);
 
         return new CssFrameworkResult
         {
@@ -531,9 +550,26 @@ public class CssFramework
                     palettes.Add(rest[..lastDash].ToString());
                 }
 
-                foreach (var palette in palettes)
+                if (palettes.Count == 0)
                 {
-                    foreach (var (key, value) in theme.Namespace($"--color-{palette}"))
+                    return;
+                }
+
+                // Single lazy pass over the colour namespace instead of one full theme scan per
+                // palette: walk every --color-* entry once and keep those whose palette token is in
+                // use. The span-based lookup avoids allocating a string per candidate palette.
+                var paletteLookup = palettes.GetAlternateLookup<ReadOnlySpan<char>>();
+                foreach (var (key, value) in theme.EnumerateNamespace(colorPrefix))
+                {
+                    var rest = key.AsSpan(colorPrefix.Length);
+                    var lastDash = rest.LastIndexOf('-');
+                    if (lastDash <= 0)
+                    {
+                        // Singletons like --color-black / --color-white have no shade.
+                        continue;
+                    }
+
+                    if (paletteLookup.Contains(rest[..lastDash]))
                     {
                         variables[key] = value;
                     }

@@ -42,8 +42,7 @@ internal class ArbitraryPropertyUtility : IUtility
             return false;
         }
 
-        // Mark any theme variables referenced in var() functions as used
-        MarkThemeVariablesAsUsed(value, theme);
+        // Theme variable usage (var() references) is tracked centrally by ThemeVariableTrackingStage.
 
         // Create the CSS declaration
         var declaration = new Declaration(property, value, candidate.Important);
@@ -64,16 +63,5 @@ internal class ArbitraryPropertyUtility : IUtility
     private static string ProcessValue(string value)
     {
         return value.Replace('_', ' ');
-    }
-
-    /// <summary>
-    /// Detects CSS variable references in var() functions and marks them as used in the theme.
-    /// This ensures that referenced theme variables are included in the CSS output.
-    /// Supports multiple var() references in a single value.
-    /// </summary>
-    private static void MarkThemeVariablesAsUsed(string value, Theme.Theme theme)
-    {
-        // ThemeVariableTrackingStage in the pipeline automatically tracks all var() references
-        // This method is kept for backward compatibility but no longer needs to do anything
     }
 }

@@ -30,7 +30,6 @@ internal class ApplyProcessor
         // Note: We don't need ProcessingAndSortingStage here as applies handle their own variant application
         _pipeline = new Pipeline.Pipeline(
             new ThemeVariableTrackingStage(theme),
-            new ArbitraryValueValidationStage(),
             new NegativeValueNormalizationStage(),
             new ColorModifierStage(theme),
             new ImportantFlagStage(),
@@ -179,9 +178,11 @@ internal class ApplyProcessor
 
         foreach (var candidate in candidates)
         {
-            // Try to compile the utility
+            // Try to compile the utility. Roll back @property registrations for probes that
+            // don't match so an apply only emits the custom properties its matched utility needs.
             foreach (var utility in utilityRegistry.RegisteredUtilities)
             {
+                var checkpoint = propertyRegistry.Checkpoint();
                 if (utility.TryCompile(candidate, theme, propertyRegistry, out var astNodes))
                 {
                     // Create ProcessedClass for pipeline processing
@@ -194,6 +195,8 @@ internal class ApplyProcessor
                     processedClasses.Add(processedClass);
                     break;
                 }
+
+                propertyRegistry.RollbackTo(checkpoint);
             }
         }
 

@@ -144,6 +144,12 @@ internal class VariantTokenizer
         return VariantToken.Static(segment);
     }
 
+    // Hoisted to static readonly so the per-segment variant scan doesn't allocate a fresh prefix
+    // array (and a "{prefix}-" string per prefix) on every call.
+    private static readonly string[] CompoundPrefixes = ["group", "peer"];
+
+    private static readonly string[] FunctionalPrefixes = ["aria", "data", "has", "where", "is", "not", "supports"];
+
     /// <summary>
     /// Checks if a segment is a compound variant and extracts its parts.
     /// </summary>
@@ -152,12 +158,9 @@ internal class VariantTokenizer
         root = string.Empty;
         subVariant = string.Empty;
 
-        // Known compound prefixes
-        var compoundPrefixes = new[] { "group", "peer" };
-
-        foreach (var prefix in compoundPrefixes)
+        foreach (var prefix in CompoundPrefixes)
         {
-            if (segment.StartsWith($"{prefix}-"))
+            if (StartsWithPrefixSegment(segment, prefix))
             {
                 root = prefix;
                 subVariant = segment[(prefix.Length + 1)..];
@@ -168,6 +171,15 @@ internal class VariantTokenizer
         return false;
     }
 
+    // True when segment is "{prefix}-..." — equivalent to StartsWith($"{prefix}-") without the
+    // per-call string interpolation.
+    private static bool StartsWithPrefixSegment(string segment, string prefix)
+    {
+        return segment.Length > prefix.Length
+            && segment[prefix.Length] == '-'
+            && segment.StartsWith(prefix, StringComparison.Ordinal);
+    }
+
     /// <summary>
     /// Checks if a segment is a functional variant and extracts its parts.
     /// </summary>
@@ -176,12 +188,9 @@ internal class VariantTokenizer
         root = string.Empty;
         value = string.Empty;
 
-        // Known functional prefixes
-        var functionalPrefixes = new[] { "aria", "data", "has", "where", "is", "not", "supports" };
-
-        foreach (var prefix in functionalPrefixes)
+        foreach (var prefix in FunctionalPrefixes)
         {
-            if (segment.StartsWith($"{prefix}-"))
+            if (StartsWithPrefixSegment(segment, prefix))
             {
                 root = prefix;
                 var rawValue = segment[(prefix.Length + 1)..];

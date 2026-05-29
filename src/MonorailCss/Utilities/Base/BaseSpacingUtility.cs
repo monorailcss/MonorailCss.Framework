@@ -26,6 +26,16 @@ internal abstract class BaseSpacingUtility : IUtility
     /// </summary>
     protected virtual string[] SpacingNamespaces => NamespaceResolver.BuildChain(NamespaceResolver.Spacing);
 
+    // First-use caches: Patterns is read on every probe in the matching loop, and the default
+    // SpacingNamespaces builds a fresh chain array on each access. Both are constant per utility
+    // (a singleton), so caching removes the per-access allocation churn.
+    private string[]? _patternsCache;
+    private string[]? _spacingNamespacesCache;
+
+    private string[] PatternsCached => _patternsCache ??= Patterns;
+
+    private string[] SpacingNamespacesCached => _spacingNamespacesCache ??= SpacingNamespaces;
+
     public virtual string[] GetNamespaces() => SpacingNamespaces;
 
     public virtual string[] GetFunctionalRoots()
@@ -56,7 +66,7 @@ internal abstract class BaseSpacingUtility : IUtility
         var isNegative = functionalUtility.Root.StartsWith('-');
         var basePattern = isNegative ? functionalUtility.Root[1..] : functionalUtility.Root;
 
-        if (!Patterns.Contains(basePattern))
+        if (!PatternsCached.Contains(basePattern))
         {
             return false;
         }
@@ -95,7 +105,7 @@ internal abstract class BaseSpacingUtility : IUtility
         var isNegative = functionalUtility.Root.StartsWith('-');
         var basePattern = isNegative ? functionalUtility.Root[1..] : functionalUtility.Root;
 
-        if (!Patterns.Contains(basePattern))
+        if (!PatternsCached.Contains(basePattern))
         {
             return false;
         }
@@ -189,7 +199,7 @@ internal abstract class BaseSpacingUtility : IUtility
             }
 
             // Try to resolve from theme namespaces for non-numeric keys
-            foreach (var ns in SpacingNamespaces)
+            foreach (var ns in SpacingNamespacesCached)
             {
                 var themeKey = $"{ns}-{key}";
                 if (theme.ContainsKey(themeKey))

@@ -15,7 +15,7 @@ internal sealed class CssGenerator
         "((-moz-orient: inline) and (not (color:rgb(from red r g b))))";
 
     public string GenerateCss(
-        ImmutableList<AstNode> nodes,
+        IReadOnlyList<AstNode> nodes,
         Dictionary<string, string>? themeVariables = null,
         CssPropertyRegistry? propertyRegistry = null,
         bool includeComments = false,
@@ -24,7 +24,7 @@ internal sealed class CssGenerator
         ImmutableDictionary<string, string>? userKeyframes = null,
         ImmutableHashSet<string>? inlineKeys = null)
     {
-        if (nodes.IsEmpty && (themeVariables == null || themeVariables.Count == 0) && (propertyRegistry == null || propertyRegistry.Count == 0) && string.IsNullOrWhiteSpace(preflightCss))
+        if (nodes.Count == 0 && (themeVariables == null || themeVariables.Count == 0) && (propertyRegistry == null || propertyRegistry.Count == 0) && string.IsNullOrWhiteSpace(preflightCss))
         {
             return string.Empty;
         }
@@ -156,14 +156,14 @@ internal sealed class CssGenerator
     }
 
     private static (List<AstNode> Theme, List<AstNode> Base, List<AstNode> Utilities) CollectLayerNodes(
-        ImmutableList<AstNode> nodes,
+        IReadOnlyList<AstNode> nodes,
         bool includeComments)
     {
         var themeNodes = new List<AstNode>();
         var baseNodes = new List<AstNode>();
         var utilityNodes = new List<AstNode>();
 
-        if (nodes.IsEmpty)
+        if (nodes.Count == 0)
         {
             return (themeNodes, baseNodes, utilityNodes);
         }

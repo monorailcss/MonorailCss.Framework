@@ -11,7 +11,6 @@ namespace MonorailCss.Pipeline.Stages;
 internal class ThemeVariableTrackingStage : IPipelineStage
 {
     private readonly Theme.Theme _theme;
-    private ThemeUsageTracker? _tracker;
 
     public string Name => "Theme Variable Tracking";
 
@@ -22,22 +21,24 @@ internal class ThemeVariableTrackingStage : IPipelineStage
 
     public ImmutableList<AstNode> Process(ImmutableList<AstNode> nodes, PipelineContext context)
     {
-        // Get the tracker from the context
+        // Resolve the tracker for this call as a local rather than an instance field, so a single
+        // shared stage instance can be reused across (even concurrent) Process calls without races.
+        ThemeUsageTracker tracker;
         if (context.Metadata.TryGetValue("themeTracker", out var trackerObj) &&
-            trackerObj is ThemeUsageTracker tracker)
+            trackerObj is ThemeUsageTracker contextTracker)
         {
-            _tracker = tracker;
+            tracker = contextTracker;
         }
         else
         {
             // If no tracker in context, create a temporary one (for backward compatibility)
-            _tracker = new ThemeUsageTracker(_theme);
+            tracker = new ThemeUsageTracker(_theme);
         }
 
         // Track variables from all nodes
         foreach (var node in nodes)
         {
-            TrackVariablesInNode(node);
+            TrackVariablesInNode(node, tracker);
         }
 
         // Also track from processed classes if available
@@ -48,7 +49,7 @@ internal class ThemeVariableTrackingStage : IPipelineStage
             {
                 foreach (var astNode in processedClass.AstNodes)
                 {
-                    TrackVariablesInNode(astNode);
+                    TrackVariablesInNode(astNode, tracker);
                 }
             }
         }
@@ -57,18 +58,18 @@ internal class ThemeVariableTrackingStage : IPipelineStage
         return nodes;
     }
 
-    private void TrackVariablesInNode(AstNode node)
+    private void TrackVariablesInNode(AstNode node, ThemeUsageTracker tracker)
     {
         switch (node)
         {
             case Declaration declaration:
-                TrackVariablesInValue(declaration.Value);
+                TrackVariablesInValue(declaration.Value, tracker);
                 break;
 
             case StyleRule styleRule:
                 foreach (var child in styleRule.Nodes)
                 {
-                    TrackVariablesInNode(child);
+                    TrackVariablesInNode(child, tracker);
                 }
 
                 break;
@@ -76,17 +77,17 @@ internal class ThemeVariableTrackingStage : IPipelineStage
             case NestedRule nestedRule:
                 foreach (var child in nestedRule.Nodes)
                 {
-                    TrackVariablesInNode(child);
+                    TrackVariablesInNode(child, tracker);
                 }
 
                 break;
 
             case AtRule atRule:
                 // Track variables in at-rule parameters (e.g., media queries)
-                TrackVariablesInValue(atRule.Params);
+                TrackVariablesInValue(atRule.Params, tracker);
                 foreach (var child in atRule.Nodes)
                 {
-                    TrackVariablesInNode(child);
+                    TrackVariablesInNode(child, tracker);
                 }
 
                 break;
@@ -94,18 +95,18 @@ internal class ThemeVariableTrackingStage : IPipelineStage
             case Context contextNode:
                 foreach (var child in contextNode.Nodes)
                 {
-                    TrackVariablesInNode(child);
+                    TrackVariablesInNode(child, tracker);
                 }
 
                 break;
 
             case RawCss rawCss:
-                TrackVariablesInValue(rawCss.Content);
+                TrackVariablesInValue(rawCss.Content, tracker);
                 break;
         }
     }
 
-    private void TrackVariablesInValue(string value)
+    private void TrackVariablesInValue(string value, ThemeUsageTracker tracker)
     {
         if (string.IsNullOrEmpty(value))
         {
@@ -156,21 +157,21 @@ internal class ThemeVariableTrackingStage : IPipelineStage
                     var fallbackValue = variableContent.Substring(commaIndex + 1).Trim();
 
                     // Mark the variable as used in the tracker
-                    if (variableName.StartsWith("--") && _tracker != null)
+                    if (variableName.StartsWith("--"))
                     {
-                        _tracker.MarkUsed(variableName);
+                        tracker.MarkUsed(variableName);
 
                         // Recursively track variables in fallback values
-                        TrackVariablesInValue(fallbackValue);
+                        TrackVariablesInValue(fallbackValue, tracker);
                     }
                 }
                 else
                 {
                     // No fallback, just the variable name
                     var variableName = variableContent.Trim();
-                    if (variableName.StartsWith("--") && _tracker != null)
+                    if (variableName.StartsWith("--"))
                     {
-                        _tracker.MarkUsed(variableName);
+                        tracker.MarkUsed(variableName);
                     }
                 }
             }

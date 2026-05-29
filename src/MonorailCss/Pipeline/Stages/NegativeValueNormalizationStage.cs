@@ -56,12 +56,11 @@ internal partial class NegativeValueNormalizationStage : IPipelineStage
             return nodes;
         }
 
-        // Process each class that might have negative values
-        // Use ToList() to avoid collection modification errors
-        var classesToProcess = processedClasses.ToList();
-        for (var i = 0; i < classesToProcess.Count; i++)
+        // Process each class that might have negative values. Iterating the list directly is safe:
+        // the loop only index-assigns existing slots, never structurally modifies the list.
+        for (var i = 0; i < processedClasses.Count; i++)
         {
-            var processedClass = classesToProcess[i];
+            var processedClass = processedClasses[i];
 
             // Check if the utility (not the full class name) starts with a negative sign
             // This handles cases like "lg:-start-4" where the negative is after the variant

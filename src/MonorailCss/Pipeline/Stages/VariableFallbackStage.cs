@@ -155,8 +155,10 @@ internal partial class VariableFallbackStage : IPipelineStage
     {
         result = null;
 
-        // Skip if no CSS variables are present
-        if (!value.Contains("var("))
+        // Fallbacks are only ever injected for --tw-* variables (the replacement regexes below
+        // match only var(--tw-...)), so skip all regex work unless the value references one. This
+        // short-circuits the common case of plain theme vars like var(--color-red-500).
+        if (value.IndexOf("var(--tw-", StringComparison.Ordinal) < 0)
         {
             return false;
         }

@@ -14,15 +14,21 @@ internal static class PropertyOrder
         return _propertyOrderMap.GetValueOrDefault(property, int.MaxValue);
     }
 
-    private static int[] GetOrders(IEnumerable<string> properties)
-    {
-        return properties.Select(GetOrder).ToArray();
-    }
-
     public static int GetMinOrder(IEnumerable<string> properties)
     {
-        var orders = GetOrders(properties);
-        return orders.Length > 0 ? orders.Min() : int.MaxValue;
+        // Single pass instead of Select(...).ToArray().Min() — avoids an int[] allocation per
+        // processed class during sorting. Empty input yields int.MaxValue, as before.
+        var min = int.MaxValue;
+        foreach (var property in properties)
+        {
+            var order = GetOrder(property);
+            if (order < min)
+            {
+                min = order;
+            }
+        }
+
+        return min;
     }
 
     private static Dictionary<string, int> BuildPropertyOrderMap()

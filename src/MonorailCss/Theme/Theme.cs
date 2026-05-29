@@ -268,6 +268,25 @@ public class Theme
     }
 
     /// <summary>
+    /// Lazily enumerates the key-value pairs whose key begins with <paramref name="prefixWithDash"/>
+    /// (an exact, already-dashed prefix such as <c>--color-</c>). Unlike <see cref="Namespace"/> this
+    /// performs a single pass and materializes no intermediate dictionary, which matters when a caller
+    /// would otherwise scan a large namespace repeatedly.
+    /// </summary>
+    /// <param name="prefixWithDash">The exact key prefix to match (ordinal).</param>
+    /// <returns>The matching entries, in theme order.</returns>
+    internal IEnumerable<KeyValuePair<string, string>> EnumerateNamespace(string prefixWithDash)
+    {
+        foreach (var kvp in _values)
+        {
+            if (kvp.Key.StartsWith(prefixWithDash, StringComparison.Ordinal))
+            {
+                yield return kvp;
+            }
+        }
+    }
+
+    /// <summary>
     /// Removes all theme entries within the specified namespace prefix and returns a new <see cref="Theme"/> instance without those entries.
     /// </summary>
     /// <param name="namespacePrefix">The prefix of the namespace to clear. Entries that start with this prefix will be removed.</param>

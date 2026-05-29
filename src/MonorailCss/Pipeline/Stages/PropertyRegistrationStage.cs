@@ -58,7 +58,7 @@ internal partial class PropertyRegistrationStage : IPipelineStage
         ["--tw-ring-inset"] = ("*", false, null),
         ["--tw-ring-color"] = ("<color>", false, "currentColor"),
         ["--tw-ring-offset-width"] = ("<length>", false, "0px"),
-        ["--tw-ring-offset-color"] = ("<color>", false, "#fff"),
+        ["--tw-ring-offset-color"] = ("*", false, "#fff"),
         ["--tw-ring-offset-shadow"] = ("*", false, "0 0 #0000"),
         ["--tw-ring-shadow"] = ("*", false, "0 0 #0000"),
         ["--tw-inset-shadow"] = ("*", false, "0 0 #0000"),

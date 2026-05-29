@@ -207,30 +207,31 @@ internal sealed class UtilityMatcher
             return results;
         }
 
-        // Handle negative values by checking all functional roots if input starts with dash
+        // Handle negative values when input starts with a dash. Find the longest positive
+        // functional root that is a prefix of the de-negated input and is followed by '-' plus a
+        // non-empty value. Probing dash positions right-to-left (longest prefix first) against the
+        // O(1) root set replaces filtering + length-sorting every functional root on each token,
+        // while preserving the "longer roots win (hue-rotate before hue)" behaviour.
         if (input.StartsWith('-'))
         {
             var inputWithoutDash = input[1..];
 
-            // Check if the input without the dash matches any registered functional roots
-            foreach (var functionalRoot in _utilityRegistry.FunctionalRoots
-                .Where(r => !r.StartsWith('-'))
-                .OrderByDescending(r => r.Length))
+            var dashIndex = inputWithoutDash.LastIndexOf('-');
+            while (dashIndex > 0)
             {
-                // Only check positive roots
-                // Check longer roots first to handle "hue-rotate" before "hue"
-                if (inputWithoutDash.StartsWith(functionalRoot) &&
-                    inputWithoutDash.Length > functionalRoot.Length &&
-                    inputWithoutDash[functionalRoot.Length] == '-')
+                var candidateRoot = inputWithoutDash[..dashIndex];
+                if (_utilityRegistry.FunctionalRoots.Contains(candidateRoot))
                 {
-                    var value = inputWithoutDash[(functionalRoot.Length + 1)..];
+                    var value = inputWithoutDash[(dashIndex + 1)..];
                     if (!string.IsNullOrEmpty(value))
                     {
                         // Return the negative root (e.g., "-hue-rotate" instead of "hue-rotate")
-                        results.Add(($"-{functionalRoot}", value));
+                        results.Add(($"-{candidateRoot}", value));
                         return results;
                     }
                 }
+
+                dashIndex = inputWithoutDash.LastIndexOf('-', dashIndex - 1);
             }
         }
 

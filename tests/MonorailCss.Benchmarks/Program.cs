@@ -4,7 +4,10 @@ using BenchmarkDotNet.Running;
 using MonorailCss;
 using MonorailCss.Discovery;
 
-BenchmarkRunner.Run(new[] { typeof(GenerationBenchmark), typeof(ScanningBenchmark) });
+// Use BenchmarkSwitcher so individual benchmarks can be targeted from the command line, e.g.
+//   dotnet run -c Release -- --filter '*GenerationBenchmark*'
+// With no args it runs every benchmark, matching the previous BenchmarkRunner.Run behaviour.
+BenchmarkSwitcher.FromTypes(new[] { typeof(GenerationBenchmark), typeof(ScanningBenchmark) }).Run(args);
 
 /// <summary>
 /// Measures the generation hot path — turning a known set of class names into CSS.

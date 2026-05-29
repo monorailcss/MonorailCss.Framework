@@ -59,12 +59,11 @@ internal class ColorModifierStage : IPipelineStage
             return nodes;
         }
 
-        // Process each class that has a modifier
-        // Use ToList() to avoid collection modification errors
-        var classesToProcess = processedClasses.ToList();
-        for (var i = 0; i < classesToProcess.Count; i++)
+        // Process each class that has a modifier. Iterating the list directly is safe:
+        // the loop only index-assigns existing slots, never structurally modifies the list.
+        for (var i = 0; i < processedClasses.Count; i++)
         {
-            var processedClass = classesToProcess[i];
+            var processedClass = processedClasses[i];
 
             if (processedClass.Candidate.Modifier == null)
             {

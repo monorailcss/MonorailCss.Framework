@@ -1,15 +1,26 @@
-using System.Collections.Concurrent;
 using System.Diagnostics.CodeAnalysis;
 
 namespace MonorailCss.Css;
 
 /// <summary>
-/// Registry for tracking CSS custom properties used during compilation.
-/// Thread-safe for concurrent access.
+/// Registry for tracking CSS custom properties used during compilation. A fresh instance is
+/// created per compile (per <c>Process</c> call) and used single-threaded within that call, so a
+/// plain dictionary is sufficient — the insertion log + Checkpoint/RollbackTo below would not be
+/// concurrency-safe and don't need to be.
 /// </summary>
 public class CssPropertyRegistry
 {
-    private readonly ConcurrentDictionary<string, CssPropertyDefinition> _properties = new();
+    // Plain Dictionary (not ConcurrentDictionary): the matching loop checkpoints before each utility
+    // probe and rolls back registrations from probes that don't match. A Dictionary reuses freed
+    // entry slots on the subsequent re-add, so this rollback churn allocates nothing; a
+    // ConcurrentDictionary would allocate a fresh node on every re-add.
+    private readonly Dictionary<string, CssPropertyDefinition> _properties = new();
+
+    // Insertion log backing Checkpoint/RollbackTo. The main matching loop probes every utility
+    // per candidate; utilities that register @property metadata before confirming a match would
+    // otherwise leak those declarations into unrelated output. The loop checkpoints before each
+    // probe and rolls back if the utility doesn't match.
+    private readonly List<string> _insertionOrder = new();
 
     /// <summary>
     /// Registers a CSS custom property with its metadata.
@@ -17,7 +28,10 @@ public class CssPropertyRegistry
     /// <param name="definition">The property definition to register.</param>
     public void Register(CssPropertyDefinition definition)
     {
-        _properties.TryAdd(definition.Name, definition);
+        if (_properties.TryAdd(definition.Name, definition))
+        {
+            _insertionOrder.Add(definition.Name);
+        }
     }
 
     /// <summary>
@@ -86,6 +100,29 @@ public class CssPropertyRegistry
     public void Clear()
     {
         _properties.Clear();
+        _insertionOrder.Clear();
+    }
+
+    /// <summary>
+    /// Captures the current registration count so registrations made after this point can be
+    /// discarded with <see cref="RollbackTo"/>. Used by the compile loop to undo property
+    /// registrations performed by a utility that turns out not to match the candidate.
+    /// </summary>
+    /// <returns>An opaque checkpoint token.</returns>
+    internal int Checkpoint() => _insertionOrder.Count;
+
+    /// <summary>
+    /// Removes every property registered since the given <see cref="Checkpoint"/>.
+    /// </summary>
+    /// <param name="checkpoint">A token previously returned by <see cref="Checkpoint"/>.</param>
+    internal void RollbackTo(int checkpoint)
+    {
+        for (var i = _insertionOrder.Count - 1; i >= checkpoint; i--)
+        {
+            _properties.Remove(_insertionOrder[i]);
+        }
+
+        _insertionOrder.RemoveRange(checkpoint, _insertionOrder.Count - checkpoint);
     }
 
     /// <summary>

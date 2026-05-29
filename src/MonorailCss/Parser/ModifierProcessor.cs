@@ -44,7 +44,7 @@ internal sealed class ModifierProcessor
                     // 1. The value part looks like a valid fraction
                     // 2. The numerator is very small (fractions are typically 1/2, 1/3, 2/3, 3/4, etc.)
                     // 3. The denominator is also small (typical fractions use denominators 2-12)
-                    if (IsFractionValue(fullFractionCandidate))
+                    if (CandidateValueParser.IsFractionValue(fullFractionCandidate))
                     {
                         var slashIndex = fullFractionCandidate.IndexOf('/');
                         var numeratorPart = fullFractionCandidate[..slashIndex];
@@ -82,7 +82,7 @@ internal sealed class ModifierProcessor
 
         if (segments.Count == 3)
         {
-            if (mightBeFractionUtility && IsFractionValue(segments[0].Split('-').Last() + "/" + segments[1]))
+            if (mightBeFractionUtility && CandidateValueParser.IsFractionValue(segments[0].Split('-').Last() + "/" + segments[1]))
             {
                 // This is w-1/2/50 (fraction with modifier)
                 // Reconstruct the fraction part
@@ -181,7 +181,7 @@ internal sealed class ModifierProcessor
             }
 
             // Check if this might be a fraction (for utilities that support it)
-            if (mightBeFractionUtility && IsFractionValue(segments[0].Split('-').Last() + "/" + modifierValue))
+            if (mightBeFractionUtility && CandidateValueParser.IsFractionValue(segments[0].Split('-').Last() + "/" + modifierValue))
             {
                 // It's actually a fraction, not a modifier (e.g., w-1/2)
                 // Don't split it, keep the full utility
@@ -208,49 +208,6 @@ internal sealed class ModifierProcessor
             BaseUtility = baseUtility,
             Modifier = null,
         };
-    }
-
-    /// <summary>
-    /// Determines if a string represents a fraction value (e.g., "1/2", "3/4").
-    /// </summary>
-    private static bool IsFractionValue(string value)
-    {
-        // Must contain exactly one slash
-        var slashIndex = value.IndexOf('/');
-        if (slashIndex <= 0 || value.IndexOf('/', slashIndex + 1) != -1)
-        {
-            return false;
-        }
-
-        var numerator = value[..slashIndex];
-        var denominator = value[(slashIndex + 1)..];
-
-        // Both parts must be non-empty and numeric
-        if (string.IsNullOrEmpty(numerator) || string.IsNullOrEmpty(denominator))
-        {
-            return false;
-        }
-
-        // Check if both parts are valid numbers (integers)
-        return IsNumeric(numerator) && IsNumeric(denominator);
-    }
-
-    private static bool IsNumeric(string value)
-    {
-        if (string.IsNullOrEmpty(value))
-        {
-            return false;
-        }
-
-        foreach (var c in value)
-        {
-            if (!char.IsDigit(c))
-            {
-                return false;
-            }
-        }
-
-        return true;
     }
 
     internal record ModifierExtractionResult

@@ -23,6 +23,17 @@ internal abstract class BaseFunctionalUtility : IUtility
     /// </summary>
     protected abstract string[] ThemeKeys { get; }
 
+    // Cached views of the (constant) Patterns/ThemeKeys. Derived utilities commonly expose these as
+    // expression-bodied collection literals (=> [...]), which allocate a fresh array on every read.
+    // The per-candidate matching loop probes every registered utility and reads Patterns each time,
+    // so first-use caching removes that array churn. Utilities are singletons, so this is safe.
+    private string[]? _patternsCache;
+    private string[]? _themeKeysCache;
+
+    private string[] PatternsCached => _patternsCache ??= Patterns;
+
+    private string[] ThemeKeysCached => _themeKeysCache ??= ThemeKeys;
+
     /// <summary>
     /// Gets the default value to use when no value is provided (e.g., "1" for grow).
     /// Return null if no default value is supported.
@@ -73,7 +84,7 @@ internal abstract class BaseFunctionalUtility : IUtility
         var isNegative = SupportsNegative && functionalUtility.Root.StartsWith('-');
         var basePattern = isNegative ? functionalUtility.Root[1..] : functionalUtility.Root;
 
-        if (!Patterns.Contains(basePattern))
+        if (!PatternsCached.Contains(basePattern))
         {
             return false;
         }
@@ -155,7 +166,7 @@ internal abstract class BaseFunctionalUtility : IUtility
             }
 
             // Try theme resolution
-            foreach (var themeKey in ThemeKeys)
+            foreach (var themeKey in ThemeKeysCached)
             {
                 var fullKey = $"{themeKey}-{key}";
                 if (theme.ContainsKey(fullKey))

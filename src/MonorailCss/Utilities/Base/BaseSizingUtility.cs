@@ -32,6 +32,16 @@ internal abstract class BaseSizingUtility : IUtility
     /// </summary>
     protected abstract SizingDimension Dimension { get; }
 
+    // First-use caches for the constant Patterns/SizingNamespaces; Patterns is read on every probe
+    // in the matching loop and derived namespace properties are often expression-bodied literals
+    // that allocate per access. Utilities are singletons, so caching on first use is safe.
+    private string[]? _patternsCache;
+    private string[]? _sizingNamespacesCache;
+
+    private string[] PatternsCached => _patternsCache ??= Patterns;
+
+    private string[] SizingNamespacesCached => _sizingNamespacesCache ??= SizingNamespaces;
+
     public virtual string[] GetNamespaces() => SizingNamespaces;
 
     public virtual string[] GetFunctionalRoots()
@@ -49,7 +59,7 @@ internal abstract class BaseSizingUtility : IUtility
             return false;
         }
 
-        if (!Patterns.Contains(functionalUtility.Root))
+        if (!PatternsCached.Contains(functionalUtility.Root))
         {
             return false;
         }
@@ -83,7 +93,7 @@ internal abstract class BaseSizingUtility : IUtility
             return false;
         }
 
-        if (!Patterns.Contains(functionalUtility.Root))
+        if (!PatternsCached.Contains(functionalUtility.Root))
         {
             return false;
         }
@@ -189,7 +199,7 @@ internal abstract class BaseSizingUtility : IUtility
             }
 
             // Try to resolve from theme namespaces
-            foreach (var ns in SizingNamespaces)
+            foreach (var ns in SizingNamespacesCached)
             {
                 var themeKey = $"{ns}-{key}";
                 if (theme.ContainsKey(themeKey))

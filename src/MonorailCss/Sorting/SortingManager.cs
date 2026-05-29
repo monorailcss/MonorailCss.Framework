@@ -73,24 +73,6 @@ internal sealed class SortingManager
         return classesWithOrder;
     }
 
-    /// <summary>
-    /// Sorts AST nodes based on their associated candidates.
-    /// </summary>
-    public ImmutableList<AstNode> SortNodes(IEnumerable<(AstNode Node, Candidate Candidate)> nodesWithCandidates)
-    {
-        var sortedItems = nodesWithCandidates
-            .Select((item, index) => new
-            {
-                item.Node,
-                item.Candidate,
-                Order = GetClassOrder(item.Candidate, index),
-            })
-            .OrderBy(x => x.Order)
-            .Select(x => x.Node);
-
-        return sortedItems.ToImmutableList();
-    }
-
     private int GetPropertyOrder(ImmutableList<string> properties)
     {
         if (properties.IsEmpty)

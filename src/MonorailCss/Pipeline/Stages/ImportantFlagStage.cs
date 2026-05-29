@@ -21,11 +21,11 @@ internal class ImportantFlagStage : IPipelineStage
             return nodes;
         }
 
-        // Process each class that has the important flag
-        var classesToProcess = processedClasses.ToList();
-        for (var i = 0; i < classesToProcess.Count; i++)
+        // Process each class that has the important flag. Iterating the list directly is safe:
+        // the loop only index-assigns existing slots, never structurally modifies the list.
+        for (var i = 0; i < processedClasses.Count; i++)
         {
-            var processedClass = classesToProcess[i];
+            var processedClass = processedClasses[i];
 
             if (!processedClass.Candidate.Important)
             {
