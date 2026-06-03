@@ -148,7 +148,7 @@ public class ProcessCssTask : Microsoft.Build.Utilities.Task
             // target then immediately bail "up to date" and leave generated CSS stale. The
             // persistent cache (PersistentGenerationCache) handles the precise short-circuit
             // inside the generator instead, keyed by MVID + per-file mtime.
-            Log.LogMessage(MessageImportance.Normal, $"MonorailCss: Processing {InputFile}");
+            Log.LogMessage(MessageImportance.Low, $"MonorailCss: Processing {InputFile}");
 
             var rootDir = Path.GetDirectoryName(InputFile);
             if (string.IsNullOrEmpty(rootDir))
@@ -171,7 +171,7 @@ public class ProcessCssTask : Microsoft.Build.Utilities.Task
             var safelist = sourceConfig.InlineSources.SelectMany(s => s.ExpandedUtilities).ToList();
 
             Log.LogMessage(
-                MessageImportance.Normal,
+                MessageImportance.Low,
                 $"MonorailCss: scanning {assemblyFiles.Count} assembly reference(s), {sourceFiles.Count} source file(s)");
 
             var generator = new MonorailCssGenerator();
@@ -208,7 +208,7 @@ public class ProcessCssTask : Microsoft.Build.Utilities.Task
             }
             else
             {
-                Log.LogMessage(MessageImportance.Normal, $"Found {result.Classes.Count} unique utility classes");
+                Log.LogMessage(MessageImportance.Low, $"Found {result.Classes.Count} unique utility classes");
             }
 
             EnsureOutputDirectory();

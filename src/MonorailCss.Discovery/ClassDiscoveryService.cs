@@ -14,7 +14,7 @@ namespace MonorailCss.Discovery;
 /// Maintains the cached <see cref="MonorailCssGenerationResult"/> served by
 /// <see cref="MonorailCssMiddleware"/>.
 /// </summary>
-internal sealed class ClassDiscoveryService : IHostedService, IClassRegistry, IDisposable
+internal sealed partial class ClassDiscoveryService : IHostedService, IClassRegistry, IDisposable
 {
     private readonly MonorailDiscoveryOptions _options;
     private readonly ILogger<ClassDiscoveryService> _logger;
@@ -22,10 +22,10 @@ internal sealed class ClassDiscoveryService : IHostedService, IClassRegistry, ID
     private readonly MonorailCssGenerator _generator = new();
     private readonly List<FileSystemWatcher> _fileWatchers = new();
     private readonly List<FileSystemWatcher> _cssWatchers = new();
-    private readonly object _lock = new();
-    private readonly System.Threading.Timer _debounce;
-    private readonly System.Threading.Timer _cssDebounce;
-    private readonly System.Threading.Timer _lateLoadDebounce;
+    private readonly Lock _lock = new();
+    private readonly Timer _debounce;
+    private readonly Timer _cssDebounce;
+    private readonly Timer _lateLoadDebounce;
     private readonly HashSet<string> _pendingFiles = new(StringComparer.OrdinalIgnoreCase);
 
     private MonorailCssGenerationResult _result;
@@ -48,10 +48,10 @@ internal sealed class ClassDiscoveryService : IHostedService, IClassRegistry, ID
             Classes: ImmutableSortedSet<string>.Empty,
             ImportedCssFiles: ImmutableList<string>.Empty,
             Framework: _options.Framework,
-            SourceConfiguration: new MonorailCss.Parser.SourceCss.SourceConfiguration());
-        _debounce = new System.Threading.Timer(OnDebounceTick, null, Timeout.Infinite, Timeout.Infinite);
-        _cssDebounce = new System.Threading.Timer(OnCssDebounceTick, null, Timeout.Infinite, Timeout.Infinite);
-        _lateLoadDebounce = new System.Threading.Timer(OnLateLoadDebounceTick, null, Timeout.Infinite, Timeout.Infinite);
+            SourceConfiguration: new Parser.SourceCss.SourceConfiguration());
+        _debounce = new Timer(OnDebounceTick, null, Timeout.Infinite, Timeout.Infinite);
+        _cssDebounce = new Timer(OnCssDebounceTick, null, Timeout.Infinite, Timeout.Infinite);
+        _lateLoadDebounce = new Timer(OnLateLoadDebounceTick, null, Timeout.Infinite, Timeout.Infinite);
     }
 
     public IReadOnlyCollection<string> GetClasses()
@@ -116,9 +116,7 @@ internal sealed class ClassDiscoveryService : IHostedService, IClassRegistry, ID
         StartCssFileWatchers();
 
         _started = true;
-        _logger.LogInformation(
-            "MonorailCss discovery startup: {ClassCount} classes in {ElapsedMs} ms — ETag {Etag}",
-            _result.Classes.Count, sw.ElapsedMilliseconds, _result.ETag);
+        LogMonorailcssDiscoveryStartupClassCloutElapsedMsEtag(_result.Classes.Count, sw.ElapsedMilliseconds, _result.ETag);
         return Task.CompletedTask;
     }
 
@@ -143,7 +141,7 @@ internal sealed class ClassDiscoveryService : IHostedService, IClassRegistry, ID
             && Directory.Exists(_environment.ContentRootPath))
         {
             _options.WatchSourceDirectories.Add(_environment.ContentRootPath);
-            _logger.LogDebug("MonorailCss discovery: auto-watching {Dir}", _environment.ContentRootPath);
+            LogMonorailcssDiscoveryAutoWatchingDir(_environment.ContentRootPath);
         }
 
         if (_options.SourceCss is null && _options.SourceCssPath is null)
@@ -152,7 +150,7 @@ internal sealed class ClassDiscoveryService : IHostedService, IClassRegistry, ID
             if (File.Exists(candidate))
             {
                 _options.SourceCssPath = candidate;
-                _logger.LogDebug("MonorailCss discovery: auto-detected source CSS at {Path}", candidate);
+                LogMonorailcssDiscoveryAutoDetectedSourceCssAtPath(candidate);
             }
         }
     }
@@ -191,7 +189,7 @@ internal sealed class ClassDiscoveryService : IHostedService, IClassRegistry, ID
             }
             catch (Exception ex)
             {
-                _logger.LogTrace(ex, "MonorailCss discovery: skipped reference {Name} (load failed)", name);
+                LogMonorailcssDiscoverySkippedReferenceNameLoadFailed(name, ex);
             }
         }
     }
@@ -222,7 +220,7 @@ internal sealed class ClassDiscoveryService : IHostedService, IClassRegistry, ID
         {
             if (!Directory.Exists(dir))
             {
-                _logger.LogWarning("MonorailCss discovery: WatchSourceDirectories entry {Dir} does not exist", dir);
+                LogMonorailcssDiscoveryWatchsourcedirectoriesEntryDirDoesNotExist(dir);
                 continue;
             }
 
@@ -243,7 +241,7 @@ internal sealed class ClassDiscoveryService : IHostedService, IClassRegistry, ID
             watcher.Renamed += OnSourceFileRenamed;
 
             _fileWatchers.Add(watcher);
-            _logger.LogInformation("MonorailCss discovery: watching source directory {Dir}", dir);
+            LogMonorailcssDiscoveryWatchingSourceDirectoryDir(dir);
         }
     }
 
@@ -278,7 +276,7 @@ internal sealed class ClassDiscoveryService : IHostedService, IClassRegistry, ID
             return;
         }
 
-        if (_environment is { } env && !env.IsDevelopment())
+        if (_environment != null && !_environment.IsDevelopment())
         {
             return;
         }
@@ -312,7 +310,7 @@ internal sealed class ClassDiscoveryService : IHostedService, IClassRegistry, ID
             watcher.Renamed += OnCssFileRenamed;
 
             _cssWatchers.Add(watcher);
-            _logger.LogDebug("MonorailCss discovery: watching CSS in {Dir} ({Count} files)", dir, group.Count());
+            LogMonorailcssDiscoveryWatchingCssInDirCountFiles(dir, group.Count());
         }
     }
 
@@ -347,7 +345,7 @@ internal sealed class ClassDiscoveryService : IHostedService, IClassRegistry, ID
 
     private void OnCssDebounceTick(object? state)
     {
-        _logger.LogInformation("MonorailCss discovery: source CSS changed — re-processing");
+        LogMonorailcssDiscoverySourceCssChangedReProcessing();
         Regenerate("css-watcher");
 
         // Imported file set may have shifted (a new @import landed, a removed one disappeared).
@@ -388,10 +386,7 @@ internal sealed class ClassDiscoveryService : IHostedService, IClassRegistry, ID
             return;
         }
 
-        _logger.LogInformation(
-            "MonorailCss discovery: source file change ({Count} files): {Files}",
-            paths.Length,
-            string.Join(", ", paths.Select(Path.GetFileName)));
+        LogMonorailcssDiscoverySourceFileChangeCountFiles(paths.Length, string.Join(", ", paths.Select(Path.GetFileName)));
 
         Regenerate("source-watcher", paths);
     }
@@ -407,11 +402,7 @@ internal sealed class ClassDiscoveryService : IHostedService, IClassRegistry, ID
         Interlocked.Increment(ref _hotReloadCount);
         var changedList = changed.ToArray();
 
-        _logger.LogInformation(
-            "MonorailCss discovery: hot-reload event #{Count} — {ChangedCount} changed assemblies: {Names}",
-            _hotReloadCount,
-            changedList.Length,
-            string.Join(", ", changedList.Select(a => a.GetName().Name)));
+        LogMonorailcssDiscoveryHotReloadEventCountChangedCountChangedAssembliesNames(_hotReloadCount, changedList.Length, string.Join(", ", changedList.Select(a => a.GetName().Name)));
 
         Regenerate("hot-reload");
     }
@@ -471,21 +462,18 @@ internal sealed class ClassDiscoveryService : IHostedService, IClassRegistry, ID
             _result = result;
             _lastRegeneratedAt = DateTime.UtcNow;
             _regenerateCount++;
+
             // Surface the generator-built framework so options consumers can read it back.
             _options.Framework = result.Framework;
         }
 
         if (unchanged)
         {
-            _logger.LogDebug(
-                "MonorailCss discovery: no-op regen (trigger={Trigger}, etag={Etag}, in {ElapsedMs} ms)",
-                trigger, result.ETag, sw.ElapsedMilliseconds);
+            LogMonorailcssDiscoveryNoOpRegenTriggerTriggerEtagEtagInElapsedMs(trigger, result.ETag, sw.ElapsedMilliseconds);
             return;
         }
 
-        _logger.LogInformation(
-            "MonorailCss discovery: regenerated CSS (trigger={Trigger}, classes={ClassCount}, length={Length}, etag={Etag}, in {ElapsedMs} ms)",
-            trigger, result.Classes.Count, result.Css.Length, result.ETag, sw.ElapsedMilliseconds);
+        LogMonorailcssDiscoveryRegeneratedCssTriggerClassesCountLength(trigger, result.Classes.Count, result.Css.Length, result.ETag, sw.ElapsedMilliseconds);
 
         if (!string.IsNullOrEmpty(_options.WriteToFile))
         {
@@ -640,6 +628,42 @@ internal sealed class ClassDiscoveryService : IHostedService, IClassRegistry, ID
             _logger.LogWarning(ex, "MonorailCss discovery: failed to write CSS to {Path}", _options.WriteToFile);
         }
     }
+
+    [LoggerMessage(LogLevel.Debug, "MonorailCss discovery: auto-watching {Dir}")]
+    partial void LogMonorailcssDiscoveryAutoWatchingDir(string dir);
+
+    [LoggerMessage(LogLevel.Debug, "MonorailCss discovery: auto-detected source CSS at {Path}")]
+    partial void LogMonorailcssDiscoveryAutoDetectedSourceCssAtPath(string path);
+
+    [LoggerMessage(LogLevel.Debug, "MonorailCss discovery: hot-reload event #{Count} — {ChangedCount} changed assemblies: {Names}")]
+    partial void LogMonorailcssDiscoveryHotReloadEventCountChangedCountChangedAssembliesNames(int count, int changedCount, string names);
+
+    [LoggerMessage(LogLevel.Debug, "MonorailCss discovery: no-op regen (trigger={Trigger}, etag={Etag}, in {ElapsedMs} ms)")]
+    partial void LogMonorailcssDiscoveryNoOpRegenTriggerTriggerEtagEtagInElapsedMs(string trigger, string etag, long elapsedMs);
+
+    [LoggerMessage(LogLevel.Debug, "MonorailCss discovery: regenerated CSS (trigger={Trigger}, classes={ClassCount}, length={Length}, etag={Etag}, in {ElapsedMs} ms)")]
+    partial void LogMonorailcssDiscoveryRegeneratedCssTriggerClassesCountLength(string trigger, int classCount, int length, string etag, long elapsedMs);
+
+    [LoggerMessage(LogLevel.Debug, "MonorailCss discovery: source file change ({Count} files): {Files}")]
+    partial void LogMonorailcssDiscoverySourceFileChangeCountFiles(int count, string files);
+
+    [LoggerMessage(LogLevel.Debug, "MonorailCss discovery: source CSS changed — re-processing")]
+    partial void LogMonorailcssDiscoverySourceCssChangedReProcessing();
+
+    [LoggerMessage(LogLevel.Debug, "MonorailCss discovery: watching CSS in {Dir} ({Count} files)")]
+    partial void LogMonorailcssDiscoveryWatchingCssInDirCountFiles(string dir, int count);
+
+    [LoggerMessage(LogLevel.Warning, "MonorailCss discovery: WatchSourceDirectories entry {Dir} does not exist")]
+    partial void LogMonorailcssDiscoveryWatchsourcedirectoriesEntryDirDoesNotExist(string dir);
+
+    [LoggerMessage(LogLevel.Debug, "MonorailCss discovery: watching source directory {Dir}")]
+    partial void LogMonorailcssDiscoveryWatchingSourceDirectoryDir(string dir);
+
+    [LoggerMessage(LogLevel.Trace, "MonorailCss discovery: skipped reference {Name} (load failed)")]
+    partial void LogMonorailcssDiscoverySkippedReferenceNameLoadFailed(string name, Exception exception);
+
+    [LoggerMessage(LogLevel.Debug, "MonorailCss discovery startup: {ClassCount} classes in {ElapsedMs} ms — ETag {Etag}")]
+    partial void LogMonorailcssDiscoveryStartupClassCloutElapsedMsEtag(int classCount, long elapsedMs, string etag);
 }
 
 /// <summary>
