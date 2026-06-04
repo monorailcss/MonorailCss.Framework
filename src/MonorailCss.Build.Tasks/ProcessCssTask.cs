@@ -90,6 +90,18 @@ public class ProcessCssTask : Microsoft.Build.Utilities.Task
     public ITaskItem[]? ExcludeAssemblies { get; set; }
 
     /// <summary>
+    /// Gets or sets the static web asset files to scan for utility classes, populated from
+    /// <c>@(StaticWebAsset)</c> by the targets file (already filtered to scannable extensions).
+    /// These are component-/RCL-shipped assets — e.g. <c>_content/Pennington.UI/scripts.js</c>
+    /// — that live in the NuGet cache rather than the project tree, so the ordinary
+    /// content-file sweep never reaches them. Each item's <c>ItemSpec</c> is the physical file
+    /// path; the <c>SourceId</c> metadata (the owning package/assembly) is honored against
+    /// <see cref="ExcludeAssemblies"/>. Mirrors
+    /// <c>MonorailDiscoveryOptions.ScanStaticWebAssets</c> on the runtime side.
+    /// </summary>
+    public ITaskItem[]? StaticWebAssets { get; set; }
+
+    /// <summary>
     /// Gets or sets the build configuration (e.g., "Debug", "Release"). Used to resolve
     /// <c>$(Configuration)</c> placeholders in <c>@source</c> paths.
     /// </summary>
@@ -165,9 +177,10 @@ public class ProcessCssTask : Microsoft.Build.Utilities.Task
             // pre-parse for the directive set only.
             var sourceConfig = ParseSourceConfiguration();
 
-            var sourceFiles = ResolveSourceFiles(rootDir, sourceConfig);
-            var assemblyFiles = ResolveAssemblyFiles(rootDir, sourceConfig);
             var excludes = BuildExcludeSet();
+            var sourceFiles = ResolveSourceFiles(rootDir, sourceConfig);
+            AddStaticWebAssetFiles(sourceFiles, excludes);
+            var assemblyFiles = ResolveAssemblyFiles(rootDir, sourceConfig);
             var safelist = sourceConfig.InlineSources.SelectMany(s => s.ExpandedUtilities).ToList();
 
             Log.LogMessage(
@@ -299,6 +312,48 @@ public class ProcessCssTask : Microsoft.Build.Utilities.Task
         }
 
         return set;
+    }
+
+    /// <summary>
+    /// Unions package-shipped static web asset files (from <see cref="StaticWebAssets"/>) into
+    /// the source-file scan list. Assets owned by an excluded package (by <c>SourceId</c>
+    /// metadata) are skipped, mirroring the runtime's <c>_content/&lt;Package&gt;</c> exclusion.
+    /// </summary>
+    private void AddStaticWebAssetFiles(List<string> sourceFiles, HashSet<string> excludes)
+    {
+        if (StaticWebAssets is null || StaticWebAssets.Length == 0)
+        {
+            return;
+        }
+
+        var seen = new HashSet<string>(sourceFiles, StringComparer.OrdinalIgnoreCase);
+        var added = 0;
+        foreach (var item in StaticWebAssets)
+        {
+            var path = item.ItemSpec?.Trim();
+            if (string.IsNullOrEmpty(path))
+            {
+                continue;
+            }
+
+            var sourceId = item.GetMetadata("SourceId");
+            if (!string.IsNullOrEmpty(sourceId) && excludes.Contains(sourceId))
+            {
+                continue;
+            }
+
+            var full = Path.GetFullPath(path);
+            if (seen.Add(full) && _fileSystem.File.Exists(full))
+            {
+                sourceFiles.Add(full);
+                added++;
+            }
+        }
+
+        if (added > 0)
+        {
+            Log.LogMessage(MessageImportance.Low, $"MonorailCss: scanning {added} static web asset file(s)");
+        }
     }
 
     /// <summary>

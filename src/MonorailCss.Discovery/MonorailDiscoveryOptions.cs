@@ -79,6 +79,30 @@ public sealed class MonorailDiscoveryOptions
     public string? WriteToFile { get; set; }
 
     /// <summary>
+    /// Gets or sets a value indicating whether discovery scans assets shipped by referenced
+    /// packages / Razor Class Libraries as static web assets (the
+    /// <c>_content/&lt;Package&gt;/…</c> set) for utility classes. These files — JavaScript that
+    /// builds markup at runtime, most commonly — live in the NuGet package cache, never enter
+    /// the assembly's IL, and are not inside any watched source directory, so neither the IL
+    /// scan nor the source-file scan can see them. When enabled (the default), the entry
+    /// assembly's <c>{name}.staticwebassets.runtime.json</c> manifest is read once at startup,
+    /// every enumerated asset whose extension is in <see cref="StaticWebAssetExtensions"/> is
+    /// resolved to its physical path, and those files are scanned through the same tokenizer
+    /// the source-file scan uses. Packages listed in <see cref="ExcludeAssemblies"/> are
+    /// skipped here too (matched against the <c>_content/&lt;Package&gt;</c> segment).
+    /// </summary>
+    public bool ScanStaticWebAssets { get; set; } = true;
+
+    /// <summary>
+    /// Gets the file extensions (each including the leading dot) eligible for static-web-asset
+    /// scanning when <see cref="ScanStaticWebAssets"/> is enabled. Defaults to <c>.js</c> and
+    /// <c>.mjs</c>. Kept deliberately narrow — an RCL's <c>_content</c> also carries CSS,
+    /// images, fonts, and source maps that have no utility classes worth extracting.
+    /// </summary>
+    public HashSet<string> StaticWebAssetExtensions { get; } =
+        new(StringComparer.OrdinalIgnoreCase) { ".js", ".mjs" };
+
+    /// <summary>
     /// Gets a list of source directories to watch for utility-class changes during development.
     /// When non-empty, a <see cref="FileSystemWatcher"/> watches each directory recursively for
     /// <c>.razor</c>, <c>.cshtml</c>, and <c>.cs</c> changes, then re-extracts class strings

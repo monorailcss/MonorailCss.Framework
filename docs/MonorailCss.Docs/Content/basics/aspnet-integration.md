@@ -70,7 +70,7 @@ The default `OutputFile` is `wwwroot/css/%(Filename).css`, so `wwwroot/app.css` 
 <link rel="stylesheet" href="/css/app.css" />
 ```
 
-The task runs during `dotnet build`, scans the same source files and DLLs Discovery does, and writes the file before content packaging. Rebuilds are incremental: unchanged inputs don't get rescanned. The `Clean` target removes the generated file.
+The task runs during `dotnet build`, scans the same source files, DLLs, and package static web assets Discovery does, and writes the file before content packaging. Rebuilds are incremental: unchanged inputs don't get rescanned. The `Clean` target removes the generated file.
 
 > **Note:** `dotnet watch` does not re-trigger MSBuild targets. Build.Tasks alone won't keep your CSS fresh during a watch session &mdash; see the [hybrid section](#hybrid-build-time--dotnet-watch) for how to combine it with Discovery.
 
@@ -102,6 +102,7 @@ The placeholders inside `@source` paths (`$(Configuration)`, `$(TargetFramework)
 |---|---|
 | `<MonorailCssEnabled>` | On/off; default `true`. Gate on `'$(Configuration)' == 'Release'` if you're combining with Discovery. |
 | `<MonorailCssExcludeAssemblies>` | Semicolon-delimited assembly names to skip (e.g. `FluentValidation;BadIdeas.Icons.FontAwesome`). |
+| `<MonorailCssScanStaticWebAssets>` | On/off; default `true`. Scans `.js`/`.mjs` shipped by referenced packages as static web assets (e.g. `_content/Pennington.UI/scripts.js`). Razor/Web SDK projects only. |
 | `<MonorailCss>` `Include` | The entry CSS file. Multiple items produce multiple outputs. |
 | `<MonorailCss>` `OutputFile` metadata | Override the default `wwwroot/css/%(Filename).css`. |
 
@@ -140,7 +141,7 @@ Point your layout at the served stylesheet:
 <link rel="stylesheet" href="/_monorail/app.css" />
 ```
 
-With no configuration `AddMonorailCss` auto-detects `wwwroot/app.css`, scans every non-BCL referenced assembly for class strings, watches your source tree for changes in Development, and serves the result at `/_monorail/app.css`. Edit a class in a `.razor` file under `dotnet watch` and the browser sees the new CSS on the next HEAD poll.
+With no configuration `AddMonorailCss` auto-detects `wwwroot/app.css`, scans every non-BCL referenced assembly for class strings, scans JavaScript shipped by component packages as static web assets, watches your source tree for changes in Development, and serves the result at `/_monorail/app.css`. Edit a class in a `.razor` file under `dotnet watch` and the browser sees the new CSS on the next HEAD poll.
 
 ### Configuration
 
@@ -159,6 +160,7 @@ The options you'll actually reach for:
 
 - **`ExcludeAssemblies`** &mdash; skip libraries whose IL strings would inflate the candidate set without contributing real utilities. Icon packs that bake thousands of class-shaped tokens into metadata are the usual culprits. MonorailCSS itself and BCL assemblies (`System.*`, `Microsoft.*`) are excluded automatically.
 - **`ExtraSafelist`** &mdash; force-include classes static scanning can't reconstruct, e.g. anything built at runtime via `$"bg-{color}-500"`.
+- **`ScanStaticWebAssets`** &mdash; on by default; reads classes out of JavaScript that referenced packages/RCLs ship under `_content/<Package>/`. Those files live in the NuGet cache &mdash; outside your source tree and the assembly IL &mdash; so nothing else reaches them; a component whose modal markup is built in `scripts.js` needs this. Narrow what's read with `StaticWebAssetExtensions` (default `.js`, `.mjs`), or suppress a package's assets by adding it to `ExcludeAssemblies`.
 - **`SourceCssPath`** &mdash; path to your entry CSS file. Auto-detected as `wwwroot/app.css` when unset.
 - **`CssEndpoint`** &mdash; the URL the middleware serves CSS at, default `/_monorail/app.css`. Change it to share a URL with a build-time static file (see hybrid below).
 - **`Framework`** &mdash; supply a pre-configured `CssFramework` when you need to seed prose configuration or register utilities programmatically. See [configuration](xref:configuration). The CSS file processing layers on top.
