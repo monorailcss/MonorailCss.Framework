@@ -28,6 +28,20 @@
     </MonorailCssExcludeAssembly>
   </ItemDefinitionGroup>
 
+  <!-- Static web asset scanning. Component packages (RCLs) ship JS under _content/<Package>/
+       that builds markup at runtime; those files live in the NuGet cache, never enter IL, and
+       sit outside the project tree, so the content sweep and the IL scan both miss them.
+       ResolveBuildStaticWebAssets populates @(StaticWebAsset) with the fully-resolved set
+       (own + project + package assets). That target only exists in Razor/Web SDK projects, so
+       the dependency is gated on UsingMicrosoftNETSdkRazor — plain library/console consumers
+       (no static web assets) keep building untouched. Set MonorailCssScanStaticWebAssets=false
+       to opt out entirely. Mirrors MonorailDiscoveryOptions.ScanStaticWebAssets at runtime. -->
+  <PropertyGroup>
+    <MonorailCssScanStaticWebAssets Condition="'$(MonorailCssScanStaticWebAssets)' == ''">true</MonorailCssScanStaticWebAssets>
+    <_MonorailCssProcessDependsOn>ResolveProjectReferences;ResolveAssemblyReferences</_MonorailCssProcessDependsOn>
+    <_MonorailCssProcessDependsOn Condition="'$(MonorailCssScanStaticWebAssets)' == 'true' and '$(UsingMicrosoftNETSdkRazor)' == 'true'">$(_MonorailCssProcessDependsOn);ResolveBuildStaticWebAssets</_MonorailCssProcessDependsOn>
+  </PropertyGroup>
+
   <!-- Process each MonorailCss file.
        BeforeTargets="CoreCompile" runs after ResolveAssemblyReferences populates
        @(ReferencePath) with absolute paths to every project + package + framework reference
@@ -38,9 +52,9 @@
        resolves. -->
   <Target Name="ProcessMonorailCss"
           BeforeTargets="CoreCompile"
-          DependsOnTargets="ResolveProjectReferences;ResolveAssemblyReferences"
+          DependsOnTargets="$(_MonorailCssProcessDependsOn)"
           Condition="'$(MonorailCssEnabled)' == 'true' and '@(MonorailCss)' != ''"
-          Inputs="@(MonorailCss);@(Content);@(Compile);@(EmbeddedResource);@(ReferencePath)"
+          Inputs="@(MonorailCss);@(Content);@(Compile);@(EmbeddedResource);@(ReferencePath);@(StaticWebAsset)"
           Outputs="@(MonorailCss->'%(OutputFile)')">
 
     <ItemGroup>
@@ -66,11 +80,22 @@
       <_MonorailCssExcludeAssembly Include="@(MonorailCssExcludeAssembly)" />
     </ItemGroup>
 
+    <!-- Forward component-package JS / ES modules shipped as static web assets. The extension
+         filter keeps only .js/.mjs — which also drops the compressed .gz/.br siblings, whose
+         Identity ends in .gz/.br — and the AssetRole filter is belt-and-suspenders against
+         those compressed "Alternative" entries. %(Extension) reads off each asset's physical
+         Identity path. -->
+    <ItemGroup Condition="'$(MonorailCssScanStaticWebAssets)' == 'true'">
+      <_MonorailCssStaticWebAsset Include="@(StaticWebAsset)"
+                                  Condition="('%(Extension)' == '.js' or '%(Extension)' == '.mjs') and '%(StaticWebAsset.AssetRole)' != 'Alternative'" />
+    </ItemGroup>
+
     <ProcessCssTask
       InputFile="%(MonorailCss.Identity)"
       OutputFile="%(MonorailCss.OutputFile)"
       ReferencePaths="@(ReferencePath)"
       ExcludeAssemblies="@(_MonorailCssExcludeAssembly)"
+      StaticWebAssets="@(_MonorailCssStaticWebAsset)"
       Configuration="$(Configuration)"
       TargetFramework="$(TargetFramework)"
       RuntimeIdentifier="$(RuntimeIdentifier)"

@@ -33,6 +33,7 @@ internal sealed partial class ClassDiscoveryService : IHostedService, IClassRegi
     private int _regenerateCount;
     private int _hotReloadCount;
     private bool _started;
+    private List<string>? _staticWebAssetFiles;
 
     public ClassDiscoveryService(
         IOptions<MonorailDiscoveryOptions> options,
@@ -447,7 +448,7 @@ internal sealed partial class ClassDiscoveryService : IHostedService, IClassRegi
             SourceCssPath = _options.SourceCssPath,
             BaseFramework = _options.Framework,
             Assemblies = AppDomain.CurrentDomain.GetAssemblies(),
-            SourceFiles = (skipSourceFileScan || hasChangedFiles) ? Array.Empty<string>() : EnumerateWatchedSourceFiles(),
+            SourceFiles = (skipSourceFileScan || hasChangedFiles) ? Array.Empty<string>() : EnumerateScanSourceFiles(),
             ExtraSafelist = _options.ExtraSafelist,
             ExcludeAssemblies = _options.ExcludeAssemblies,
             SkipSourceFileScan = skipSourceFileScan,
@@ -498,6 +499,13 @@ internal sealed partial class ClassDiscoveryService : IHostedService, IClassRegi
         ".venv", "venv", "__pycache__",
     };
 
+    private List<string> EnumerateScanSourceFiles()
+    {
+        var files = EnumerateWatchedSourceFiles();
+        files.AddRange(GetStaticWebAssetFiles());
+        return files;
+    }
+
     private List<string> EnumerateWatchedSourceFiles()
     {
         var files = new List<string>();
@@ -512,6 +520,104 @@ internal sealed partial class ClassDiscoveryService : IHostedService, IClassRegi
         }
 
         return files;
+    }
+
+    /// <summary>
+    /// Resolves the physical paths of package-shipped static web assets (e.g.
+    /// <c>_content/Pennington.UI/scripts.js</c>) eligible for scanning. The result is computed
+    /// once and cached for the process: the entry assembly's runtime manifest is fixed at
+    /// build time, and the resolved files (NuGet-cache paths) are immutable, so re-reading the
+    /// manifest on every regeneration would be wasted I/O. The files flow through the same
+    /// <c>SourceFileScanner</c> as ordinary source files, so they inherit its per-file mtime
+    /// and incremental token caches.
+    /// </summary>
+    private IReadOnlyList<string> GetStaticWebAssetFiles()
+    {
+        return _staticWebAssetFiles ??= ResolveStaticWebAssetFiles();
+    }
+
+    private List<string> ResolveStaticWebAssetFiles()
+    {
+        var result = new List<string>();
+        if (!_options.ScanStaticWebAssets)
+        {
+            return result;
+        }
+
+        var entry = Assembly.GetEntryAssembly();
+        if (entry is null)
+        {
+            return result;
+        }
+
+        var manifestPath = StaticWebAssetManifest.GetManifestPath(entry);
+        if (manifestPath is null || !File.Exists(manifestPath))
+        {
+            return result;
+        }
+
+        string json;
+        try
+        {
+            json = File.ReadAllText(manifestPath);
+        }
+        catch (IOException)
+        {
+            return result;
+        }
+        catch (UnauthorizedAccessException)
+        {
+            return result;
+        }
+
+        var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        foreach (var asset in StaticWebAssetManifest.Resolve(json))
+        {
+            var ext = Path.GetExtension(asset.PhysicalPath);
+            if (!_options.StaticWebAssetExtensions.Contains(ext))
+            {
+                continue;
+            }
+
+            if (IsExcludedStaticWebAssetPackage(asset.UrlPath))
+            {
+                continue;
+            }
+
+            if (seen.Add(asset.PhysicalPath) && File.Exists(asset.PhysicalPath))
+            {
+                result.Add(asset.PhysicalPath);
+            }
+        }
+
+        LogMonorailcssDiscoveryStaticWebAssetsScannedCountManifest(result.Count, manifestPath);
+        return result;
+    }
+
+    /// <summary>
+    /// Maps a served URL path back to its owning package and tests it against
+    /// <see cref="MonorailDiscoveryOptions.ExcludeAssemblies"/>. Served paths look like
+    /// <c>_content/&lt;Package&gt;/path/to.js</c>, and an RCL's <c>_content</c> base segment is
+    /// its assembly name, so excluding the assembly also suppresses its shipped assets. Assets
+    /// outside <c>_content</c> (the app's own) are never excluded.
+    /// </summary>
+    private bool IsExcludedStaticWebAssetPackage(string urlPath)
+    {
+        const string prefix = "_content/";
+        if (!urlPath.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
+        {
+            return false;
+        }
+
+        var rest = urlPath.AsSpan(prefix.Length);
+        var slash = rest.IndexOf('/');
+        if (slash <= 0)
+        {
+            return false;
+        }
+
+        var package = rest.Slice(0, slash).ToString();
+        return _options.ExcludeAssemblies.Contains(package);
     }
 
     private static void EnumerateSourceFilesInto(string root, List<string> output)
@@ -664,6 +770,9 @@ internal sealed partial class ClassDiscoveryService : IHostedService, IClassRegi
 
     [LoggerMessage(LogLevel.Debug, "MonorailCss discovery startup: {ClassCount} classes in {ElapsedMs} ms — ETag {Etag}")]
     partial void LogMonorailcssDiscoveryStartupClassCloutElapsedMsEtag(int classCount, long elapsedMs, string etag);
+
+    [LoggerMessage(LogLevel.Debug, "MonorailCss discovery: scanned {Count} static web asset file(s) from {ManifestPath}")]
+    partial void LogMonorailcssDiscoveryStaticWebAssetsScannedCountManifest(int count, string manifestPath);
 }
 
 /// <summary>

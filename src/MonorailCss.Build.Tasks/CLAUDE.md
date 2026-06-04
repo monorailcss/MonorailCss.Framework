@@ -70,6 +70,10 @@ Uses regex patterns to extract class names from various frameworks:
 
 **DllScanner.cs**: Scans .NET assemblies (DLLs) for utility class strings embedded in string literals using PE metadata reader. Extracts string values from the #Strings heap in the metadata tables.
 
+### Static Web Asset Scanning
+
+Component packages (RCLs) ship JS under `_content/<Package>/` (e.g. `_content/Pennington.UI/scripts.js`) that builds markup at runtime. Those files live in the NuGet cache, never enter IL, and sit outside the project tree, so neither the content sweep nor the DLL scan reaches them. The `targets` file resolves them via `ResolveBuildStaticWebAssets` (which populates `@(StaticWebAsset)` with own + project + package assets), filters to `.js`/`.mjs` (the `AssetRole != Alternative` filter drops compressed `.gz`/`.br` siblings), and forwards the physical paths to `ProcessCssTask.StaticWebAssets`. They flow through the same `SourceFileScanner` as content files (generic-tokenizer strategy for `.js`). The dependency is gated on `'$(UsingMicrosoftNETSdkRazor)' == 'true'` so plain library/console consumers build untouched; set `MonorailCssScanStaticWebAssets=false` to opt out. Assets owned by a `MonorailCssExcludeAssembly` are skipped by their `SourceId` metadata, mirroring the runtime's `_content/<Package>` exclusion. Mirrors `MonorailDiscoveryOptions.ScanStaticWebAssets` on the runtime side.
+
 ## Usage
 
 Typically consumed via NuGet package. The task is automatically invoked during build when configured in the project file:

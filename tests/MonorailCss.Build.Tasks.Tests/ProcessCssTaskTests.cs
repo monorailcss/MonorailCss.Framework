@@ -115,6 +115,53 @@ public class ProcessCssTaskTests
     }
 
     [Fact]
+    public void Execute_ScansStaticWebAssetJavaScript()
+    {
+        using var ws = new TestWorkspace();
+
+        var inputPath = ws.WriteFile("app.css", """@import "tailwindcss";""");
+
+        // The .js asset lives under a name the default content sweep ignores (it only globs
+        // .html/.razor/etc.), and no markup references w-3/h-3 — so if those classes appear in
+        // the output, the static-web-asset path is the only thing that could have surfaced them.
+        var jsPath = ws.WriteFile("_pkg/scripts.js", "el.classList.add('w-3', 'h-3');");
+        var outputPath = ws.PathFor("wwwroot/app.css");
+
+        var task = ws.CreateTask(inputPath, outputPath);
+        task.StaticWebAssets = [new TaskItem(jsPath)];
+
+        task.Execute().ShouldBeTrue();
+
+        var output = File.ReadAllText(outputPath);
+        output.ShouldContain(".w-3");
+        output.ShouldContain(".h-3");
+    }
+
+    [Fact]
+    public void Execute_SkipsStaticWebAssets_FromExcludedPackage()
+    {
+        using var ws = new TestWorkspace();
+
+        var inputPath = ws.WriteFile("app.css", """@import "tailwindcss";""");
+        var jsPath = ws.WriteFile("_pkg/scripts.js", "el.classList.add('w-3', 'h-3');");
+        var outputPath = ws.PathFor("wwwroot/app.css");
+
+        var asset = new TaskItem(jsPath);
+        asset.SetMetadata("SourceId", "Excluded.Pkg");
+
+        var task = ws.CreateTask(inputPath, outputPath);
+        task.StaticWebAssets = [asset];
+        task.ExcludeAssemblies = [new TaskItem("Excluded.Pkg")];
+
+        task.Execute().ShouldBeTrue();
+
+        // The owning package is excluded, so its JS must not contribute classes.
+        var output = File.ReadAllText(outputPath);
+        output.ShouldNotContain(".w-3");
+        output.ShouldNotContain(".h-3");
+    }
+
+    [Fact]
     public void Execute_WithCustomUtilityMixingDeclarationsAndNestedSelectors_GeneratesOutput()
     {
         using var ws = new TestWorkspace();
