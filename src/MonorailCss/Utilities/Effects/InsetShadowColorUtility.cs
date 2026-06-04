@@ -1,19 +1,20 @@
-using System.Collections.Immutable;
+using MonorailCss.Core;
 using MonorailCss.Utilities.Base;
 
 namespace MonorailCss.Utilities.Effects;
 
 /// <summary>
-/// Utilities for controlling the color of inset shadows.
+/// Utilities for controlling the color of inset shadows (<c>inset-shadow-red-500</c>,
+/// <c>inset-shadow-[#0088cc]</c>, <c>inset-shadow-(color:--c)</c>, and the
+/// <c>current</c>/<c>inherit</c>/<c>transparent</c>/<c>initial</c> keywords).
 /// </summary>
-internal class InsetShadowColorUtility : BaseStaticUtility
+internal class InsetShadowColorUtility : BaseShadowColorUtility
 {
-    protected override ImmutableDictionary<string, (string Property, string Value)> StaticValues { get; } =
-        new Dictionary<string, (string, string)>
-        {
-            { "inset-shadow-current", ("--tw-inset-shadow-color", "color-mix(in oklab, currentColor var(--tw-inset-shadow-alpha), transparent)") },
-            { "inset-shadow-inherit", ("--tw-inset-shadow-color", "color-mix(in oklab, inherit var(--tw-inset-shadow-alpha), transparent)") },
-            { "inset-shadow-transparent", ("--tw-inset-shadow-color", "color-mix(in oklab, transparent var(--tw-inset-shadow-alpha), transparent)") },
-            { "inset-shadow-initial", ("--tw-inset-shadow-color", "initial") },
-        }.ToImmutableDictionary();
+    protected override string Pattern => "inset-shadow";
+
+    protected override string CssProperty => "--tw-inset-shadow-color";
+
+    protected override string AlphaVariable => "--tw-inset-shadow-alpha";
+
+    protected override string[] ColorNamespaces => NamespaceResolver.InsetShadowColorChain;
 }

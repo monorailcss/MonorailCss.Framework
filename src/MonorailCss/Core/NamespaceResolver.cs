@@ -16,8 +16,12 @@ internal static class NamespaceResolver
     public const string FontSize = "--font-size";
     public const string FontFamily = "--font-family";
     public const string FontWeight = "--font-weight";
-    public const string LetterSpacing = "--letter-spacing";
-    public const string LineHeight = "--line-height";
+
+    // Tailwind v4 theme namespaces for the tracking/leading utilities. (The old
+    // `--letter-spacing`/`--line-height` names never matched any theme key — letter-spacing and
+    // line-height resolve from `--tracking-*` and `--leading-*` respectively.)
+    public const string LetterSpacing = "--tracking";
+    public const string LineHeight = "--leading";
     public const string Shadow = "--shadow";
     public const string Blur = "--blur";
     public const string Brightness = "--brightness";
@@ -86,6 +90,8 @@ internal static class NamespaceResolver
     public const string PlaceholderColor = "--placeholder-color";
     public const string DecorationColor = "--text-decoration-color";
     public const string ShadowColor = "--shadow-color";
+    public const string InsetShadowColor = "--inset-shadow-color";
+    public const string DropShadowColor = "--drop-shadow-color";
     public const string TextShadowColor = "--text-shadow-color";
     public const string GradientFrom = "--gradient-from";
     public const string GradientTo = "--gradient-to";
@@ -132,6 +138,8 @@ internal static class NamespaceResolver
     public static readonly string[] PlaceholderColorChain = [PlaceholderColor, Color];
     public static readonly string[] DecorationColorChain = [DecorationColor, Color];
     public static readonly string[] ShadowColorChain = [ShadowColor, Color];
+    public static readonly string[] InsetShadowColorChain = [InsetShadowColor, Color];
+    public static readonly string[] DropShadowColorChain = [DropShadowColor, Color];
     public static readonly string[] TextShadowColorChain = [TextShadowColor, Color];
     public static readonly string[] GradientFromChain = [GradientFrom, Color];
     public static readonly string[] GradientToChain = [GradientTo, Color];

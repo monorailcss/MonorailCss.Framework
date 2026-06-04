@@ -1,63 +1,30 @@
 using System.Collections.Immutable;
 using MonorailCss.Ast;
-using MonorailCss.Candidates;
+using MonorailCss.Core;
+using MonorailCss.Utilities.Base;
 
 namespace MonorailCss.Utilities.Effects;
 
 /// <summary>
-/// Utilities for controlling the color of drop shadow filters.
+/// Utilities for controlling the color of drop shadow filters (<c>drop-shadow-red-500</c>,
+/// <c>drop-shadow-[#0088cc]</c>, <c>drop-shadow-(color:--c)</c>, and the
+/// <c>current</c>/<c>inherit</c>/<c>transparent</c>/<c>initial</c> keywords).
 /// </summary>
-internal class DropShadowColorUtility : IUtility
+/// <remarks>
+/// Unlike box-shadow / inset-shadow, applying a drop-shadow color also re-points
+/// <c>--tw-drop-shadow</c> at <c>--tw-drop-shadow-size</c> (the color-injected layer), since a sized
+/// <c>drop-shadow</c> otherwise references the un-injected theme value directly.
+/// </remarks>
+internal class DropShadowColorUtility : BaseShadowColorUtility
 {
-    public UtilityPriority Priority => UtilityPriority.ExactStatic;
+    protected override string Pattern => "drop-shadow";
 
-    public string[] GetNamespaces() => [];
+    protected override string CssProperty => "--tw-drop-shadow-color";
 
-    public bool TryCompile(Candidate candidate, Theme.Theme theme, out ImmutableList<AstNode>? results)
-    {
-        results = null;
+    protected override string AlphaVariable => "--tw-drop-shadow-alpha";
 
-        if (candidate is not StaticUtility staticUtility)
-        {
-            return false;
-        }
+    protected override string[] ColorNamespaces => NamespaceResolver.DropShadowColorChain;
 
-        var declarations = ImmutableList.CreateBuilder<AstNode>();
-
-        switch (staticUtility.Root)
-        {
-            case "drop-shadow-current":
-                declarations.Add(new Declaration("--tw-drop-shadow-color", "color-mix(in oklab, currentColor var(--tw-drop-shadow-alpha), transparent)", candidate.Important));
-                declarations.Add(new Declaration("--tw-drop-shadow", "var(--tw-drop-shadow-size)", candidate.Important));
-                results = declarations.ToImmutable();
-                return true;
-            case "drop-shadow-inherit":
-                declarations.Add(new Declaration("--tw-drop-shadow-color", "color-mix(in oklab, inherit var(--tw-drop-shadow-alpha), transparent)", candidate.Important));
-                declarations.Add(new Declaration("--tw-drop-shadow", "var(--tw-drop-shadow-size)", candidate.Important));
-                results = declarations.ToImmutable();
-                return true;
-            case "drop-shadow-transparent":
-                declarations.Add(new Declaration("--tw-drop-shadow-color", "color-mix(in oklab, transparent var(--tw-drop-shadow-alpha), transparent)", candidate.Important));
-                declarations.Add(new Declaration("--tw-drop-shadow", "var(--tw-drop-shadow-size)", candidate.Important));
-                results = declarations.ToImmutable();
-                return true;
-        }
-
-        return false;
-    }
-
-    /// <summary>
-    /// Returns examples of drop shadow color utilities.
-    /// </summary>
-    public IEnumerable<Documentation.UtilityExample> GetExamples(Theme.Theme theme)
-    {
-        var examples = new List<Documentation.UtilityExample>
-        {
-            new("drop-shadow-current", "Set drop shadow color to currentColor"),
-            new("drop-shadow-inherit", "Set drop shadow color to inherit"),
-            new("drop-shadow-transparent", "Set drop shadow color to transparent"),
-        };
-
-        return examples;
-    }
+    protected override IEnumerable<AstNode> ExtraDeclarations(bool important) =>
+        ImmutableList.Create<AstNode>(new Declaration("--tw-drop-shadow", "var(--tw-drop-shadow-size)", important));
 }

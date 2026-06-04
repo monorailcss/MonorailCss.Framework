@@ -58,14 +58,16 @@ internal class BoxShadowUtility : BaseFunctionalUtility
             return false;
         }
 
-        // Custom validation path for arbitrary values: the base class would happily accept
-        // a bare color token like `[red]` as a box-shadow, but those belong to ShadowColorUtility.
+        // Custom validation path for arbitrary values: a bare color token like `[red]`,
+        // `[#0088cc]`, or `(color:--c)` belongs to ShadowColorUtility. Everything else — including
+        // a hint-less parens shorthand `(--my-shadow)` or `[var(--x)]` — is a shadow value.
+        // ShadowValueResolver keeps this split in sync with ShadowColorUtility's rejection so the
+        // two utilities never both claim (or both drop) the same candidate.
         if (value.Kind == ValueKind.Arbitrary)
         {
-            var arbitrary = value.Value;
-            if (IsValidBoxShadowValue(arbitrary))
+            if (ShadowValueResolver.IsArbitraryShadowValue(value))
             {
-                resolvedValue = arbitrary;
+                resolvedValue = value.Value;
                 return true;
             }
 

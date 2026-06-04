@@ -11,7 +11,9 @@ internal class PerspectiveFunctionalUtility : BaseFunctionalUtility
 {
     protected override string[] Patterns => ["perspective"];
 
-    protected override string[] ThemeKeys => []; // No theme resolution for perspective
+    // Resolve named values from the --perspective theme namespace (perspective-near, -dramatic, …),
+    // emitting `perspective: var(--perspective-<key>)` to match Tailwind.
+    protected override string[] ThemeKeys => ["--perspective"];
 
     protected override ImmutableList<AstNode> GenerateDeclarations(string pattern, string value, bool important)
     {

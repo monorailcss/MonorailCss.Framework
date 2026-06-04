@@ -1,9 +1,7 @@
 using System.Collections.Immutable;
 using System.Globalization;
 using MonorailCss.Ast;
-using MonorailCss.Candidates;
 using MonorailCss.Core;
-using MonorailCss.Css;
 using MonorailCss.Utilities.Base;
 
 namespace MonorailCss.Utilities.Typography;
@@ -17,27 +15,13 @@ internal class LetterSpacingUtility : BaseFunctionalUtility
     protected override string[] ThemeKeys => NamespaceResolver.LetterSpacingChain;
 
     /// <summary>
-    /// Handles named letter-spacing values.
-    /// Examples: "tight" -> "-0.025em", "wide" -> "0.025em".
+    /// Handles bare numeric letter-spacing values. The named scale
+    /// (tighter/tight/normal/wide/wider/widest) lives in the --tracking-* theme namespace and
+    /// resolves to <c>var(--tracking-&lt;key&gt;)</c> via base resolution, matching Tailwind and
+    /// respecting theme overrides.
     /// </summary>
     protected override string? HandleBareValue(string value)
     {
-        // Handle named values
-        var namedValues = new Dictionary<string, string>
-        {
-            ["tighter"] = "-0.05em",
-            ["tight"] = "-0.025em",
-            ["normal"] = "0em",
-            ["wide"] = "0.025em",
-            ["wider"] = "0.05em",
-            ["widest"] = "0.1em",
-        };
-
-        if (namedValues.TryGetValue(value, out var namedValue))
-        {
-            return namedValue;
-        }
-
         // Handle numeric values - could be used for arbitrary tracking values
         if (double.TryParse(value, NumberStyles.Number,
             CultureInfo.InvariantCulture, out var numValue))
@@ -84,30 +68,12 @@ internal class LetterSpacingUtility : BaseFunctionalUtility
 
     protected override ImmutableList<AstNode> GenerateDeclarations(string pattern, string value, bool important)
     {
+        // Tailwind sets --tw-tracking alongside letter-spacing (both the same value) so the
+        // tracking can compose; @property --tw-tracking is registered centrally by
+        // PropertyRegistrationStage.
         return ImmutableList.Create<AstNode>(
+            new Declaration("--tw-tracking", value, important),
             new Declaration("letter-spacing", value, important));
-    }
-
-    // Registry-aware overload: arbitrary tracking values pre-set a `--tw-tracking`
-    // custom property so authors can later compose against it; matches Tailwind
-    // v4's emission shape (`@property --tw-tracking; --tw-tracking: ...; letter-spacing: ...;`).
-    public override bool TryCompile(Candidate candidate, Theme.Theme theme, CssPropertyRegistry propertyRegistry, out ImmutableList<AstNode>? results)
-    {
-        if (!TryCompile(candidate, theme, out results))
-        {
-            return false;
-        }
-
-        if (candidate is FunctionalUtility { Value: { Kind: ValueKind.Arbitrary } value } && results != null)
-        {
-            propertyRegistry.Register("--tw-tracking", "*", false, null);
-
-            // Prepend `--tw-tracking: <value>;` before the existing `letter-spacing` declaration.
-            var trackingDeclaration = new Declaration("--tw-tracking", value.Value, candidate.Important);
-            results = results.Insert(0, trackingDeclaration);
-        }
-
-        return true;
     }
 
     protected override string GetSampleCssForArbitraryValue(string pattern) => "letter-spacing: [value]";

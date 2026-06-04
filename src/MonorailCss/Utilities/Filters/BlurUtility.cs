@@ -15,21 +15,18 @@ internal class BlurUtility : BaseFilterUtility
     protected override string[] Patterns => ["blur"];
     protected override string[] ThemeKeys => NamespaceResolver.BlurChain;
     protected override string FilterVariableName => "blur";
-    protected override string DefaultValue => "blur(4px)";
+    protected override string DefaultValue => "blur(8px)";
 
     /// <summary>
-    /// Static blur mappings for built-in blur values.
+    /// Built-in blur keywords that don't resolve through the theme. The sized scale
+    /// (blur-sm … blur-3xl) is intentionally absent: those resolve via the <c>--blur-*</c> theme
+    /// namespace to <c>blur(var(--blur-&lt;key&gt;))</c>, matching Tailwind (and picking up theme
+    /// overrides) rather than inlining a hardcoded pixel value.
     /// </summary>
     private static readonly ImmutableDictionary<string, string> _staticBlurValues =
         new Dictionary<string, string>
         {
             ["none"] = "  ", // Two spaces for blur-none as per Tailwind spec
-            ["sm"] = "blur(4px)",
-            ["md"] = "blur(12px)",
-            ["lg"] = "blur(16px)",
-            ["xl"] = "blur(24px)",
-            ["2xl"] = "blur(40px)",
-            ["3xl"] = "blur(64px)",
         }.ToImmutableDictionary();
 
     protected override bool TryResolveValue(CandidateValue value, Theme.Theme theme, bool isNegative, out string resolvedValue)
