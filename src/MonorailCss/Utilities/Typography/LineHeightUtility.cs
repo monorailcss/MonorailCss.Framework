@@ -20,15 +20,12 @@ internal class LineHeightUtility : BaseFunctionalUtility
     /// </summary>
     protected override string? HandleBareValue(string value)
     {
-        // Handle named values
+        // Built-in keywords only. The named scale (tight/snug/normal/relaxed/loose) lives in the
+        // --leading-* theme namespace and resolves to `var(--leading-<key>)` via base resolution,
+        // matching Tailwind and respecting theme overrides.
         var namedValues = new Dictionary<string, string>
         {
             ["none"] = "1",
-            ["tight"] = "1.25",
-            ["snug"] = "1.375",
-            ["normal"] = "1.5",
-            ["relaxed"] = "1.625",
-            ["loose"] = "2",
             ["px"] = "1px",
         };
 

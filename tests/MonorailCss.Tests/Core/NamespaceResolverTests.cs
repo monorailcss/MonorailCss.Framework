@@ -102,8 +102,9 @@ public class NamespaceResolverTests
         Assert.Equal(["--font-size"], NamespaceResolver.FontSizeChain);
         Assert.Equal(["--font-family"], NamespaceResolver.FontFamilyChain);
         Assert.Equal(["--font-weight"], NamespaceResolver.FontWeightChain);
-        Assert.Equal(["--letter-spacing"], NamespaceResolver.LetterSpacingChain);
-        Assert.Equal(["--line-height"], NamespaceResolver.LineHeightChain);
+        // Tailwind v4 resolves letter-spacing/line-height from the --tracking/--leading namespaces.
+        Assert.Equal(["--tracking"], NamespaceResolver.LetterSpacingChain);
+        Assert.Equal(["--leading"], NamespaceResolver.LineHeightChain);
     }
 
     [Fact]

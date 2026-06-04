@@ -189,6 +189,10 @@ internal class MaskUtility : IUtility
                 {
                     BuildLinearGradient(declarations, important, fromPosition: fromPosition);
                 }
+                else if (TryResolveMaskColor(functionalUtility.Value, theme, out var linearFromColor))
+                {
+                    BuildLinearGradient(declarations, important, fromColor: linearFromColor);
+                }
 
                 break;
 
@@ -196,6 +200,10 @@ internal class MaskUtility : IUtility
                 if (TryParsePosition(value, out var toPosition))
                 {
                     BuildLinearGradient(declarations, important, toPosition: toPosition);
+                }
+                else if (TryResolveMaskColor(functionalUtility.Value, theme, out var linearToColor))
+                {
+                    BuildLinearGradient(declarations, important, toColor: linearToColor);
                 }
 
                 break;
@@ -209,6 +217,10 @@ internal class MaskUtility : IUtility
                 {
                     BuildRadialGradient(declarations, important, fromPosition: radialFromPos);
                 }
+                else if (TryResolveMaskColor(functionalUtility.Value, theme, out var radialFromColor))
+                {
+                    BuildRadialGradient(declarations, important, fromColor: radialFromColor);
+                }
 
                 break;
 
@@ -216,6 +228,10 @@ internal class MaskUtility : IUtility
                 if (TryParsePosition(value, out var radialToPos))
                 {
                     BuildRadialGradient(declarations, important, toPosition: radialToPos);
+                }
+                else if (TryResolveMaskColor(functionalUtility.Value, theme, out var radialToColor))
+                {
+                    BuildRadialGradient(declarations, important, toColor: radialToColor);
                 }
 
                 break;
@@ -258,6 +274,10 @@ internal class MaskUtility : IUtility
                 {
                     BuildConicGradient(declarations, important, fromPosition: conicFromPos);
                 }
+                else if (TryResolveMaskColor(functionalUtility.Value, theme, out var conicFromColor))
+                {
+                    BuildConicGradient(declarations, important, fromColor: conicFromColor);
+                }
 
                 break;
 
@@ -265,6 +285,10 @@ internal class MaskUtility : IUtility
                 if (TryParsePosition(value, out var conicToPos))
                 {
                     BuildConicGradient(declarations, important, toPosition: conicToPos);
+                }
+                else if (TryResolveMaskColor(functionalUtility.Value, theme, out var conicToColor))
+                {
+                    BuildConicGradient(declarations, important, toColor: conicToColor);
                 }
 
                 break;
@@ -282,6 +306,10 @@ internal class MaskUtility : IUtility
                 {
                     BuildLinearGradient(declarations, important, fromPosition: dirFromPos);
                 }
+                else if (TryResolveMaskColor(functionalUtility.Value, theme, out var dirFromColor))
+                {
+                    BuildLinearGradient(declarations, important, fromColor: dirFromColor);
+                }
 
                 break;
 
@@ -290,14 +318,23 @@ internal class MaskUtility : IUtility
                 {
                     BuildLinearGradient(declarations, important, toPosition: dirToPos);
                 }
+                else if (TryResolveMaskColor(functionalUtility.Value, theme, out var dirToColor))
+                {
+                    BuildLinearGradient(declarations, important, toColor: dirToColor);
+                }
 
                 break;
 
-            // Directional mask patterns
+            // Directional mask patterns. from/to accept either a position (%) or a color; a color
+            // tints the gradient stop via --tw-mask-<edge>-from/to-color.
             case "mask-b-from":
                 if (TryParsePosition(value, out var bFromPos))
                 {
                     BuildDirectionalMask(declarations, important, "bottom", fromPosition: bFromPos);
+                }
+                else if (TryResolveMaskColor(functionalUtility.Value, theme, out var bFromColor))
+                {
+                    BuildDirectionalMask(declarations, important, "bottom", fromColor: bFromColor);
                 }
 
                 break;
@@ -307,6 +344,10 @@ internal class MaskUtility : IUtility
                 {
                     BuildDirectionalMask(declarations, important, "bottom", toPosition: bToPos);
                 }
+                else if (TryResolveMaskColor(functionalUtility.Value, theme, out var bToColor))
+                {
+                    BuildDirectionalMask(declarations, important, "bottom", toColor: bToColor);
+                }
 
                 break;
 
@@ -314,6 +355,10 @@ internal class MaskUtility : IUtility
                 if (TryParsePosition(value, out var tFromPos))
                 {
                     BuildDirectionalMask(declarations, important, "top", fromPosition: tFromPos);
+                }
+                else if (TryResolveMaskColor(functionalUtility.Value, theme, out var tFromColor))
+                {
+                    BuildDirectionalMask(declarations, important, "top", fromColor: tFromColor);
                 }
 
                 break;
@@ -323,6 +368,10 @@ internal class MaskUtility : IUtility
                 {
                     BuildDirectionalMask(declarations, important, "top", toPosition: tToPos);
                 }
+                else if (TryResolveMaskColor(functionalUtility.Value, theme, out var tToColor))
+                {
+                    BuildDirectionalMask(declarations, important, "top", toColor: tToColor);
+                }
 
                 break;
 
@@ -330,6 +379,10 @@ internal class MaskUtility : IUtility
                 if (TryParsePosition(value, out var lFromPos))
                 {
                     BuildDirectionalMask(declarations, important, "left", fromPosition: lFromPos);
+                }
+                else if (TryResolveMaskColor(functionalUtility.Value, theme, out var lFromColor))
+                {
+                    BuildDirectionalMask(declarations, important, "left", fromColor: lFromColor);
                 }
 
                 break;
@@ -339,6 +392,10 @@ internal class MaskUtility : IUtility
                 {
                     BuildDirectionalMask(declarations, important, "left", toPosition: lToPos);
                 }
+                else if (TryResolveMaskColor(functionalUtility.Value, theme, out var lToColor))
+                {
+                    BuildDirectionalMask(declarations, important, "left", toColor: lToColor);
+                }
 
                 break;
 
@@ -347,6 +404,10 @@ internal class MaskUtility : IUtility
                 {
                     BuildDirectionalMask(declarations, important, "right", fromPosition: rFromPos);
                 }
+                else if (TryResolveMaskColor(functionalUtility.Value, theme, out var rFromColor))
+                {
+                    BuildDirectionalMask(declarations, important, "right", fromColor: rFromColor);
+                }
 
                 break;
 
@@ -354,6 +415,10 @@ internal class MaskUtility : IUtility
                 if (TryParsePosition(value, out var rToPos))
                 {
                     BuildDirectionalMask(declarations, important, "right", toPosition: rToPos);
+                }
+                else if (TryResolveMaskColor(functionalUtility.Value, theme, out var rToColor))
+                {
+                    BuildDirectionalMask(declarations, important, "right", toColor: rToColor);
                 }
 
                 break;
@@ -364,6 +429,10 @@ internal class MaskUtility : IUtility
                 {
                     BuildAxisMask(declarations, important, "x", fromPosition: xFromPos);
                 }
+                else if (TryResolveMaskColor(functionalUtility.Value, theme, out var xFromColor))
+                {
+                    BuildAxisMask(declarations, important, "x", fromColor: xFromColor);
+                }
 
                 break;
 
@@ -371,6 +440,10 @@ internal class MaskUtility : IUtility
                 if (TryParsePosition(value, out var xToPos))
                 {
                     BuildAxisMask(declarations, important, "x", toPosition: xToPos);
+                }
+                else if (TryResolveMaskColor(functionalUtility.Value, theme, out var xToColor))
+                {
+                    BuildAxisMask(declarations, important, "x", toColor: xToColor);
                 }
 
                 break;
@@ -380,6 +453,10 @@ internal class MaskUtility : IUtility
                 {
                     BuildAxisMask(declarations, important, "y", fromPosition: yFromPos);
                 }
+                else if (TryResolveMaskColor(functionalUtility.Value, theme, out var yFromColor))
+                {
+                    BuildAxisMask(declarations, important, "y", fromColor: yFromColor);
+                }
 
                 break;
 
@@ -387,6 +464,10 @@ internal class MaskUtility : IUtility
                 if (TryParsePosition(value, out var yToPos))
                 {
                     BuildAxisMask(declarations, important, "y", toPosition: yToPos);
+                }
+                else if (TryResolveMaskColor(functionalUtility.Value, theme, out var yToColor))
+                {
+                    BuildAxisMask(declarations, important, "y", toColor: yToColor);
                 }
 
                 break;
@@ -402,7 +483,47 @@ internal class MaskUtility : IUtility
         declarations.Add(new Declaration("mask-composite", "intersect", important));
     }
 
-    private static void BuildLinearGradient(ImmutableList<AstNode>.Builder declarations, bool important, string? position = null, string? fromPosition = null, string? toPosition = null)
+    // Resolves a mask from/to value to a color — theme color (→ var(--color-<name>)), the
+    // current/inherit/transparent keywords, or an arbitrary value. Returns false when the value
+    // isn't a color (e.g. a position like 50%), so the caller falls back to position handling.
+    private static bool TryResolveMaskColor(CandidateValue? value, Theme.Theme theme, out string color)
+    {
+        color = string.Empty;
+        if (value is null)
+        {
+            return false;
+        }
+
+        switch (value.Value)
+        {
+            case "current":
+                color = "currentcolor";
+                return true;
+            case "inherit":
+                color = "inherit";
+                return true;
+            case "transparent":
+                color = "transparent";
+                return true;
+        }
+
+        if (value.Kind == ValueKind.Arbitrary)
+        {
+            color = value.Value;
+            return true;
+        }
+
+        var resolved = theme.Resolve(value.Value, ["--color"]);
+        if (!string.IsNullOrEmpty(resolved))
+        {
+            color = resolved;
+            return true;
+        }
+
+        return false;
+    }
+
+    private static void BuildLinearGradient(ImmutableList<AstNode>.Builder declarations, bool important, string? position = null, string? fromPosition = null, string? toPosition = null, string? fromColor = null, string? toColor = null)
     {
         AddCommonMaskDeclarations(declarations, important);
 
@@ -412,7 +533,7 @@ internal class MaskUtility : IUtility
             declarations.Add(new Declaration("--tw-mask-linear-position", position, important));
         }
 
-        if (fromPosition != null || toPosition != null)
+        if (fromPosition != null || toPosition != null || fromColor != null || toColor != null)
         {
             declarations.Add(new Declaration("--tw-mask-linear-stops", "var(--tw-mask-linear-position), var(--tw-mask-linear-from-color) var(--tw-mask-linear-from-position), var(--tw-mask-linear-to-color) var(--tw-mask-linear-to-position)", important));
             declarations.Add(new Declaration("--tw-mask-linear", "linear-gradient(var(--tw-mask-linear-stops))", important));
@@ -426,10 +547,20 @@ internal class MaskUtility : IUtility
             {
                 declarations.Add(new Declaration("--tw-mask-linear-to-position", toPosition, important));
             }
+
+            if (fromColor != null)
+            {
+                declarations.Add(new Declaration("--tw-mask-linear-from-color", fromColor, important));
+            }
+
+            if (toColor != null)
+            {
+                declarations.Add(new Declaration("--tw-mask-linear-to-color", toColor, important));
+            }
         }
     }
 
-    private static void BuildRadialGradient(ImmutableList<AstNode>.Builder declarations, bool important, string? position = null, string? fromPosition = null, string? toPosition = null, string? shape = null, string? size = null)
+    private static void BuildRadialGradient(ImmutableList<AstNode>.Builder declarations, bool important, string? position = null, string? fromPosition = null, string? toPosition = null, string? shape = null, string? size = null, string? fromColor = null, string? toColor = null)
     {
         AddCommonMaskDeclarations(declarations, important);
         declarations.Add(new Declaration("--tw-mask-radial", "radial-gradient(var(--tw-mask-radial-shape) var(--tw-mask-radial-size) at var(--tw-mask-radial-position), var(--tw-mask-radial-stops))", important));
@@ -439,7 +570,7 @@ internal class MaskUtility : IUtility
             declarations.Add(new Declaration("--tw-mask-radial-position", position, important));
         }
 
-        if (fromPosition != null || toPosition != null)
+        if (fromPosition != null || toPosition != null || fromColor != null || toColor != null)
         {
             declarations.Add(new Declaration("--tw-mask-radial-stops", "var(--tw-mask-radial-from-color) var(--tw-mask-radial-from-position), var(--tw-mask-radial-to-color) var(--tw-mask-radial-to-position)", important));
 
@@ -451,6 +582,16 @@ internal class MaskUtility : IUtility
             if (toPosition != null)
             {
                 declarations.Add(new Declaration("--tw-mask-radial-to-position", toPosition, important));
+            }
+
+            if (fromColor != null)
+            {
+                declarations.Add(new Declaration("--tw-mask-radial-from-color", fromColor, important));
+            }
+
+            if (toColor != null)
+            {
+                declarations.Add(new Declaration("--tw-mask-radial-to-color", toColor, important));
             }
         }
 
@@ -465,7 +606,7 @@ internal class MaskUtility : IUtility
         }
     }
 
-    private static void BuildConicGradient(ImmutableList<AstNode>.Builder declarations, bool important, string? position = null, string? fromPosition = null, string? toPosition = null)
+    private static void BuildConicGradient(ImmutableList<AstNode>.Builder declarations, bool important, string? position = null, string? fromPosition = null, string? toPosition = null, string? fromColor = null, string? toColor = null)
     {
         AddCommonMaskDeclarations(declarations, important);
 
@@ -475,7 +616,7 @@ internal class MaskUtility : IUtility
             declarations.Add(new Declaration("--tw-mask-conic-position", position, important));
         }
 
-        if (fromPosition != null || toPosition != null)
+        if (fromPosition != null || toPosition != null || fromColor != null || toColor != null)
         {
             declarations.Add(new Declaration("--tw-mask-conic-stops", "from var(--tw-mask-conic-position), var(--tw-mask-conic-from-color) var(--tw-mask-conic-from-position), var(--tw-mask-conic-to-color) var(--tw-mask-conic-to-position)", important));
             declarations.Add(new Declaration("--tw-mask-conic", "conic-gradient(var(--tw-mask-conic-stops))", important));
@@ -489,74 +630,67 @@ internal class MaskUtility : IUtility
             {
                 declarations.Add(new Declaration("--tw-mask-conic-to-position", toPosition, important));
             }
+
+            if (fromColor != null)
+            {
+                declarations.Add(new Declaration("--tw-mask-conic-from-color", fromColor, important));
+            }
+
+            if (toColor != null)
+            {
+                declarations.Add(new Declaration("--tw-mask-conic-to-color", toColor, important));
+            }
         }
     }
 
-    private static void BuildDirectionalMask(ImmutableList<AstNode>.Builder declarations, bool important, string direction, string? fromPosition = null, string? toPosition = null)
+    private static void BuildDirectionalMask(ImmutableList<AstNode>.Builder declarations, bool important, string edge, string? fromPosition = null, string? toPosition = null, string? fromColor = null, string? toColor = null)
     {
         var maskVars = "var(--tw-mask-linear), var(--tw-mask-radial), var(--tw-mask-conic), var(--tw-mask-top), var(--tw-mask-bottom), var(--tw-mask-left), var(--tw-mask-right)";
         AddCommonMaskDeclarations(declarations, important, maskVars);
 
-        var (varName, gradientDirection, fromVar, toVar) = direction switch
-        {
-            "bottom" => ("--tw-mask-bottom", "to top", "--tw-mask-bottom-from-position", "--tw-mask-bottom-to-position"),
-            "top" => ("--tw-mask-top", "to bottom", "--tw-mask-top-from-position", "--tw-mask-top-to-position"),
-            "left" => ("--tw-mask-left", "to right", "--tw-mask-left-from-position", "--tw-mask-left-to-position"),
-            "right" => ("--tw-mask-right", "to left", "--tw-mask-right-from-position", "--tw-mask-right-to-position"),
-            _ => throw new ArgumentException($"Invalid direction: {direction}"),
-        };
+        EmitEdgeGradient(declarations, important, edge, fromPosition, toPosition, fromColor, toColor);
+    }
 
-        declarations.Add(new Declaration(varName, $"linear-gradient({gradientDirection}, transparent var({fromVar}), black var({toVar}))", important));
+    // Emits one edge's gradient var plus whichever stop (position or color) was supplied. Each edge
+    // fades toward itself ("to top" for the top edge); stop colors/positions are theme vars so a
+    // color utility can tint them (defaults: from-color black, to-color transparent — see
+    // PropertyRegistrationStage). Matches Tailwind's mask gradient shape.
+    private static void EmitEdgeGradient(ImmutableList<AstNode>.Builder declarations, bool important, string edge, string? fromPosition, string? toPosition, string? fromColor, string? toColor)
+    {
+        var v = $"--tw-mask-{edge}";
+        declarations.Add(new Declaration(v, $"linear-gradient(to {edge}, var({v}-from-color) var({v}-from-position), var({v}-to-color) var({v}-to-position))", important));
 
         if (fromPosition != null)
         {
-            declarations.Add(new Declaration(fromVar, fromPosition, important));
+            declarations.Add(new Declaration($"{v}-from-position", fromPosition, important));
         }
 
         if (toPosition != null)
         {
-            declarations.Add(new Declaration(toVar, toPosition, important));
+            declarations.Add(new Declaration($"{v}-to-position", toPosition, important));
+        }
+
+        if (fromColor != null)
+        {
+            declarations.Add(new Declaration($"{v}-from-color", fromColor, important));
+        }
+
+        if (toColor != null)
+        {
+            declarations.Add(new Declaration($"{v}-to-color", toColor, important));
         }
     }
 
-    private static void BuildAxisMask(ImmutableList<AstNode>.Builder declarations, bool important, string axis, string? fromPosition = null, string? toPosition = null)
+    private static void BuildAxisMask(ImmutableList<AstNode>.Builder declarations, bool important, string axis, string? fromPosition = null, string? toPosition = null, string? fromColor = null, string? toColor = null)
     {
         var maskVars = "var(--tw-mask-linear), var(--tw-mask-radial), var(--tw-mask-conic), var(--tw-mask-top), var(--tw-mask-bottom), var(--tw-mask-left), var(--tw-mask-right)";
         AddCommonMaskDeclarations(declarations, important, maskVars);
 
-        if (axis == "x")
+        // x → right + left, y → top + bottom (each edge fades toward itself).
+        var edges = axis == "x" ? new[] { "right", "left" } : new[] { "top", "bottom" };
+        foreach (var edge in edges)
         {
-            declarations.Add(new Declaration("--tw-mask-left", "linear-gradient(to right, transparent var(--tw-mask-left-from-position), black var(--tw-mask-left-to-position))", important));
-            declarations.Add(new Declaration("--tw-mask-right", "linear-gradient(to left, transparent var(--tw-mask-right-from-position), black var(--tw-mask-right-to-position))", important));
-
-            if (fromPosition != null)
-            {
-                declarations.Add(new Declaration("--tw-mask-left-from-position", fromPosition, important));
-                declarations.Add(new Declaration("--tw-mask-right-from-position", fromPosition, important));
-            }
-
-            if (toPosition != null)
-            {
-                declarations.Add(new Declaration("--tw-mask-left-to-position", toPosition, important));
-                declarations.Add(new Declaration("--tw-mask-right-to-position", toPosition, important));
-            }
-        }
-        else if (axis == "y")
-        {
-            declarations.Add(new Declaration("--tw-mask-top", "linear-gradient(to bottom, transparent var(--tw-mask-top-from-position), black var(--tw-mask-top-to-position))", important));
-            declarations.Add(new Declaration("--tw-mask-bottom", "linear-gradient(to top, transparent var(--tw-mask-bottom-from-position), black var(--tw-mask-bottom-to-position))", important));
-
-            if (fromPosition != null)
-            {
-                declarations.Add(new Declaration("--tw-mask-top-from-position", fromPosition, important));
-                declarations.Add(new Declaration("--tw-mask-bottom-from-position", fromPosition, important));
-            }
-
-            if (toPosition != null)
-            {
-                declarations.Add(new Declaration("--tw-mask-top-to-position", toPosition, important));
-                declarations.Add(new Declaration("--tw-mask-bottom-to-position", toPosition, important));
-            }
+            EmitEdgeGradient(declarations, important, edge, fromPosition, toPosition, fromColor, toColor);
         }
     }
 

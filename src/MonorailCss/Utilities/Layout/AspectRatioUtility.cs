@@ -13,7 +13,7 @@ internal class AspectRatioUtility : BaseFunctionalUtility
 {
     protected override string[] Patterns => ["aspect"];
 
-    protected override string[] ThemeKeys => [];
+    protected override string[] ThemeKeys => ["--aspect"];
 
     protected override ImmutableList<AstNode> GenerateDeclarations(string pattern, string value, bool important)
     {
@@ -30,17 +30,22 @@ internal class AspectRatioUtility : BaseFunctionalUtility
         {
             var key = value.Value;
 
-            // Handle special static values
-            resolvedValue = key switch
+            // Built-in keywords. `auto`/`square` are not theme-backed; other named values
+            // (e.g. `video`) resolve through the --aspect-* namespace to `var(--aspect-<key>)`.
+            switch (key)
             {
-                "auto" => "auto",
-                "square" => "1 / 1",
-                "video" => "16 / 9", // Could use theme variable, but direct value matches Tailwind's output
-                _ => string.Empty,
-            };
+                case "auto":
+                    resolvedValue = "auto";
+                    return true;
+                case "square":
+                    resolvedValue = "1 / 1";
+                    return true;
+            }
 
-            if (!string.Empty.Equals(resolvedValue))
+            var themeValue = theme.Resolve(key, ThemeKeys);
+            if (!string.IsNullOrEmpty(themeValue))
             {
+                resolvedValue = themeValue;
                 return true;
             }
         }

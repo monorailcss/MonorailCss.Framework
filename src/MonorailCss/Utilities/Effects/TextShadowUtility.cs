@@ -55,6 +55,8 @@ internal class TextShadowUtility : BaseFunctionalUtility
             resolvedValue = key switch
             {
                 "none" => "none",
+                "2xs" => "0px 1px 0px var(--tw-text-shadow-color, rgb(0 0 0 / 0.15))",
+                "xs" => "0px 1px 1px var(--tw-text-shadow-color, rgb(0 0 0 / 0.2))",
                 "sm" => "0px 1px 0px var(--tw-text-shadow-color, rgb(0 0 0 / 0.075)), 0px 1px 1px var(--tw-text-shadow-color, rgb(0 0 0 / 0.075)), 0px 2px 2px var(--tw-text-shadow-color, rgb(0 0 0 / 0.075))",
                 "md" => "0px 1px 1px var(--tw-text-shadow-color, rgb(0 0 0 / 0.1)), 0px 1px 2px var(--tw-text-shadow-color, rgb(0 0 0 / 0.1)), 0px 2px 4px var(--tw-text-shadow-color, rgb(0 0 0 / 0.1))",
                 "lg" => "0px 1px 2px var(--tw-text-shadow-color, rgb(0 0 0 / 0.1)), 0px 3px 2px var(--tw-text-shadow-color, rgb(0 0 0 / 0.1)), 0px 4px 8px var(--tw-text-shadow-color, rgb(0 0 0 / 0.1))",

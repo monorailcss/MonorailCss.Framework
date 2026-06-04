@@ -40,6 +40,7 @@ internal partial class PropertyRegistrationStage : IPipelineStage
         ["--tw-saturate"] = ("*", false, null),
         ["--tw-sepia"] = ("*", false, null),
         ["--tw-drop-shadow"] = ("*", false, null),
+        ["--tw-drop-shadow-size"] = ("*", false, null),
 
         // Backdrop filter properties - needed for backdrop-filter stack
         ["--tw-backdrop-blur"] = ("*", false, null),
@@ -65,6 +66,7 @@ internal partial class PropertyRegistrationStage : IPipelineStage
         ["--tw-inset-ring-shadow"] = ("*", false, "0 0 #0000"),
         ["--tw-shadow-color"] = ("*", false, null),
         ["--tw-inset-shadow-color"] = ("*", false, null),
+        ["--tw-drop-shadow-color"] = ("*", false, null),
         ["--tw-text-shadow-color"] = ("*", false, null),
 
         // Gradient properties - needed for gradient composition and type safety
@@ -112,6 +114,7 @@ internal partial class PropertyRegistrationStage : IPipelineStage
 
         // Typography properties - needed for font features
         ["--tw-leading"] = ("*", false, null),
+        ["--tw-tracking"] = ("*", false, null),
         ["--tw-ordinal"] = ("*", false, null),
         ["--tw-slashed-zero"] = ("*", false, null),
         ["--tw-numeric-figure"] = ("*", false, null),
@@ -148,6 +151,23 @@ internal partial class PropertyRegistrationStage : IPipelineStage
         ["--tw-mask-right"] = ("*", false, "linear-gradient(#fff, #fff)"),
         ["--tw-mask-right-from-position"] = ("*", false, "0%"),
         ["--tw-mask-right-to-position"] = ("*", false, "100%"),
+
+        // Mask gradient stop colors — a mask-<edge>-from/to-<color> tints the gradient stop.
+        // Defaults (black/transparent) make a position-only mask fade to transparent.
+        ["--tw-mask-top-from-color"] = ("*", false, "black"),
+        ["--tw-mask-top-to-color"] = ("*", false, "transparent"),
+        ["--tw-mask-bottom-from-color"] = ("*", false, "black"),
+        ["--tw-mask-bottom-to-color"] = ("*", false, "transparent"),
+        ["--tw-mask-left-from-color"] = ("*", false, "black"),
+        ["--tw-mask-left-to-color"] = ("*", false, "transparent"),
+        ["--tw-mask-right-from-color"] = ("*", false, "black"),
+        ["--tw-mask-right-to-color"] = ("*", false, "transparent"),
+        ["--tw-mask-linear-from-color"] = ("*", false, "black"),
+        ["--tw-mask-linear-to-color"] = ("*", false, "transparent"),
+        ["--tw-mask-radial-from-color"] = ("*", false, "black"),
+        ["--tw-mask-radial-to-color"] = ("*", false, "transparent"),
+        ["--tw-mask-conic-from-color"] = ("*", false, "black"),
+        ["--tw-mask-conic-to-color"] = ("*", false, "transparent"),
     };
 
     public string Name => "Property Registration";

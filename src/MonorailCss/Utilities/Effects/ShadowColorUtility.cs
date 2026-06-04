@@ -4,7 +4,6 @@ using MonorailCss.Ast;
 using MonorailCss.Candidates;
 using MonorailCss.Core;
 using MonorailCss.Css;
-using MonorailCss.DataTypes;
 using MonorailCss.Utilities.Base;
 
 namespace MonorailCss.Utilities.Effects;
@@ -86,35 +85,13 @@ internal class ShadowColorUtility : BaseColorUtility
             return false;
         }
 
-        // For arbitrary values, check if it's actually a color (mirrors
-        // BaseColorUtility's hint-aware dispatch).
-        if (functionalUtility.Value.Kind == ValueKind.Arbitrary)
+        // Shadow values (multi-token, `inset …`, or a hint-less parens shorthand like
+        // `(--my-shadow)` / `[var(--x)]`) belong to BoxShadowUtility; only actual colors stay here.
+        // Sharing ShadowValueResolver keeps the two utilities' claims mutually exclusive.
+        if (functionalUtility.Value.Kind == ValueKind.Arbitrary
+            && ShadowValueResolver.IsArbitraryShadowValue(functionalUtility.Value))
         {
-            var hint = functionalUtility.Value.DataTypeHint;
-            if (hint != null)
-            {
-                if (hint != "color")
-                {
-                    return false;
-                }
-            }
-            else
-            {
-                var arbitrary = functionalUtility.Value.Value;
-                if (!arbitrary.StartsWith("var(", StringComparison.Ordinal)
-                    && !arbitrary.StartsWith("theme(", StringComparison.Ordinal)
-                    && !arbitrary.StartsWith("color-mix(", StringComparison.Ordinal)
-                    && !arbitrary.StartsWith("light-dark(", StringComparison.Ordinal))
-                {
-                    var inferredType = DataTypeInference.InferDataType(
-                        arbitrary,
-                        [DataType.Color, DataType.Length, DataType.LineWidth, DataType.Number]);
-                    if (inferredType != DataType.Color)
-                    {
-                        return false;
-                    }
-                }
-            }
+            return false;
         }
 
         if (!TryResolveColor(functionalUtility.Value, theme, out var color))
