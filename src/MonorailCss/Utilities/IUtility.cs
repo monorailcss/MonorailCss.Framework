@@ -102,4 +102,20 @@ public interface IUtility
     /// </code>
     /// </example>
     string[]? GetDocumentedProperties() => null;
+
+    /// <summary>
+    /// Returns explicit merge-conflict metadata for a candidate, used by
+    /// <see cref="Merging.ClassMerger"/> to decide which classes in a class list override
+    /// each other. Default implementation returns null, which derives the conflict keys
+    /// automatically from the declarations this utility compiles the candidate to.
+    /// Override when this utility composes with siblings through CSS custom properties or
+    /// resets them without declaring them — reset roots like <c>touch-none</c> must report
+    /// that they cover the <c>--tw-pan-*</c> keys their composable siblings write
+    /// (see <c>TouchActionUtility</c>). If a reset utility such as <c>filter-none</c> or
+    /// <c>transition-none</c> is added later, it needs the same treatment.
+    /// </summary>
+    /// <param name="candidate">The parsed candidate being merged.</param>
+    /// <param name="theme">The theme, for utilities whose dispatch depends on theme values.</param>
+    /// <returns>Explicit conflict metadata, or null to derive it from compiled declarations.</returns>
+    Merging.MergeConflictInfo? GetMergeInfo(Candidate candidate, Theme.Theme theme) => null;
 }

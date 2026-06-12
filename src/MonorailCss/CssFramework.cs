@@ -31,6 +31,7 @@ public class CssFramework
     // only readonly framework-lifetime dependencies; per-call state lives in PipelineContext.
     private readonly Pipeline.Pipeline _pipeline;
     private readonly CssGenerator _generator;
+    private Merging.ClassMerger? _merger;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="CssFramework"/> class.
@@ -127,7 +128,19 @@ public class CssFramework
     /// <summary>
     /// Gets the utility registry used by this framework instance.
     /// </summary>
-    private UtilityRegistry UtilityRegistry { get; }
+    internal UtilityRegistry UtilityRegistry { get; }
+
+    /// <summary>
+    /// Gets the candidate parser used by this framework instance.
+    /// </summary>
+    internal CandidateParser Parser => _parser;
+
+    /// <summary>
+    /// Gets a class merger bound to this framework's theme and registered utilities, for
+    /// resolving conflicting utility classes in a class list ("tailwind-merge" semantics).
+    /// </summary>
+    public Merging.ClassMerger Merger =>
+        LazyInitializer.EnsureInitialized(ref _merger, () => new Merging.ClassMerger(this));
 
     /// <summary>
     /// Adds a custom utility to the framework at runtime.

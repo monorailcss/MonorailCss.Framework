@@ -32,6 +32,8 @@ MonorailCss is a JIT CSS compiler that aims to be a Tailwind CSS 4.3 compatible 
 
 7. **Variant System** (`src/MonorailCss/Variants/`): Handles pseudo-classes, media queries, and other CSS modifiers. Built-in variants are automatically registered.
 
+8. **Merging System** (`src/MonorailCss/Merging/`): tailwind-merge equivalent (`ClassMerger`, exposed via `CssFramework.Merger`). Conflicts are derived from each class's compiled declarations (with shorthand expansion and a scaffold heuristic for `--tw-*` composition), not from a hand-maintained config — new utilities participate automatically. Utilities with reset semantics (e.g. `touch-none`) override `IUtility.GetMergeInfo` to declare the keys they cover.
+
 ### Key Design Patterns
 
 - **Auto-Discovery**: Utilities are automatically discovered via reflection at startup
@@ -50,6 +52,7 @@ MonorailCss.Framework/
 │       ├── Ast/              # AST node types
 │       ├── Candidates/       # Candidate parsing
 │       ├── Css/              # CSS generation
+│       ├── Merging/          # Class conflict merging (tailwind-merge)
 │       ├── Parser/           # Class name parsing
 │       ├── Pipeline/         # Processing pipeline
 │       ├── Processing/       # Post-processing

@@ -27,6 +27,11 @@ internal class ContainerUtility : BaseStaticUtility, IUtility
     // interface default that documentation reflection invokes through IUtility.
     string[]? IUtility.GetDocumentedProperties() => ["container"];
 
+    // For the same reason, container must not conflict with w-* / max-w-* in class merging:
+    // its compiled width/max-width declarations are breakpoint plumbing, not a width utility.
+    Merging.MergeConflictInfo? IUtility.GetMergeInfo(Candidate candidate, Theme.Theme theme) =>
+        Merging.MergeConflictInfo.WritesKeys("container");
+
     public override bool TryCompile(Candidate candidate, Theme.Theme theme, out ImmutableList<AstNode>? results)
     {
         results = null;

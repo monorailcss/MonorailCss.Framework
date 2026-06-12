@@ -1,6 +1,7 @@
 using System.Collections.Immutable;
 using MonorailCss.Ast;
 using MonorailCss.Candidates;
+using MonorailCss.Merging;
 using MonorailCss.Utilities.Base;
 
 namespace MonorailCss.Utilities.Typography;
@@ -8,7 +9,7 @@ namespace MonorailCss.Utilities.Typography;
 /// <summary>
 /// Utilities for controlling the variant of numbers.
 /// </summary>
-internal class FontVariantNumericUtility : BaseStaticUtility
+internal class FontVariantNumericUtility : BaseStaticUtility, IUtility
 {
     /// <summary>
     /// Map of utility names to their CSS variable names and values.
@@ -72,5 +73,16 @@ internal class FontVariantNumericUtility : BaseStaticUtility
     public override ImmutableHashSet<string> GetUtilityNames()
     {
         return StaticValues.Keys.Concat(_variantValues.Keys).ToImmutableHashSet();
+    }
+
+    // normal-nums resets font-variant-numeric outright, so it must also override the composable
+    // utilities that write through --tw-* variables. Explicit interface implementation for the
+    // same reason as ContainerUtility.GetDocumentedProperties.
+    MergeConflictInfo? IUtility.GetMergeInfo(Candidate candidate, Theme.Theme theme)
+    {
+        return candidate is StaticUtility { Root: "normal-nums" }
+            ? MergeConflictInfo.CoversKeys(
+                "--tw-ordinal", "--tw-slashed-zero", "--tw-numeric-figure", "--tw-numeric-spacing", "--tw-numeric-fraction")
+            : null;
     }
 }

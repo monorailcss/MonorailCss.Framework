@@ -2,6 +2,7 @@ using System.Collections.Immutable;
 using MonorailCss.Ast;
 using MonorailCss.Candidates;
 using MonorailCss.Css;
+using MonorailCss.Merging;
 using MonorailCss.Utilities.Base;
 
 namespace MonorailCss.Utilities.Interactivity;
@@ -9,7 +10,7 @@ namespace MonorailCss.Utilities.Interactivity;
 /// <summary>
 /// Utilities for controlling how an element can be scrolled and zoomed on touchscreens.
 /// </summary>
-internal class TouchActionUtility : BaseStaticUtility
+internal class TouchActionUtility : BaseStaticUtility, IUtility
 {
     // Define all utility names so the parser can find them
     protected override ImmutableDictionary<string, (string Property, string Value)> StaticValues =>
@@ -101,5 +102,15 @@ internal class TouchActionUtility : BaseStaticUtility
         }
 
         return false;
+    }
+
+    // The reset roots replace the entire touch-action value, so they must also override the
+    // composable pan/zoom utilities that write through --tw-* variables. Explicit interface
+    // implementation for the same reason as ContainerUtility.GetDocumentedProperties.
+    MergeConflictInfo? IUtility.GetMergeInfo(Candidate candidate, Theme.Theme theme)
+    {
+        return candidate is StaticUtility { Root: "touch-auto" or "touch-none" or "touch-manipulation" }
+            ? MergeConflictInfo.CoversKeys("--tw-pan-x", "--tw-pan-y", "--tw-pinch-zoom")
+            : null;
     }
 }

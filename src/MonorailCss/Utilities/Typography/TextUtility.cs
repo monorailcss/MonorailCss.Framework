@@ -155,6 +155,21 @@ internal class TextUtility : IUtility
         return NamespaceResolver.AppendFallbacks(NamespaceResolver.TextColorChain, "--font-size", "--text");
     }
 
+    public Merging.MergeConflictInfo? GetMergeInfo(Candidate candidate, Theme.Theme theme)
+    {
+        // Font-size utilities set line-height to var(--tw-leading, <size default>), so a later
+        // text-lg overrides an earlier leading-7 (tailwind-merge: 'font-size' conflicts with
+        // 'leading'). Compiling reuses the color-vs-font-size dispatch; the color path emits no
+        // font-size and reports nothing extra.
+        if (TryCompile(candidate, theme, out var nodes) &&
+            nodes!.OfType<Declaration>().Any(d => d.Property == "font-size"))
+        {
+            return Merging.MergeConflictInfo.CoversKeys("--tw-leading");
+        }
+
+        return null;
+    }
+
     private bool TryResolveAsColor(CandidateValue value, Theme.Theme theme, [NotNullWhen(true)] out string? color)
     {
         // Special color keywords
