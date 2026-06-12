@@ -6,7 +6,7 @@ namespace MonorailCss.Tests.Merging;
 public class ClassMergerTests
 {
     private static readonly ClassMerger _merger =
-        new CssFramework(new CssFrameworkSettings { IncludePreflight = false }).Merger;
+        new(new CssFramework(new CssFrameworkSettings { IncludePreflight = false }));
 
     [Theory]
     // Same group: later wins.
@@ -122,9 +122,11 @@ public class ClassMergerTests
     }
 
     [Fact]
-    public void Merger_OnFramework_IsReused()
+    public void Framework_Merge_DelegatesToMerger()
     {
         var framework = new CssFramework(new CssFrameworkSettings { IncludePreflight = false });
-        framework.Merger.ShouldBeSameAs(framework.Merger);
+        framework.Merge("px-2 p-4 bg-red-500 hover:p-2 bg-blue-500")
+            .ShouldBe("p-4 hover:p-2 bg-blue-500");
+        framework.Merge("p-4 bg-red-500", null, "p-2").ShouldBe("bg-red-500 p-2");
     }
 }

@@ -93,6 +93,22 @@ var framework = new CssFramework(settings);
 var css = framework.Process("btn btn-primary");
 ```
 
+## Merging Conflicting Classes
+
+When you build reusable components, callers inevitably pass classes that conflict with a component's defaults. `CssFramework.Merge` resolves those conflicts the way [tailwind-merge](https://github.com/dcastil/tailwind-merge) does &mdash; later classes win, conflicting earlier ones are dropped, surviving order is preserved:
+
+```csharp
+var framework = new CssFramework();
+
+framework.Merge("px-2 p-4 bg-red-500 hover:p-2 bg-blue-500");
+// → "p-4 hover:p-2 bg-blue-500"
+
+// The params overload joins lists, with later lists winning — ideal for caller overrides.
+framework.Merge("px-4 py-2 bg-blue-500 text-white", userExtraClasses);
+```
+
+Unlike tailwind-merge's hand-maintained class-group config, MonorailCSS derives conflicts from what each class actually compiles to, so custom utilities participate automatically. Results are cached on the framework and safe for concurrent use. See the [Merging Classes guide](https://monorailcss.github.io/MonorailCss.Framework/basics/merging-classes) for the full behavior.
+
 ## Advanced Features
 
 ### Custom Variants
@@ -131,4 +147,9 @@ var framework = new CssFramework(new CssFrameworkSettings
 {
     IncludePreflight = true  // Default is true
 });
-```        
+```
+
+## Acknowledgments
+
+- [Tailwind CSS](https://tailwindcss.com/) &mdash; the utility-first design and the CSS output MonorailCSS aims to be compatible with.
+- [TailwindMerge](https://github.com/Zettersten/TailwindMerge) by Erik Zettersten &mdash; the inspiration for `CssFramework.Merge`, itself a .NET take on the original [tailwind-merge](https://github.com/dcastil/tailwind-merge) by Dany Castillo.

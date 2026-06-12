@@ -135,12 +135,31 @@ public class CssFramework
     /// </summary>
     internal CandidateParser Parser => _parser;
 
-    /// <summary>
-    /// Gets a class merger bound to this framework's theme and registered utilities, for
-    /// resolving conflicting utility classes in a class list ("tailwind-merge" semantics).
-    /// </summary>
-    public Merging.ClassMerger Merger =>
+    // Lazily created, cached, and thread-safe. Exposed only through the Merge methods below;
+    // construct Merging.ClassMerger directly if you need an independently-scoped instance.
+    private Merging.ClassMerger Merger =>
         LazyInitializer.EnsureInitialized(ref _merger, () => new Merging.ClassMerger(this));
+
+    /// <summary>
+    /// Resolves conflicting utility classes in a class list, keeping only the classes that
+    /// survive the cascade ("tailwind-merge" semantics): <c>"px-2 p-4 bg-red-500 bg-blue-500"</c>
+    /// merges to <c>"p-4 bg-blue-500"</c>. Later classes win, the relative order of the surviving
+    /// classes is preserved, and classes no utility recognizes pass through untouched. Conflicts
+    /// are derived from each class's compiled declarations, so custom utilities participate
+    /// automatically.
+    /// </summary>
+    /// <param name="classList">The class list to merge, e.g. "px-2 p-4 hover:p-2".</param>
+    /// <returns>The merged class list.</returns>
+    public string Merge(string? classList) => Merger.Merge(classList);
+
+    /// <summary>
+    /// Merges multiple class lists as if they were joined into one, with later lists taking
+    /// precedence over earlier ones. Null or blank entries are skipped, which is convenient for
+    /// layering caller-supplied overrides onto a component's base classes.
+    /// </summary>
+    /// <param name="classLists">The class lists to merge.</param>
+    /// <returns>The merged class list.</returns>
+    public string Merge(params string?[] classLists) => Merger.Merge(classLists);
 
     /// <summary>
     /// Adds a custom utility to the framework at runtime.

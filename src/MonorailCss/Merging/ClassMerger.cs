@@ -20,6 +20,12 @@ namespace MonorailCss.Merging;
 /// is bound to the framework it was created from; utilities added to the framework after results
 /// have been cached may not be observed.
 /// </para>
+/// <para>
+/// Inspired by <see href="https://github.com/Zettersten/TailwindMerge">TailwindMerge</see>, a .NET
+/// take on the original <see href="https://github.com/dcastil/tailwind-merge">tailwind-merge</see>
+/// JavaScript library; the "later class wins" semantics are shared, but the conflict model here is
+/// derived from compiled output rather than a hand-maintained class-group config.
+/// </para>
 /// </remarks>
 public sealed class ClassMerger
 {
