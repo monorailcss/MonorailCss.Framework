@@ -32,7 +32,7 @@ MonorailCss is a JIT CSS compiler that aims to be a Tailwind CSS 4.3 compatible 
 
 7. **Variant System** (`src/MonorailCss/Variants/`): Handles pseudo-classes, media queries, and other CSS modifiers. Built-in variants are automatically registered.
 
-8. **Merging System** (`src/MonorailCss/Merging/`): tailwind-merge equivalent (`ClassMerger`, exposed via `CssFramework.Merge`). Conflicts are derived from each class's compiled declarations (with shorthand expansion and a scaffold heuristic for `--tw-*` composition), not from a hand-maintained config — new utilities participate automatically. Utilities with reset semantics (e.g. `touch-none`) override `IUtility.GetMergeInfo` to declare the keys they cover.
+8. **Merging System** (`src/MonorailCss/Merging/`): tailwind-merge equivalent (`ClassMerger`, exposed via `CssFramework.Merge`). Conflicts are derived from each class's compiled declarations (with shorthand expansion and a scaffold heuristic for `--tw-*` composition), not from a hand-maintained config — new utilities participate automatically. Utilities with reset semantics (e.g. `touch-none`) override `IUtility.GetMergeInfo` to declare the keys they cover. When a later longhand only *partially* overrides an earlier shorthand, the shorthand is decomposed into the longhand classes that survive (`my-4 mt-6` → `mb-4 mt-6`) using a one-level class-prefix table (`ShorthandDecomposition`) over the functional axis families. The rewrite is fail-safe — it only commits when it actually drops a conflicting side, and a synthesized child that doesn't round-trip or that writes a key outside the parent (overloaded roots) is rejected, leaving the original class untouched.
 
 ### Key Design Patterns
 

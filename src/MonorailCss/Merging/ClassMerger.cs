@@ -83,48 +83,143 @@ public sealed class ClassMerger
     private string MergeCore(string classList)
     {
         var tokens = classList.Split(_whitespace, StringSplitOptions.RemoveEmptyEntries);
-        var keep = new bool[tokens.Length];
 
-        // Right-to-left, mirroring tailwind-merge: a class is dropped when a single later KEPT
-        // class with the same variant chain and importance overrides everything it writes.
+        // Each input position maps to the tokens that survive there: the token itself when kept, an
+        // empty list when dropped, or several longhand tokens when a partially overridden shorthand
+        // is decomposed (my-4 -> mb-4). Flattening these in index order preserves relative order.
+        var outputs = new List<string>[tokens.Length];
+
+        // Right-to-left, mirroring tailwind-merge: a class is dropped when a single later KEPT class
+        // with the same variant chain and importance overrides everything it writes. A class that is
+        // only PARTIALLY overridden is rewritten into the longhand classes that survive — see
+        // DecomposeAndMerge.
         var keptByVariant = new Dictionary<(string VariantKey, bool Important), List<MergeSignature>>();
         for (var i = tokens.Length - 1; i >= 0; i--)
         {
             var signature = GetSignature(tokens[i]);
             if (signature is null)
             {
-                keep[i] = true;
+                outputs[i] = [tokens[i]];
                 continue;
             }
 
             var bucket = (signature.VariantKey, signature.Important);
-            if (keptByVariant.TryGetValue(bucket, out var laterSignatures))
+            if (!keptByVariant.TryGetValue(bucket, out var laterSignatures))
             {
-                if (laterSignatures.Any(later => later.Overrides(signature)))
-                {
-                    continue;
-                }
-
-                laterSignatures.Add(signature);
-            }
-            else
-            {
-                keptByVariant[bucket] = [signature];
+                laterSignatures = [];
+                keptByVariant[bucket] = laterSignatures;
             }
 
-            keep[i] = true;
+            if (laterSignatures.Any(later => later.Overrides(signature)))
+            {
+                // Fully overridden by a single later class — drop it.
+                outputs[i] = [];
+                continue;
+            }
+
+            if (PartiallyOverlaps(signature, laterSignatures) &&
+                DecomposeAndMerge(tokens[i], signature, laterSignatures) is { } decomposed)
+            {
+                outputs[i] = decomposed.Tokens;
+                laterSignatures.AddRange(decomposed.Signatures);
+                continue;
+            }
+
+            outputs[i] = [tokens[i]];
+            laterSignatures.Add(signature);
         }
 
         var kept = new List<string>(tokens.Length);
-        for (var i = 0; i < tokens.Length; i++)
+        foreach (var output in outputs)
         {
-            if (keep[i])
-            {
-                kept.Add(tokens[i]);
-            }
+            kept.AddRange(output);
         }
 
         return string.Join(' ', kept);
+    }
+
+    // True when at least one later kept class writes (or covers) one of this class's keys without a
+    // single later class being a full superset — i.e. the class is partially overridden and a
+    // candidate for decomposition.
+    private static bool PartiallyOverlaps(MergeSignature signature, List<MergeSignature> laterSignatures)
+    {
+        foreach (var later in laterSignatures)
+        {
+            foreach (var write in signature.Writes)
+            {
+                if (later.Writes.Contains(write) || later.Covers.Contains(write))
+                {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    // Rewrites a partially overridden shorthand into the longhand classes that survive, recursing so
+    // only the conflicting sub-axis breaks down (m-4 mt-6 -> mx-4 mb-4 mt-6). Returns null — meaning
+    // "keep the original token unchanged" — unless the rewrite actually drops a conflicting side.
+    private (List<string> Tokens, List<MergeSignature> Signatures)? DecomposeAndMerge(
+        string token,
+        MergeSignature parentSignature,
+        List<MergeSignature> laterSignatures)
+    {
+        var children = _signatureBuilder.TryDecompose(token);
+        if (children is null)
+        {
+            return null;
+        }
+
+        var survivorTokens = new List<string>();
+        var survivorSignatures = new List<MergeSignature>();
+
+        // Children share the later-class context and may themselves be kept; track them alongside so
+        // a surviving child participates in conflict checks for the children processed after it.
+        var localLater = new List<MergeSignature>(laterSignatures);
+        var anyOverrideDrop = false;
+
+        foreach (var childToken in children)
+        {
+            var childSignature = GetSignature(childToken);
+            if (childSignature is null)
+            {
+                // Synthesized child didn't round-trip — abandon decomposition, keep the original.
+                return null;
+            }
+
+            if (!childSignature.Writes.IsSubsetOf(parentSignature.Writes))
+            {
+                // Soundness: a child that writes a key the parent didn't (an overloaded root inferring
+                // a different property family) is not a valid decomposition of it — abandon.
+                return null;
+            }
+
+            if (localLater.Any(later => later.Overrides(childSignature)))
+            {
+                // This longhand side is fully overridden by a later class — drop it.
+                anyOverrideDrop = true;
+                continue;
+            }
+
+            if (PartiallyOverlaps(childSignature, localLater) &&
+                DecomposeAndMerge(childToken, childSignature, localLater) is { } nested)
+            {
+                anyOverrideDrop = true;
+                survivorTokens.AddRange(nested.Tokens);
+                survivorSignatures.AddRange(nested.Signatures);
+                localLater.AddRange(nested.Signatures);
+                continue;
+            }
+
+            survivorTokens.Add(childToken);
+            survivorSignatures.Add(childSignature);
+            localLater.Add(childSignature);
+        }
+
+        // Only commit when decomposition removed a conflicting side; otherwise the rewrite is noise
+        // (e.g. a physical/logical mismatch like mx-4 ms-2 where no child is overridden).
+        return anyOverrideDrop ? (survivorTokens, survivorSignatures) : null;
     }
 
     private MergeSignature? GetSignature(string token)

@@ -15,21 +15,40 @@ public class ClassMergerTests
     [InlineData("bg-red-500 bg-blue-500", "bg-blue-500")]
     [InlineData("w-4 w-8", "w-8")]
     [InlineData("p-4 p-4", "p-4")]
-    // Cross-group shorthands: a shorthand removes its longhands, never the reverse.
+    // Cross-group shorthands: a later shorthand removes its longhands; a later longhand decomposes
+    // an earlier shorthand into the sides that survive.
     [InlineData("px-2 p-4", "p-4")]
-    [InlineData("p-4 px-2", "p-4 px-2")]
+    [InlineData("p-4 px-2", "py-4 px-2")]
     [InlineData("pl-2 px-4", "px-4")]
     [InlineData("ps-2 px-4", "px-4")]
     [InlineData("pt-2 py-4", "py-4")]
     [InlineData("-mt-2 mt-4", "mt-4")]
     [InlineData("mt-4 -mt-2", "-mt-2")]
     [InlineData("rounded-t-md rounded-lg", "rounded-lg")]
-    [InlineData("rounded-lg rounded-t-md", "rounded-lg rounded-t-md")]
+    [InlineData("rounded-lg rounded-t-md", "rounded-b-lg rounded-t-md")]
     [InlineData("left-4 inset-x-2", "inset-x-2")]
     [InlineData("inset-x-2 inset-0", "inset-0")]
     [InlineData("gap-x-2 gap-4", "gap-4")]
     [InlineData("overflow-x-auto overflow-hidden", "overflow-hidden")]
     [InlineData("overflow-hidden overflow-x-auto", "overflow-hidden overflow-x-auto")]
+    // Partial overrides decompose the earlier shorthand into the longhand sides that survive,
+    // breaking down only the conflicting sub-axis and preserving each input's position.
+    [InlineData("my-4 mt-6", "mb-4 mt-6")]
+    [InlineData("m-4 mt-6", "mx-4 mb-4 mt-6")]
+    [InlineData("mb-2 my-4 mt-6", "mb-4 mt-6")]
+    [InlineData("-my-4 mt-6", "-mb-4 mt-6")]
+    [InlineData("my-[10px] mt-4", "mb-[10px] mt-4")]
+    [InlineData("py-4 px-2 pt-1", "pb-4 px-2 pt-1")]
+    [InlineData("inset-x-2 left-4", "right-2 left-4")]
+    [InlineData("gap-4 gap-x-2", "gap-y-4 gap-x-2")]
+    [InlineData("size-4 w-8", "h-4 w-8")]
+    [InlineData("hover:my-4 hover:mt-6", "hover:mb-4 hover:mt-6")]
+    [InlineData("my-4 hover:mt-6", "my-4 hover:mt-6")]
+    [InlineData("my-4! mt-6!", "mb-4! mt-6!")]
+    [InlineData("my-4! mt-6", "my-4! mt-6")]
+    // Decomposition reverts to the original when it would not actually resolve a conflict — here the
+    // physical mx axis and the logical ms side don't reduce to the same longhand.
+    [InlineData("mx-4 ms-2", "mx-4 ms-2")]
     // Deviation from tailwind-merge, matching real CSS: grid-column resets grid-column-start.
     [InlineData("col-start-2 col-span-3", "col-span-3")]
     // Variants isolate conflicts.

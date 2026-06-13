@@ -91,6 +91,70 @@ internal sealed class SignatureBuilder
         return new MergeSignature(BuildVariantKey(candidate.Variants), candidate.Important, writes, covers);
     }
 
+    /// <summary>
+    /// Decomposes a shorthand class token into its immediate longhand child tokens (e.g. <c>my-4</c>
+    /// into <c>mt-4</c> and <c>mb-4</c>), preserving variants, negative sign, value, modifier, and
+    /// importance. Returns null when the token is not a decomposable functional shorthand. Used by
+    /// <see cref="ClassMerger"/> to rewrite a partially overridden shorthand into the longhand
+    /// classes that survive; callers re-validate each child via <see cref="ComputeSignature"/>, so an
+    /// imperfectly rendered child simply fails to round-trip and the decomposition is abandoned.
+    /// </summary>
+    /// <param name="token">The raw shorthand class token, e.g. "hover:-my-4".</param>
+    /// <returns>The immediate child tokens in axis order, or null when the token does not decompose.</returns>
+    public IReadOnlyList<string>? TryDecompose(string token)
+    {
+        if (!_parser.TryParseCandidate(token, out var candidate) ||
+            candidate is not FunctionalUtility functional)
+        {
+            return null;
+        }
+
+        var root = functional.Root;
+        var sign = root.StartsWith('-') ? "-" : string.Empty;
+        var positiveRoot = sign.Length > 0 ? root[1..] : root;
+
+        if (ShorthandDecomposition.GetChildPrefixes(positiveRoot) is not { } childPrefixes)
+        {
+            return null;
+        }
+
+        var valuePart = RenderValue(functional.Value);
+        var modifierPart = functional.Modifier is { } modifier ? $"/{modifier}" : string.Empty;
+        var importantPart = functional.Important ? "!" : string.Empty;
+        var variantPart = functional.Variants.IsEmpty
+            ? string.Empty
+            : string.Join(":", functional.Variants.Select(v => v.Raw)) + ":";
+
+        var result = new List<string>(childPrefixes.Length);
+        foreach (var childPrefix in childPrefixes)
+        {
+            result.Add($"{variantPart}{sign}{childPrefix}{valuePart}{modifierPart}{importantPart}");
+        }
+
+        return result;
+    }
+
+    private static string RenderValue(CandidateValue? value)
+    {
+        if (value is null)
+        {
+            return string.Empty;
+        }
+
+        if (value.Kind == ValueKind.Arbitrary)
+        {
+            if (value.IsParenthesesShorthand)
+            {
+                return $"-({value.Value})";
+            }
+
+            return value.DataTypeHint is { } hint ? $"-[{hint}:{value.Value}]" : $"-[{value.Value}]";
+        }
+
+        // Named values carry the full token text (fractions included), so emit them verbatim.
+        return $"-{value.Value}";
+    }
+
     private static bool TryDeriveWrites(ImmutableList<AstNode> nodes, out ImmutableHashSet<string> writes)
     {
         var declarations = new List<(string Context, Declaration Declaration)>();
