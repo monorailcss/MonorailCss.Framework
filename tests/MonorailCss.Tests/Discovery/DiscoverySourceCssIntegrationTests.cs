@@ -196,6 +196,61 @@ public class DiscoverySourceCssIntegrationTests
         }
     }
 
+    [Fact]
+    public async Task CssFileWatcher_Restart_Racing_Shutdown_Does_Not_Throw()
+    {
+        // Regression: the CSS debounce timer restarts the watcher list on a thread-pool thread
+        // while host shutdown (StopAsync/Dispose) iterates the same list, throwing
+        // "Collection was modified; enumeration operation may not execute." Hammer the restart
+        // cycle from several threads, then tear the service down underneath them — the
+        // synchronized watcher lists must keep every operation safe.
+        var dir = TempDir();
+        try
+        {
+            var cssPath = Path.Combine(dir, "app.css");
+            File.WriteAllText(cssPath, "@theme { --color-brand: blue; }");
+
+            // No environment => dev-only gate is skipped, so the CSS watcher is actually created.
+            var (service, _) = CreateService(o => o.SourceCssPath = cssPath);
+            var failures = new System.Collections.Concurrent.ConcurrentQueue<Exception>();
+
+            using (service)
+            {
+                await service.StartAsync(CancellationToken.None);
+
+                using var cts = new CancellationTokenSource();
+                var churn = Enumerable.Range(0, 4).Select(_ => Task.Run(() =>
+                {
+                    try
+                    {
+                        while (!cts.IsCancellationRequested)
+                        {
+                            service.RestartCssFileWatchersForTests();
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        failures.Enqueue(ex);
+                    }
+                })).ToArray();
+
+                // Let the churn run against a live (un-stopping) service — this is the window
+                // where the unsynchronized list would blow up — then collide it with shutdown.
+                await Task.Delay(100, TestContext.Current.CancellationToken);
+                await service.StopAsync(CancellationToken.None);
+
+                cts.Cancel();
+                await Task.WhenAll(churn);
+            }
+
+            failures.ShouldBeEmpty();
+        }
+        finally
+        {
+            Directory.Delete(dir, recursive: true);
+        }
+    }
+
     private static (ClassDiscoveryService Service, MonorailDiscoveryOptions Options) CreateService(Action<MonorailDiscoveryOptions>? configure = null)
     {
         var options = new MonorailDiscoveryOptions();

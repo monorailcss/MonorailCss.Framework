@@ -23,6 +23,7 @@ internal sealed partial class ClassDiscoveryService : IHostedService, IClassRegi
     private readonly List<FileSystemWatcher> _fileWatchers = new();
     private readonly List<FileSystemWatcher> _cssWatchers = new();
     private readonly Lock _lock = new();
+    private readonly Lock _watcherLock = new();
     private readonly Timer _debounce;
     private readonly Timer _cssDebounce;
     private readonly Timer _lateLoadDebounce;
@@ -33,6 +34,7 @@ internal sealed partial class ClassDiscoveryService : IHostedService, IClassRegi
     private int _regenerateCount;
     private int _hotReloadCount;
     private bool _started;
+    private bool _stopping; // guarded by _watcherLock; once set, watchers are never (re)started
     private List<string>? _staticWebAssetFiles;
 
     public ClassDiscoveryService(
@@ -199,6 +201,7 @@ internal sealed partial class ClassDiscoveryService : IHostedService, IClassRegi
     {
         AppDomain.CurrentDomain.AssemblyLoad -= OnAssemblyLoad;
         MonorailCssReloader.UnregisterService(this);
+        BeginStopping();
         StopFileWatchers();
         StopCssFileWatchers();
         return Task.CompletedTask;
@@ -208,6 +211,7 @@ internal sealed partial class ClassDiscoveryService : IHostedService, IClassRegi
     {
         AppDomain.CurrentDomain.AssemblyLoad -= OnAssemblyLoad;
         MonorailCssReloader.UnregisterService(this);
+        BeginStopping();
         StopFileWatchers();
         StopCssFileWatchers();
         _debounce.Dispose();
@@ -215,53 +219,82 @@ internal sealed partial class ClassDiscoveryService : IHostedService, IClassRegi
         _lateLoadDebounce.Dispose();
     }
 
+    /// <summary>
+    /// Marks the service as shutting down and disarms the debounce timers. Setting
+    /// <see cref="_stopping"/> under <see cref="_watcherLock"/> ensures any in-flight debounce
+    /// tick that's about to (re)start watchers observes the flag and bails, so the watcher lists
+    /// can't be mutated concurrently with — or resurrected after — the stop below.
+    /// </summary>
+    private void BeginStopping()
+    {
+        lock (_watcherLock)
+        {
+            _stopping = true;
+        }
+
+        _debounce.Change(Timeout.Infinite, Timeout.Infinite);
+        _cssDebounce.Change(Timeout.Infinite, Timeout.Infinite);
+        _lateLoadDebounce.Change(Timeout.Infinite, Timeout.Infinite);
+    }
+
     private void StartFileWatchers()
     {
-        foreach (var dir in _options.WatchSourceDirectories)
+        lock (_watcherLock)
         {
-            if (!Directory.Exists(dir))
+            if (_stopping)
             {
-                LogMonorailcssDiscoveryWatchsourcedirectoriesEntryDirDoesNotExist(dir);
-                continue;
+                return;
             }
 
-            var watcher = new FileSystemWatcher(dir)
+            foreach (var dir in _options.WatchSourceDirectories)
             {
-                IncludeSubdirectories = true,
-                NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.FileName | NotifyFilters.Size,
-                EnableRaisingEvents = true,
-            };
+                if (!Directory.Exists(dir))
+                {
+                    LogMonorailcssDiscoveryWatchsourcedirectoriesEntryDirDoesNotExist(dir);
+                    continue;
+                }
 
-            watcher.Filters.Add("*.razor");
-            watcher.Filters.Add("*.cshtml");
-            watcher.Filters.Add("*.cs");
-            watcher.Filters.Add("*.html");
+                var watcher = new FileSystemWatcher(dir)
+                {
+                    IncludeSubdirectories = true,
+                    NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.FileName | NotifyFilters.Size,
+                    EnableRaisingEvents = true,
+                };
 
-            watcher.Changed += OnSourceFileChanged;
-            watcher.Created += OnSourceFileChanged;
-            watcher.Renamed += OnSourceFileRenamed;
+                watcher.Filters.Add("*.razor");
+                watcher.Filters.Add("*.cshtml");
+                watcher.Filters.Add("*.cs");
+                watcher.Filters.Add("*.html");
 
-            _fileWatchers.Add(watcher);
-            LogMonorailcssDiscoveryWatchingSourceDirectoryDir(dir);
+                watcher.Changed += OnSourceFileChanged;
+                watcher.Created += OnSourceFileChanged;
+                watcher.Renamed += OnSourceFileRenamed;
+
+                _fileWatchers.Add(watcher);
+                LogMonorailcssDiscoveryWatchingSourceDirectoryDir(dir);
+            }
         }
     }
 
     private void StopFileWatchers()
     {
-        foreach (var w in _fileWatchers)
+        lock (_watcherLock)
         {
-            try
+            foreach (var w in _fileWatchers)
             {
-                w.EnableRaisingEvents = false;
-                w.Dispose();
+                try
+                {
+                    w.EnableRaisingEvents = false;
+                    w.Dispose();
+                }
+                catch
+                {
+                    // best-effort
+                }
             }
-            catch
-            {
-                // best-effort
-            }
-        }
 
-        _fileWatchers.Clear();
+            _fileWatchers.Clear();
+        }
     }
 
     /// <summary>
@@ -272,65 +305,83 @@ internal sealed partial class ClassDiscoveryService : IHostedService, IClassRegi
     /// </summary>
     private void StartCssFileWatchers()
     {
-        if (_result.ImportedCssFiles.Count == 0)
+        lock (_watcherLock)
         {
-            return;
-        }
-
-        if (_environment != null && !_environment.IsDevelopment())
-        {
-            return;
-        }
-
-        var byDirectory = _result.ImportedCssFiles
-            .Where(p => !string.IsNullOrEmpty(p))
-            .GroupBy(p => Path.GetDirectoryName(p) ?? string.Empty, StringComparer.OrdinalIgnoreCase);
-
-        foreach (var group in byDirectory)
-        {
-            var dir = group.Key;
-            if (string.IsNullOrEmpty(dir) || !Directory.Exists(dir))
+            if (_stopping || _result.ImportedCssFiles.Count == 0)
             {
-                continue;
+                return;
             }
 
-            var watcher = new FileSystemWatcher(dir)
+            if (_environment != null && !_environment.IsDevelopment())
             {
-                IncludeSubdirectories = false,
-                NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.FileName | NotifyFilters.Size,
-                EnableRaisingEvents = true,
-            };
-
-            foreach (var file in group)
-            {
-                watcher.Filters.Add(Path.GetFileName(file));
+                return;
             }
 
-            watcher.Changed += OnCssFileChanged;
-            watcher.Created += OnCssFileChanged;
-            watcher.Renamed += OnCssFileRenamed;
+            var byDirectory = _result.ImportedCssFiles
+                .Where(p => !string.IsNullOrEmpty(p))
+                .GroupBy(p => Path.GetDirectoryName(p) ?? string.Empty, StringComparer.OrdinalIgnoreCase);
 
-            _cssWatchers.Add(watcher);
-            LogMonorailcssDiscoveryWatchingCssInDirCountFiles(dir, group.Count());
+            foreach (var group in byDirectory)
+            {
+                var dir = group.Key;
+                if (string.IsNullOrEmpty(dir) || !Directory.Exists(dir))
+                {
+                    continue;
+                }
+
+                var watcher = new FileSystemWatcher(dir)
+                {
+                    IncludeSubdirectories = false,
+                    NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.FileName | NotifyFilters.Size,
+                    EnableRaisingEvents = true,
+                };
+
+                foreach (var file in group)
+                {
+                    watcher.Filters.Add(Path.GetFileName(file));
+                }
+
+                watcher.Changed += OnCssFileChanged;
+                watcher.Created += OnCssFileChanged;
+                watcher.Renamed += OnCssFileRenamed;
+
+                _cssWatchers.Add(watcher);
+                LogMonorailcssDiscoveryWatchingCssInDirCountFiles(dir, group.Count());
+            }
         }
     }
 
     private void StopCssFileWatchers()
     {
-        foreach (var w in _cssWatchers)
+        lock (_watcherLock)
         {
-            try
+            foreach (var w in _cssWatchers)
             {
-                w.EnableRaisingEvents = false;
-                w.Dispose();
+                try
+                {
+                    w.EnableRaisingEvents = false;
+                    w.Dispose();
+                }
+                catch
+                {
+                    // best-effort
+                }
             }
-            catch
-            {
-                // best-effort
-            }
-        }
 
-        _cssWatchers.Clear();
+            _cssWatchers.Clear();
+        }
+    }
+
+    /// <summary>
+    /// Test seam: drives the same watcher stop/restart cycle the CSS debounce timer triggers
+    /// (minus the surrounding regeneration), so concurrency tests can collide watcher churn
+    /// with <see cref="StopAsync"/>/<see cref="Dispose"/> and guard against the
+    /// unsynchronized-list race this class fixes.
+    /// </summary>
+    internal void RestartCssFileWatchersForTests()
+    {
+        StopCssFileWatchers();
+        StartCssFileWatchers();
     }
 
     private void OnCssFileChanged(object sender, FileSystemEventArgs e) => QueueCssReload();
