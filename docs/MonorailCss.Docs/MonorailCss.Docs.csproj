@@ -8,7 +8,7 @@
 
   <ItemGroup>
     <PackageReference Include="Pennington" Version="0.1.0-alpha.0.240" />
-    <PackageReference Include="Pennington.ApiMetadata" Version="0.1.0-alpha.0.240" />
+    <PackageReference Include="Pennington.ApiMetadata" Version="0.1.4" />
     <PackageReference Include="Pennington.ApiMetadata.Reflection" Version="0.1.0-alpha.0.240" />
     <PackageReference Include="Pennington.DocSite" Version="0.1.0-alpha.0.240" />
     <PackageReference Include="Pennington.MonorailCss" Version="0.1.0-alpha.0.240" />
