@@ -1,5 +1,5 @@
 @inherits LayoutComponentBase
-@inject ContentResolver ContentResolver
+@inject IEnumerable<IContentService> ContentServices
 @inject NavigationBuilder NavigationBuilder
 @inject NavigationManager NavigationManager
 
@@ -100,9 +100,15 @@
     protected override async Task OnInitializedAsync()
     {
         var currentPath = NavigationManager.ToAbsoluteUri(NavigationManager.Uri).AbsolutePath;
-        var tocItems = await ContentResolver.GetTocItemsAsync(string.Empty);
-        var currentRoute = ContentRouteFactory.FromUrl(new UrlPath(currentPath), string.Empty);
-        _toc = await NavigationBuilder.BuildTreeAsync(tocItems, currentRoute, string.Empty);
+
+        // Aggregate the TOC entries every registered content service contributes — the
+        // markdown docs source plus UtilityContentService. This is the bare-host
+        // equivalent of the old DocSiteContentResolver.GetTocItemsAsync.
+        var perService = await Task.WhenAll(ContentServices.Select(s => s.GetContentTocEntriesAsync()));
+        var tocItems = perService.SelectMany(items => items).ToList();
+
+        // BuildTreeAsync takes the current URL path directly (UrlPath?) rather than a ContentRoute.
+        _toc = await NavigationBuilder.BuildTreeAsync(tocItems, new UrlPath(currentPath), string.Empty);
         await base.OnInitializedAsync();
     }
 }

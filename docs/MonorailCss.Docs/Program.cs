@@ -6,7 +6,7 @@ using MonorailCss.Theme;
 using Pennington.ApiMetadata;
 using Pennington.ApiMetadata.Reflection;
 using Pennington.Content;
-using Pennington.DocSite;
+using Pennington.FrontMatter;
 using Pennington.Infrastructure;
 using Pennington.LlmsTxt;
 using Pennington.MonorailCss;
@@ -88,16 +88,33 @@ Theme ApplyDocsTheme(Theme baseTheme) => baseTheme
     .AddFontFamily("sans", "'Nunito', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif")
     .AddFontFamily("mono", "'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace");
 
-builder.Services.AddDocSite(() => new DocSiteOptions
+// Bare AddPennington host: we own the layout, routes, and chrome (custom App.razor +
+// MainLayout), so we take the core engine directly rather than the DocSite template.
+// DocSite used to register the markdown content source for us from DocSiteOptions;
+// here we register it explicitly.
+builder.Services.AddPennington(options =>
 {
-    SiteTitle = "MonorailCss Documentation",
-    Description = "A JIT CSS compiler that aims to be Tailwind CSS 4.3 compatible, written in .NET",
-    ContentRootPath = new Pennington.Routing.FilePath("Content"),
-    ColorScheme = colorScheme,
+    options.SiteTitle = "MonorailCss Documentation";
+    options.SiteDescription = "A JIT CSS compiler that aims to be Tailwind CSS 4.3 compatible, written in .NET";
+    options.ContentRootPath = new Pennington.Routing.FilePath("Content");
+
+    // The docs pages: Content/**/*.md bound to the core DocFrontMatter shape, which
+    // carries every key this content uses (title/description/order/uid/tags).
+    options.AddMarkdownContent<DocFrontMatter>(md =>
+    {
+        md.ContentPath = "Content";
+        md.BasePageUrl = "/";
+    });
+
+    // /llms.txt + /_llms/*.md sidecars. On a bare host this is opt-in (AddDocSite
+    // used to turn it on for us). The /utility/ subtree split is layered on below
+    // via AddLlmsSubtree, and Home.razor links to both.
+    options.AddLlmsTxt(_ => { });
 });
 
-// Override MonorailCss wiring to install the docs color palettes, which DocSiteOptions
-// can't express. AddMonorailCss after AddDocSite replaces the DI registration.
+// Single, first-class MonorailCss registration. Installs the docs color palettes and
+// ColorEmissionMode.All — what the DocSiteOptions.ColorScheme slot couldn't express,
+// which is why this used to be an awkward post-AddDocSite override.
 builder.Services.AddMonorailCss(_ => new MonorailCssOptions
 {
     ColorScheme = colorScheme,
@@ -108,7 +125,7 @@ builder.Services.AddMonorailCss(_ => new MonorailCssOptions
     },
 });
 
-builder.Services.AddPenningtonTreeSitter(treeSitter =>
+builder.Services.AddTreeSitter(treeSitter =>
 {
     treeSitter.ContentRoot = "../MonorailCss.Docs.Samples";
 });
@@ -152,10 +169,13 @@ builder.Services.AddSingleton<CssFramework>(_ =>
 
 var app = builder.Build();
 
+// UsePennington MUST precede MapRazorComponents: DocPage's "/{*Slug}" is a Blazor
+// catch-all that would otherwise swallow the sitemap.xml / llms.txt / redirect routes.
+// MapStaticAssets serves the /_content assets (Pennington.UI search modal, Beck).
+app.UsePennington();
+app.UseMonorailCss();
 app.UseAntiforgery();
 app.MapStaticAssets();
 app.MapRazorComponents<App>();
-app.UsePennington();
-app.UseMonorailCss();
 
 await app.RunOrBuildAsync(args);

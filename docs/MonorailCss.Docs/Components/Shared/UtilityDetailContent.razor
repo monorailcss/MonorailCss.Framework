@@ -139,29 +139,60 @@ else
 
     private MarkupString HighlightCss(string input)
     {
-        // Pennington's CSS highlighter rejects bare declaration lists, so wrap
-        // in a dummy `a { ... }` rule and strip the wrapper from the output.
-        // The highlighter emits `<pre><code>...{` on the first line, the body
-        // line(s), and `}</code></pre>` on the last — drop the first and last.
+        // Pennington's CSS highlighter rejects a bare declaration list, so we wrap the
+        // declarations in a dummy `a { ... }` rule, highlight that, then strip the
+        // synthetic selector and closing brace back out.
         var css = $$"""
                   a {
                   {{input}}
                   }
                   """;
 
-        var lines = CodeHighlightService.Highlight(css, "css")
-            .ReplaceLineEndings(Environment.NewLine)
-            .TrimEnd()
-            .Split(Environment.NewLine)
-            .Skip(1)
-            .SkipLast(1);
+        var highlighted = CodeHighlightService.Highlight(css, "css")
+            .ReplaceLineEndings("\n");
 
-        var highlight = $"""<pre class="text-xs"><code>{string.Join(Environment.NewLine, lines)}</code></pre>""";
+        // Pull out just the highlighted source from inside the <pre><code> wrapper before
+        // dropping lines. The wrapper's closing `</code></pre>` sits on its own line, so
+        // counting from the end of the full output is off by one — that's what used to
+        // leave a stray `}` in the rendered CSS. Extracting the inner content first means
+        // the first/last lines we drop are always the synthetic `a {` and `}`.
+        var contentStart = highlighted.IndexOf("<code", StringComparison.Ordinal);
+        contentStart = contentStart >= 0 ? highlighted.IndexOf('>', contentStart) + 1 : 0;
+        var contentEnd = highlighted.LastIndexOf("</code>", StringComparison.Ordinal);
+        if (contentEnd < contentStart)
+        {
+            contentEnd = highlighted.Length;
+        }
+
+        var body = highlighted[contentStart..contentEnd]
+            .Trim('\n')
+            .Split('\n')
+            .Skip(1)        // drop the synthetic `a {`
+            .SkipLast(1);   // drop the synthetic `}`
+
+        var highlight = $"""<pre class="text-xs"><code>{string.Join("\n", body)}</code></pre>""";
 
         return (MarkupString)highlight;
     }
 
+    // Each example's CSS is requested up to three times per render (the human-facing table, the
+    // robots-only block, and the Reference section's property extraction). Compiling is identical
+    // every time for a given class name, so memoize per component instance to avoid recompiling.
+    private readonly Dictionary<string, string> _cssCache = new(StringComparer.Ordinal);
+
     private string GetGeneratedCss(UtilityExample example)
+    {
+        if (_cssCache.TryGetValue(example.ClassName, out var cached))
+        {
+            return cached;
+        }
+
+        var result = ComputeGeneratedCss(example);
+        _cssCache[example.ClassName] = result;
+        return result;
+    }
+
+    private string ComputeGeneratedCss(UtilityExample example)
     {
         try
         {

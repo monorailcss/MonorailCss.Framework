@@ -46,11 +46,9 @@
     <script src="/_content/Pennington.UI/scripts.js" defer></script>
     <script src="/_content/Pennington.UI/spa-engine.js" defer></script>
 
-    @* Beck hydrates ```beck fenced blocks into themed architecture diagrams. This
-       site owns its <head> via a custom App.razor, so the Beck client is included
-       here directly (the "bare host" path) rather than via
-       DocSiteOptions.AdditionalHtmlHeadContent, which only feeds Pennington's stock
-       App.razor. Served as a static web asset by the Beck NuGet package. *@
+    @* Beck hydrates ```beck fenced blocks into themed architecture diagrams. As a bare
+       AddPennington host we own the <head> via this custom App.razor, so the Beck client
+       is included here directly. Served as a static web asset by the Beck NuGet package. *@
     <script src="/_content/Beck/beck.global.js" defer></script>
 
     <HeadOutlet />

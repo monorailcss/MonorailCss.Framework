@@ -87,8 +87,11 @@ public partial class UtilityContentService : IContentService
     public Task<ImmutableList<ContentToCopy>> GetContentToCopyAsync() =>
         Task.FromResult(ImmutableList<ContentToCopy>.Empty);
 
-    public Task<ImmutableList<ContentToCreate>> GetContentToCreateAsync() =>
-        Task.FromResult(ImmutableList<ContentToCreate>.Empty);
+    // GetContentToCreateAsync was removed from IContentService in Pennington 0.1.x.
+    // The new members (GetRecordsAsync, ParseContentAsync, GetIndexableEntriesAsync,
+    // GetRedirectSourcesAsync, GetAffectedRoutes) are default interface methods; the
+    // defaults are correct for a Razor-page-projecting service (opt out of markdown
+    // parsing/records/redirects; indexable entries fall back to the TOC entries above).
 
     /// <summary>
     /// Gets utilities for a specific CSS property within a category.

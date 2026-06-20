@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using System.Text.RegularExpressions;
 using System.Xml.Linq;
 
@@ -160,6 +161,13 @@ public partial class UtilityMetadata
         return $"Handles {result.ToLowerInvariant()} utilities";
     }
 
+    // The XML documentation file for an assembly is large (hundreds of KB) and never changes
+    // for a process's lifetime, yet GenerateDescription is called for every utility (and twice
+    // per utility on the default-metadata path). Parsing it with XDocument.Load on every lookup
+    // dominated documentation generation (~0.5s per full pass, ~1s+ for the double-call path).
+    // Parse it once per assembly into a member-name → summary map; subsequent lookups are O(1).
+    private static readonly ConcurrentDictionary<string, IReadOnlyDictionary<string, string>> XmlSummaryCache = new();
+
     private static bool TryGetXmlDocSummary(Type type, out string summary)
     {
         summary = string.Empty;
@@ -173,43 +181,70 @@ public partial class UtilityMetadata
                 return false;
             }
 
-            var xmlPath = Path.ChangeExtension(assemblyLocation, ".xml");
-            if (!File.Exists(xmlPath))
-            {
-                return false;
-            }
-
-            // Load and parse the XML documentation
-            var doc = XDocument.Load(xmlPath);
+            var summaries = GetXmlSummaries(assemblyLocation);
 
             // Construct the member name for the type (format: "T:Namespace.TypeName")
             var memberName = $"T:{type.FullName}";
-
-            // Find the member element with matching name
-            var memberElement = doc.Descendants("member")
-                .FirstOrDefault(m => m.Attribute("name")?.Value == memberName);
-
-            if (memberElement == null)
+            if (summaries.TryGetValue(memberName, out var cached) && !string.IsNullOrWhiteSpace(cached))
             {
-                return false;
+                summary = cached;
+                return true;
             }
 
-            // Extract the summary element
-            var summaryElement = memberElement.Element("summary");
-            if (summaryElement == null)
-            {
-                return false;
-            }
-
-            // Get the text content and clean it up
-            summary = CleanXmlDocText(summaryElement.Value);
-            return !string.IsNullOrWhiteSpace(summary);
+            return false;
         }
         catch
         {
             // If anything goes wrong, return false to use fallback
             return false;
         }
+    }
+
+    /// <summary>
+    /// Loads and parses the XML documentation for an assembly exactly once, returning a map of
+    /// member name (e.g. "T:Namespace.TypeName") to its cleaned summary text. The empty map is
+    /// cached when no XML file is present, so the (missing) file is probed only once.
+    /// </summary>
+    private static IReadOnlyDictionary<string, string> GetXmlSummaries(string assemblyLocation)
+    {
+        return XmlSummaryCache.GetOrAdd(assemblyLocation, static loc =>
+        {
+            var map = new Dictionary<string, string>(StringComparer.Ordinal);
+
+            try
+            {
+                var xmlPath = Path.ChangeExtension(loc, ".xml");
+                if (!File.Exists(xmlPath))
+                {
+                    return map;
+                }
+
+                var doc = XDocument.Load(xmlPath);
+                foreach (var member in doc.Descendants("member"))
+                {
+                    var name = member.Attribute("name")?.Value;
+                    if (string.IsNullOrEmpty(name))
+                    {
+                        continue;
+                    }
+
+                    var summaryElement = member.Element("summary");
+                    if (summaryElement == null)
+                    {
+                        continue;
+                    }
+
+                    // First entry wins (matches the previous FirstOrDefault semantics).
+                    map.TryAdd(name, CleanXmlDocText(summaryElement.Value));
+                }
+            }
+            catch
+            {
+                // On any parse error, cache whatever was collected (possibly empty) so we don't retry.
+            }
+
+            return map;
+        });
     }
 
     private static string CleanXmlDocText(string text)
