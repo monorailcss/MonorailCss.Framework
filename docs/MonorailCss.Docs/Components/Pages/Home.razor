@@ -213,7 +213,7 @@ File.<span class="text-primary-500">WriteAllText</span>(<span class="text-tertia
         <h2 class="font-display font-normal m-0 text-[clamp(36px,4vw,52px)] leading-[1.12] tracking-[-0.022em] text-balance text-base-950 dark:text-base-50">
             Three steps from <span class="font-mono text-[0.85em] text-primary-500">dotnet add</span> to shipping CSS.
         </h2>
-        <p class="mt-4 text-base-900 dark:text-base-100 text-[17px] leading-[1.55] text-pretty">Install the NuGet package, instantiate the framework, and you're generating utility CSS — at build time, runtime, or both.</p>
+        <p class="mt-4 text-base-900 dark:text-base-100 text-[17px] leading-[1.55] text-pretty">Install the NuGet package, instantiate the framework, and you're generating utility CSS at runtime.</p>
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4.5">
@@ -315,7 +315,7 @@ File.<span class="text-primary-500">WriteAllText</span>(<span class="text-tertia
             "Scans your content, emits only what you used. Cold compiles in ~12ms; hot rebuilds are sub-millisecond.",
             $"<svg {IcoAttrs}><path d=\"M13 2 L4 14 L11 14 L9 22 L20 9 L13 9 Z\"/></svg>"),
         new("Built for ASP.NET",
-            "Drop-in middleware for runtime CSS, MSBuild task for build-time output, source-generator-friendly.",
+            "Drop-in middleware for runtime CSS, hot reload under dotnet watch, source-generator-friendly.",
             $"<svg {IcoAttrs}><rect x=\"3\" y=\"4\" width=\"18\" height=\"14\" rx=\"2\"/><path d=\"M3 9 L21 9 M8 14 L13 14\"/></svg>"),
         new("Theme-able by config",
             "Override colors, spacing, breakpoints with a single ITheme. Add custom utilities and variants from C#.",

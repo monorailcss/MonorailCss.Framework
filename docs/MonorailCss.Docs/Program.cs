@@ -104,6 +104,7 @@ builder.Services.AddMonorailCss(_ => new MonorailCssOptions
     CustomCssFrameworkSettings = settings => settings with
     {
         Theme = ApplyDocsTheme(settings.Theme),
+        ColorEmission = ColorEmissionMode.All,
     },
 });
 

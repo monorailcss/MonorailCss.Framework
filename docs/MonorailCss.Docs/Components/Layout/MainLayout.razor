@@ -6,7 +6,7 @@
 <div class="min-h-screen font-sans text-base-950 dark:text-base-50 bg-base-50 dark:bg-base-950 [background-image:linear-gradient(rgba(232,148,95,0.025)_1px,transparent_1px),linear-gradient(90deg,rgba(232,148,95,0.025)_1px,transparent_1px)] [background-size:56px_56px] [background-attachment:fixed]">
 
     @* ─────────────────  Top nav  ───────────────── *@
-    <header class="sticky top-0 z-50 max-w-[1400px] mx-auto flex items-center gap-4 px-6 lg:px-8 py-3.5 border-b border-base-200 dark:border-base-800 bg-base-50/75 dark:bg-base-950/75 backdrop-blur-md supports-[backdrop-filter]:bg-base-50/60 dark:supports-[backdrop-filter]:bg-base-950/60">
+    <header class="sticky top-0 z-50 max-w-7xl mx-auto flex items-center gap-4 px-6 lg:px-8 py-3.5 border-b border-base-200 dark:border-base-800 bg-base-50/75 dark:bg-base-950/75 backdrop-blur-md supports-[backdrop-filter]:bg-base-50/60 dark:supports-[backdrop-filter]:bg-base-950/60">
         <div class="flex items-center gap-3 flex-shrink-0">
             <button id="sidebar-toggle"
                     class="lg:hidden p-2 rounded-md text-base-900 dark:text-base-100 hover:bg-base-100 dark:hover:bg-base-900 transition-colors"
@@ -53,7 +53,7 @@
     </header>
 
     @* ─────────────────  3-column layout  ───────────────── *@
-    <div class="max-w-[1400px] mx-auto grid lg:grid-cols-[280px_1fr]">
+    <div class="max-w-7xl mx-auto grid lg:grid-cols-[280px_1fr]">
 
         @* Sidebar — data-spa-region="sidebar" lets spa-engine swap the
            server-rendered active state on every nav, so the TOC always
@@ -87,7 +87,7 @@
         </div>
 
         @* Main content *@
-        <main id="main-content" class="min-w-0 px-6 lg:px-14 py-10 pb-20">
+        <main id="main-content" class="min-w-0 pl-6 lg:pl-14 py-10 pb-20">
             @Body
         </main>
     </div>

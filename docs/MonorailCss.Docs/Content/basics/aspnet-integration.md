@@ -1,21 +1,42 @@
 ---
 title: ASP.NET Integration
-description: Wire MonorailCSS into an ASP.NET app at build time, at runtime, or both
+description: Wire MonorailCSS into an ASP.NET app with the Discovery package or the CssFramework API
 order: 3
 uid: aspnet-integration
-tags: [aspnet, integration, discovery, build-tasks, blazor, middleware]
+tags: [aspnet, integration, discovery, blazor, middleware]
 ---
 
-MonorailCSS is a JIT compiler &mdash; it only emits CSS for the classes your app actually uses. Two packages bring that into ASP.NET:
+MonorailCSS is a JIT compiler &mdash; it only emits CSS for the classes your app actually uses. The **`MonorailCss.Discovery`** package brings that into ASP.NET: it scans at startup, watches your source tree, and serves CSS from middleware. CSS regenerates as you edit. If its scanning model doesn't fit, you can call `CssFramework` directly instead &mdash; see [rolling your own](#rolling-your-own) at the end.
 
-- **`MonorailCss.Build.Tasks`** scans during `dotnet build` and writes CSS to disk. The output ships as a static asset; no work happens at runtime.
-- **`MonorailCss.Discovery`** scans at startup, watches your source tree, and serves CSS from middleware. CSS regenerates as you edit.
+The shape is simple: every place a class name can hide is scanned, the discovered names are compiled against your theme by `CssFramework`, and the result is a single stylesheet. The diagram below traces that flow &mdash; the four class sources at the top fan into the scan, `app.css` configures the engine, and one CSS file comes out.
 
-You can pick either. You can also [wire both](#hybrid-build-time--dotnet-watch) so the build task produces the deployable file and Discovery keeps it fresh while you're running `dotnet watch`. Both packages read the same `app.css` and produce equivalent output from equivalent inputs.
+```beck
+meta:
+  title: From source to stylesheet
+  subtitle: How discovery feeds CssFramework
+  direction: TB
+nodes:
+  - { id: razor,     title: Razor & C#,            subtitle: .razor · .cs,                 kind: external, icon: code,      accent: neutral, rank: 0 }
+  - { id: dll,       title: Referenced assemblies, subtitle: class strings in IL,           kind: external, icon: container, accent: neutral, rank: 0 }
+  - { id: assets,    title: Static web assets,     subtitle: _content/**/*.js,              kind: external, icon: function,  accent: neutral, rank: 0 }
+  - { id: scan,      title: Discovery scan,        subtitle: collect + validate,            kind: gateway,  icon: search,    accent: primary, rank: 1, order: 0 }
+  - { id: appcss,    title: app.css,               subtitle: "@theme · @utility · @apply",  kind: gateway,  icon: file,      accent: primary, rank: 1, order: 1 }
+  - { id: framework, title: CssFramework,          subtitle: JIT compile,                   kind: service,  icon: bolt,      accent: primary, rank: 2 }
+  - { id: css,       title: app.css,               subtitle: served at /_monorail/app.css,  kind: service,  icon: globe,     accent: primary, rank: 3 }
+groups:
+  - { id: sources, label: Class sources, members: [razor, dll, assets], accent: neutral }
+edges:
+  - { from: razor,     to: scan }
+  - { from: dll,       to: scan }
+  - { from: assets,    to: scan }
+  - { from: scan,      to: framework, label: candidate classes }
+  - { from: appcss,    to: framework, label: theme + utilities }
+  - { from: framework, to: css,       label: compiled CSS }
+```
 
-## The shared input: `app.css`
+## The input: `app.css`
 
-Both packages read a Tailwind v4-style CSS file. The same directives work in either:
+Discovery reads a Tailwind v4-style CSS file:
 
 ```css
 /* wwwroot/app.css */
@@ -40,75 +61,11 @@ Both packages read a Tailwind v4-style CSS file. The same directives work in eit
 }
 ```
 
-`@import` follows imports recursively, `@theme` defines design tokens, `@utility` registers custom utilities, `@custom-variant` registers custom variants, `@apply` resolves utility composition, and plain CSS passes through. Build.Tasks adds `@source`, `@source not`, and `@source inline(...)` for explicit source configuration.
+`@import` follows imports recursively, `@theme` defines design tokens, `@utility` registers custom utilities, `@custom-variant` registers custom variants, `@apply` resolves utility composition, and plain CSS passes through.
 
 The CSS-file-as-config angle has a second benefit: editor tooling like the [Tailwind CSS IntelliSense extension](https://marketplace.visualstudio.com/items?itemName=bradlc.vscode-tailwindcss) parses the same file and gives you autocomplete, hover previews, and color squares for every theme token in your `.razor` and `.cs` source.
 
-## `MonorailCss.Build.Tasks` &mdash; build time
-
-Install:
-
-```bash
-dotnet add package MonorailCss.Build.Tasks
-```
-
-The package auto-imports its targets. Add to your `.csproj`:
-
-```xml
-<PropertyGroup>
-  <MonorailCssEnabled>true</MonorailCssEnabled>
-</PropertyGroup>
-
-<ItemGroup>
-  <MonorailCss Include="wwwroot/app.css" />
-</ItemGroup>
-```
-
-The default `OutputFile` is `wwwroot/css/%(Filename).css`, so `wwwroot/app.css` becomes `wwwroot/css/app.css`. `UseStaticFiles` serves it at `/css/app.css`:
-
-```html
-<link rel="stylesheet" href="/css/app.css" />
-```
-
-The task runs during `dotnet build`, scans the same source files, DLLs, and package static web assets Discovery does, and writes the file before content packaging. Rebuilds are incremental: unchanged inputs don't get rescanned. The `Clean` target removes the generated file.
-
-> **Note:** `dotnet watch` does not re-trigger MSBuild targets. Build.Tasks alone won't keep your CSS fresh during a watch session &mdash; see the [hybrid section](#hybrid-build-time--dotnet-watch) for how to combine it with Discovery.
-
-### Driving source configuration from CSS
-
-The build task picks up source paths from `@source` and `@import` directives in your CSS:
-
-```css
-/* Widen auto-detection from wwwroot/ (where this file lives) up to the project root. */
-@import "tailwindcss" source("..");
-
-/* Disable auto-detection; only explicit @source directives below get scanned. */
-@import "tailwindcss" source(none);
-@source "../Components";
-@source not "../Components/Legacy";
-
-/* Scan a referenced library's DLL. $(...) syntax avoids clashing with glob {Pages,Components}. */
-@source "../bin/$(Configuration)/$(TargetFramework)/MyComponentLibrary.dll";
-
-/* Safelist runtime-built classes. Brace expansion supported. */
-@source inline("bg-{red,blue}-{500,600}");
-```
-
-The placeholders inside `@source` paths (`$(Configuration)`, `$(TargetFramework)`, `$(RuntimeIdentifier)`) are resolved at build time from MSBuild properties.
-
-### MSBuild configuration
-
-| Property/Item | Purpose |
-|---|---|
-| `<MonorailCssEnabled>` | On/off; default `true`. Gate on `'$(Configuration)' == 'Release'` if you're combining with Discovery. |
-| `<MonorailCssExcludeAssemblies>` | Semicolon-delimited assembly names to skip (e.g. `FluentValidation;BadIdeas.Icons.FontAwesome`). |
-| `<MonorailCssScanStaticWebAssets>` | On/off; default `true`. Scans `.js`/`.mjs` shipped by referenced packages as static web assets (e.g. `_content/Pennington.UI/scripts.js`). Razor/Web SDK projects only. |
-| `<MonorailCss>` `Include` | The entry CSS file. Multiple items produce multiple outputs. |
-| `<MonorailCss>` `OutputFile` metadata | Override the default `wwwroot/css/%(Filename).css`. |
-
-Framework assemblies (`MonorailCss`, `MonorailCss.Build.Tasks`, `MonorailCss.Discovery`) and the BCL are excluded automatically. You only need to list libraries that bake class-shaped strings into their IL.
-
-## `MonorailCss.Discovery` &mdash; runtime
+## `MonorailCss.Discovery`
 
 Install:
 
@@ -162,7 +119,7 @@ The options you'll actually reach for:
 - **`ExtraSafelist`** &mdash; force-include classes static scanning can't reconstruct, e.g. anything built at runtime via `$"bg-{color}-500"`.
 - **`ScanStaticWebAssets`** &mdash; on by default; reads classes out of JavaScript that referenced packages/RCLs ship under `_content/<Package>/`. Those files live in the NuGet cache &mdash; outside your source tree and the assembly IL &mdash; so nothing else reaches them; a component whose modal markup is built in `scripts.js` needs this. Narrow what's read with `StaticWebAssetExtensions` (default `.js`, `.mjs`), or suppress a package's assets by adding it to `ExcludeAssemblies`.
 - **`SourceCssPath`** &mdash; path to your entry CSS file. Auto-detected as `wwwroot/app.css` when unset.
-- **`CssEndpoint`** &mdash; the URL the middleware serves CSS at, default `/_monorail/app.css`. Change it to share a URL with a build-time static file (see hybrid below).
+- **`CssEndpoint`** &mdash; the URL the middleware serves CSS at, default `/_monorail/app.css`.
 - **`Framework`** &mdash; supply a pre-configured `CssFramework` when you need to seed prose configuration or register utilities programmatically. See [configuration](xref:configuration). The CSS file processing layers on top.
 
 There are a couple of less-common options (`SourceCss` for in-memory CSS, `WriteToFile` to mirror the output to disk, `WatchSourceDirectories` for non-standard layouts) on `MonorailDiscoveryOptions`; the defaults are right for most projects.
@@ -187,76 +144,9 @@ app.MapGet("/css/app.css", (IClassRegistry registry) =>
 
 `IClassRegistry` exposes `Css` (the assembled stylesheet), `Version` (a content-derived ETag, already wrapped in quotes per RFC 7232 &mdash; don't re-quote it), and `GetClasses()` (the validated class set).
 
-## Hybrid: build time + `dotnet watch`
-
-Build.Tasks produces a deployable static file but doesn't see edits during a `dotnet watch` session. Discovery does see those edits but adds a hosted service and a startup IL scan to your app. You can wire both: Discovery only in Development, Build.Tasks only in Release. One `<link>` URL in your layout, two pipelines feeding it depending on environment.
-
-**`Program.cs`** &mdash; register Discovery and the endpoint only in Development. In Production the request falls through to `UseStaticFiles`:
-
-```csharp
-var builder = WebApplication.CreateBuilder(args);
-
-builder.Services.AddRazorComponents().AddInteractiveServerComponents();
-
-if (builder.Environment.IsDevelopment())
-{
-    builder.Services.AddMonorailClassDiscovery(opt =>
-    {
-        opt.ExcludeAssemblies.Add("BadIdeas.Icons.FontAwesome");
-    });
-}
-
-var app = builder.Build();
-
-app.UseStaticFiles();
-
-if (app.Environment.IsDevelopment())
-{
-    app.MapGet("/css/app.css", (IClassRegistry registry) =>
-        Results.Text(registry.Css, "text/css", Encoding.UTF8));
-}
-
-app.MapRazorComponents<App>().AddInteractiveServerRenderMode();
-app.Run();
-```
-
-**`.csproj`** &mdash; gate the build task on Release, point the output at the URL the dev endpoint serves on:
-
-```xml
-<PropertyGroup>
-  <MonorailCssEnabled Condition="'$(Configuration)' == 'Release'">true</MonorailCssEnabled>
-  <MonorailCssExcludeAssemblies>BadIdeas.Icons.FontAwesome</MonorailCssExcludeAssemblies>
-</PropertyGroup>
-
-<ItemGroup>
-  <MonorailCss Include="wwwroot/app.css">
-    <OutputFile>$(MSBuildProjectDirectory)/wwwroot/css/app.css</OutputFile>
-  </MonorailCss>
-</ItemGroup>
-```
-
-**Layout** &mdash; one stylesheet link, no environment branching:
-
-```html
-<link rel="stylesheet" href="/css/app.css" />
-```
-
-How a request for `/css/app.css` resolves:
-
-- **Development.** Build task is off, so `wwwroot/css/app.css` doesn't exist. `UseStaticFiles` finds nothing, the request falls through to the routing endpoint, and the live `IClassRegistry` serves it.
-- **Production.** Discovery isn't registered. The Release build produced `wwwroot/css/app.css`, which `UseStaticFiles` serves directly with its own `ETag`.
-
-A couple of things to watch out for:
-
-- **Keep the exclusion list in both places synced.** Both pipelines walk the same assembly set; an icon pack that inflates one inflates the other.
-- **`dotnet clean` after switching configurations.** If you build `-c Release` and then go back to Debug, the static file persists in `wwwroot/css/` and shadows the dev endpoint. `dotnet clean` removes it.
-- **Components that inject `IClassRegistry` will throw in Production.** Resolve it via `IServiceProvider.GetService<IClassRegistry>()` instead of `@inject` so a null in Production is a no-op.
-
-The `TryMonorail` project in this repo is a worked example.
-
 ## Rolling your own
 
-Both packages are wrappers around `CssFramework.Process`. If neither scanning model fits &mdash; you have your own class collector, you're generating CSS in a non-ASP.NET host, you're driving everything from a build step that produces inputs by some other route &mdash; call the framework directly:
+The Discovery package is a wrapper around `CssFramework.Process`. If its scanning model doesn't fit &mdash; you have your own class collector, you're generating CSS in a non-ASP.NET host, you're driving everything from a build step that produces inputs by some other route &mdash; call the framework directly:
 
 ```csharp
 var framework = new CssFramework();
@@ -264,4 +154,4 @@ var classes = GetClassesSomehow();
 var css = framework.Process(classes);
 ```
 
-See [getting started](xref:getting-started) for the bare-API walkthrough. The hard part isn't calling MonorailCSS &mdash; it's reliably discovering which classes your application uses. Discovery and Build.Tasks solve that for the ASP.NET case.
+See [getting started](xref:getting-started) for the bare-API walkthrough. The hard part isn't calling MonorailCSS &mdash; it's reliably discovering which classes your application uses. Discovery solves that for the ASP.NET case.
