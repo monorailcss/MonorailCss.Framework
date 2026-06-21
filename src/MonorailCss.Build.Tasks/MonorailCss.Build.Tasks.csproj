@@ -32,17 +32,23 @@
 
     <!-- Package Metadata -->
     <PackageId>MonorailCss.Build.Tasks</PackageId>
-    <Description>MSBuild tasks for processing CSS files with MonorailCss</Description>
+    <Title>MonorailCSS Build Tasks</Title>
+    <Description>MSBuild tasks for compiling MonorailCSS output at build time — scans markup and referenced assemblies for utility classes and emits a static CSS file.</Description>
     <Authors>Phil Scott</Authors>
     <Copyright>Phil Scott</Copyright>
-    <PackageProjectUrl>https://github.com/phil-scott-78/monorail</PackageProjectUrl>
+    <PackageProjectUrl>https://github.com/monorailcss/MonorailCss.Framework</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/monorailcss/MonorailCss.Framework</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <PackageTags>css;tailwind;msbuild;tasks</PackageTags>
+    <PackageTags>css;tailwind;tailwindcss;msbuild;tasks;monorail;dotnet</PackageTags>
+    <PackageReleaseNotes>See https://github.com/monorailcss/MonorailCss.Framework/releases for release notes.</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>
-    <None Include="..\..\README.md" Pack="true" PackagePath="\" />
+    <None Include="README.md" Pack="true" PackagePath="\" />
   </ItemGroup>
 
   <ItemGroup>

@@ -5,6 +5,7 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <LangVersion>preview</LangVersion>
         <RootNamespace>TryMonorail</RootNamespace>
+        <IsPackable>false</IsPackable>
 
         <!-- Drive the in-tree MonorailCss.Build.Tasks targets file. Tells the UsingTask in
              MonorailCss.Build.Tasks.targets to load the dev-build of the task DLL rather than
