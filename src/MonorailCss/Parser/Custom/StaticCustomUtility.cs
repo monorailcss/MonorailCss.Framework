@@ -10,7 +10,7 @@ namespace MonorailCss.Parser.Custom;
 /// A custom utility implementation for static CSS patterns defined via @utility directives.
 /// Handles both simple property mappings and complex nested selectors.
 /// </summary>
-public class StaticCustomUtility : IUtility
+public class StaticCustomUtility : IUtility, IStaticUtilityNameProvider
 {
     private readonly UtilityDefinition _definition;
 
@@ -58,6 +58,13 @@ public class StaticCustomUtility : IUtility
     /// </summary>
     /// <returns>The utility name as a string, derived from the pattern in the definition.</returns>
     public string GetUtilityName() => _definition.Pattern;
+
+    /// <summary>
+    /// Gets the exact class name this custom utility handles, used by the registry to index it
+    /// without reflection.
+    /// </summary>
+    /// <returns>A single-element sequence containing the utility's pattern.</returns>
+    public IEnumerable<string> GetUtilityNames() => [_definition.Pattern];
 
     /// <summary>
     /// Attempts to compile the specified candidate into Abstract Syntax Tree (AST) nodes

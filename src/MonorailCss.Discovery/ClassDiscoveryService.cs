@@ -1,5 +1,6 @@
 using System.Collections.Immutable;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -162,6 +163,10 @@ internal sealed partial class ClassDiscoveryService : IHostedService, IClassRegi
     /// in <see cref="AppDomain.CurrentDomain"/> by the time the generator runs, even if the
     /// host (e.g. ASP.NET Core, Blazor) hasn't touched a type from them yet.
     /// </summary>
+    [UnconditionalSuppressMessage(
+        "Trimming",
+        "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' may break when trimming",
+        Justification = "Runtime class discovery is inherently a reflection feature: it walks the entry assembly's reference graph to force-load component packages. Under trimming the graph may be incomplete, in which case discovery simply finds fewer classes — the load is best-effort and guarded. AddMonorailClassDiscovery documents that this feature is unsuitable for fully-trimmed/Native-AOT deployments.")]
     private void ForceLoadEntryAssemblyReferences()
     {
         var entry = Assembly.GetEntryAssembly();

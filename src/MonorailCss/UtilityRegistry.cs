@@ -55,36 +55,21 @@ internal class UtilityRegistry
             }
         }
 
-        // Index custom static utilities that have a GetUtilityName or GetUtilityNames method
+        // Index static utilities that expose exact names but aren't BaseStaticUtility (built-ins
+        // like inset-shadow/drop-shadow/mask/outline-hidden, plus custom @utility definitions).
+        // Implementing IStaticUtilityNameProvider replaces the previous reflection-based duck typing,
+        // keeping this path trim- and AOT-safe.
         foreach (var customUtility in _utilities)
         {
-            // Skip if already handled as BaseStaticUtility
             if (customUtility is BaseStaticUtility)
             {
                 continue;
             }
 
-            // Check if it has a GetUtilityNames method (plural)
-            var getUtilityNamesMethod = customUtility.GetType().GetMethod("GetUtilityNames");
-            if (getUtilityNamesMethod != null && getUtilityNamesMethod.ReturnType == typeof(string[]))
+            if (customUtility is IStaticUtilityNameProvider nameProvider)
             {
-                var utilityNames = getUtilityNamesMethod.Invoke(customUtility, null) as string[];
-                if (utilityNames != null)
+                foreach (var utilityName in nameProvider.GetUtilityNames())
                 {
-                    foreach (var utilityName in utilityNames)
-                    {
-                        dictionary.TryAdd(utilityName, customUtility);
-                    }
-                }
-            }
-
-            // Check if it has a GetUtilityName method (like our StaticCustomUtility)
-            else
-            {
-                var getUtilityNameMethod = customUtility.GetType().GetMethod("GetUtilityName");
-                if (getUtilityNameMethod != null && getUtilityNameMethod.ReturnType == typeof(string))
-                {
-                    var utilityName = getUtilityNameMethod.Invoke(customUtility, null) as string;
                     if (!string.IsNullOrEmpty(utilityName))
                     {
                         dictionary.TryAdd(utilityName, customUtility);

@@ -7,7 +7,7 @@ namespace MonorailCss.Utilities.Effects;
 /// <summary>
 /// Utilities for controlling how an element is masked or clipped using mask images and gradients.
 /// </summary>
-internal class MaskUtility : IUtility
+internal class MaskUtility : IUtility, IStaticUtilityNameProvider
 {
     private static readonly Dictionary<string, (string Property, string Value)> _staticMappings = new()
     {
@@ -122,7 +122,7 @@ internal class MaskUtility : IUtility
     /// Gets the names of all static utilities handled by this class.
     /// Required for UtilityRegistry to properly index static utilities.
     /// </summary>
-    public static string[] GetUtilityNames() => _staticMappings.Keys.ToArray();
+    public IEnumerable<string> GetUtilityNames() => _staticMappings.Keys.ToArray();
 
     /// <inheritdoc/>
     public bool TryCompile(Candidate candidate, Theme.Theme theme, out ImmutableList<AstNode>? results)

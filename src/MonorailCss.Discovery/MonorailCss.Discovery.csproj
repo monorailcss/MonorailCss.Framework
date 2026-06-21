@@ -11,6 +11,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <IsAotCompatible>true</IsAotCompatible>
     <Description>Runtime CSS class discovery for MonorailCSS — scans loaded assembly IL to extract utility classes from .razor, .cs, and compiled NuGet packages without source generators or build tasks.</Description>
     <Copyright>Phil Scott</Copyright>
     <PackageProjectUrl>https://github.com/phil-scott-78/monorail</PackageProjectUrl>

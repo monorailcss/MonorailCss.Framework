@@ -12,11 +12,6 @@ namespace MonorailCss.Discovery;
 /// </summary>
 internal sealed class MonorailCssMiddleware
 {
-    private static readonly JsonSerializerOptions JsonOptions = new()
-    {
-        WriteIndented = true,
-    };
-
     private readonly RequestDelegate _next;
     private readonly ClassDiscoveryService _service;
     private readonly MonorailDiscoveryOptions _options;
@@ -84,7 +79,8 @@ internal sealed class MonorailCssMiddleware
         var snapshot = _service.GetDiagnostics();
         context.Response.ContentType = "application/json; charset=utf-8";
         context.Response.Headers[HeaderNames.CacheControl] = "no-store";
-        await context.Response.WriteAsync(JsonSerializer.Serialize(snapshot, JsonOptions));
+        await context.Response.WriteAsync(
+            JsonSerializer.Serialize(snapshot, DiscoveryJsonSerializerContext.Default.DiagnosticsSnapshot));
     }
 
     private static string TrimExtension(string endpoint)

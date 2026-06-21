@@ -8,13 +8,13 @@ namespace MonorailCss.Utilities.Borders;
 /// <summary>
 /// Utilities for hiding the outline of an element while maintaining accessibility.
 /// </summary>
-internal class OutlineHiddenUtility : IUtility
+internal class OutlineHiddenUtility : IUtility, IStaticUtilityNameProvider
 {
     public UtilityPriority Priority => UtilityPriority.ExactStatic;
 
     public string[] GetNamespaces() => [];
 
-    public string GetUtilityName() => "outline-hidden";
+    public IEnumerable<string> GetUtilityNames() => ["outline-hidden"];
 
     public bool TryCompile(Candidate candidate, Theme.Theme theme, out ImmutableList<AstNode>? results)
     {

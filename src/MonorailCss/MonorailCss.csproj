@@ -12,6 +12,7 @@
     <Nullable>enable</Nullable>
     <Description>MonorailCSS is a JIT CSS compiler inspired by Tailwind CSS</Description>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <IsAotCompatible>true</IsAotCompatible>
     <Copyright>Phil Scott</Copyright>
     <PackageProjectUrl>https://github.com/phil-scott-78/monorail</PackageProjectUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
@@ -28,6 +29,11 @@
   </ItemGroup>
   <ItemGroup>
     <AdditionalFiles Include="..\stylecop.json" Link="Properties/stylecop.json" />
+  </ItemGroup>
+  <ItemGroup>
+    <!-- Build-only: generates GeneratedUtilityRegistry into this assembly. Not shipped to consumers. -->
+    <ProjectReference Include="..\MonorailCss.SourceGenerator\MonorailCss.SourceGenerator.csproj"
+                      OutputItemType="Analyzer" ReferenceOutputAssembly="false" PrivateAssets="all" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="JetBrains.Annotations.Sources" Version="2025.2.4">

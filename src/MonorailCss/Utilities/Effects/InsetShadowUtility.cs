@@ -18,13 +18,13 @@ namespace MonorailCss.Utilities.Effects;
 /// <see cref="InsetShadowColorUtility"/>. <c>@property --tw-inset-shadow</c> is registered centrally
 /// by <c>PropertyRegistrationStage</c>.
 /// </remarks>
-internal class InsetShadowUtility : IUtility
+internal class InsetShadowUtility : IUtility, IStaticUtilityNameProvider
 {
     public UtilityPriority Priority => UtilityPriority.ExactStatic;
 
     public string[] GetNamespaces() => [];
 
-    public string[] GetUtilityNames() => [.. _insetShadows.Keys];
+    public IEnumerable<string> GetUtilityNames() => [.. _insetShadows.Keys];
 
     public string[] GetFunctionalRoots() => ["inset-shadow"];
 
