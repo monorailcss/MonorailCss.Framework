@@ -1,18 +1,27 @@
 name: ci
 
-# Build + test everywhere; publish only on a version tag.
+# Build + test on every push/PR (multi-OS); a single publish job runs `dotnet-releaser run`
+# on every push and lets dotnet-releaser decide what to do from the git ref:
 #
-# Releases are tag-driven so the published version is deterministic: the publish job
-# runs ON the tagged commit (github.ref_type == 'tag'), so MinVer resolves the exact
-# version every time and there is no race between merging to main and pushing the tag.
+#   - push to main  -> publishes a per-commit PRERELEASE package to NuGet
+#                      ([nuget] publish_draft = true in dotnet-releaser.toml) and refreshes
+#                      the rolling `draft-main` GitHub release notes. These are the "alphas".
+#   - push of a tag -> publishes the STABLE version to NuGet and creates the GitHub release.
+#   - pull request  -> build + test only (publish job is skipped; no tokens exposed).
 #
-# Cutting a release:
+# Releases are deterministic because the tag build runs ON the tagged commit, so MinVer
+# resolves the exact version every time -- no race between merging to main and pushing the tag.
+# (Per dotnet-releaser's docs, publishing requires the action to run on the tag push, which is
+# why `tags:` is in the trigger below.)
+#
+# Cutting a stable release:
 #   1. Merge to main.
-#   2. git tag 0.1.1 && git push origin 0.1.1   (unprefixed, matches MinVer's tag scheme)
-#   -> the tag build publishes the packages to NuGet and creates the GitHub release.
+#   2. git tag 0.1.1 && git push origin 0.1.1   (unprefixed, matches MinVer / github.version_prefix="")
+#   -> the tag build publishes 0.1.1 to NuGet and creates the GitHub release.
 #
-# Pattern adapted from xoofx's dotnet-releaser templates (xoofx/.github), kept in-repo
-# rather than referenced so the token-bearing publish step runs only our own pinned code.
+# Pattern adapted from xoofx's dotnet-releaser templates (xoofx/.github), kept in-repo rather
+# than referenced so the token-bearing publish step runs only our own pinned code. We publish on
+# every push (not tag-only like his multi-OS template) to keep the per-commit prerelease packages.
 
 on:
   push:
@@ -57,7 +66,9 @@ jobs:
   publish:
     name: publish
     needs: build
-    if: github.ref_type == 'tag'
+    # Run on every push (main or tag), never on PRs. dotnet-releaser itself reads the git ref:
+    # main push -> prerelease NuGet package + draft-main notes; tag push -> stable release.
+    if: github.event_name == 'push'
     runs-on: ubuntu-latest
     permissions:
       contents: write   # create the GitHub release
