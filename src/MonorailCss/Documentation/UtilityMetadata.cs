@@ -1,6 +1,4 @@
-using System.Collections.Concurrent;
 using System.Text.RegularExpressions;
-using System.Xml.Linq;
 
 namespace MonorailCss.Documentation;
 
@@ -100,25 +98,38 @@ public partial class UtilityMetadata
     public static UtilityMetadata FromUtilityType(Type utilityType, Utilities.IUtility? utilityInstance = null)
     {
         var name = utilityType.Name;
-        var category = InferCategory(utilityType);
-        var description = GenerateDescription(utilityType);
+        string category;
+        string description;
+        bool supportsModifiers;
+        bool supportsArbitraryValues;
 
-        // Detect support for modifiers and arbitrary values based on base class
-        var supportsModifiers = IsColorUtility(utilityType);
-        var supportsArbitraryValues = IsFunctionalUtility(utilityType) || IsColorUtility(utilityType);
+        // Built-in utilities have their category, summary, and support flags computed at compile
+        // time by the source generator — no XML-doc file parse or base-type reflection at runtime.
+        if (Utilities.GeneratedUtilityMetadata.TryGet(utilityType, out var generated))
+        {
+            category = generated.Category;
+            description = generated.Description;
+            supportsModifiers = generated.SupportsModifiers;
+            supportsArbitraryValues = generated.SupportsArbitraryValues;
+        }
+        else
+        {
+            // Fallback for types the generator didn't see (e.g. consumer-authored custom utilities).
+            // Uses only namespace + base-type inspection; no Assembly.Location / XML-doc file access.
+            // Custom utilities that want a richer description can override IUtility.GetMetadata().
+            category = InferCategory(utilityType);
+            description = GenerateHeuristicDescription(utilityType);
+            supportsModifiers = IsColorUtility(utilityType);
+            supportsArbitraryValues = IsFunctionalUtility(utilityType) || IsColorUtility(utilityType);
+        }
 
-        // Extract documented properties
+        // Extract documented properties from the live instance (requires compilation, so it stays
+        // a runtime step regardless of where the rest of the metadata comes from).
         string[]? documentedProperties = null;
         if (utilityInstance != null)
         {
-            // First, try to get documented properties from the utility itself
-            documentedProperties = utilityInstance.GetDocumentedProperties();
-
-            // If not specified, extract from compiled CSS
-            if (documentedProperties == null)
-            {
-                documentedProperties = ExtractDocumentedPropertiesFromUtility(utilityInstance);
-            }
+            documentedProperties = utilityInstance.GetDocumentedProperties()
+                ?? ExtractDocumentedPropertiesFromUtility(utilityInstance);
         }
 
         return new UtilityMetadata(name, category, description, supportsModifiers, supportsArbitraryValues, documentedProperties);
@@ -141,15 +152,11 @@ public partial class UtilityMetadata
         return "General";
     }
 
-    private static string GenerateDescription(Type utilityType)
+    // Reflection-free description for types the generator didn't see: strip the "Utility" suffix
+    // and humanise the PascalCase name. Built-in utilities never reach this — their description
+    // (XML <summary> or this same heuristic) is baked in at compile time by the source generator.
+    private static string GenerateHeuristicDescription(Type utilityType)
     {
-        // Try to extract XML documentation summary first
-        if (TryGetXmlDocSummary(utilityType, out var xmlSummary))
-        {
-            return xmlSummary;
-        }
-
-        // Fallback: Remove "Utility" suffix and convert to readable format
         var name = utilityType.Name;
         if (name.EndsWith("Utility"))
         {
@@ -159,108 +166,6 @@ public partial class UtilityMetadata
         // Convert PascalCase to space-separated words
         var result = ConvertPascalCaseToSpaceSeperatedRegex().Replace(name, " $1").Trim();
         return $"Handles {result.ToLowerInvariant()} utilities";
-    }
-
-    // The XML documentation file for an assembly is large (hundreds of KB) and never changes
-    // for a process's lifetime, yet GenerateDescription is called for every utility (and twice
-    // per utility on the default-metadata path). Parsing it with XDocument.Load on every lookup
-    // dominated documentation generation (~0.5s per full pass, ~1s+ for the double-call path).
-    // Parse it once per assembly into a member-name → summary map; subsequent lookups are O(1).
-    private static readonly ConcurrentDictionary<string, IReadOnlyDictionary<string, string>> XmlSummaryCache = new();
-
-    private static bool TryGetXmlDocSummary(Type type, out string summary)
-    {
-        summary = string.Empty;
-
-        try
-        {
-            // Get the XML documentation file path
-            var assemblyLocation = type.Assembly.Location;
-            if (string.IsNullOrEmpty(assemblyLocation))
-            {
-                return false;
-            }
-
-            var summaries = GetXmlSummaries(assemblyLocation);
-
-            // Construct the member name for the type (format: "T:Namespace.TypeName")
-            var memberName = $"T:{type.FullName}";
-            if (summaries.TryGetValue(memberName, out var cached) && !string.IsNullOrWhiteSpace(cached))
-            {
-                summary = cached;
-                return true;
-            }
-
-            return false;
-        }
-        catch
-        {
-            // If anything goes wrong, return false to use fallback
-            return false;
-        }
-    }
-
-    /// <summary>
-    /// Loads and parses the XML documentation for an assembly exactly once, returning a map of
-    /// member name (e.g. "T:Namespace.TypeName") to its cleaned summary text. The empty map is
-    /// cached when no XML file is present, so the (missing) file is probed only once.
-    /// </summary>
-    private static IReadOnlyDictionary<string, string> GetXmlSummaries(string assemblyLocation)
-    {
-        return XmlSummaryCache.GetOrAdd(assemblyLocation, static loc =>
-        {
-            var map = new Dictionary<string, string>(StringComparer.Ordinal);
-
-            try
-            {
-                var xmlPath = Path.ChangeExtension(loc, ".xml");
-                if (!File.Exists(xmlPath))
-                {
-                    return map;
-                }
-
-                var doc = XDocument.Load(xmlPath);
-                foreach (var member in doc.Descendants("member"))
-                {
-                    var name = member.Attribute("name")?.Value;
-                    if (string.IsNullOrEmpty(name))
-                    {
-                        continue;
-                    }
-
-                    var summaryElement = member.Element("summary");
-                    if (summaryElement == null)
-                    {
-                        continue;
-                    }
-
-                    // First entry wins (matches the previous FirstOrDefault semantics).
-                    map.TryAdd(name, CleanXmlDocText(summaryElement.Value));
-                }
-            }
-            catch
-            {
-                // On any parse error, cache whatever was collected (possibly empty) so we don't retry.
-            }
-
-            return map;
-        });
-    }
-
-    private static string CleanXmlDocText(string text)
-    {
-        if (string.IsNullOrWhiteSpace(text))
-        {
-            return string.Empty;
-        }
-
-        // Split into lines and trim each
-        var lines = text.Split('\n')
-            .Select(line => line.Trim())
-            .Where(line => !string.IsNullOrWhiteSpace(line));
-
-        // Join with a single space
-        return string.Join(" ", lines);
     }
 
     private static bool IsFunctionalUtility(Type utilityType)

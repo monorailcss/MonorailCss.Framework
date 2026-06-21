@@ -7,7 +7,24 @@ using MonorailCss.Discovery;
 // Use BenchmarkSwitcher so individual benchmarks can be targeted from the command line, e.g.
 //   dotnet run -c Release -- --filter '*GenerationBenchmark*'
 // With no args it runs every benchmark, matching the previous BenchmarkRunner.Run behaviour.
-BenchmarkSwitcher.FromTypes(new[] { typeof(GenerationBenchmark), typeof(ScanningBenchmark) }).Run(args);
+BenchmarkSwitcher.FromTypes(new[] { typeof(ConstructionBenchmark), typeof(GenerationBenchmark), typeof(ScanningBenchmark) }).Run(args);
+
+/// <summary>
+/// Measures the one-time cost of standing up a <see cref="CssFramework"/>. This is dominated by
+/// utility registration: before the source generator this meant an <c>Assembly.GetTypes()</c> scan
+/// plus an <c>Activator.CreateInstance</c> per utility; after, it is a single array of <c>new</c>
+/// calls. <see cref="Construct"/> isolates that cost; <see cref="ConstructAndProcessOnce"/> covers
+/// the realistic "spin up and emit once" usage so cold-start gains are visible end to end.
+/// </summary>
+[MemoryDiagnoser]
+public class ConstructionBenchmark
+{
+    [Benchmark]
+    public CssFramework Construct() => new CssFramework();
+
+    [Benchmark]
+    public string ConstructAndProcessOnce() => new CssFramework().Process(SampleData.Classes);
+}
 
 /// <summary>
 /// Measures the generation hot path — turning a known set of class names into CSS.

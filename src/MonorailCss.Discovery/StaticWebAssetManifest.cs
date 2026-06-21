@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -42,6 +43,10 @@ public static class StaticWebAssetManifest
     /// </summary>
     /// <param name="assembly">The assembly whose manifest to locate — typically the entry assembly.</param>
     /// <returns>The expected manifest path, or <see langword="null"/> when it can't be derived.</returns>
+    [UnconditionalSuppressMessage(
+        "SingleFile",
+        "IL3000:Avoid accessing Assembly file path when publishing as a single file",
+        Justification = "An empty Location (single-file/Native-AOT) is handled below by returning null, so no static web asset manifest is resolved and discovery degrades gracefully.")]
     public static string? GetManifestPath(Assembly assembly)
     {
         var location = assembly.Location;

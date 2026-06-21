@@ -1,84 +1,21 @@
-using System.Reflection;
-
 namespace MonorailCss.Utilities;
 
 /// <summary>
-/// Discovers and creates instances of all utilities that implement IUtility.
+/// Provides the set of built-in utilities. The list is produced at compile time by the
+/// MonorailCss source generator (<c>GeneratedUtilityRegistry</c>) rather than by reflecting over
+/// the assembly, so the library is trim-safe and AOT-compatible and construction avoids an
+/// assembly scan plus a per-utility <c>Activator.CreateInstance</c>.
 /// </summary>
 internal static class UtilityDiscovery
 {
     /// <summary>
-    /// Discovers all concrete utilities that implement IUtility in the current assembly.
+    /// Returns one instance of every built-in utility, ordered by priority then type name to
+    /// preserve the deterministic evaluation order the reflection-based discovery used.
     /// </summary>
     public static IEnumerable<IUtility> DiscoverAllUtilities()
     {
-        return DiscoverUtilitiesFromAssembly(Assembly.GetExecutingAssembly());
-    }
-
-    /// <summary>
-    /// Discovers all utilities from specified assemblies.
-    /// </summary>
-    public static IEnumerable<IUtility> DiscoverUtilitiesFromAssemblies(params Assembly[] assemblies)
-    {
-        var utilities = new List<IUtility>();
-
-        foreach (var assembly in assemblies)
-        {
-            utilities.AddRange(DiscoverUtilitiesFromAssembly(assembly));
-        }
-
-        // Sort by priority (the utilities themselves define their priority)
-        return utilities
+        return GeneratedUtilityRegistry.CreateAll()
             .OrderBy(u => u.Priority)
-            .ThenBy(u => u.GetType().Name);
-    }
-
-    /// <summary>
-    /// Discovers utilities from a specific assembly.
-    /// </summary>
-    public static IEnumerable<IUtility> DiscoverUtilitiesFromAssembly(Assembly assembly)
-    {
-        var utilityTypes = assembly.GetTypes()
-            .Where(t => t.IsClass && !t.IsAbstract)
-            .Where(t => typeof(IUtility).IsAssignableFrom(t))
-            .Where(t => t.GetConstructor(Type.EmptyTypes) != null) // Has parameterless constructor
-            .ToList();
-
-        var utilities = new List<IUtility>();
-
-        foreach (var type in utilityTypes)
-        {
-            if (TryCreateInstance(type, out var instance))
-            {
-                utilities.Add(instance);
-            }
-        }
-
-        return utilities
-            .OrderBy(u => u.Priority)
-            .ThenBy(u => u.GetType().Name);
-    }
-
-    private static bool TryCreateInstance(Type type, out IUtility instance)
-    {
-        instance = null!;
-
-        try
-        {
-            // Look for a parameterless constructor
-            var constructor = type.GetConstructor(Type.EmptyTypes);
-            if (constructor != null)
-            {
-                instance = (IUtility)Activator.CreateInstance(type)!;
-                return true;
-            }
-        }
-        catch (Exception ex)
-        {
-            // Could log the error if needed
-            Console.WriteLine($"Failed to create instance of {type.Name}: {ex.Message}");
-        }
-
-        return false;
+            .ThenBy(u => u.GetType().Name, StringComparer.Ordinal);
     }
 }

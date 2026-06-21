@@ -34,6 +34,13 @@ public static class MonorailCssServiceCollectionExtensions
     /// <param name="services">The service collection.</param>
     /// <param name="configure">Optional callback to override the auto-detected defaults.</param>
     /// <returns>The same service collection for chaining.</returns>
+    /// <remarks>
+    /// Discovery inspects loaded assemblies at runtime (reference-graph walk, IL metadata scan,
+    /// static web asset manifests). This is fundamentally a reflection feature: under aggressive
+    /// trimming or Native AOT the assembly graph and on-disk paths may be incomplete, so discovery
+    /// degrades gracefully to finding fewer classes rather than failing. It is intended for
+    /// JIT/development and standard server deployments, not fully-trimmed single-file/AOT apps.
+    /// </remarks>
     public static IServiceCollection AddMonorailClassDiscovery(
         this IServiceCollection services,
         Action<MonorailDiscoveryOptions>? configure = null)

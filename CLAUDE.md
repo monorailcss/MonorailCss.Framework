@@ -36,7 +36,7 @@ MonorailCss is a JIT CSS compiler that aims to be a Tailwind CSS 4.3 compatible 
 
 ### Key Design Patterns
 
-- **Auto-Discovery**: Utilities are automatically discovered via reflection at startup
+- **Auto-Discovery**: Utilities are discovered at **compile time** by a Roslyn source generator (`src/MonorailCss.SourceGenerator`), which emits `GeneratedUtilityRegistry.CreateAll()` — an explicit `new XUtility()` list for every concrete `IUtility` with a parameterless constructor. `UtilityDiscovery.DiscoverAllUtilities()` consumes it. This keeps the library trim-safe / AOT-compatible (no `Assembly.GetTypes()`/`Activator.CreateInstance`) and avoids an assembly scan on every `CssFramework` construction. The generator is referenced build-only (`OutputItemType="Analyzer"`, not shipped to consumers). Utilities exposing exact static names that aren't `BaseStaticUtility` (e.g. `inset-shadow`, `drop-shadow`, `mask`, `outline-hidden`) implement `IStaticUtilityNameProvider` so the registry can index them without reflection. Both `MonorailCss` and `MonorailCss.Discovery` are marked `<IsAotCompatible>`.
 - **Priority System**: Utilities have priorities (0-1000) determining evaluation order
 - **Immutable Data**: Extensive use of immutable collections
 - **Pipeline Architecture**: Modular stages for processing transformations

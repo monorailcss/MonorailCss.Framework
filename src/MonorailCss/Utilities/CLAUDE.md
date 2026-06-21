@@ -80,10 +80,13 @@ public class OpacityUtility : BaseFunctionalUtility
 ## Architecture & Registration
 
 ### Auto-Discovery System
-- `UtilityDiscovery.DiscoverAllUtilities()` uses reflection
-- Finds all concrete classes implementing `IUtility`
-- Requires parameterless constructor
-- Automatic registration via `DesignSystem.RegisterAllUtilities()`
+- Utilities are discovered at **compile time** by the Roslyn source generator in
+  `src/MonorailCss.SourceGenerator`, which emits `GeneratedUtilityRegistry.CreateAll()`
+- `UtilityDiscovery.DiscoverAllUtilities()` consumes the generated list (no reflection — trim/AOT safe)
+- The generator includes every concrete class implementing `IUtility` with a parameterless constructor,
+  so a new utility participates automatically; no manual registration is needed
+- Utilities that expose exact static names but don't extend `BaseStaticUtility` must implement
+  `IStaticUtilityNameProvider` to be indexed by the registry
 
 ### Priority System
 ```csharp

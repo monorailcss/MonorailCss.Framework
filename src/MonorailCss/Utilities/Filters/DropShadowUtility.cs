@@ -16,13 +16,13 @@ namespace MonorailCss.Utilities.Filters;
 /// static names; <c>@property</c> blocks for both variables are registered centrally by
 /// <c>PropertyRegistrationStage</c>.
 /// </remarks>
-internal class DropShadowUtility : IUtility
+internal class DropShadowUtility : IUtility, IStaticUtilityNameProvider
 {
     public UtilityPriority Priority => UtilityPriority.ExactStatic;
 
     public string[] GetNamespaces() => [];
 
-    public string[] GetUtilityNames() => [.. _dropShadows.Keys];
+    public IEnumerable<string> GetUtilityNames() => [.. _dropShadows.Keys];
 
     public string[] GetFunctionalRoots() => ["drop-shadow"];
 
