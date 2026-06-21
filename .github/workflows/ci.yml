@@ -1,24 +1,41 @@
 name: ci
 
+# Build + test everywhere; publish only on a version tag.
+#
+# Releases are tag-driven so the published version is deterministic: the publish job
+# runs ON the tagged commit (github.ref_type == 'tag'), so MinVer resolves the exact
+# version every time and there is no race between merging to main and pushing the tag.
+#
+# Cutting a release:
+#   1. Merge to main.
+#   2. git tag 0.1.1 && git push origin 0.1.1   (unprefixed, matches MinVer's tag scheme)
+#   -> the tag build publishes the packages to NuGet and creates the GitHub release.
+#
+# Pattern adapted from xoofx's dotnet-releaser templates (xoofx/.github), kept in-repo
+# rather than referenced so the token-bearing publish step runs only our own pinned code.
+
 on:
   push:
-    paths-ignore:
-    - 'changelog.md'
-    - 'license.md'
-    - 'readme.md'
-    - 'src/TryMonorail/**'
     branches: [main]
+    tags:
+      - '[0-9]+.[0-9]+.[0-9]+'      # stable, e.g. 0.1.0
+      - '[0-9]+.[0-9]+.[0-9]+-*'    # prerelease, e.g. 0.1.0-rc.1
   pull_request:
-    paths-ignore:
-    - 'changelog.md'
-    - 'license.md'
-    - 'readme.md'
-    - 'src/TryMonorail/**'
     branches: [main]
+
+env:
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    name: build (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, macos-latest, ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    permissions:
+      contents: read
 
     steps:
     - name: Checkout
@@ -30,8 +47,35 @@ jobs:
       uses: actions/setup-dotnet@v5
       with:
         global-json-file: global.json
-    - name: Build, Test (Debug & Release); publish on main/tag
+
+    - name: Build, Test, Pack (no publish)
       shell: bash
       run: |
         dotnet tool install --global dotnet-releaser
-        dotnet-releaser run --nuget-token "${{secrets.NUGET_TOKEN}}" --github-token "${{secrets.GITHUB_TOKEN}}" dotnet-releaser.toml
+        dotnet-releaser build dotnet-releaser.toml
+
+  publish:
+    name: publish
+    needs: build
+    if: github.ref_type == 'tag'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write   # create the GitHub release
+      actions: write    # upload release assets
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v6
+      with:
+        fetch-depth: 0
+
+    - name: Install .NET
+      uses: actions/setup-dotnet@v5
+      with:
+        global-json-file: global.json
+
+    - name: Build, Test, Pack, Publish
+      shell: bash
+      run: |
+        dotnet tool install --global dotnet-releaser
+        dotnet-releaser run --nuget-token "${{ secrets.NUGET_TOKEN }}" --github-token "${{ secrets.GITHUB_TOKEN }}" dotnet-releaser.toml
