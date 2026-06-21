@@ -7,5 +7,5 @@ run_tests_for_debug = true
 [nuget]
 publish_draft = true # publish draft NuGet package per commit
 [github]
-user = "phil-scott-78"
-repo = "monorail"
+user = "monorailcss"
+repo = "MonorailCss.Framework"
