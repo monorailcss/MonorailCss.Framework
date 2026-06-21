@@ -13,6 +13,9 @@
     <Deterministic>true</Deterministic>
     <DebugType>embedded</DebugType>
     <EnableNETAnalyzers>true</EnableNETAnalyzers>
+    <!-- This analyzer project intentionally ships no XML doc file, so StyleCop's XML comment
+         analysis is off; silence the resulting SA0001 notice (it never fires elsewhere). -->
+    <NoWarn>$(NoWarn);SA0001</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>

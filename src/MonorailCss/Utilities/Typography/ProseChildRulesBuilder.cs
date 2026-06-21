@@ -28,7 +28,11 @@ internal static class ProseChildRulesBuilder
             ("margin-top", $"--typography-{size}-lead-margin-top"),
             ("margin-bottom", $"--typography-{size}-lead-margin-bottom"),
         };
-        if (isRoot) leadDecls.Add(("color", "var(--tw-prose-lead)"));
+        if (isRoot)
+        {
+            leadDecls.Add(("color", "var(--tw-prose-lead)"));
+        }
+
         rules.Add(Rule("[class~=\"lead\"]", theme, leadDecls.ToArray()));
 
         if (isRoot)
