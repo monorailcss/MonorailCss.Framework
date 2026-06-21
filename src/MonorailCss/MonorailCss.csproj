@@ -10,13 +10,23 @@
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <Description>MonorailCSS is a JIT CSS compiler inspired by Tailwind CSS</Description>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <IsAotCompatible>true</IsAotCompatible>
+
+    <!-- NuGet package metadata -->
+    <Title>MonorailCSS</Title>
+    <Authors>Phil Scott</Authors>
+    <Description>MonorailCSS is a Tailwind CSS-compatible JIT CSS compiler for .NET. Compile utility class names into optimized CSS at runtime or build time — no Node toolchain required.</Description>
+    <PackageTags>css;tailwind;tailwindcss;utility-css;jit;monorail;dotnet;blazor;aspnetcore</PackageTags>
     <Copyright>Phil Scott</Copyright>
-    <PackageProjectUrl>https://github.com/phil-scott-78/monorail</PackageProjectUrl>
+    <PackageProjectUrl>https://github.com/monorailcss/MonorailCss.Framework</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/monorailcss/MonorailCss.Framework</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageReleaseNotes>See https://github.com/monorailcss/MonorailCss.Framework/releases for release notes.</PackageReleaseNotes>
   </PropertyGroup>
     <ItemGroup>
         <InternalsVisibleTo Include="$(AssemblyName).Tests" />

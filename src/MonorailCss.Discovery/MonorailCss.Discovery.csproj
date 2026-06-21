@@ -12,12 +12,21 @@
     <Nullable>enable</Nullable>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <IsAotCompatible>true</IsAotCompatible>
+
+    <!-- NuGet package metadata -->
+    <Title>MonorailCSS Discovery</Title>
+    <Authors>Phil Scott</Authors>
     <Description>Runtime CSS class discovery for MonorailCSS — scans loaded assembly IL to extract utility classes from .razor, .cs, and compiled NuGet packages without source generators or build tasks.</Description>
+    <PackageTags>css;tailwind;tailwindcss;utility-css;monorail;discovery;dotnet;blazor;aspnetcore</PackageTags>
     <Copyright>Phil Scott</Copyright>
-    <PackageProjectUrl>https://github.com/phil-scott-78/monorail</PackageProjectUrl>
+    <PackageProjectUrl>https://github.com/monorailcss/MonorailCss.Framework</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/monorailcss/MonorailCss.Framework</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <PackageTags>dotnet css utility-css monorail tailwind discovery aspnetcore blazor</PackageTags>
+    <PackageReleaseNotes>See https://github.com/monorailcss/MonorailCss.Framework/releases for release notes.</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>
@@ -33,7 +42,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="..\..\README.md" Pack="true" PackagePath="\" />
+    <None Include="README.md" Pack="true" PackagePath="\" />
   </ItemGroup>
 
   <ItemGroup>
