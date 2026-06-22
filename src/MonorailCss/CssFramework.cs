@@ -31,7 +31,33 @@ public class CssFramework
     // only readonly framework-lifetime dependencies; per-call state lives in PipelineContext.
     private readonly Pipeline.Pipeline _pipeline;
     private readonly CssGenerator _generator;
+
+    // Per-token compile memoization. Compiling one class is a pure function of (token, theme):
+    // utilities read only the framework-lifetime, immutable theme and *write* @property
+    // registrations — none read prior registry state (verified across every utility) — so a
+    // token's compiled output is stable for this framework's lifetime. We cache the matched
+    // ProcessedClass (itself immutable) together with the registrations the matching utility
+    // made, and replay those registrations into each call's registry so output is byte-identical
+    // to compiling fresh. This is the dotnet-watch win: when the candidate set changes by a class
+    // or two, the other thousands are served from here instead of re-probing every registered
+    // utility. A null entry memoizes "this token compiles to nothing" so invalid tokens (prose,
+    // typos) aren't re-probed either. Bounded (LRU) because arbitrary values (w-[12px], bg-[#abc])
+    // make the key space unbounded; a real project's distinct class set sits well under the cap.
+    private readonly Merging.LruCache<string, TokenCompilation> _compileCache = new(16384);
+
     private Merging.ClassMerger? _merger;
+
+    // A token's cached compilation outcome:
+    //   ProcessedClass non-null            → it compiled; Registrations holds the @property
+    //                                          declarations the matching utility made.
+    //   ProcessedClass null, Parsed true   → it parsed but matched no utility (an invalid class).
+    //   Parsed false                       → it didn't parse; dropped silently, exactly as the
+    //                                          parse step did before this cache existed.
+    private sealed record TokenCompilation(bool Parsed, ProcessedClass? ProcessedClass, CssPropertyDefinition[] Registrations);
+
+    // Shared singletons for the two non-compiling outcomes so prose/typo tokens cost no allocation.
+    private static readonly TokenCompilation Unparseable = new(false, null, []);
+    private static readonly TokenCompilation ParsedNoMatch = new(true, null, []);
 
     /// <summary>
     /// Initializes a new instance of the <see cref="CssFramework"/> class.
@@ -245,62 +271,41 @@ public class CssFramework
         var propertyRegistry = new CssPropertyRegistry();
         var themeTracker = new ThemeUsageTracker(_settings.Theme);
 
-        // Parse the input into candidates
-        var candidates = string.IsNullOrWhiteSpace(classString)
-            ? []
-            : _parser.ParseCandidates(classString).ToHashSet();
-
-        // Process each candidate through the utilities
-        foreach (var candidate in candidates)
+        // Compile each distinct class token, served from the per-token cache when seen before.
+        // Tokens are deduplicated here (identical tokens parse to identical candidates), and the
+        // sorting stage canonicalizes output order later, so token order in is not load-bearing.
+        if (!string.IsNullOrWhiteSpace(classString))
         {
-            if (candidate is StaticUtility staticUtility && UtilityRegistry.StaticUtilitiesLookup.TryGetValue(staticUtility.Root, out var value))
+            var seenTokens = new HashSet<string>(StringComparer.Ordinal);
+            foreach (var token in _parser.ExtractClassTokens(classString))
             {
-                // Roll back any @property registrations if the utility doesn't actually match,
-                // so probing never leaks custom properties into an unrelated class's output.
-                var checkpoint = propertyRegistry.Checkpoint();
-                if (value.TryCompile(candidate, _settings.Theme, propertyRegistry, out var astNodes))
+                if (!seenTokens.Add(token))
                 {
-                    processedClasses.Add(new ProcessedClass(
-                        ClassName: candidate.Raw,
-                        UtilityName: value.GetType().Name,
-                        AstNodes: astNodes!,
-                        Candidate: candidate,
-                        Layer: value.Layer));
+                    continue;
+                }
+
+                var compiled = GetOrCompileToken(token);
+                if (compiled.ProcessedClass is null)
+                {
+                    // Parsed-but-unmatched is an invalid class; unparseable is dropped silently,
+                    // mirroring the pre-cache ParseCandidates behavior (which never yielded it).
+                    if (compiled.Parsed)
+                    {
+                        invalidClasses.Add(token);
+                    }
 
                     continue;
                 }
 
-                propertyRegistry.RollbackTo(checkpoint);
-            }
+                processedClasses.Add(compiled.ProcessedClass);
 
-            var processed = false;
-
-            // Try each registered utility. The loop probes utilities in priority order until one
-            // matches, so a utility that registers @property metadata must only have it persist
-            // when it actually compiles the candidate — otherwise unrelated classes accumulate
-            // stray @property blocks. Checkpoint before each probe and roll back on no match.
-            foreach (var utility in UtilityRegistry.RegisteredUtilities)
-            {
-                var checkpoint = propertyRegistry.Checkpoint();
-                if (!utility.TryCompile(candidate, _settings.Theme, propertyRegistry, out var astNodes))
+                // Replay the @property registrations the matching utility made during its compile.
+                // Register is idempotent (TryAdd), so duplicates across candidates collapse exactly
+                // as they did when every candidate shared one registry in the uncached path.
+                foreach (var definition in compiled.Registrations)
                 {
-                    propertyRegistry.RollbackTo(checkpoint);
-                    continue;
+                    propertyRegistry.Register(definition);
                 }
-
-                processedClasses.Add(new ProcessedClass(
-                    ClassName: candidate.Raw,
-                    UtilityName: utility.GetType().Name,
-                    AstNodes: astNodes!,
-                    Candidate: candidate,
-                    Layer: utility.Layer));
-                processed = true;
-                break;
-            }
-
-            if (!processed)
-            {
-                invalidClasses.Add(candidate.Raw);
             }
         }
 
@@ -369,6 +374,67 @@ public class CssFramework
             ProcessedClasses = [.. processedClasses],
             InvalidClasses = [.. invalidClasses],
         };
+    }
+
+    // Returns the cached compilation for a token, compiling and caching it on a miss. The outcome
+    // (compiled / parsed-no-match / unparseable) is memoized so prose and typos aren't re-probed.
+    private TokenCompilation GetOrCompileToken(string token)
+    {
+        if (_compileCache.TryGetValue(token, out var cached))
+        {
+            return cached;
+        }
+
+        var compiled = CompileToken(token);
+        _compileCache.Set(token, compiled);
+        return compiled;
+    }
+
+    // Parses and compiles a single token against the utilities, in the same order the inline loop
+    // used: static lookup first, then the priority-ordered probe. Each probe compiles into its own
+    // throwaway registry, so a non-matching utility's @property writes are discarded with it and
+    // only the winner's registrations are captured — making the per-probe checkpoint/rollback the
+    // shared-registry path needed unnecessary here.
+    private TokenCompilation CompileToken(string token)
+    {
+        if (!_parser.TryParseCandidate(token, out var candidate))
+        {
+            return Unparseable;
+        }
+
+        if (candidate is StaticUtility staticUtility
+            && UtilityRegistry.StaticUtilitiesLookup.TryGetValue(staticUtility.Root, out var staticUtil))
+        {
+            var registry = new CssPropertyRegistry();
+            if (staticUtil.TryCompile(candidate, _settings.Theme, registry, out var astNodes) && astNodes != null)
+            {
+                return BuildCompiledToken(candidate, staticUtil, astNodes, registry);
+            }
+        }
+
+        foreach (var utility in UtilityRegistry.RegisteredUtilities)
+        {
+            var registry = new CssPropertyRegistry();
+            if (utility.TryCompile(candidate, _settings.Theme, registry, out var astNodes) && astNodes != null)
+            {
+                return BuildCompiledToken(candidate, utility, astNodes, registry);
+            }
+        }
+
+        return ParsedNoMatch;
+
+        static TokenCompilation BuildCompiledToken(Candidate candidate, IUtility utility, ImmutableList<AstNode> astNodes, CssPropertyRegistry registry)
+        {
+            var processed = new ProcessedClass(
+                ClassName: candidate.Raw,
+                UtilityName: utility.GetType().Name,
+                AstNodes: astNodes,
+                Candidate: candidate,
+                Layer: utility.Layer);
+
+            var registrations = registry.Count > 0 ? registry.GetAll().ToArray() : [];
+            return new TokenCompilation(true, processed, registrations);
+        }
     }
 
     /// <summary>
