@@ -40,10 +40,20 @@ public class GenerationBenchmark
     public void Setup()
     {
         _framework = new CssFramework();
+
+        // Warm the framework once on the large set. Models the dotnet-watch steady state: the
+        // first build has happened, and each subsequent Process re-runs over a set that is
+        // identical (no class change) or differs by a class or two. ProcessLarge measures that
+        // repeated run; with a per-candidate compile cache nearly every candidate is a hit.
+        _framework.Process(SampleData.LargeClasses);
     }
 
     [Benchmark]
     public string Process() => _framework.Process(SampleData.Classes);
+
+    /// <summary>Reprocess a ~3000-class set on an already-warm framework — the watch hot path.</summary>
+    [Benchmark]
+    public string ProcessLarge() => _framework.Process(SampleData.LargeClasses);
 }
 
 /// <summary>
@@ -217,6 +227,82 @@ internal static class SampleData
         "z-0", "z-10", "z-20", "z-30", "z-40", "z-50",
         "cursor-pointer", "cursor-default", "cursor-wait", "cursor-text", "cursor-move",
     ];
+
+    /// <summary>
+    /// A large, deterministic set of ~3000 distinct real utility classes — colors across every
+    /// palette/shade, spacing, sizing, plus a handful of variant-prefixed ones — to mirror a
+    /// real app's class surface in a dotnet-watch loop.
+    /// </summary>
+    public static readonly string[] LargeClasses = BuildLargeClasses();
+
+    private static string[] BuildLargeClasses()
+    {
+        var palettes = new[]
+        {
+            "red", "orange", "amber", "yellow", "lime", "green", "emerald", "teal", "cyan", "sky",
+            "blue", "indigo", "violet", "purple", "fuchsia", "pink", "rose", "slate", "gray", "zinc",
+            "neutral", "stone",
+        };
+        var shades = new[] { "50", "100", "200", "300", "400", "500", "600", "700", "800", "900", "950" };
+        var colorPrefixes = new[]
+        {
+            "bg", "text", "border", "ring", "fill", "stroke", "from", "to", "divide", "outline",
+            "decoration", "accent",
+        };
+        var spacingPrefixes = new[]
+        {
+            "p", "px", "py", "pt", "pb", "pl", "pr", "m", "mx", "my", "mt", "mb", "ml", "mr",
+            "gap", "gap-x", "gap-y", "space-x", "space-y",
+        };
+        var sizes = new[]
+        {
+            "0", "0.5", "1", "1.5", "2", "2.5", "3", "3.5", "4", "5", "6", "7", "8", "9", "10",
+            "11", "12", "14", "16", "20", "24", "28", "32", "40", "48", "56", "64",
+        };
+        var sizingPrefixes = new[] { "w", "h", "min-w", "max-w", "min-h", "max-h" };
+        var variants = new[] { string.Empty, "hover:", "focus:", "md:", "lg:", "dark:" };
+
+        var set = new HashSet<string>(StringComparer.Ordinal);
+
+        foreach (var prefix in colorPrefixes)
+        {
+            foreach (var palette in palettes)
+            {
+                foreach (var shade in shades)
+                {
+                    set.Add($"{prefix}-{palette}-{shade}");
+                }
+            }
+        }
+
+        foreach (var prefix in spacingPrefixes)
+        {
+            foreach (var size in sizes)
+            {
+                set.Add($"{prefix}-{size}");
+            }
+        }
+
+        foreach (var prefix in sizingPrefixes)
+        {
+            foreach (var size in sizes)
+            {
+                set.Add($"{prefix}-{size}");
+            }
+        }
+
+        foreach (var variant in variants)
+        {
+            set.Add($"{variant}flex");
+            set.Add($"{variant}grid");
+            set.Add($"{variant}hidden");
+            set.Add($"{variant}bg-blue-500");
+            set.Add($"{variant}text-white");
+            set.Add($"{variant}p-4");
+        }
+
+        return set.ToArray();
+    }
 
     private static readonly string[] Prose =
     [

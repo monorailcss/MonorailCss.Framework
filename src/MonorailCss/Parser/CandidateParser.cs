@@ -37,6 +37,13 @@ internal sealed class CandidateParser
         }
     }
 
+    /// <summary>
+    /// Splits a raw class string into whitespace-separated tokens without parsing them. Used by
+    /// <see cref="CssFramework"/> to drive its per-token compile cache: the token string is the
+    /// cache key, so callers tokenize first and only parse on a cache miss.
+    /// </summary>
+    public string[] ExtractClassTokens(string input) => _tokenExtractor.ExtractClassTokens(input);
+
     public bool TryParseCandidate(string input, [NotNullWhen(true)] out Candidate? candidate)
     {
         candidate = null;
