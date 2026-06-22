@@ -112,4 +112,28 @@ public sealed class MonorailDiscoveryOptions
     /// — the IL scan at startup is sufficient when no edits are expected.
     /// </summary>
     public List<string> WatchSourceDirectories { get; } = new();
+
+    /// <summary>
+    /// Gets or sets a value controlling whether discovery also watches the source directories of
+    /// <em>referenced</em> projects, not just the running app's own content root.
+    /// <list type="bullet">
+    ///   <item><description><see langword="null"/> (the default) — <em>auto</em>: enabled only
+    ///     when the <c>DOTNET_WATCH</c> environment variable is set (i.e. the app is running under
+    ///     <c>dotnet watch</c>). This is the scenario the feature exists for and where it is safe;
+    ///     it stays off for ordinary <c>dotnet run</c> and production.</description></item>
+    ///   <item><description><see langword="true"/> — always on.</description></item>
+    ///   <item><description><see langword="false"/> — always off.</description></item>
+    /// </list>
+    /// <para>
+    /// When enabled, discovery reads the portable-PDB document table of each loaded, locally-built
+    /// assembly, walks up to each source document's owning project directory, and adds those
+    /// directories to <see cref="WatchSourceDirectories"/> (deduplicated against the content root).
+    /// This lets edits to a <c>.razor</c>/<c>.cs</c> file in a referenced library — whose source
+    /// lives outside the running app's content root — flow into regeneration the same way edits to
+    /// the app's own files do. Assemblies with no local source (Release builds, NuGet-cached RCLs,
+    /// single-file/AOT images) are skipped automatically, so the worst case when this is on but no
+    /// local source exists is a no-op startup scan.
+    /// </para>
+    /// </summary>
+    public bool? WatchReferencedProjectSources { get; set; }
 }

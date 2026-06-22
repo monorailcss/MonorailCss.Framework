@@ -28,6 +28,7 @@ internal sealed partial class ClassDiscoveryService : IHostedService, IClassRegi
     private readonly Timer _cssDebounce;
     private readonly Timer _lateLoadDebounce;
     private readonly HashSet<string> _pendingFiles = new(StringComparer.OrdinalIgnoreCase);
+    private bool _pendingFullRescan;
 
     private MonorailCssGenerationResult _result;
     private DateTime _lastRegeneratedAt = DateTime.UtcNow;
@@ -98,6 +99,7 @@ internal sealed partial class ClassDiscoveryService : IHostedService, IClassRegi
                 RegenerateCount: _regenerateCount,
                 HotReloadCount: _hotReloadCount,
                 ImportedCssFileCount: _result.ImportedCssFiles.Count,
+                WatchSourceDirectories: _options.WatchSourceDirectories.ToArray(),
                 AllClasses: _result.Classes.ToArray());
         }
     }
@@ -109,6 +111,11 @@ internal sealed partial class ClassDiscoveryService : IHostedService, IClassRegi
 
         ApplyEnvironmentDefaults();
         ForceLoadEntryAssemblyReferences();
+
+        // Force-load runs first so every referenced project assembly is present before we read
+        // PDBs to locate their source directories (the dotnet watch cross-project case). Adding
+        // the roots before the startup scan lets that first scan walk them too.
+        AddReferencedProjectWatchRoots();
 
         var sw = Stopwatch.StartNew();
         Regenerate("startup");
@@ -200,6 +207,104 @@ internal sealed partial class ClassDiscoveryService : IHostedService, IClassRegi
         }
     }
 
+    /// <summary>
+    /// When running under <c>dotnet watch</c> (or when explicitly enabled via
+    /// <see cref="MonorailDiscoveryOptions.WatchReferencedProjectSources"/>), discovers the source
+    /// directories of referenced, locally-built projects from their PDBs and adds each — once,
+    /// deduplicated against the directories already being watched — to the watch set. This is what
+    /// lets an edit to a <c>.razor</c>/<c>.cs</c> file in a referenced library (whose source lives
+    /// outside the app's content root) trigger regeneration. Gated behind <c>DOTNET_WATCH</c> by
+    /// default because cross-project source watching is only meaningful — and only safe from
+    /// surprising production behavior — under the watch host.
+    /// </summary>
+    private void AddReferencedProjectWatchRoots()
+    {
+        if (!ShouldWatchReferencedProjectSources())
+        {
+            return;
+        }
+
+        var roots = ProjectSourceRootResolver.ResolveWatchRoots(
+            AppDomain.CurrentDomain.GetAssemblies(),
+            _options.ExcludeAssemblies);
+
+        var added = 0;
+        foreach (var root in roots)
+        {
+            // Store the canonical absolute form so the watcher and dedup compare consistently.
+            var normalized = NormalizeDirectory(root);
+            if (OverlapsExistingWatch(normalized))
+            {
+                continue;
+            }
+
+            _options.WatchSourceDirectories.Add(normalized);
+            added++;
+            LogMonorailcssDiscoveryWatchingReferencedProjectSource(normalized);
+        }
+
+        LogMonorailcssDiscoveryReferencedProjectRootsDiscovered(roots.Count, added);
+    }
+
+    /// <summary>
+    /// Resolves the effective referenced-project watching mode: an explicit option value wins,
+    /// otherwise it's on iff the <c>DOTNET_WATCH</c> environment variable is present (set by
+    /// <c>dotnet watch</c>).
+    /// </summary>
+    private bool ShouldWatchReferencedProjectSources()
+    {
+        return _options.WatchReferencedProjectSources
+               ?? !string.IsNullOrEmpty(Environment.GetEnvironmentVariable("DOTNET_WATCH"));
+    }
+
+    /// <summary>
+    /// True when <paramref name="candidate"/> (already normalized) overlaps an existing watched
+    /// directory in <em>either</em> direction — equal to it, nested beneath it, or a strict
+    /// ancestor of it — so it should not be added. Equal/nested is simply redundant. The ancestor
+    /// case matters more: a recursive <see cref="FileSystemWatcher"/> does not honor
+    /// <see cref="DiscoveryPaths.IgnoredDirectoryNames"/> at the OS level, so adding a root that
+    /// sits above an already-watched directory would escalate a narrow watch into a whole-parent-
+    /// tree watch (pulling in <c>.git</c>/<c>node_modules</c>/sibling <c>bin</c>/<c>obj</c> and
+    /// risking OS watch-handle limits). Only roots disjoint from every existing entry are added;
+    /// in particular a referenced-project root that is an ancestor of the content root is rejected
+    /// rather than broadening the app's own watch.
+    /// </summary>
+    private bool OverlapsExistingWatch(string candidate)
+    {
+        foreach (var existing in _options.WatchSourceDirectories)
+        {
+            var normalizedExisting = NormalizeDirectory(existing);
+            if (IsSameOrUnder(candidate, normalizedExisting) || IsSameOrUnder(normalizedExisting, candidate))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private static string NormalizeDirectory(string path)
+    {
+        try
+        {
+            return Path.TrimEndingDirectorySeparator(Path.GetFullPath(path));
+        }
+        catch
+        {
+            return path;
+        }
+    }
+
+    private static bool IsSameOrUnder(string child, string parent)
+    {
+        if (string.Equals(child, parent, StringComparison.OrdinalIgnoreCase))
+        {
+            return true;
+        }
+
+        return child.StartsWith(parent + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase);
+    }
+
     public Task StopAsync(CancellationToken cancellationToken)
     {
         AppDomain.CurrentDomain.AssemblyLoad -= OnAssemblyLoad;
@@ -234,6 +339,11 @@ internal sealed partial class ClassDiscoveryService : IHostedService, IClassRegi
             {
                 IncludeSubdirectories = true,
                 NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.FileName | NotifyFilters.Size,
+
+                // These watch whole project trees (incl. build-output subtrees a rebuild churns).
+                // The filename filters gate what reaches our handlers, but the OS still buffers the
+                // raw notification stream first, so widen the buffer to make overflow less likely.
+                InternalBufferSize = 64 * 1024,
                 EnableRaisingEvents = true,
             };
 
@@ -242,9 +352,23 @@ internal sealed partial class ClassDiscoveryService : IHostedService, IClassRegi
             watcher.Filters.Add("*.cs");
             watcher.Filters.Add("*.html");
 
+            // Also watch the static-web-asset script types (default .js/.mjs). Startup already
+            // scans these through the asset manifest, but the manifest is read once, so a live edit
+            // to a component script that builds markup (class strings inside .js) would otherwise be
+            // invisible until the next process start. Gated on the same toggle + extension set that
+            // govern static-web-asset *scanning* so the watch signal and the scan can't diverge.
+            if (_options.ScanStaticWebAssets)
+            {
+                foreach (var ext in _options.StaticWebAssetExtensions)
+                {
+                    watcher.Filters.Add("*" + ext);
+                }
+            }
+
             watcher.Changed += OnSourceFileChanged;
             watcher.Created += OnSourceFileChanged;
             watcher.Renamed += OnSourceFileRenamed;
+            watcher.Error += OnSourceWatcherError;
 
             _fileWatchers.Add(watcher);
             LogMonorailcssDiscoveryWatchingSourceDirectoryDir(dir);
@@ -363,9 +487,25 @@ internal sealed partial class ClassDiscoveryService : IHostedService, IClassRegi
 
     private void OnSourceFileRenamed(object sender, RenamedEventArgs e) => QueueSourceFile(e.FullPath);
 
+    private void OnSourceWatcherError(object sender, ErrorEventArgs e)
+    {
+        // The OS dropped a notification window — typically internal-buffer overflow during a build
+        // burst across the watched project trees. Edits in that window are now invisible to the
+        // incremental path, so schedule a full rescan to re-seed from disk instead of waiting for
+        // an unrelated trigger to incidentally pick them up.
+        LogMonorailcssDiscoverySourceWatcherErrorSchedulingFullRescan(e.GetException());
+
+        lock (_pendingFiles)
+        {
+            _pendingFullRescan = true;
+        }
+
+        _debounce.Change(150, Timeout.Infinite);
+    }
+
     private void QueueSourceFile(string path)
     {
-        if (IsInIgnoredDirectory(path))
+        if (DiscoveryPaths.IsInIgnoredDirectory(path))
         {
             return;
         }
@@ -381,10 +521,21 @@ internal sealed partial class ClassDiscoveryService : IHostedService, IClassRegi
     private void OnDebounceTick(object? state)
     {
         string[] paths;
+        bool fullRescan;
         lock (_pendingFiles)
         {
             paths = _pendingFiles.ToArray();
             _pendingFiles.Clear();
+            fullRescan = _pendingFullRescan;
+            _pendingFullRescan = false;
+        }
+
+        if (fullRescan)
+        {
+            // A dropped-event window supersedes the incremental list: re-walk every watched
+            // directory so nothing edited during the gap is missed.
+            Regenerate("watcher-error");
+            return;
         }
 
         if (paths.Length == 0)
@@ -486,23 +637,6 @@ internal sealed partial class ClassDiscoveryService : IHostedService, IClassRegi
             TryWriteToFile(result.Css);
         }
     }
-
-    /// <summary>
-    /// Directory names that are never worth walking into. Mirrors Tailwind v4's
-    /// <c>ignored-content-dirs.txt</c> (<c>B:\tailwindcss\crates\oxide\fixtures</c>) plus
-    /// the .NET-specific <c>bin</c>/<c>obj</c> and Visual Studio's <c>.vs</c>. Matched as
-    /// segment names anywhere in the path. <c>.gitignore</c> parsing is intentionally not
-    /// implemented; this hard-coded set covers the 95% case without pulling in a parser.
-    /// </summary>
-    private static readonly HashSet<string> IgnoredDirectoryNames = new(StringComparer.OrdinalIgnoreCase)
-    {
-        ".git", ".hg", ".svn", ".jj",
-        ".vs", ".idea", ".vscode",
-        "bin", "obj",
-        "node_modules", ".next", ".nuxt", ".svelte-kit", ".parcel-cache",
-        ".turbo", ".vercel", ".pnpm-store", ".yarn",
-        ".venv", "venv", "__pycache__",
-    };
 
     private List<string> EnumerateScanSourceFiles()
     {
@@ -653,7 +787,7 @@ internal sealed partial class ClassDiscoveryService : IHostedService, IClassRegi
             {
                 foreach (var path in files)
                 {
-                    if (HasSupportedExtension(path))
+                    if (DiscoveryPaths.HasSupportedExtension(path))
                     {
                         output.Add(path);
                     }
@@ -675,48 +809,13 @@ internal sealed partial class ClassDiscoveryService : IHostedService, IClassRegi
                 foreach (var sub in subdirs)
                 {
                     var name = Path.GetFileName(sub);
-                    if (!string.IsNullOrEmpty(name) && !IgnoredDirectoryNames.Contains(name))
+                    if (!string.IsNullOrEmpty(name) && !DiscoveryPaths.IgnoredDirectoryNames.Contains(name))
                     {
                         stack.Push(sub);
                     }
                 }
             }
         }
-    }
-
-    private static bool HasSupportedExtension(string path)
-    {
-        var ext = Path.GetExtension(path);
-        return ext.Equals(".razor", StringComparison.OrdinalIgnoreCase)
-            || ext.Equals(".cshtml", StringComparison.OrdinalIgnoreCase)
-            || ext.Equals(".cs", StringComparison.OrdinalIgnoreCase)
-            || ext.Equals(".html", StringComparison.OrdinalIgnoreCase);
-    }
-
-    private static bool IsInIgnoredDirectory(string path)
-    {
-        // Walk path segments to detect any ignored directory name. Faster than allocating
-        // through Path.GetDirectoryName in a loop — a single string scan suffices.
-        var span = path.AsSpan();
-        var start = 0;
-        for (var i = 0; i <= span.Length; i++)
-        {
-            if (i == span.Length || span[i] == Path.DirectorySeparatorChar || span[i] == Path.AltDirectorySeparatorChar)
-            {
-                if (i > start)
-                {
-                    var segment = span.Slice(start, i - start).ToString();
-                    if (IgnoredDirectoryNames.Contains(segment))
-                    {
-                        return true;
-                    }
-                }
-
-                start = i + 1;
-            }
-        }
-
-        return false;
     }
 
     private void TryWriteToFile(string css)
@@ -770,6 +869,15 @@ internal sealed partial class ClassDiscoveryService : IHostedService, IClassRegi
     [LoggerMessage(LogLevel.Debug, "MonorailCss discovery: watching source directory {Dir}")]
     partial void LogMonorailcssDiscoveryWatchingSourceDirectoryDir(string dir);
 
+    [LoggerMessage(LogLevel.Debug, "MonorailCss discovery: watch-mode discovered {RootCount} referenced project source root(s), added {AddedCount} new")]
+    partial void LogMonorailcssDiscoveryReferencedProjectRootsDiscovered(int rootCount, int addedCount);
+
+    [LoggerMessage(LogLevel.Debug, "MonorailCss discovery: watching referenced project source {Dir}")]
+    partial void LogMonorailcssDiscoveryWatchingReferencedProjectSource(string dir);
+
+    [LoggerMessage(LogLevel.Debug, "MonorailCss discovery: source watcher reported an error — scheduling a full rescan")]
+    partial void LogMonorailcssDiscoverySourceWatcherErrorSchedulingFullRescan(Exception exception);
+
     [LoggerMessage(LogLevel.Trace, "MonorailCss discovery: skipped reference {Name} (load failed)")]
     partial void LogMonorailcssDiscoverySkippedReferenceNameLoadFailed(string name, Exception exception);
 
@@ -791,4 +899,5 @@ public sealed record DiagnosticsSnapshot(
     int RegenerateCount,
     int HotReloadCount,
     int ImportedCssFileCount,
+    IReadOnlyList<string> WatchSourceDirectories,
     IReadOnlyList<string> AllClasses);

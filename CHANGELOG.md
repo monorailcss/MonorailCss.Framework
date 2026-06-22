@@ -11,6 +11,24 @@ contract may still shift.
 
 ## [Unreleased]
 
+### Added
+
+- **Cross-project source watching under `dotnet watch`.** Discovery now watches the source
+  directories of *referenced* projects, not just the running app's content root, so editing a
+  `.razor`/`.cs` file in a referenced library (e.g. running a docs host while editing a
+  component library it references) regenerates CSS live. Referenced project roots are located
+  by reading each locally-built assembly's portable-PDB document table and walking up to the
+  owning project directory; assemblies with no local source (Release builds, NuGet-cached RCLs,
+  single-file/AOT images) contribute nothing. Enabled automatically when the `DOTNET_WATCH`
+  environment variable is set, and controllable via the new
+  `MonorailDiscoveryOptions.WatchReferencedProjectSources` (`null` = auto, `true`/`false` =
+  force). The discovery diagnostics endpoint now reports the resolved `WatchSourceDirectories`.
+- **Live watching of static-web-asset scripts.** The development source watcher now also watches
+  the script extensions it scans (`.js`/`.mjs` by default, following `StaticWebAssetExtensions` and
+  the `ScanStaticWebAssets` toggle), so editing a component script that builds markup at runtime
+  regenerates CSS live. Previously these files were scanned once at startup but live edits to them
+  were missed until the next process start.
+
 ## [0.1.0]
 
 First release out of alpha. MonorailCSS now ships as three packages —

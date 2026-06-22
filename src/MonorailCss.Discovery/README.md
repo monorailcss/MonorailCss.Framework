@@ -9,7 +9,7 @@ This is the companion package for **development-time** and **runtime** CSS gener
 ## What it scans
 
 - **Loaded assemblies** via in-memory metadata (`Assembly.TryGetRawMetadata`) — class-shaped string literals baked into `.razor`/`.cs` compiled output, including those in referenced NuGet packages.
-- **Source files** (`.razor`, `.cshtml`, `.cs`, `.html`, …) for live class extraction during development.
+- **Source files** (`.razor`, `.cshtml`, `.cs`, `.html`, …) for live class extraction during development. Under `dotnet watch` this reaches across project boundaries: the source directories of referenced, locally-built projects (located from their build PDBs) are watched too, so editing a component in a referenced library regenerates CSS even though its source lives outside the running app.
 - **Static web assets** (`.js`/`.mjs` shipped by Razor Class Libraries under `_content/`), so component libraries that build markup at runtime are covered.
 
 Assemblies marked `[assembly: MonorailCssNoScan]` — including the MonorailCSS framework assemblies — are skipped automatically. Framework assemblies (`Microsoft.*`, `System.*`, …) are excluded by default. You can exclude additional assemblies (e.g. icon packs whose IL is full of class-shaped strings) via options.

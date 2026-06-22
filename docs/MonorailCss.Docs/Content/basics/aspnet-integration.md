@@ -100,6 +100,8 @@ Point your layout at the served stylesheet:
 
 With no configuration `AddMonorailCss` auto-detects `wwwroot/app.css`, scans every non-BCL referenced assembly for class strings, scans JavaScript shipped by component packages as static web assets, watches your source tree for changes in Development, and serves the result at `/_monorail/app.css`. Edit a class in a `.razor` file under `dotnet watch` and the browser sees the new CSS on the next HEAD poll.
 
+Under `dotnet watch`, this extends across projects: editing a `.razor`/`.cs` file in a *referenced* project &mdash; a component library you're tweaking while running the app that consumes it &mdash; regenerates CSS too, even though that source lives outside the running app's content root. The referenced project's directory is located from its build PDB and added to the watch set automatically (gated on the `DOTNET_WATCH` environment variable; see `WatchReferencedProjectSources` below).
+
 ### Configuration
 
 Pass a callback to `AddMonorailCss` to override defaults:
@@ -117,12 +119,12 @@ The options you'll actually reach for:
 
 - **`ExcludeAssemblies`** &mdash; skip libraries whose IL strings would inflate the candidate set without contributing real utilities. Icon packs that bake thousands of class-shaped tokens into metadata are the usual culprits. MonorailCSS itself and BCL assemblies (`System.*`, `Microsoft.*`) are excluded automatically.
 - **`ExtraSafelist`** &mdash; force-include classes static scanning can't reconstruct, e.g. anything built at runtime via `$"bg-{color}-500"`.
-- **`ScanStaticWebAssets`** &mdash; on by default; reads classes out of JavaScript that referenced packages/RCLs ship under `_content/<Package>/`. Those files live in the NuGet cache &mdash; outside your source tree and the assembly IL &mdash; so nothing else reaches them; a component whose modal markup is built in `scripts.js` needs this. Narrow what's read with `StaticWebAssetExtensions` (default `.js`, `.mjs`), or suppress a package's assets by adding it to `ExcludeAssemblies`.
+- **`ScanStaticWebAssets`** &mdash; on by default; reads classes out of JavaScript that referenced packages/RCLs ship under `_content/<Package>/`. Those files live in the NuGet cache &mdash; outside your source tree and the assembly IL &mdash; so nothing else reaches them; a component whose modal markup is built in `scripts.js` needs this. Narrow what's read with `StaticWebAssetExtensions` (default `.js`, `.mjs`), or suppress a package's assets by adding it to `ExcludeAssemblies`. In Development the source watcher also watches these script extensions inside your watched directories, so live edits to a `.js`/`.mjs` file that carries class strings regenerate CSS the same as a `.razor` edit (the startup manifest scan is read once, so the live signal comes from the watcher).
 - **`SourceCssPath`** &mdash; path to your entry CSS file. Auto-detected as `wwwroot/app.css` when unset.
 - **`CssEndpoint`** &mdash; the URL the middleware serves CSS at, default `/_monorail/app.css`.
 - **`Framework`** &mdash; supply a pre-configured `CssFramework` when you need to seed prose configuration or register utilities programmatically. See [configuration](xref:configuration). The CSS file processing layers on top.
 
-There are a couple of less-common options (`SourceCss` for in-memory CSS, `WriteToFile` to mirror the output to disk, `WatchSourceDirectories` for non-standard layouts) on `MonorailDiscoveryOptions`; the defaults are right for most projects.
+There are a couple of less-common options (`SourceCss` for in-memory CSS, `WriteToFile` to mirror the output to disk, `WatchSourceDirectories` for non-standard layouts, `WatchReferencedProjectSources` to force cross-project watching on or off rather than letting it follow `DOTNET_WATCH`) on `MonorailDiscoveryOptions`; the defaults are right for most projects.
 
 ### Owning the endpoint
 
