@@ -217,7 +217,8 @@ internal sealed class CssGenerator
         sb.AppendLine($"@layer {layerName} {{");
         foreach (var node in nodes)
         {
-            sb.AppendLine(node.ToCss(1));
+            node.WriteCss(sb, 1);
+            sb.AppendLine();
         }
 
         sb.AppendLine("}");

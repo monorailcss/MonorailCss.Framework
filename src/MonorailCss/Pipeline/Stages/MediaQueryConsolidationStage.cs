@@ -29,52 +29,74 @@ internal class MediaQueryConsolidationStage : IPipelineStage
             return nodes;
         }
 
-        var mediaGroups = new Dictionary<string, List<(int Index, AtRule Rule)>>();
-        var resultMap = new SortedDictionary<int, AstNode>();
+        // Pass 1: group @media rules by normalized query and decide whether any rewrite is needed.
+        // A rewrite is only needed when some query repeats (consolidation) or a non-media at-rule is
+        // present (it gets recursed into). When neither holds — e.g. a flat list of utility rules
+        // with at most one rule per breakpoint — we return the input untouched instead of rebuilding
+        // the whole list through a SortedDictionary.
+        Dictionary<string, List<AtRule>>? mediaGroups = null;
+        var needsRewrite = false;
 
-        // Single pass: group nodes with their original indices
-        for (var i = 0; i < nodes.Count; i++)
+        foreach (var node in nodes)
         {
-            var node = nodes[i];
-
-            if (node is AtRule atRule && atRule.Name == "media")
+            if (node is AtRule { Name: "media" } media)
             {
-                var key = NormalizeMediaQuery(atRule.Params);
-                if (!mediaGroups.TryGetValue(key, out var value))
+                mediaGroups ??= new Dictionary<string, List<AtRule>>(StringComparer.Ordinal);
+                var key = NormalizeMediaQuery(media.Params);
+                if (!mediaGroups.TryGetValue(key, out var list))
                 {
-                    value = [];
-                    mediaGroups[key] = value;
+                    list = [];
+                    mediaGroups[key] = list;
                 }
 
-                value.Add((i, atRule));
+                list.Add(media);
+                if (list.Count > 1)
+                {
+                    needsRewrite = true;
+                }
             }
-            else
+            else if (node is AtRule)
             {
-                // Process non-media nodes (including layers and other at-rules)
-                var processedNode = ProcessNode(node);
-                resultMap[i] = processedNode;
+                // Non-media at-rule (e.g. a nested layer): recurse to consolidate inside it.
+                needsRewrite = true;
             }
         }
 
-        // Add consolidated media queries at first occurrence position
-        foreach (var (_, group) in mediaGroups)
+        if (!needsRewrite)
         {
-            var firstIndex = group[0].Index;
+            return nodes;
+        }
 
-            if (group.Count > 1)
+        // Pass 2: rebuild in original order. A multi-rule media group collapses into one rule emitted
+        // at its first occurrence; later members are skipped. Singles and non-media nodes stay put.
+        HashSet<string>? emitted = null;
+        var result = ImmutableList.CreateBuilder<AstNode>();
+
+        foreach (var node in nodes)
+        {
+            if (node is AtRule { Name: "media" } media)
             {
-                // Consolidate multiple media queries into one
-                var consolidatedRule = ConsolidateMediaRules(group.Select(g => g.Rule), group[0].Rule.Params);
-                resultMap[firstIndex] = consolidatedRule;
+                var key = NormalizeMediaQuery(media.Params);
+                var group = mediaGroups![key];
+                if (group.Count == 1)
+                {
+                    result.Add(media);
+                    continue;
+                }
+
+                emitted ??= new HashSet<string>(StringComparer.Ordinal);
+                if (emitted.Add(key))
+                {
+                    result.Add(ConsolidateMediaRules(group, group[0].Params));
+                }
             }
             else
             {
-                // Single media query, keep as is
-                resultMap[firstIndex] = group[0].Rule;
+                result.Add(ProcessNode(node));
             }
         }
 
-        return resultMap.Values.ToImmutableList();
+        return result.ToImmutable();
     }
 
     /// <summary>

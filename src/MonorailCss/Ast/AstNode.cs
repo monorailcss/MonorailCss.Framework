@@ -31,12 +31,25 @@ public abstract record AstNode
     public abstract string ToCss(int indentLevel = 0);
 
     /// <summary>
+    /// Writes this node's CSS representation directly into <paramref name="sb"/>, without the
+    /// trailing newline (callers add the separator, mirroring the old <c>AppendLine(node.ToCss())</c>
+    /// pattern). This is the allocation-free serialization path: nodes append straight into one
+    /// shared buffer instead of each building its own string for the parent to copy. The default
+    /// delegates to <see cref="ToCss"/> so any node type that hasn't overridden it still works.
+    /// </summary>
+    internal virtual void WriteCss(StringBuilder sb, int indentLevel = 0) => sb.Append(ToCss(indentLevel));
+
+    /// <summary>
     /// Generates a string consisting of a specified number of spaces for use as an indentation in the CSS representation.
     /// Each level corresponds to two spaces.
     /// </summary>
     /// <param name="level">The number of indentation levels to generate. Each level adds two spaces.</param>
     /// <returns>A string of spaces representing the specified indentation level.</returns>
     protected static string GetIndent(int level) => new string(' ', level * 2);
+
+    /// <summary>Appends <paramref name="level"/> levels of indentation (two spaces each) directly,
+    /// without allocating an intermediate string the way <see cref="GetIndent"/> does.</summary>
+    private protected static void AppendIndent(StringBuilder sb, int level) => sb.Append(' ', level * 2);
 }
 
 /// <summary>
@@ -51,9 +64,22 @@ public record Declaration(string Property, string Value, bool Important = false)
     /// <inheritdoc />
     public override string ToCss(int indentLevel = 0)
     {
-        var indent = GetIndent(indentLevel);
-        var importantStr = Important ? " !important" : string.Empty;
-        return $"{indent}{Property}: {Value}{importantStr};";
+        var sb = new StringBuilder();
+        WriteCss(sb, indentLevel);
+        return sb.ToString();
+    }
+
+    /// <inheritdoc />
+    internal override void WriteCss(StringBuilder sb, int indentLevel = 0)
+    {
+        AppendIndent(sb, indentLevel);
+        sb.Append(Property).Append(": ").Append(Value);
+        if (Important)
+        {
+            sb.Append(" !important");
+        }
+
+        sb.Append(';');
     }
 }
 
@@ -64,18 +90,23 @@ internal record StyleRule(string Selector, ImmutableList<AstNode> Nodes) : AstNo
     public override string ToCss(int indentLevel = 0)
     {
         var sb = new StringBuilder();
-        var indent = GetIndent(indentLevel);
+        WriteCss(sb, indentLevel);
+        return sb.ToString();
+    }
 
-        sb.AppendLine($"{indent}{Selector} {{");
+    internal override void WriteCss(StringBuilder sb, int indentLevel = 0)
+    {
+        AppendIndent(sb, indentLevel);
+        sb.Append(Selector).Append(" {").AppendLine();
 
         foreach (var node in Nodes)
         {
-            sb.AppendLine(node.ToCss(indentLevel + 1));
+            node.WriteCss(sb, indentLevel + 1);
+            sb.AppendLine();
         }
 
-        sb.Append($"{indent}}}");
-
-        return sb.ToString();
+        AppendIndent(sb, indentLevel);
+        sb.Append('}');
     }
 }
 
@@ -86,19 +117,24 @@ internal record NestedRule(string Selector, ImmutableList<AstNode> Nodes) : AstN
     public override string ToCss(int indentLevel = 0)
     {
         var sb = new StringBuilder();
-        var indent = GetIndent(indentLevel);
+        WriteCss(sb, indentLevel);
+        return sb.ToString();
+    }
 
+    internal override void WriteCss(StringBuilder sb, int indentLevel = 0)
+    {
         // Nested rules use & parent selector syntax
-        sb.AppendLine($"{indent}{Selector} {{");
+        AppendIndent(sb, indentLevel);
+        sb.Append(Selector).Append(" {").AppendLine();
 
         foreach (var node in Nodes)
         {
-            sb.AppendLine(node.ToCss(indentLevel + 1));
+            node.WriteCss(sb, indentLevel + 1);
+            sb.AppendLine();
         }
 
-        sb.Append($"{indent}}}");
-
-        return sb.ToString();
+        AppendIndent(sb, indentLevel);
+        sb.Append('}');
     }
 }
 
@@ -109,26 +145,35 @@ internal record AtRule(string Name, string Params, ImmutableList<AstNode> Nodes)
     public override string ToCss(int indentLevel = 0)
     {
         var sb = new StringBuilder();
-        var indent = GetIndent(indentLevel);
-        var paramsStr = string.IsNullOrEmpty(Params) ? string.Empty : $" {Params}";
+        WriteCss(sb, indentLevel);
+        return sb.ToString();
+    }
+
+    internal override void WriteCss(StringBuilder sb, int indentLevel = 0)
+    {
+        AppendIndent(sb, indentLevel);
+        sb.Append('@').Append(Name);
+        if (!string.IsNullOrEmpty(Params))
+        {
+            sb.Append(' ').Append(Params);
+        }
 
         if (Nodes.IsEmpty)
         {
-            sb.Append($"{indent}@{Name}{paramsStr};");
+            sb.Append(';');
+            return;
         }
-        else
+
+        sb.Append(" {").AppendLine();
+
+        foreach (var node in Nodes)
         {
-            sb.AppendLine($"{indent}@{Name}{paramsStr} {{");
-
-            foreach (var node in Nodes)
-            {
-                sb.AppendLine(node.ToCss(indentLevel + 1));
-            }
-
-            sb.Append($"{indent}}}");
+            node.WriteCss(sb, indentLevel + 1);
+            sb.AppendLine();
         }
 
-        return sb.ToString();
+        AppendIndent(sb, indentLevel);
+        sb.Append('}');
     }
 }
 
@@ -138,8 +183,15 @@ internal record Comment(string Value) : AstNode
 
     public override string ToCss(int indentLevel = 0)
     {
-        var indent = GetIndent(indentLevel);
-        return $"{indent}/* {Value} */";
+        var sb = new StringBuilder();
+        WriteCss(sb, indentLevel);
+        return sb.ToString();
+    }
+
+    internal override void WriteCss(StringBuilder sb, int indentLevel = 0)
+    {
+        AppendIndent(sb, indentLevel);
+        sb.Append("/* ").Append(Value).Append(" */");
     }
 }
 
@@ -150,18 +202,24 @@ internal record Context(ImmutableDictionary<string, object> Metadata, ImmutableL
     public override string ToCss(int indentLevel = 0)
     {
         var sb = new StringBuilder();
+        WriteCss(sb, indentLevel);
+        return sb.ToString();
+    }
 
-        foreach (var node in Nodes)
+    internal override void WriteCss(StringBuilder sb, int indentLevel = 0)
+    {
+        // Separate children with a newline, no leading or trailing newline. (The old ToCss used a
+        // fresh builder, so its `sb.Length > 0` guard meant "not the first child"; with a shared
+        // buffer we track the index explicitly instead.)
+        for (var i = 0; i < Nodes.Count; i++)
         {
-            if (sb.Length > 0)
+            if (i > 0)
             {
                 sb.AppendLine();
             }
 
-            sb.Append(node.ToCss(indentLevel));
+            Nodes[i].WriteCss(sb, indentLevel);
         }
-
-        return sb.ToString();
     }
 }
 
@@ -171,15 +229,22 @@ internal record RawCss(string Content) : AstNode
 
     public override string ToCss(int indentLevel = 0)
     {
-        var indent = GetIndent(indentLevel);
+        var sb = new StringBuilder();
+        WriteCss(sb, indentLevel);
+        return sb.ToString();
+    }
+
+    internal override void WriteCss(StringBuilder sb, int indentLevel = 0)
+    {
         var lines = Content.Split(["\r\n", "\r", "\n"], StringSplitOptions.None);
 
         if (lines.Length == 1)
         {
-            return $"{indent}{Content}";
+            AppendIndent(sb, indentLevel);
+            sb.Append(Content);
+            return;
         }
 
-        var sb = new StringBuilder();
         for (var i = 0; i < lines.Length; i++)
         {
             if (i > 0)
@@ -187,17 +252,13 @@ internal record RawCss(string Content) : AstNode
                 sb.AppendLine();
             }
 
+            // Non-blank lines get indented; blank interior lines are preserved as empty (the
+            // newline above already emitted them) — matching the previous line-by-line behavior.
             if (!string.IsNullOrWhiteSpace(lines[i]))
             {
-                sb.Append($"{indent}{lines[i]}");
-            }
-            else if (i < lines.Length - 1)
-            {
-                // Preserve empty lines except at the end
-                sb.Append(string.Empty);
+                AppendIndent(sb, indentLevel);
+                sb.Append(lines[i]);
             }
         }
-
-        return sb.ToString();
     }
 }
