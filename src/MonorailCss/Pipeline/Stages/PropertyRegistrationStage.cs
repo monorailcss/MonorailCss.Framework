@@ -264,7 +264,14 @@ internal partial class PropertyRegistrationStage : IPipelineStage
         }
 
         // Also check the value for any custom properties that might need registration
-        // This handles cases where utilities set up initial values
+        // This handles cases where utilities set up initial values. The regex can only match a
+        // "--tw-" substring, so skip the (allocating) Matches call entirely when the value has
+        // none — the overwhelmingly common case (e.g. `var(--color-red-500)`, `calc(...)`).
+        if (!declaration.Value.Contains("--tw-", StringComparison.Ordinal))
+        {
+            return;
+        }
+
         var matches = TailwindPropertyPatternRegExDefinition().Matches(declaration.Value);
         foreach (Match match in matches)
         {
