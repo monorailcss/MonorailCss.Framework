@@ -24,11 +24,21 @@ internal sealed partial class ClassDiscoveryService : IHostedService, IClassRegi
     private readonly List<FileSystemWatcher> _fileWatchers = new();
     private readonly List<FileSystemWatcher> _cssWatchers = new();
     private readonly Lock _lock = new();
+
+    // Guards every read/write of the watcher lists above. They are mutated from at least three
+    // places that can overlap: StartAsync, the CSS-debounce timer callback (which restarts the
+    // CSS watchers), and teardown — where StopAsync and Dispose can both run StopFileWatchers,
+    // one thread's Clear() invalidating the other's enumeration. Serialize them all here.
+    private readonly Lock _watcherLock = new();
     private readonly Timer _debounce;
     private readonly Timer _cssDebounce;
     private readonly Timer _lateLoadDebounce;
     private readonly HashSet<string> _pendingFiles = new(StringComparer.OrdinalIgnoreCase);
     private bool _pendingFullRescan;
+
+    // Set once during teardown (StopAsync/Dispose) under _watcherLock so the shared teardown runs
+    // exactly once and a late CSS-debounce tick can't resurrect watchers after shutdown.
+    private bool _disposed;
 
     private MonorailCssGenerationResult _result;
     private DateTime _lastRegeneratedAt = DateTime.UtcNow;
@@ -305,27 +315,58 @@ internal sealed partial class ClassDiscoveryService : IHostedService, IClassRegi
         return child.StartsWith(parent + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase);
     }
 
+    // StopAsync (graceful host shutdown) and Dispose (container disposal) are distinct lifecycle
+    // hooks: a clean shutdown fires both, but an abnormal one may fire only Dispose, so each must
+    // fully tear the service down on its own. They share one idempotent Teardown so the work runs
+    // exactly once regardless of order or which hook fires.
     public Task StopAsync(CancellationToken cancellationToken)
     {
-        AppDomain.CurrentDomain.AssemblyLoad -= OnAssemblyLoad;
-        MonorailCssReloader.UnregisterService(this);
-        StopFileWatchers();
-        StopCssFileWatchers();
+        Teardown();
         return Task.CompletedTask;
     }
 
-    public void Dispose()
+    public void Dispose() => Teardown();
+
+    private void Teardown()
     {
-        AppDomain.CurrentDomain.AssemblyLoad -= OnAssemblyLoad;
-        MonorailCssReloader.UnregisterService(this);
-        StopFileWatchers();
-        StopCssFileWatchers();
-        _debounce.Dispose();
-        _cssDebounce.Dispose();
-        _lateLoadDebounce.Dispose();
+        // _watcherLock serializes the whole teardown against the watcher Start/Stop paths (incl.
+        // the CSS-debounce timer's restart) and makes the run-once guard atomic. None of the work
+        // below acquires _lock, so holding _watcherLock here can't invert against the result lock.
+        lock (_watcherLock)
+        {
+            if (_disposed)
+            {
+                return;
+            }
+
+            _disposed = true;
+
+            AppDomain.CurrentDomain.AssemblyLoad -= OnAssemblyLoad;
+            MonorailCssReloader.UnregisterService(this);
+
+            StopFileWatchers();
+            StopCssFileWatchers();
+
+            _debounce.Dispose();
+            _cssDebounce.Dispose();
+            _lateLoadDebounce.Dispose();
+        }
     }
 
     private void StartFileWatchers()
+    {
+        lock (_watcherLock)
+        {
+            if (_disposed)
+            {
+                return;
+            }
+
+            StartFileWatchersCore();
+        }
+    }
+
+    private void StartFileWatchersCore()
     {
         foreach (var dir in _options.WatchSourceDirectories)
         {
@@ -377,20 +418,23 @@ internal sealed partial class ClassDiscoveryService : IHostedService, IClassRegi
 
     private void StopFileWatchers()
     {
-        foreach (var w in _fileWatchers)
+        lock (_watcherLock)
         {
-            try
+            foreach (var w in _fileWatchers)
             {
-                w.EnableRaisingEvents = false;
-                w.Dispose();
+                try
+                {
+                    w.EnableRaisingEvents = false;
+                    w.Dispose();
+                }
+                catch
+                {
+                    // best-effort
+                }
             }
-            catch
-            {
-                // best-effort
-            }
-        }
 
-        _fileWatchers.Clear();
+            _fileWatchers.Clear();
+        }
     }
 
     /// <summary>
@@ -400,6 +444,19 @@ internal sealed partial class ClassDiscoveryService : IHostedService, IClassRegi
     /// (e.g. NuGet-shipped theme files under <c>_content/</c>) work too.
     /// </summary>
     private void StartCssFileWatchers()
+    {
+        lock (_watcherLock)
+        {
+            if (_disposed)
+            {
+                return;
+            }
+
+            StartCssFileWatchersCore();
+        }
+    }
+
+    private void StartCssFileWatchersCore()
     {
         if (_result.ImportedCssFiles.Count == 0)
         {
@@ -446,20 +503,23 @@ internal sealed partial class ClassDiscoveryService : IHostedService, IClassRegi
 
     private void StopCssFileWatchers()
     {
-        foreach (var w in _cssWatchers)
+        lock (_watcherLock)
         {
-            try
+            foreach (var w in _cssWatchers)
             {
-                w.EnableRaisingEvents = false;
-                w.Dispose();
+                try
+                {
+                    w.EnableRaisingEvents = false;
+                    w.Dispose();
+                }
+                catch
+                {
+                    // best-effort
+                }
             }
-            catch
-            {
-                // best-effort
-            }
-        }
 
-        _cssWatchers.Clear();
+            _cssWatchers.Clear();
+        }
     }
 
     private void OnCssFileChanged(object sender, FileSystemEventArgs e) => QueueCssReload();
