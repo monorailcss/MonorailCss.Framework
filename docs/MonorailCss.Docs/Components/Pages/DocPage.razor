@@ -3,6 +3,12 @@
 @layout MainLayout
 
 <PageTitle>@_pageTitle</PageTitle>
+@if (!string.IsNullOrWhiteSpace(_metaDescription))
+{
+    <HeadContent>
+        <meta name="description" content="@_metaDescription" />
+    </HeadContent>
+}
 
 <div data-spa-region="content" data-spa-loading="skeleton">
     @if (_markdown is null)
@@ -23,6 +29,7 @@
     [Parameter] public string? Slug { get; set; }
 
     private string _pageTitle = "Not found - MonorailCss";
+    private string? _metaDescription;
     private RenderedItem? _markdown;
     private List<Breadcrumbs.BreadcrumbItem> _breadcrumbs = [];
 
@@ -32,6 +39,7 @@
         {
             _markdown = null;
             _pageTitle = "Not found - MonorailCss";
+            _metaDescription = null;
             return;
         }
 
@@ -41,10 +49,14 @@
         if (_markdown is null)
         {
             _pageTitle = "Not found - MonorailCss";
+            _metaDescription = null;
             return;
         }
 
         _pageTitle = $"{_markdown.Metadata.Title} - MonorailCss";
+        _metaDescription = string.IsNullOrWhiteSpace(_markdown.Metadata.Description)
+            ? $"{_markdown.Metadata.Title} — MonorailCss documentation."
+            : _markdown.Metadata.Description;
         _breadcrumbs =
         [
             new() { Title = "Home", Url = "/" },

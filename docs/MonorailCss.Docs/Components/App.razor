@@ -1,6 +1,14 @@
 <!DOCTYPE html>
 <html lang="en" class="scroll-smooth">
 <head>
+    @* charset + viewport first so the charset declaration lands within the
+       first 1024 bytes of the document (Lighthouse best-practice). The theme
+       script below is large enough that, if it came first, it would push the
+       charset meta past that limit. *@
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml"/>
+
     @* Set the theme synchronously before any styled content paints to prevent
        FOUC. Reads localStorage["theme"] ("light" | "dark"); falls back to the
        OS preference. Toggle buttons elsewhere update the class + localStorage. *@
@@ -32,8 +40,6 @@
             requestAnimationFrame(function () { document.head.removeChild(css); });
         };
     </script>
-    <meta charset="utf-8"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <link rel="preconnect" href="https://fonts.googleapis.com"/>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
     <link href="https://fonts.googleapis.com/css2?family=Jost:ital,wght@0,100..900;1,100..900&family=Nunito:ital,wght@0,200..1000;1,200..1000&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet"/>
