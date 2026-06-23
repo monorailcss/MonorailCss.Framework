@@ -9,6 +9,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <link rel="icon" href="/favicon.svg" type="image/svg+xml"/>
 
+    @* Preload the two above-the-fold faces (Jost display for the logo/hero, Nunito
+       for body copy) so they download in parallel with the document instead of
+       waiting on fonts.css to parse. crossorigin is required even same-origin —
+       font fetches are CORS-anonymous. *@
+    <link rel="preload" as="font" type="font/woff2" crossorigin href="/fonts/jost-latin-normal.woff2"/>
+    <link rel="preload" as="font" type="font/woff2" crossorigin href="/fonts/nunito-latin-normal.woff2"/>
+
     @* Set the theme synchronously before any styled content paints to prevent
        FOUC. Reads localStorage["theme"] ("light" | "dark"); falls back to the
        OS preference. Toggle buttons elsewhere update the class + localStorage. *@
@@ -40,9 +47,10 @@
             requestAnimationFrame(function () { document.head.removeChild(css); });
         };
     </script>
-    <link rel="preconnect" href="https://fonts.googleapis.com"/>
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-    <link href="https://fonts.googleapis.com/css2?family=Jost:ital,wght@0,100..900;1,100..900&family=Nunito:ital,wght@0,200..1000;1,200..1000&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet"/>
+    @* Self-hosted webfonts (wwwroot/fonts.css + wwwroot/fonts/*.woff2), mirrored
+       from Google Fonts. Same-origin removes the render-blocking third-party CSS
+       round-trip and the extra cross-origin connection that gated font download. *@
+    <link rel="stylesheet" href="/fonts.css"/>
     @* data-spa-reload tells Pennington's spa-engine to re-fetch this stylesheet
        on every commit, replacing it once the new copy loads. MonorailCss serves
        /styles.css JIT-scanned from the rendered HTML for the requested URL, so
