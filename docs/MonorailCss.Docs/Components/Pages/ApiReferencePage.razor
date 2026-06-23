@@ -5,6 +5,9 @@
 @layout MainLayout
 
 <PageTitle>API Reference - MonorailCss</PageTitle>
+<HeadContent>
+    <meta name="description" content="API reference for MonorailCss — the public types you configure or extend, including CssFramework, CssFrameworkSettings, ColorEmissionMode, and CustomVariantDefinition, with signatures and xmldoc summaries." />
+</HeadContent>
 
 <div data-spa-region="content" data-spa-loading="skeleton">
     <Breadcrumbs Items="@_breadcrumbs" />
@@ -16,7 +19,7 @@
                 The customer-facing surface of <code class="font-mono text-tertiary-one-900 dark:text-tertiary-one-400">MonorailCss</code>.
                 Public types you'll touch when configuring or extending the engine.
             </p>
-            <div class="flex flex-wrap gap-x-6 gap-y-2 font-mono text-xs text-base-500 dark:text-base-400 pt-2">
+            <div class="flex flex-wrap gap-x-6 gap-y-2 font-mono text-xs text-base-600 dark:text-base-400 pt-2">
                 <span><b class="text-base-900 dark:text-primary-50 font-medium">@_types.Count</b> types</span>
                 <span><b class="text-base-900 dark:text-primary-50 font-medium">@_types.Sum(t => t.MemberCount)</b> members</span>
                 <span>net10.0</span>
@@ -37,9 +40,9 @@
                         @type.KindLabel
                     </span>
                     <span class="font-mono text-2xl font-medium text-base-900 dark:text-primary-50 tracking-tight">
-                        <span class="text-base-400 dark:text-base-500 text-base font-normal">@type.Namespace.</span>@type.Name
+                        <span class="text-base-600 dark:text-base-400 text-base font-normal">@type.Namespace.</span>@type.Name
                     </span>
-                    <a href="#@type.Id" class="ml-auto font-mono text-xs text-base-400 dark:text-base-500 hover:text-tertiary-one-900 dark:hover:text-tertiary-one-400" aria-label="Anchor">#</a>
+                    <a href="#@type.Id" class="ml-auto font-mono text-xs text-base-600 dark:text-base-400 hover:text-tertiary-one-900 dark:hover:text-tertiary-one-400" aria-label="Anchor">#</a>
                 </div>
 
                 @if (!string.IsNullOrEmpty(type.SummaryHtml))
@@ -54,7 +57,7 @@
                     <div class="pt-2">
                         <div class="flex items-center gap-3 mb-2">
                             <span class="text-sm font-medium text-base-900 dark:text-primary-50">@section.Heading</span>
-                            <span class="font-mono text-[11px] text-base-500 dark:text-base-400 px-1.5 py-0.5 bg-base-100 dark:bg-base-800 rounded">@section.Rows.Count</span>
+                            <span class="font-mono text-[11px] text-base-600 dark:text-base-400 px-1.5 py-0.5 bg-base-100 dark:bg-base-800 rounded">@section.Rows.Count</span>
                             <span class="flex-1 h-px bg-gradient-to-r from-base-200 dark:from-base-800 to-transparent"></span>
                         </div>
                         <table class="w-full font-mono text-[13px] border-collapse">
