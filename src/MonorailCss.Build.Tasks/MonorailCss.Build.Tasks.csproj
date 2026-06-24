@@ -56,7 +56,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="JetBrains.Annotations" Version="2025.2.4" />
+    <PackageReference Include="JetBrains.Annotations" Version="2026.2.0" />
     <PackageReference Include="Microsoft.Build.Utilities.Core" Version="17.14.28" PrivateAssets="All" />
     <PackageReference Include="Microsoft.Extensions.FileSystemGlobbing" Version="9.0.9" PrivateAssets="All" />
     <PackageReference Include="MinVer" PrivateAssets="all" Version="7.0.0" />
