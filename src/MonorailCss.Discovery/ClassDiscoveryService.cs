@@ -783,6 +783,15 @@ internal sealed partial class ClassDiscoveryService : IHostedService, IClassRegi
                 continue;
             }
 
+            // _framework/ carries the .NET runtime and Blazor boot bundles (dotnet.runtime.*.js,
+            // blazor.web.js, …) — minified compiler artifacts, not author-written markup. Their
+            // regex literals tokenize as class-shaped noise (e.g. `[(?<funcNum>\d+)\]:0x[a-fA-F\d]`
+            // parses as an arbitrary property), so skip them unconditionally.
+            if (asset.UrlPath.StartsWith("_framework/", StringComparison.OrdinalIgnoreCase))
+            {
+                continue;
+            }
+
             if (seen.Add(asset.PhysicalPath) && File.Exists(asset.PhysicalPath))
             {
                 result.Add(asset.PhysicalPath);

@@ -55,6 +55,18 @@ internal partial class ArbitraryValueParser
             };
         }
 
+        // Unbalanced parens/brackets can't be valid CSS component values, and once emitted the
+        // stray opener makes the browser consume every following rule while it hunts for the
+        // matching closer — one bad candidate silently disables the rest of the stylesheet.
+        if (!AreBracketsBalanced(value))
+        {
+            return new ParsedArbitraryValue
+            {
+                IsValid = false,
+                ErrorMessage = "Arbitrary value has unbalanced parentheses or brackets",
+            };
+        }
+
         // Check for data type hint: [color:var(--value)] or [length:100px]
         var dataTypeMatch = DataTypeHintPattern().Match(value);
         if (dataTypeMatch.Success)
@@ -441,6 +453,66 @@ internal partial class ArbitraryValueParser
         // Preserve underscores in the theme path (first argument)
         processed = ProcessFunctionWithPreservedFirstArg(value);
         return true;
+    }
+
+    /// <summary>
+    /// Tests whether every <c>(</c>/<c>)</c> and <c>[</c>/<c>]</c> outside string literals pairs
+    /// up. Grid line names (<c>[full-start]</c>) and functions keep brackets legitimate inside
+    /// arbitrary values; a stray opener or closer means the candidate is not CSS.
+    /// </summary>
+    private bool AreBracketsBalanced(string value)
+    {
+        var parenDepth = 0;
+        var bracketDepth = 0;
+        var inString = false;
+        char? stringChar = null;
+
+        for (var i = 0; i < value.Length; i++)
+        {
+            var ch = value[i];
+
+            if (ch is '"' or '\'' && (i == 0 || value[i - 1] != '\\'))
+            {
+                if (!inString)
+                {
+                    inString = true;
+                    stringChar = ch;
+                }
+                else if (ch == stringChar)
+                {
+                    inString = false;
+                    stringChar = null;
+                }
+            }
+
+            if (inString)
+            {
+                continue;
+            }
+
+            switch (ch)
+            {
+                case '(':
+                    parenDepth++;
+                    break;
+                case ')':
+                    parenDepth--;
+                    break;
+                case '[':
+                    bracketDepth++;
+                    break;
+                case ']':
+                    bracketDepth--;
+                    break;
+            }
+
+            if (parenDepth < 0 || bracketDepth < 0)
+            {
+                return false;
+            }
+        }
+
+        return parenDepth == 0 && bracketDepth == 0;
     }
 
     private bool AreParenthesesBalanced(string value)

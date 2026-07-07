@@ -101,6 +101,8 @@ public class CandidateParserTests
     [InlineData("[display:block]", "display", "block")]
     [InlineData("[margin:10px]", "margin", "10px")]
     [InlineData("[color:red]", "color", "red")]
+    [InlineData("[-webkit-line-clamp:2]", "-webkit-line-clamp", "2")]
+    [InlineData("[tab-size:4]", "tab-size", "4")]
     public void TryParseCandidate_WithArbitraryProperty_ParsesCorrectly(string input, string expectedProperty, string expectedValue)
     {
         // Arrange & Act
@@ -868,6 +870,17 @@ public class CandidateParserTests
     [InlineData("bg-[red;color:blue]")]           // Semicolon in value
     [InlineData("[color:red}html{color:blue]")]   // Braces in value
 
+    // Property is not a CSS identifier (scanner noise from minified JS regex literals)
+    [InlineData("[^:()]")]                        // Regex char-class fragment as property
+    [InlineData("[color(:red]")]                  // Punctuation in property name
+
+    // Unbalanced brackets/parens in arbitrary values — emitting these would make the
+    // browser swallow every stylesheet rule after the stray opener
+    [InlineData("[color:rgb(255,0,0]")]           // Unclosed function paren
+    [InlineData("[color:red)]")]                  // Stray closing paren
+    [InlineData("text-[rgb(255,0,0]")]            // Unclosed function paren in functional value
+    [InlineData("h-[100px]]")]                    // Extra closing bracket
+
     // Multiple modifiers (invalid)
     // (Static utilities with named modifiers like `flex/50` now parse successfully —
     // BaseStaticUtility.TryCompile drops them at compile time, while @container*
@@ -950,9 +963,7 @@ public class CandidateParserTests
     // These patterns are parsed successfully but would produce invalid CSS
     // The parser is intentionally lenient, leaving validation to later stages
     [InlineData("bg-[#0088cc", "bg", "[#0088cc")]      // Unclosed bracket - treated as named value
-    [InlineData("text-[rgb(255,0,0]", "text", "rgb(255,0,)0")] // Malformed function - parser tries to fix
     [InlineData("w-]100px[", "w", "]100px[")]          // Reversed brackets in value
-    [InlineData("h-[100px]]", "h", "100px]")]          // Extra closing bracket - one is consumed
     [InlineData("m-[[10px", "m", "[[10px")]            // Extra opening bracket
     [InlineData("text-[<script>alert('xss')</script>]", "text", "<script>alert('xss')</script>")] // HTML tags
     public void TryParseCandidate_MalformedButParseable_ParsesWithStrangeValues(
