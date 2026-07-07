@@ -29,6 +29,24 @@ public partial class CssFrameworkTests
         detailed.GeneratedCss.ShouldBe("");
     }
 
+    [Theory]
+    // Regex literals scraped out of minified JS (e.g. Blazor's dotnet.runtime.js) by class
+    // scanners. Before property/bracket validation these compiled as arbitrary properties;
+    // the emitted declaration's unbalanced `[` made browsers drop every stylesheet rule
+    // after it (the alphabetically-late dark: variants, in practice).
+    [InlineData(@"[(?<funcNum>\d+)\]:0x[a-fA-F\d]")]
+    [InlineData(@"[0-9a-z\-#;/?:@&=+$,_.!~*'()\[\]]")]
+    [InlineData(@"[^:()]")]
+    public void Process_ScannerNoiseCandidates_EmitNoArbitraryProperty(string input)
+    {
+        var result = _framework.Process(input);
+
+        result.ShouldNotContain("funcNum");
+        result.ShouldNotContain("0x[");
+        result.ShouldNotContain("a-fA-F");
+        result.ShouldNotContain("0-9a-z");
+    }
+
     [Fact]
     public void Process_ShouldHandleNullInput()
     {

@@ -182,6 +182,15 @@ internal sealed class UtilityMatcher
             return false;
         }
 
+        // The property must be a CSS identifier (standard, vendor-prefixed, or --custom).
+        // Anything else — regex fragments and similar punctuation-laden strings scraped from
+        // minified JS by IL/source scanners — would be emitted as an unparseable declaration
+        // that can take the rest of the stylesheet down with it.
+        if (!IsValidPropertyName(propertyName))
+        {
+            return false;
+        }
+
         // Parse the value for any special handling
         var parsed = _arbitraryValueParser.Parse(value, ArbitraryValueType.Brackets);
         if (!parsed.IsValid)
@@ -190,6 +199,41 @@ internal sealed class UtilityMatcher
         }
 
         value = parsed.Value!;
+        return true;
+    }
+
+    /// <summary>
+    /// Tests whether a string is a plausible CSS property name: an ident of ASCII letters,
+    /// digits, hyphens, and underscores, starting with a letter or underscore after at most
+    /// two leading hyphens (vendor prefix `-webkit-…` or custom property `--foo`).
+    /// </summary>
+    private static bool IsValidPropertyName(string name)
+    {
+        var start = 0;
+        while (start < name.Length && name[start] == '-')
+        {
+            start++;
+        }
+
+        if (start > 2 || start == name.Length)
+        {
+            return false;
+        }
+
+        if (!char.IsAsciiLetter(name[start]) && name[start] != '_')
+        {
+            return false;
+        }
+
+        for (var i = start + 1; i < name.Length; i++)
+        {
+            var c = name[i];
+            if (!char.IsAsciiLetterOrDigit(c) && c != '-' && c != '_')
+            {
+                return false;
+            }
+        }
+
         return true;
     }
 
