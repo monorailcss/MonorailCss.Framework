@@ -1,10 +1,12 @@
 using System.Collections.Immutable;
+using Beck;
 using MonorailCss;
 using MonorailCss.Docs.Components;
 using MonorailCss.Docs.Services;
 using MonorailCss.Theme;
 using Pennington.ApiMetadata;
 using Pennington.ApiMetadata.Reflection;
+using Pennington.Beck;
 using Pennington.Content;
 using Pennington.FrontMatter;
 using Pennington.Infrastructure;
@@ -123,6 +125,14 @@ builder.Services.AddMonorailCss(_ => new MonorailCssOptions
         Theme = ApplyDocsTheme(settings.Theme),
         ColorEmission = ColorEmissionMode.All,
     },
+});
+// This site's dark mode is a `.dark` class stamped on <html> by App.razor's bootstrap
+// script (always authoritative — it resolves the OS preference itself), not the
+// `data-theme` attribute Beck assumes by default. ThemeHooks.Class keys the diagrams'
+// dark tokens — and the zoom lightbox chrome — off that class instead.
+builder.Services.AddPenningtonBeck(beck =>
+{
+    beck.RenderOptions = new SvgRenderOptions { ThemeHooks = ThemeHooks.Class };
 });
 
 builder.Services.AddTreeSitter(treeSitter =>
