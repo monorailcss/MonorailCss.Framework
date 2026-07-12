@@ -1,6 +1,7 @@
 using System.Collections.Immutable;
 using MonorailCss.Documentation;
 using Pennington.Content;
+using Pennington.FrontMatter;
 using Pennington.Pipeline;
 using Pennington.Routing;
 
@@ -30,12 +31,35 @@ public partial class UtilityContentService : IContentService
         {
             var categorySlug = ToSlug(category);
 
-            foreach (var (property, _) in propertiesDict)
+            foreach (var (property, utilities) in propertiesDict)
             {
                 var propertySlug = ToSlug(property);
                 var url = $"/utility/{categorySlug}/{propertySlug}";
                 var route = ContentRouteFactory.FromUrl(new UrlPath(url), string.Empty);
-                yield return new DiscoveredItem(route, new ContentSource(new RazorPageSource("MonorailCss.Docs.Components.Pages.UtilityPage")));
+
+                // Attach front matter so the default GetRecordsAsync bridge projects a
+                // ContentRecord for this page. That record is what social cards key off:
+                // SocialCardContentService discovers a card route per record, and
+                // SocialCardHeadContributor emits the og:image/twitter:image tags only when the
+                // page resolves a record. Without metadata these Razor-projected pages sit out
+                // of the record registry entirely (unlike markdown, which carries front matter),
+                // so they'd get no card. Title/description mirror the TOC entry for the property.
+                var description = utilities
+                    .Select(u => u.Metadata.Description)
+                    .FirstOrDefault(d => !string.IsNullOrWhiteSpace(d));
+
+                var metadata = new DocFrontMatter
+                {
+                    Title = GetPropertyDisplayName(property),
+                    Description = description,
+                };
+
+                yield return new DiscoveredItem(
+                    route,
+                    new ContentSource(new RazorPageSource("MonorailCss.Docs.Components.Pages.UtilityPage")))
+                {
+                    Metadata = metadata,
+                };
             }
         }
 
