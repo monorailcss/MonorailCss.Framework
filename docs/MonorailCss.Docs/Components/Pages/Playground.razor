@@ -1,0 +1,17 @@
+@page "/playground"
+@layout PlaygroundLayout
+@using MonorailCss.Docs.Client
+
+<PageTitle>Playground - MonorailCss</PageTitle>
+<HeadContent>
+    <meta name="description" content="Edit HTML with utility classes and watch the preview and generated CSS update live — compiled in your browser by the real MonorailCss engine." />
+    @* This page is a fixed-height shell; suppress the site-wide body scrollbar gutter so the
+       playground fills the viewport exactly. Reached via a full page load (data-spa-reload),
+       so this scoped override is present whenever the page is. *@
+    <style>body { overflow: hidden !important; }</style>
+</HeadContent>
+
+@* Static-SSR route so Pennington's crawler emits /playground into the static export; the
+   interactive UI is a WebAssembly island (MonorailCss.Docs.Client) that compiles utility
+   classes to CSS in the browser. Its own @@rendermode drives the interactivity. *@
+<PlaygroundIsland />

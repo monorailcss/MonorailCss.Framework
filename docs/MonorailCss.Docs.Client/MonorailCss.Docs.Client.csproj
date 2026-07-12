@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <LangVersion>preview</LangVersion>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RootNamespace>MonorailCss.Docs.Client</RootNamespace>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="10.0.9" />
+    <!-- Monaco editor for the playground island (HTML editing + per-class CSS hover). -->
+    <PackageReference Include="BlazorMonaco" Version="3.4.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- The JIT CSS engine runs in the browser (WASM): the playground compiles the
+         user's utility classes to CSS entirely client-side. MonorailCss is IsAotCompatible,
+         so no reflection/native assets are pulled in. -->
+    <ProjectReference Include="..\..\src\MonorailCss\MonorailCss.csproj" />
+  </ItemGroup>
+</Project>

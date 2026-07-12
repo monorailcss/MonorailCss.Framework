@@ -7,6 +7,11 @@
        charset meta past that limit. *@
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    @* Anchors relative-URL resolution at the site root so the playground's Monaco AMD loader
+       resolves its module paths to /_content/... on the nested /playground route (without a
+       base it produces /playground_content/...). The rest of the site uses absolute /-prefixed
+       URLs, so this is otherwise a no-op. *@
+    <base href="/"/>
     <link rel="icon" href="/favicon.svg" type="image/svg+xml"/>
 
     @* Preload the two above-the-fold faces (Jost display for the logo/hero, Nunito
@@ -60,13 +65,37 @@
     <script src="/_content/Pennington.UI/scripts.js" defer></script>
     <script src="/_content/Pennington.UI/spa-engine.js" defer></script>
 
+    @* Monaco's stylesheet, declared statically so it survives navigation. editor.main.js
+       injects this link itself on a fresh load, but a client-side region swap into
+       /playground would boot Monaco with no CSS. Only the playground uses it; it is a tiny,
+       cached, no-op link on every other page. *@
+    <link rel="stylesheet" href="_content/BlazorMonaco/lib/monaco-editor/min/vs/editor/editor.main.css" />
+    @* Glue for the WebAssembly playground island (preview postMessage + editor theme sync). *@
+    <script src="/js/playground.js" defer></script>
+
     <HeadOutlet />
 </head>
-<body data-sidebar-open="false" class="bg-base-50 dark:bg-base-950 text-base-950 dark:text-base-50 font-sans data-[sidebar-open=true]:overflow-hidden overflow-y-scroll scrollbar-thin scrollbar-thumb-base-300 dark:scrollbar-thumb-base-700 scrollbar-track-base-50 dark:scrollbar-track-base-950 scrollbar-color">
+@* data-enhance-nav="false": the site already does client-side navigation with Pennington's
+   spa-engine, so Blazor's own enhanced navigation (from blazor.web.js, loaded below for the
+   WASM playground island) must stay out of the way. A full load into /playground is what the
+   Monaco editor needs anyway (see the Playground page's data-spa-reload link). *@
+<body data-sidebar-open="false" data-enhance-nav="false" class="bg-base-50 dark:bg-base-950 text-base-950 dark:text-base-50 font-sans data-[sidebar-open=true]:overflow-hidden overflow-y-scroll scrollbar-thin scrollbar-thumb-base-300 dark:scrollbar-thumb-base-700 scrollbar-track-base-50 dark:scrollbar-track-base-950 scrollbar-color">
 <Router AppAssembly="@typeof(Program).Assembly">
     <Found Context="routeData">
         <RouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)"/>
     </Found>
 </Router>
+
+@* Monaco (the playground editor): interop shim + AMD loader + editor bundle, served as static
+   web assets by the BlazorMonaco package referenced through MonorailCss.Docs.Client. Must
+   precede the Blazor script so the editor JS is present when the WASM island boots. *@
+<script src="_content/BlazorMonaco/jsInterop.js"></script>
+<script src="_content/BlazorMonaco/lib/monaco-editor/min/vs/loader.js"></script>
+<script src="_content/BlazorMonaco/lib/monaco-editor/min/vs/editor/editor.main.js"></script>
+
+@* Blazor runtime: activates the interactive-WebAssembly /playground island. Harmless on the
+   static pages — they carry no interactive components — and on the static export it just
+   boots the island in the browser with no server round-trip. *@
+<script src="_framework/blazor.web.js"></script>
 </body>
 </html>

@@ -1,0 +1,455 @@
+@* The interactive playground island: rendered in the browser (WebAssembly) inside the
+   static-SSR /playground page (Components/Pages/Playground.razor in the host). Kept
+   non-routable so the host owns the /playground route and emits it statically; this
+   component just supplies the in-browser interactivity — it compiles the utility classes
+   you type to CSS with the real MonorailCss engine, live, entirely client-side.
+
+   Ported from tests/TryMonorail, restyled to the docs colour scheme (base/primary map to
+   the frosted/sanibel palettes via /styles.css) and laid out full-height like the Beck
+   playground. *@
+@rendermode InteractiveWebAssembly
+@inject IJSRuntime Js
+@implements IAsyncDisposable
+@using System.Text
+@using Global = BlazorMonaco.Editor.Global
+
+<div class="flex h-full flex-col bg-base-50 dark:bg-base-950">
+    @* Panes: editor stack (HTML + generated CSS) on the left, live preview on the right.
+       Stacks vertically below lg. *@
+    <div class="grid min-h-0 flex-1 lg:grid-cols-2 max-lg:grid-rows-2">
+
+        @* Left column: HTML editor (top) over generated CSS (bottom). *@
+        <div class="grid min-h-0 grid-rows-2 border-base-200 dark:border-base-800 lg:border-r max-lg:border-b">
+
+            <div class="flex min-h-0 flex-col border-b border-base-200 dark:border-base-800">
+                <header class="flex flex-none items-center gap-2 border-b border-base-200 bg-base-100 px-4 py-[7px] font-mono text-[11.5px] text-base-500 dark:border-base-800 dark:bg-base-900 dark:text-base-400">
+                    <svg class="h-3.5 w-3.5 text-primary-600 dark:text-primary-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+                    <span>index.html</span>
+                    <button type="button" @onclick="ResetAsync"
+                            class="ml-auto rounded-md border border-base-200 px-2 py-1 text-[11px] font-medium text-base-600 transition-colors hover:border-base-300 hover:text-base-900 dark:border-base-800 dark:text-base-400 dark:hover:border-base-700 dark:hover:text-base-50">
+                        Reset
+                    </button>
+                </header>
+                <div class="min-h-0 flex-auto">
+                    <StandaloneCodeEditor @ref="_htmlEditor" Id="pg-html" CssClass="h-full w-full"
+                                          ConstructionOptions="HtmlEditorOptions"
+                                          OnDidInit="EditorInitAsync"
+                                          OnDidChangeModelContent="ModelChangedAsync" />
+                </div>
+            </div>
+
+            <div class="flex min-h-0 flex-col">
+                <header class="flex flex-none items-center gap-2 border-b border-base-200 bg-base-100 px-4 py-[7px] font-mono text-[11.5px] text-base-500 dark:border-base-800 dark:bg-base-900 dark:text-base-400">
+                    <svg class="h-3.5 w-3.5 text-primary-600 dark:text-primary-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 3h16a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1Z"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>
+                    <span>generated.css</span>
+                </header>
+                <div class="min-h-0 flex-auto">
+                    <StandaloneCodeEditor @ref="_cssEditor" Id="pg-css" CssClass="h-full w-full"
+                                          ConstructionOptions="CssViewerOptions" />
+                </div>
+            </div>
+        </div>
+
+        @* Right column: sandboxed live preview. *@
+        <div class="flex min-h-0 flex-col">
+            <header class="flex flex-none items-center gap-2 border-b border-base-200 bg-base-100 px-4 py-[7px] font-mono text-[11.5px] text-base-500 dark:border-base-800 dark:bg-base-900 dark:text-base-400">
+                <span>preview</span>
+                <span class="ml-auto inline-flex items-center gap-1.5 text-primary-700 dark:text-primary-400">
+                    <span class="h-[7px] w-[7px] animate-pulse rounded-full bg-primary-600 dark:bg-primary-400"></span>live
+                </span>
+            </header>
+            <div class="flex min-h-0 flex-1">
+                <PreviewViewer @ref="_preview" />
+            </div>
+        </div>
+    </div>
+
+    @* Status bar. *@
+    <div class="flex flex-none items-center gap-4 border-t border-base-200 bg-base-100 px-5 py-[7px] font-mono text-[11.5px] text-base-500 dark:border-base-800 dark:bg-base-900 dark:text-base-400">
+        <span>@_classCount classes</span>
+        <span>@FormatBytes(_cssBytes) css</span>
+        <span class="ml-auto">Compiled live by MonorailCss</span>
+    </div>
+</div>
+
+@code {
+    private StandaloneCodeEditor _htmlEditor = null!;
+    private StandaloneCodeEditor _cssEditor = null!;
+    private PreviewViewer _preview = null!;
+
+    // Two engines, both on the docs palette: one with preflight for the isolated preview
+    // iframe (a clean reset), one without for the "generated CSS" pane and the per-class hover.
+    private readonly CssFramework _previewFramework = DocsTheme.CreateFramework(includePreflight: true);
+    private readonly CssFramework _displayFramework = DocsTheme.CreateFramework(includePreflight: false);
+
+    private readonly DebounceHelper _debouncer = new();
+    private DotNetObjectReference<PlaygroundIsland>? _selfRef;
+
+    private string _previousCss = string.Empty;
+    private int _classCount;
+    private int _cssBytes;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender)
+        {
+            return;
+        }
+
+        await RegisterHoverProviderAsync();
+        _selfRef = DotNetObjectReference.Create(this);
+        var theme = await Js.InvokeAsync<string>("monorailPlayground.observeTheme", _selfRef);
+        await Global.SetTheme(Js, theme == "dark" ? "monorail-dark" : "monorail-light");
+    }
+
+    // Flip the editor themes when the docs light/dark toggle stamps/removes `.dark` on <html>.
+    [JSInvokable]
+    public async Task OnHostThemeChanged(string theme) =>
+        await Global.SetTheme(Js, theme == "dark" ? "monorail-dark" : "monorail-light");
+
+    private async Task EditorInitAsync()
+    {
+        await DefineThemesAsync();
+        var dark = await Js.InvokeAsync<bool>("monorailPlayground.isDark");
+        await Global.SetTheme(Js, dark ? "monorail-dark" : "monorail-light");
+
+        // Seed the welcome document. SetValue raises OnDidChangeModelContent, which the
+        // debounce collapses into the first compile; push once explicitly too so the preview
+        // paints immediately rather than after the debounce window.
+        await _htmlEditor.SetValue(InitialHtml);
+        await UpdateViewAsync();
+    }
+
+    private async Task<bool> ModelChangedAsync() =>
+        await _debouncer.DebounceAsync(async _ =>
+        {
+            await UpdateViewAsync();
+            return true;
+        }, 200);
+
+    private async Task ResetAsync()
+    {
+        await _htmlEditor.SetValue(InitialHtml);
+        await UpdateViewAsync();
+    }
+
+    private async Task UpdateViewAsync()
+    {
+        var html = await _htmlEditor.GetValue();
+        var classAttributes = CssParser.GetCssClasses(html).ToArray();
+        _classCount = classAttributes
+            .SelectMany(a => a.Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+            .Distinct()
+            .Count();
+
+        // Preview gets the preflighted CSS; the pane shows the utilities only.
+        var previewCss = _previewFramework.Process(classAttributes);
+        var displayCss = _displayFramework.Process(classAttributes);
+        _cssBytes = Encoding.UTF8.GetByteCount(displayCss);
+
+        if (_previousCss != displayCss)
+        {
+            await _cssEditor.SetValue(displayCss);
+            _previousCss = displayCss;
+        }
+
+        await _preview.UpdateAsync(html, previewCss);
+        StateHasChanged();
+    }
+
+    // ---- per-class CSS hover -------------------------------------------------
+    // Hovering a utility class inside a class="…" attribute shows the CSS it compiles to.
+    private async Task RegisterHoverProviderAsync()
+    {
+        await BlazorMonaco.Languages.Global.RegisterHoverProviderAsync(Js, "html", async (uri, position, _) =>
+        {
+            var model = await Global.GetModel(Js, uri);
+            if (model == null)
+            {
+                return null;
+            }
+
+            var utilityClass = await GetUtilityClassAtPositionAsync(model, position);
+            if (utilityClass == null)
+            {
+                return null;
+            }
+
+            var css = ExtractLayerContent(_displayFramework.Process(utilityClass.ClassName));
+            if (string.IsNullOrWhiteSpace(css))
+            {
+                return null;
+            }
+
+            return new Hover
+            {
+                Contents = [new MarkdownString { Value = $"```css\n{css}\n```", SupportThemeIcons = false }],
+                Range = new BlazorMonaco.Range
+                {
+                    StartLineNumber = position.LineNumber,
+                    EndLineNumber = position.LineNumber,
+                    StartColumn = utilityClass.StartColumn,
+                    EndColumn = utilityClass.EndColumn,
+                },
+            };
+        });
+    }
+
+    private sealed record UtilityClassLocation(string ClassName, int StartColumn, int EndColumn);
+
+    private static async Task<UtilityClassLocation?> GetUtilityClassAtPositionAsync(TextModel model, Position position)
+    {
+        var lineContent = await model.GetLineContent(position.LineNumber);
+        if (string.IsNullOrEmpty(lineContent))
+        {
+            return null;
+        }
+
+        // Monaco columns are 1-indexed; convert to 0-indexed for string work.
+        var cursorIndex = position.Column - 1;
+        if (cursorIndex < 0 || cursorIndex > lineContent.Length)
+        {
+            return null;
+        }
+
+        // Only offer a hover when the caret sits inside a class attribute.
+        var textUpToCursor = lineContent[..cursorIndex];
+        if (!CssParser.IsInCssClass(textUpToCursor))
+        {
+            return null;
+        }
+
+        static bool IsDelimiter(char c) => c is ' ' or '\t' or '"' or '\'' or '<' or '>' or '\n' or '\r';
+
+        if (cursorIndex < lineContent.Length && IsDelimiter(lineContent[cursorIndex]))
+        {
+            return null;
+        }
+
+        var startIndex = cursorIndex;
+        while (startIndex > 0 && !IsDelimiter(lineContent[startIndex - 1]))
+        {
+            startIndex--;
+        }
+
+        var endIndex = cursorIndex;
+        while (endIndex < lineContent.Length && !IsDelimiter(lineContent[endIndex]))
+        {
+            endIndex++;
+        }
+
+        var className = lineContent.Substring(startIndex, endIndex - startIndex);
+        if (string.IsNullOrWhiteSpace(className))
+        {
+            return null;
+        }
+
+        // Back to 1-indexed Monaco columns.
+        return new UtilityClassLocation(className, startIndex + 1, endIndex + 1);
+    }
+
+    // ---- Monaco setup --------------------------------------------------------
+    private static StandaloneEditorConstructionOptions StandardOptions() => new()
+    {
+        AutomaticLayout = true,
+        GlyphMargin = false,
+        Scrollbar = new EditorScrollbarOptions { HorizontalScrollbarSize = 8, VerticalScrollbarSize = 8 },
+        RenderLineHighlight = "none",
+        FontFamily = "'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace",
+        FontSize = 13,
+        LineHeight = 21,
+        ColorDecorators = true,
+        Padding = new EditorPaddingOptions { Top = 10, Bottom = 10 },
+        Hover = new EditorHoverOptions { Enabled = true, Delay = 200 },
+        Minimap = new EditorMinimapOptions { Enabled = false },
+        Contextmenu = false,
+        Theme = "monorail-light",
+    };
+
+    private static StandaloneEditorConstructionOptions HtmlEditorOptions(StandaloneCodeEditor _)
+    {
+        var opts = StandardOptions();
+        opts.Language = "html";
+        return opts;
+    }
+
+    private static StandaloneEditorConstructionOptions CssViewerOptions(StandaloneCodeEditor _)
+    {
+        var opts = StandardOptions();
+        opts.Language = "css";
+        opts.ReadOnly = true;
+        opts.ColorDecorators = false;
+        return opts;
+    }
+
+    // Two brand-tinted Monaco themes; background transparent so the pane's base-* colour shows
+    // through and the editor tracks the docs light/dark toggle.
+    private async Task DefineThemesAsync()
+    {
+        await Global.DefineTheme(Js, "monorail-light", new StandaloneThemeData
+        {
+            Base = "vs",
+            Inherit = true,
+            Rules = [],
+            Colors = new Dictionary<string, string>
+            {
+                ["editor.background"] = "#00000000",
+                ["editorLineNumber.foreground"] = "#b8b2ab",
+                ["editorLineNumber.activeForeground"] = "#6b645c",
+                ["editorCursor.foreground"] = "#8a5a2b",
+                ["editor.selectionBackground"] = "#e7d8c6",
+            },
+        });
+
+        await Global.DefineTheme(Js, "monorail-dark", new StandaloneThemeData
+        {
+            Base = "vs-dark",
+            Inherit = true,
+            Rules = [],
+            Colors = new Dictionary<string, string>
+            {
+                ["editor.background"] = "#00000000",
+                ["editorLineNumber.foreground"] = "#4a453f",
+                ["editorLineNumber.activeForeground"] = "#a39c93",
+                ["editorCursor.foreground"] = "#d6a06a",
+                ["editor.selectionBackground"] = "#3a3128",
+            },
+        });
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        // _selfRef is only created in OnAfterRenderAsync, which runs in the browser — never
+        // during the server prerender. So its presence is our signal that JS is actually
+        // available; skipping the call otherwise avoids "interop during static rendering".
+        if (_selfRef is null)
+        {
+            return;
+        }
+
+        try
+        {
+            // Disconnect the theme MutationObserver before dropping the .NET ref it calls back into.
+            await Js.InvokeVoidAsync("monorailPlayground.disposeTheme");
+        }
+        catch (JSDisconnectedException)
+        {
+            // Circuit already gone (page unloading) — nothing to clean up.
+        }
+
+        _selfRef.Dispose();
+    }
+
+    // ---- helpers -------------------------------------------------------------
+    private static string FormatBytes(int bytes) =>
+        bytes < 1024 ? $"{bytes} B" : $"{bytes / 1024.0:0.0} KB";
+
+    // Show only the `@layer utilities` body in the hover / a lean view — strip the surrounding
+    // theme scaffolding. Ported from tests/TryMonorail.
+    private static string ExtractLayerContent(string css)
+    {
+        if (!css.Contains("@layer"))
+        {
+            return css;
+        }
+
+        var layerStart = css.IndexOf("@layer utilities", StringComparison.Ordinal);
+        if (layerStart == -1)
+        {
+            return css;
+        }
+
+        var openBraceIndex = css.IndexOf('{', layerStart);
+        if (openBraceIndex == -1)
+        {
+            return css;
+        }
+
+        var braceCount = 1;
+        var closeBraceIndex = openBraceIndex + 1;
+        while (closeBraceIndex < css.Length && braceCount > 0)
+        {
+            switch (css[closeBraceIndex])
+            {
+                case '{': braceCount++; break;
+                case '}': braceCount--; break;
+            }
+
+            closeBraceIndex++;
+        }
+
+        if (braceCount != 0)
+        {
+            return css;
+        }
+
+        var content = css.Substring(openBraceIndex + 1, closeBraceIndex - openBraceIndex - 2);
+        return RemoveCommonLeadingWhitespace(content);
+    }
+
+    private static string RemoveCommonLeadingWhitespace(string text)
+    {
+        var lines = text.Split(["\r\n", "\r", "\n"], StringSplitOptions.None);
+
+        var minLeadingSpaces = int.MaxValue;
+        foreach (var line in lines)
+        {
+            if (string.IsNullOrWhiteSpace(line))
+            {
+                continue;
+            }
+
+            var leadingSpaces = 0;
+            foreach (var c in line)
+            {
+                if (c is ' ' or '\t')
+                {
+                    leadingSpaces++;
+                }
+                else
+                {
+                    break;
+                }
+            }
+
+            minLeadingSpaces = Math.Min(minLeadingSpaces, leadingSpaces);
+        }
+
+        if (minLeadingSpaces is int.MaxValue or 0)
+        {
+            return text.Trim('\r', '\n');
+        }
+
+        var result = new StringBuilder();
+        foreach (var line in lines)
+        {
+            if (string.IsNullOrWhiteSpace(line))
+            {
+                result.AppendLine();
+            }
+            else
+            {
+                result.AppendLine(line[Math.Min(minLeadingSpaces, line.Length)..]);
+            }
+        }
+
+        return result.ToString().Trim('\r', '\n');
+    }
+
+    private const string InitialHtml = """
+        <!-- Edit this markup — the preview and CSS recompile live in your browser. -->
+        <div class="grid min-h-screen place-items-center bg-gradient-to-br from-base-100 to-base-200 p-6 font-sans">
+          <div class="w-full max-w-sm rounded-3xl bg-base-50 p-8 shadow-2xl shadow-primary-950/10 ring-1 ring-base-950/5">
+            <div class="flex size-12 items-center justify-center rounded-2xl bg-gradient-to-br from-primary-500 to-accent-500 text-white shadow-lg shadow-primary-600/30">
+              <svg class="size-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m4 12 5 5L20 6" /></svg>
+            </div>
+            <h1 class="mt-6 text-2xl font-bold tracking-tight text-base-900">Styled by MonorailCss</h1>
+            <p class="mt-2 text-sm leading-relaxed text-base-600">Every class here compiled to CSS in your browser — edit the markup and watch it update live.</p>
+            <div class="mt-7 flex items-center gap-3">
+              <button class="flex-1 rounded-xl bg-primary-600 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-primary-700">Get started</button>
+              <button class="rounded-xl px-4 py-2.5 text-sm font-semibold text-base-600 transition-colors hover:bg-base-100">Docs</button>
+            </div>
+          </div>
+        </div>
+        """;
+}
