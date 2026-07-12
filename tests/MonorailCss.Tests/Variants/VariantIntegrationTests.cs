@@ -267,6 +267,51 @@ public class VariantIntegrationTests
         result.Selector.Value.ShouldBe(".border-red-500:is(:where(.peer):focus ~ *)");
     }
 
+    // group-/peer- are compound variants: their sub-variant should resolve against the full
+    // variant vocabulary, not a hardcoded pseudo-class list. Named-state sub-variants (aria-*,
+    // data-*, open, disabled, …) previously fell through and dropped the whole variant.
+    [Theory]
+    [InlineData("group-aria-expanded:rotate-180", "rotate-180", ".rotate-180:is(:where(.group)[aria-expanded=\"true\"] *)")]
+    [InlineData("group-open:flex", "flex", ".flex:is(:where(.group):is([open],:popover-open,:open) *)")]
+    [InlineData("group-data-[state=open]:block", "block", ".block:is(:where(.group)[data-state=\"open\"] *)")]
+    [InlineData("group-disabled:opacity-50", "opacity-50", ".opacity-50:is(:where(.group):disabled *)")]
+    public void ApplyGroupVariant_WithNamedStateSubVariant_ComposesSelector(string input, string baseClass, string expected)
+    {
+        _parser.TryParseCandidate(input, out var candidate);
+        var result = _registry.ApplyVariants(baseClass, candidate!.Variants);
+
+        result.Selector.Value.ShouldBe(expected);
+    }
+
+    [Fact]
+    public void ApplyPeerVariant_WithNamedStateSubVariant_ComposesSelector()
+    {
+        _parser.TryParseCandidate("peer-aria-checked:block", out var candidate);
+        var result = _registry.ApplyVariants("block", candidate!.Variants);
+
+        result.Selector.Value.ShouldBe(".block:is(:where(.peer)[aria-checked=\"true\"] ~ *)");
+    }
+
+    // An arbitrary variant's unescaped underscore decodes to a descendant space, so [&_svg]
+    // targets `& svg` (emitted via CSS nesting) rather than a literal `&_svg`.
+    [Fact]
+    public void ApplyArbitraryVariant_WithDescendantUnderscore_ProducesNestedDescendant()
+    {
+        _parser.TryParseCandidate("[&_svg]:w-4", out var candidate);
+        var result = _registry.ApplyVariants("w-4", candidate!.Variants);
+
+        result.Selector.NestedSelector.ShouldBe("& svg");
+    }
+
+    [Fact]
+    public void ApplyArbitraryVariant_WithEscapedUnderscore_KeepsLiteralUnderscore()
+    {
+        _parser.TryParseCandidate("[&.foo\\_bar]:w-4", out var candidate);
+        var result = _registry.ApplyVariants("w-4", candidate!.Variants);
+
+        result.Selector.Value.ShouldBe(".w-4.foo_bar");
+    }
+
     [Fact]
     public void ApplyPseudoElementVariants_ShouldAddDoubleColon()
     {

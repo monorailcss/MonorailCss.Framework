@@ -81,9 +81,11 @@ internal class ApplyProcessor
         // Handle special cases for component selectors
         if (selectorString.StartsWith("."))
         {
-            // Regular class selector - replace with component selector
+            // Regular class selector - replace with component selector. The delimiters mark where
+            // the base class ends and a variant's added qualifier begins: `.` (compound class, e.g.
+            // [&.is-active] → .x.is-active), `:` (pseudo), `[` (attribute), ` `/`>` (combinators).
             var className = selectorString[1..];
-            var parts = className.Split([':', '[', ' ', '>'], 2);
+            var parts = className.Split([':', '[', ' ', '>', '.'], 2);
             if (parts.Length > 1)
             {
                 // Has modifiers after the class name
@@ -214,10 +216,13 @@ internal class ApplyProcessor
         // Run the processed classes through the pipeline to apply all transformations
         _pipeline.Process(ImmutableList<AstNode>.Empty, pipelineContext);
 
-        // Now group the processed classes by variant
+        // Now group the processed classes by variant. Key on the canonical Raw form, not Name:
+        // two variants can share a Name but target different selectors (e.g. data-[type=a] and
+        // data-[type=b] are both Name "data"), and keying on Name would collapse them into one
+        // rule with the first selector and the last value.
         foreach (var processedClass in processedClasses)
         {
-            var variantKey = string.Join(":", processedClass.Candidate.Variants.Select(v => v.Name));
+            var variantKey = string.Join(":", processedClass.Candidate.Variants.Select(v => v.Raw));
 
             if (!variantGroups.TryGetValue(variantKey, out var value))
             {
@@ -303,7 +308,17 @@ internal class ApplyProcessor
 
                     // Extract the final selector and handle any at-rule wrappers
                     var finalSelector = ConvertAppliedSelectorToComponentSelector(appliedSelector, selectorBase) + pseudoElement;
-                    var styleRule = new StyleRule(finalSelector, mergedDeclarations.Cast<AstNode>().ToImmutableList());
+
+                    // A combinator arbitrary variant ([&+&], [&_svg], [&>*]) rides a NestedSelector
+                    // rather than a flat selector; emit it as a CSS-nested rule the same way the
+                    // utility pipeline does, otherwise the combinator is lost and the declarations
+                    // land flat on the component selector.
+                    AstNode styleRule = appliedSelector.Selector.NestedSelector != null
+                        ? new StyleRule(
+                            finalSelector,
+                            ImmutableList.Create<AstNode>(
+                                new NestedRule(appliedSelector.Selector.NestedSelector, mergedDeclarations.Cast<AstNode>().ToImmutableList())))
+                        : new StyleRule(finalSelector, mergedDeclarations.Cast<AstNode>().ToImmutableList());
 
                     // Wrap in any at-rules (media queries, supports, etc.)
                     AstNode ruleToAdd = styleRule;

@@ -48,6 +48,13 @@ internal class VariantTokenizer
     }
 
     /// <summary>
+    /// Parses a single variant segment (no colon separators) into a token. Used to resolve the
+    /// sub-variant of a compound variant (e.g. the <c>aria-expanded</c> in <c>group-aria-expanded</c>)
+    /// against the full variant vocabulary. Returns null for an empty segment.
+    /// </summary>
+    public VariantToken? ParseSegment(string segment) => ParseVariantToken(segment);
+
+    /// <summary>
     /// Variant names that contain hyphens and resemble functional/compound forms (e.g.
     /// <c>not-open</c> looks like <c>not-[selector]</c>) but should resolve as a single
     /// static variant. Tokenization checks this set before the functional/compound rules so

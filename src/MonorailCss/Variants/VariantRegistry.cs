@@ -13,6 +13,7 @@ internal sealed class VariantRegistry
 {
     private readonly Dictionary<string, IVariant> _variants = new();
     private readonly List<IVariant> _orderedVariants = [];
+    private readonly VariantTokenizer _tokenizer = new();
 
     /// <summary>
     /// Registers a variant in the registry.
@@ -104,6 +105,47 @@ internal sealed class VariantRegistry
     }
 
     /// <summary>
+    /// Applies a single sub-variant — the part after <c>group-</c>/<c>peer-</c>, e.g. <c>hover</c>,
+    /// <c>aria-expanded</c>, <c>open</c>, or <c>data-[state=open]</c> — to <paramref name="baseSelector"/>
+    /// and returns the composed selector. This lets the group/peer compound variants reuse the full
+    /// variant vocabulary instead of a hardcoded pseudo-class list. Returns false when the sub-variant
+    /// isn't recognized or can't compose into a flat selector (it produces an at-rule wrapper or CSS
+    /// nesting, neither of which is meaningful qualifying a group/peer element).
+    /// </summary>
+    public bool TryApplySubVariant(string subVariant, Selector baseSelector, out Selector result)
+    {
+        result = baseSelector;
+
+        if (_tokenizer.ParseSegment(subVariant) is not { } token)
+        {
+            return false;
+        }
+
+        var applied = AppliedSelector.FromSelector(baseSelector);
+        foreach (var variant in _orderedVariants)
+        {
+            // A sub-variant is a single, non-compound step — never recurse back into group/peer.
+            if (variant is GroupVariant or PeerVariant)
+            {
+                continue;
+            }
+
+            if (variant.CanHandle(token) && variant.TryApply(applied, token, out var applyResult))
+            {
+                if (!applyResult.Wrappers.IsEmpty || applyResult.Selector.NestedSelector != null)
+                {
+                    return false;
+                }
+
+                result = applyResult.Selector;
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /// <summary>
     /// Calculates the combined weight for a sequence of variants.
     /// Used for sorting classes with multiple variants.
     /// </summary>
@@ -156,8 +198,8 @@ internal sealed class VariantRegistry
         Register(new MotionVariant("motion-safe", 130));
         Register(new MotionVariant("motion-reduce", 140));
 
-        Register(new GroupVariant(200));
-        Register(new PeerVariant(250));
+        Register(new GroupVariant(200, this));
+        Register(new PeerVariant(250, this));
 
         // Tailwind v4 child-targeting variants:
         //   *:  → .class > *
