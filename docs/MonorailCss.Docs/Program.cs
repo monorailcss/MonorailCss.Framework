@@ -1,6 +1,7 @@
 using System.Collections.Immutable;
 using Beck;
 using MonorailCss;
+using MonorailCss.Docs;
 using MonorailCss.Docs.Components;
 using MonorailCss.Docs.Services;
 using MonorailCss.Theme;
@@ -12,6 +13,7 @@ using Pennington.FrontMatter;
 using Pennington.Infrastructure;
 using Pennington.LlmsTxt;
 using Pennington.MonorailCss;
+using Pennington.SocialCards;
 using Pennington.TreeSitter;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -112,6 +114,15 @@ builder.Services.AddPennington(options =>
         md.ContentPath = "Content";
         md.BasePageUrl = "/";
     });
+
+    options.SocialCards = new SocialCardOptions
+    {
+        Render = (request, sp, _) =>
+        {
+            var environment = sp.GetRequiredService<IWebHostEnvironment>();
+            return SocialCardGenerator.Build(request, environment);
+        },
+    };
 
     // /llms.txt + /_llms/*.md sidecars. On a bare host this is opt-in (AddDocSite
     // used to turn it on for us). The /utility/ subtree split is layered on below
