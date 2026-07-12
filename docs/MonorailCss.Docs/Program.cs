@@ -16,7 +16,12 @@ using Pennington.TreeSitter;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddRazorComponents();
+// Static SSR for the whole site PLUS interactive-WebAssembly components: the /playground
+// island (MonorailCss.Docs.Client) compiles utility classes to CSS entirely in the browser
+// via MonorailCss compiled to WASM. Every other page stays static SSR, so the site still
+// deploys as static files.
+builder.Services.AddRazorComponents()
+    .AddInteractiveWebAssemblyComponents();
 
 var colorScheme = new NamedColorScheme
 {
@@ -186,6 +191,10 @@ app.UsePennington();
 app.UseMonorailCss();
 app.UseAntiforgery();
 app.MapStaticAssets();
-app.MapRazorComponents<App>();
+app.MapRazorComponents<App>()
+    // The /playground route is a static-SSR page in this host; its interactive UI is a
+    // WebAssembly island (MonorailCss.Docs.Client) bundled via the project reference. No
+    // routable components live in the client assembly, so no AddAdditionalAssemblies is needed.
+    .AddInteractiveWebAssemblyRenderMode();
 
 await app.RunOrBuildAsync(args);

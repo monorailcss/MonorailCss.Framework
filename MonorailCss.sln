@@ -33,6 +33,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MonorailCss.Build.Tasks.Tes
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MonorailCss.SourceGenerator", "src\MonorailCss.SourceGenerator\MonorailCss.SourceGenerator.csproj", "{9ABB6D5F-126F-48DB-B73A-D512C76A6B44}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MonorailCss.Docs.Client", "docs\MonorailCss.Docs.Client\MonorailCss.Docs.Client.csproj", "{AA502B61-FE0D-4C66-84BE-E3451F925CB8}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -187,6 +189,18 @@ Global
 		{9ABB6D5F-126F-48DB-B73A-D512C76A6B44}.Release|x64.Build.0 = Release|Any CPU
 		{9ABB6D5F-126F-48DB-B73A-D512C76A6B44}.Release|x86.ActiveCfg = Release|Any CPU
 		{9ABB6D5F-126F-48DB-B73A-D512C76A6B44}.Release|x86.Build.0 = Release|Any CPU
+		{AA502B61-FE0D-4C66-84BE-E3451F925CB8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AA502B61-FE0D-4C66-84BE-E3451F925CB8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AA502B61-FE0D-4C66-84BE-E3451F925CB8}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{AA502B61-FE0D-4C66-84BE-E3451F925CB8}.Debug|x64.Build.0 = Debug|Any CPU
+		{AA502B61-FE0D-4C66-84BE-E3451F925CB8}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{AA502B61-FE0D-4C66-84BE-E3451F925CB8}.Debug|x86.Build.0 = Debug|Any CPU
+		{AA502B61-FE0D-4C66-84BE-E3451F925CB8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AA502B61-FE0D-4C66-84BE-E3451F925CB8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AA502B61-FE0D-4C66-84BE-E3451F925CB8}.Release|x64.ActiveCfg = Release|Any CPU
+		{AA502B61-FE0D-4C66-84BE-E3451F925CB8}.Release|x64.Build.0 = Release|Any CPU
+		{AA502B61-FE0D-4C66-84BE-E3451F925CB8}.Release|x86.ActiveCfg = Release|Any CPU
+		{AA502B61-FE0D-4C66-84BE-E3451F925CB8}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -204,5 +218,6 @@ Global
 		{07BF4948-3A48-4631-8A72-EEEF9D2C5986} = {827E0CD3-B72D-47B6-A68D-7590B98EB39B}
 		{08ACD7FE-5E55-493A-9EF2-8FC6262F0536} = {0AB3BF05-4346-4AA6-1389-037BE0695223}
 		{9ABB6D5F-126F-48DB-B73A-D512C76A6B44} = {827E0CD3-B72D-47B6-A68D-7590B98EB39B}
+		{AA502B61-FE0D-4C66-84BE-E3451F925CB8} = {208BA388-4CEE-2CBF-559C-5607C099C1F8}
 	EndGlobalSection
 EndGlobal

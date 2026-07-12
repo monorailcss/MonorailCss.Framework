@@ -1,0 +1,14 @@
+@inherits LayoutComponentBase
+
+@* Full-viewport playground shell: the same MonorailCss docs heading and colour scheme, but
+   the bar spans the full width and there is no sidebar or max-width cap — so the editor and
+   preview fill the screen, like the Beck playground. A fixed-height flex column: the header is
+   flex-none and the island fills the rest (min-h-0 lets it shrink to the viewport). *@
+<div class="h-screen flex flex-col overflow-hidden bg-base-50 dark:bg-base-950 text-base-950 dark:text-base-50 font-sans">
+    <SiteHeader ShowSidebarToggle="false"
+                HeaderClass="flex-none flex items-center gap-4 px-6 lg:px-8 py-3 border-b border-base-200 dark:border-base-800 bg-base-50/75 dark:bg-base-950/75 backdrop-blur-md supports-[backdrop-filter]:bg-base-50/60 dark:supports-[backdrop-filter]:bg-base-950/60" />
+
+    <main class="flex-1 min-h-0">
+        @Body
+    </main>
+</div>

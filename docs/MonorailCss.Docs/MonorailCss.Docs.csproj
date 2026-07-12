@@ -15,6 +15,9 @@
     <PackageReference Include="Pennington.MonorailCss" Version="0.1.7" />
     <PackageReference Include="Pennington.TreeSitter" Version="0.1.7" />
     <PackageReference Include="Pennington.UI" Version="0.1.7" />
+    <!-- Host-side WebAssembly render-mode wiring (AddInteractiveWebAssembly*), which is not
+         part of the Microsoft.AspNetCore.App shared framework. Backs the /playground island. -->
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="10.0.9" />
   </ItemGroup>
 
   <ItemGroup>
@@ -22,11 +25,17 @@
     <Watch Include="Components\**\*.razor" />
     <Watch Include="Components\**\*.razor.cs" />
     <Watch Include="..\MonorailCss.Docs.Samples\**\*.cs" />
+    <Watch Include="..\MonorailCss.Docs.Client\**\*.razor" />
+    <Watch Include="..\MonorailCss.Docs.Client\**\*.cs" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\MonorailCss\MonorailCss.csproj" />
     <ProjectReference Include="..\MonorailCss.Docs.Samples\MonorailCss.Docs.Samples.csproj" />
+    <!-- The Blazor WebAssembly client: hosts the interactive /playground island. Referencing
+         it bundles its WASM payload into this host's static web assets, so the static export
+         ships it. -->
+    <ProjectReference Include="..\MonorailCss.Docs.Client\MonorailCss.Docs.Client.csproj" />
   </ItemGroup>
 
 </Project>
