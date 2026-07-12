@@ -3,13 +3,16 @@ using MonorailCss.Css;
 namespace MonorailCss.Variants.BuiltIn;
 
 /// <summary>
-/// Variant for group interactions (group-hover, group-focus, etc.).
+/// Variant for group interactions (group-hover, group-focus, group-aria-expanded, etc.).
 /// </summary>
 internal class GroupVariant : IVariant
 {
-    public GroupVariant(int weight)
+    private readonly VariantRegistry _registry;
+
+    public GroupVariant(int weight, VariantRegistry registry)
     {
         Weight = weight;
+        _registry = registry;
     }
 
     public string Name => "group";
@@ -58,12 +61,13 @@ internal class GroupVariant : IVariant
             return true;
         }
 
-        // Named pseudo-class compounds (group-hover, group-focus, etc.)
-        var pseudoClass = GetPseudoClass(token.Value);
-        if (pseudoClass != null)
+        // Named sub-variant (group-hover, group-focus, group-aria-expanded, group-open,
+        // group-data-[state=open], ...). Delegate to the full variant vocabulary by applying the
+        // sub-variant to the group reference, then descend from it: `:is(:where(.group)<sub> *)`.
+        if (_registry.TryApplySubVariant(token.Value, new Selector($":where({groupClass})"), out var composed))
         {
             result = current.TransformSelector(s =>
-                new Selector($"{s.Value}:is(:where({groupClass}){pseudoClass} *)"));
+                new Selector($"{s.Value}:is({composed.Value} *)"));
             return true;
         }
 
@@ -81,31 +85,19 @@ internal class GroupVariant : IVariant
         inner = string.Empty;
         return false;
     }
-
-    private string? GetPseudoClass(string value)
-    {
-        return value switch
-        {
-            "hover" => ":hover",
-            "focus" => ":focus",
-            "focus-visible" => ":focus-visible",
-            "active" => ":active",
-            "visited" => ":visited",
-            "disabled" => ":disabled",
-            "checked" => ":checked",
-            _ => null,
-        };
-    }
 }
 
 /// <summary>
-/// Variant for peer interactions (peer-hover, peer-focus, etc.).
+/// Variant for peer interactions (peer-hover, peer-focus, peer-aria-expanded, etc.).
 /// </summary>
 internal class PeerVariant : IVariant
 {
-    public PeerVariant(int weight)
+    private readonly VariantRegistry _registry;
+
+    public PeerVariant(int weight, VariantRegistry registry)
     {
         Weight = weight;
+        _registry = registry;
     }
 
     public string Name => "peer";
@@ -149,11 +141,11 @@ internal class PeerVariant : IVariant
             return true;
         }
 
-        var pseudoClass = GetPseudoClass(token.Value);
-        if (pseudoClass != null)
+        // Named sub-variant — delegate as with group, but as a following sibling: `~ *`.
+        if (_registry.TryApplySubVariant(token.Value, new Selector($":where({peerClass})"), out var composed))
         {
             result = current.TransformSelector(s =>
-                new Selector($"{s.Value}:is(:where({peerClass}){pseudoClass} ~ *)"));
+                new Selector($"{s.Value}:is({composed.Value} ~ *)"));
             return true;
         }
 
@@ -170,20 +162,5 @@ internal class PeerVariant : IVariant
 
         inner = string.Empty;
         return false;
-    }
-
-    private string? GetPseudoClass(string value)
-    {
-        return value switch
-        {
-            "hover" => ":hover",
-            "focus" => ":focus",
-            "focus-visible" => ":focus-visible",
-            "active" => ":active",
-            "visited" => ":visited",
-            "disabled" => ":disabled",
-            "checked" => ":checked",
-            _ => null,
-        };
     }
 }

@@ -108,9 +108,10 @@ public class VariantRegistryTests
     [Fact]
     public void ApplyVariants_ShouldHandleCompoundVariants()
     {
+        // group/peer are compound variants: they resolve their sub-variant (hover, focus, aria-*,
+        // …) against the rest of the vocabulary, so the full built-in set must be registered.
         var registry = new VariantRegistry();
-        registry.Register(new GroupVariant(200));
-        registry.Register(new PeerVariant(250));
+        registry.RegisterBuiltInVariants(new MonorailCss.Theme.Theme());
 
         var variants = new[]
         {

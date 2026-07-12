@@ -376,4 +376,86 @@ public class AppliesIntegrationTest
         result.ShouldContain(".p-shard-file");
         result.ShouldContain("background-color: color-mix(");
     }
+
+    // A variant in an Applies value must transform the component selector the same way it does on
+    // a utility class. These previously flattened onto the bare key (dropping the variant selector)
+    // or, for repeated functional variants, collapsed into one rule with the last value.
+
+    [Fact]
+    public void Process_WithSelfClassArbitraryVariant_ComposesCompoundSelector()
+    {
+        var settings = new CssFrameworkSettings
+        {
+            IncludePreflight = false,
+            Applies = ImmutableDictionary<string, string>.Empty
+                .Add(".x", "[&.on]:text-red-500"),
+        };
+
+        var result = new CssFramework(settings).Process("");
+
+        result.ShouldContain(".x.on {");
+        result.ShouldContain("color: var(--color-red-500)");
+    }
+
+    [Fact]
+    public void Process_WithSiblingArbitraryVariant_EmitsNestedCombinatorRule()
+    {
+        var settings = new CssFrameworkSettings
+        {
+            IncludePreflight = false,
+            Applies = ImmutableDictionary<string, string>.Empty
+                .Add(".x", "[&+&]:mt-4"),
+        };
+
+        var result = new CssFramework(settings).Process("");
+
+        // Emitted as CSS nesting: `.x { &+& { margin-top: … } }`.
+        result.ShouldContain("&+&");
+        result.ShouldContain("margin-top: calc(var(--spacing) * 4)");
+    }
+
+    [Fact]
+    public void Process_WithDescendantArbitraryVariant_EmitsNestedDescendantRule()
+    {
+        var settings = new CssFrameworkSettings
+        {
+            IncludePreflight = false,
+            Applies = ImmutableDictionary<string, string>.Empty
+                .Add(".x", "[&_svg]:w-4"),
+        };
+
+        var result = new CssFramework(settings).Process("");
+
+        // The underscore decodes to a descendant space, emitted as `.x { & svg { width: … } }`.
+        result.ShouldContain("& svg");
+        result.ShouldContain("width: calc(var(--spacing) * 4)");
+    }
+
+    [Fact]
+    public void Process_WithMultipleDataVariants_EmitsDistinctRules()
+    {
+        var settings = new CssFrameworkSettings
+        {
+            IncludePreflight = false,
+            Applies = ImmutableDictionary<string, string>.Empty
+                .Add(".x", "data-[type=a]:text-red-500 data-[type=b]:text-blue-500"),
+        };
+
+        var result = new CssFramework(settings).Process("");
+
+        // Two independent rules, each with its own selector AND its own value — not one merged rule.
+        result.ShouldContain(".x[data-type=\"a\"] {");
+        result.ShouldContain(".x[data-type=\"b\"] {");
+
+        // Each rule keeps its own colour (order-independent; declarations are flat, no nested braces).
+        static string RuleBody(string css, string selector)
+        {
+            var open = css.IndexOf('{', css.IndexOf(selector + " {", StringComparison.Ordinal));
+            var close = css.IndexOf('}', open);
+            return css.Substring(open, close - open);
+        }
+
+        RuleBody(result, ".x[data-type=\"a\"]").ShouldContain("--color-red-500");
+        RuleBody(result, ".x[data-type=\"b\"]").ShouldContain("--color-blue-500");
+    }
 }

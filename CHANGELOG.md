@@ -29,6 +29,24 @@ contract may still shift.
   regenerates CSS live. Previously these files were scanned once at startup but live edits to them
   were missed until the next process start.
 
+### Fixed
+
+- **`group-`/`peer-` now compose with any named-state sub-variant.** `GroupVariant`/`PeerVariant`
+  previously resolved their sub-variant against a hardcoded pseudo-class list (hover/focus/…), so
+  `group-aria-expanded`, `group-open`, `group-disabled`, `group-data-[state=open]` (and the `peer-`
+  equivalents) were silently dropped. They now delegate the sub-variant to the full variant
+  vocabulary (`VariantRegistry.TryApplySubVariant`), e.g. `group-aria-expanded:` →
+  `:is(:where(.group)[aria-expanded="true"] *)`. `group-hover`/`peer-focus` output is unchanged.
+- **Arbitrary variant underscores decode to spaces.** `[&_svg]:` now targets the descendant
+  `& svg` (emitted via CSS nesting, like `[&>x]`) instead of a literal `&_svg`; `\_` escapes a
+  literal underscore. `[@media_screen]`-style at-rule variants benefit too.
+- **`Applies` (`@apply`-style component classes) now honor variant selectors.** A variant in an
+  `Applies` value previously flattened onto the bare key selector, dropping the variant's selector
+  transform. Fixed for compound-class (`[&.is-active]:` → `.x.is-active`), sibling/descendant
+  combinator (`[&+&]:`, `[&_svg]:` → CSS-nested rules), and repeated functional variants:
+  `data-[type=a]:… data-[type=b]:…` no longer collapse into one rule (they were keyed by variant
+  *name*, now by canonical raw form) but emit distinct rules, each with its own selector and value.
+
 ## [0.1.0]
 
 First release out of alpha. MonorailCSS now ships as three packages —

@@ -1,3 +1,4 @@
+using System.Text;
 using MonorailCss.Css;
 
 namespace MonorailCss.Variants.BuiltIn;
@@ -40,6 +41,41 @@ internal class ArbitraryVariant : IVariant
         return nextChar == '>' || nextChar == '+' || nextChar == '~' || nextChar == ' ';
     }
 
+    /// <summary>
+    /// Decodes the arbitrary-value underscore convention: an unescaped <c>_</c> becomes a space
+    /// (so <c>[&amp;_svg]</c> targets the descendant <c>&amp; svg</c> and <c>[@media_screen]</c>
+    /// reads as <c>@media screen</c>), while <c>\_</c> is preserved as a literal underscore.
+    /// No-ops when there is no underscore.
+    /// </summary>
+    private static string DecodeUnderscores(string content)
+    {
+        if (!content.Contains('_'))
+        {
+            return content;
+        }
+
+        var sb = new StringBuilder(content.Length);
+        for (var i = 0; i < content.Length; i++)
+        {
+            var c = content[i];
+            if (c == '\\' && i + 1 < content.Length && content[i + 1] == '_')
+            {
+                sb.Append('_');
+                i++;
+            }
+            else if (c == '_')
+            {
+                sb.Append(' ');
+            }
+            else
+            {
+                sb.Append(c);
+            }
+        }
+
+        return sb.ToString();
+    }
+
     public bool TryApply(AppliedSelector current, VariantToken token, out AppliedSelector result)
     {
         result = current;
@@ -56,6 +92,10 @@ internal class ArbitraryVariant : IVariant
         {
             content = content[1..^1];
         }
+
+        // Underscores decode to spaces (the standard arbitrary-value rule) before we decide
+        // between nesting and a flat selector, so `[&_svg]` reads as the descendant `& svg`.
+        content = DecodeUnderscores(content);
 
         // Check if it's an at-rule
         if (content.StartsWith('@'))
@@ -79,7 +119,7 @@ internal class ArbitraryVariant : IVariant
             // Combinators: > (child), + (adjacent sibling), ~ (general sibling), space (descendant)
             if (NeedsCssNesting(content))
             {
-                // CSS nesting for combinators (e.g., [&>:first-child], [&+.sibling])
+                // CSS nesting for combinators (e.g., [&>:first-child], [&+.sibling], [&_svg])
                 result = current.TransformSelector(s => s.AsNestedSelector(content));
             }
             else
