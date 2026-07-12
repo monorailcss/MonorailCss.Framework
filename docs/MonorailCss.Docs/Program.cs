@@ -105,6 +105,15 @@ builder.Services.AddPennington(options =>
 {
     options.SiteTitle = "MonorailCss Documentation";
     options.SiteDescription = "A JIT CSS compiler that aims to be Tailwind CSS 4.3 compatible, written in .NET";
+
+    // The production origin, including the GitHub Pages project subdirectory (the build is
+    // published under `--base-url /MonorailCss.Framework/`, so this must carry that prefix too).
+    // OpenGraph/Twitter crawlers require an absolute og:image URL: without CanonicalBaseUrl the
+    // social-card tags fall back to root-relative paths that work in dev but don't unfurl when
+    // shared — and the base-url rewriter only rewrites href/src, not <meta content>. Setting it
+    // also makes the canonical link, sitemap, and llms.txt URLs absolute.
+    options.CanonicalBaseUrl = "https://monorailcss.github.io/MonorailCss.Framework";
+
     options.ContentRootPath = new Pennington.Routing.FilePath("Content");
 
     // The docs pages: Content/**/*.md bound to the core DocFrontMatter shape, which
