@@ -46,7 +46,7 @@
                       OutputItemType="Analyzer" ReferenceOutputAssembly="false" PrivateAssets="all" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="JetBrains.Annotations.Sources" Version="2025.2.4">
+    <PackageReference Include="JetBrains.Annotations.Sources" Version="2026.2.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
