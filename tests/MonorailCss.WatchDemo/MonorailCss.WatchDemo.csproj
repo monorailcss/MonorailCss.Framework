@@ -9,7 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Pennington.UI" Version="0.1.11" />
+    <PackageReference Include="Pennington.UI" Version="0.2.0" />
   </ItemGroup>
 
   <ItemGroup>
