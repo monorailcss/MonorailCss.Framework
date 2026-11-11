@@ -10,11 +10,13 @@ namespace MonorailCss.Utilities.Backgrounds;
 /// <summary>
 /// Utilities for controlling the middle color of gradient color stops.
 /// </summary>
-internal class GradientViaUtility : IUtility
+internal class GradientViaUtility : IUtility, ISuggestionRootProvider
 {
     public UtilityPriority Priority => UtilityPriority.NamespaceHandler;
 
     public string[] GetNamespaces() => NamespaceResolver.GradientViaChain;
+
+    public string[] GetSuggestionRoots() => ["via"];
 
     public bool TryCompile(Candidate candidate, Theme.Theme theme, out ImmutableList<AstNode>? results)
     {

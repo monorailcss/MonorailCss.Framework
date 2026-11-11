@@ -12,10 +12,12 @@ namespace MonorailCss.Utilities.Typography;
 /// <summary>
 /// Utilities for controlling the text color and font size of an element.
 /// </summary>
-internal class TextUtility : IUtility
+internal class TextUtility : IUtility, ISuggestionRootProvider
 {
     // Higher priority than normal functional utilities to ensure proper resolution
     public UtilityPriority Priority => UtilityPriority.NamespaceHandler;
+
+    public string[] GetSuggestionRoots() => ["text"];
 
     public bool TryCompile(Candidate candidate, Theme.Theme theme, out ImmutableList<AstNode>? results)
     {

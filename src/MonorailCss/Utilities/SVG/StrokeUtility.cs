@@ -10,7 +10,7 @@ namespace MonorailCss.Utilities.SVG;
 /// <summary>
 /// Utilities for controlling the stroke color and width of SVG elements.
 /// </summary>
-internal class StrokeUtility : IUtility
+internal class StrokeUtility : IUtility, ISuggestionRootProvider
 {
     private static readonly ImmutableDictionary<string, string> _staticValues =
         new Dictionary<string, string>
@@ -22,6 +22,8 @@ internal class StrokeUtility : IUtility
     public UtilityPriority Priority => UtilityPriority.ConstrainedFunctional;
 
     public string[] GetNamespaces() => NamespaceResolver.AppendFallbacks(NamespaceResolver.StrokeColorChain, "--stroke-width");
+
+    public string[] GetSuggestionRoots() => ["stroke"];
 
     public bool TryCompile(Candidate candidate, Theme.Theme theme, out ImmutableList<AstNode>? results)
     {

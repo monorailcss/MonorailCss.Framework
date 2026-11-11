@@ -28,6 +28,13 @@ contract may still shift.
   the `ScanStaticWebAssets` toggle), so editing a component script that builds markup at runtime
   regenerates CSS live. Previously these files were scanned once at startup but live edits to them
   were missed until the next process start.
+- **`CssFramework.GetSuggestedClassNames()` for editor autocomplete.** Lazily enumerates concrete
+  class names the framework compiles: every static utility, plus each functional root expanded
+  over the keys of its theme namespaces (so custom palettes, font sizes, radii, etc. appear) and a
+  curated set of bare values (the spacing scale, common fractions, numbers and keywords). Every
+  returned name has been compiled and is known to emit CSS; arbitrary values, modifiers (`/50`),
+  negative forms and variants are not included. The docs playground uses it for class-name
+  completion.
 
 ### Fixed
 

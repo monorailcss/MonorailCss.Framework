@@ -10,7 +10,7 @@ namespace MonorailCss.Utilities.Base;
 /// <summary>
 /// Base class for utilities that resolve color values from the theme.
 /// </summary>
-internal abstract class BaseColorUtility : IUtility
+internal abstract class BaseColorUtility : IUtility, ISuggestionRootProvider
 {
     public virtual UtilityPriority Priority => UtilityPriority.NamespaceHandler;
 
@@ -31,6 +31,8 @@ internal abstract class BaseColorUtility : IUtility
     protected abstract string[] ColorNamespaces { get; }
 
     public virtual string[] GetNamespaces() => ColorNamespaces;
+
+    public string[] GetSuggestionRoots() => [Pattern];
 
     public virtual bool TryCompile(Candidate candidate, Theme.Theme theme, out ImmutableList<AstNode>? results)
     {

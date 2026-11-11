@@ -10,7 +10,7 @@ namespace MonorailCss.Utilities.SVG;
 /// <summary>
 /// Utilities for controlling the fill color of SVG elements.
 /// </summary>
-internal class FillUtility : IUtility
+internal class FillUtility : IUtility, ISuggestionRootProvider
 {
     private static readonly ImmutableDictionary<string, string> _staticValues =
         new Dictionary<string, string>
@@ -22,6 +22,8 @@ internal class FillUtility : IUtility
     public UtilityPriority Priority => UtilityPriority.ConstrainedFunctional;
 
     public string[] GetNamespaces() => NamespaceResolver.FillColorChain;
+
+    public string[] GetSuggestionRoots() => ["fill"];
 
     public bool TryCompile(Candidate candidate, Theme.Theme theme, out ImmutableList<AstNode>? results)
     {

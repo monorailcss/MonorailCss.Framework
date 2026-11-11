@@ -484,6 +484,31 @@ public class CssFramework
     }
 
     /// <summary>
+    /// Enumerates concrete utility class names this framework compiles — intended for editor
+    /// autocomplete. Includes every static utility plus each functional root expanded over the
+    /// keys of its theme namespaces (so custom palettes, font sizes, radii, etc. from this
+    /// instance's theme appear, e.g. <c>bg-brand-500</c>) and a small curated set of bare values
+    /// (the spacing scale, common fractions, numbers and keywords). Every returned name has been
+    /// compiled and is known to emit CSS. Arbitrary values, modifiers (<c>/50</c>), negative
+    /// forms and variants are not included.
+    /// </summary>
+    /// <remarks>
+    /// The sequence is lazy and compiles its probe candidates as it is consumed — tens of
+    /// thousands in all (~100 ms on the JIT, seconds on the Blazor WebAssembly interpreter) — so
+    /// materialize it once and cache it, or consume it incrementally (e.g. in time slices on a
+    /// single-threaded runtime). It reflects the utilities registered when this method is called;
+    /// utilities added later via <see cref="AddUtility"/> need a fresh call.
+    /// </remarks>
+    /// <returns>
+    /// The class names grouped by root in natural order (<c>bg</c>, <c>bg-amber-50</c>, ...,
+    /// <c>block</c>, ...; <c>p-2</c> before <c>p-10</c>), without duplicates.
+    /// </returns>
+    public IEnumerable<string> GetSuggestedClassNames()
+    {
+        return UtilityClassNameEnumerator.Enumerate(UtilityRegistry, _parser, _settings.Theme);
+    }
+
+    /// <summary>
     /// Processes a collection of CSS class names and returns detailed results.
     /// </summary>
     /// <param name="candidates">The CSS class names to process.</param>
