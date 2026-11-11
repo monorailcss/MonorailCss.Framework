@@ -32,9 +32,20 @@ jobs:
       - name: Build solution
         run: dotnet build --configuration Release
 
-      - name: Run docs project and generate static files
-        run: |
-          dotnet run --project ${{ env.WEBAPP_PATH }} --configuration Release -- build "/MonorailCss.Framework/"
+      # Publish first, then export from the *published* app. `dotnet run` exports the plain
+      # build output, whose Blazor WebAssembly payload (the /playground island) is untrimmed:
+      # ~210 framework files / ~10.6 MB gzipped. Publishing runs the IL trimmer, which cuts
+      # that to ~45 files / ~3.5 MB and makes the in-browser engine start faster.
+      - name: Publish docs project
+        run: dotnet publish ${{ env.WEBAPP_PATH }} --configuration Release --output ${{ runner.temp }}/docs-publish
+
+      # Run from the project directory so Content/ resolves against the source tree, with the
+      # web root pointed at the published (trimmed, fingerprinted) static assets.
+      - name: Generate static files from the published app
+        working-directory: ${{ env.WEBAPP_PATH }}
+        env:
+          ASPNETCORE_WEBROOT: ${{ runner.temp }}/docs-publish/wwwroot
+        run: dotnet ${{ runner.temp }}/docs-publish/MonorailCss.Docs.dll build "/MonorailCss.Framework/"
 
       - name: Setup Pages
         uses: actions/configure-pages@v6
