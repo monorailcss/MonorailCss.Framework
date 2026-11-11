@@ -10,16 +10,16 @@
   <ItemGroup>
     <PackageReference Include="Ashcroft" Version="0.5.1" />
     <PackageReference Include="HarfBuzzSharp.NativeAssets.Linux" Version="14.2.1" />
-    <PackageReference Include="Pennington" Version="0.1.7" />
-    <PackageReference Include="Pennington.ApiMetadata" Version="0.1.7" />
-    <PackageReference Include="Pennington.ApiMetadata.Reflection" Version="0.1.7" />
-    <PackageReference Include="Pennington.Beck" Version="0.1.7" />
-    <PackageReference Include="Pennington.MonorailCss" Version="0.1.7" />
-    <PackageReference Include="Pennington.TreeSitter" Version="0.1.7" />
-    <PackageReference Include="Pennington.UI" Version="0.1.7" />
+    <PackageReference Include="Pennington" Version="0.1.11" />
+    <PackageReference Include="Pennington.ApiMetadata" Version="0.1.11" />
+    <PackageReference Include="Pennington.ApiMetadata.Reflection" Version="0.1.11" />
+    <PackageReference Include="Pennington.Beck" Version="0.1.11" />
+    <PackageReference Include="Pennington.MonorailCss" Version="0.1.11" />
+    <PackageReference Include="Pennington.TreeSitter" Version="0.1.11" />
+    <PackageReference Include="Pennington.UI" Version="0.1.11" />
     <!-- Host-side WebAssembly render-mode wiring (AddInteractiveWebAssembly*), which is not
          part of the Microsoft.AspNetCore.App shared framework. Backs the /playground island. -->
-    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="10.0.9" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="10.0.15" />
     <PackageReference Include="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="4.150.0" />
   </ItemGroup>
 
