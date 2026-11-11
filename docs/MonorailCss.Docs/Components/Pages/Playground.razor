@@ -6,10 +6,33 @@
 <HeadContent>
     <meta name="description" content="Edit HTML with utility classes and watch the preview and generated CSS update live — compiled in your browser by the real MonorailCss engine." />
     @* This page is a fixed-height shell; suppress the site-wide body scrollbar gutter so the
-       playground fills the viewport exactly. Reached via a full page load (data-spa-reload),
-       so this scoped override is present whenever the page is. *@
+       playground fills the viewport exactly. *@
     <style>body { overflow: hidden !important; }</style>
+    @* Monaco's stylesheet. editor.main.js would inject it itself, but declaring it here starts
+       the 309 KB download alongside the document instead of after the editor bundle runs. *@
+    <link rel="stylesheet" href="_content/BlazorMonaco/lib/monaco-editor/min/vs/editor/editor.main.css" />
+    @* Glue for the WebAssembly playground island (preview postMessage + editor theme sync). *@
+    <script src="/js/playground.js" defer></script>
 </HeadContent>
+
+@* Monaco (the playground editor): interop shim + AMD loader + editor bundle, served as static
+   web assets by the BlazorMonaco package referenced through MonorailCss.Docs.Client. Rendered
+   into App's outlet just ahead of blazor.web.js, so the editor JS is present when the WASM
+   island boots. Order matters: jsInterop.js sets the AMD require config, then loader.js, then
+   editor.main.js. *@
+<SectionContent SectionName="@App.BeforeBlazorScriptsSection">
+    <script src="_content/BlazorMonaco/jsInterop.js"></script>
+    <script src="_content/BlazorMonaco/lib/monaco-editor/min/vs/loader.js"></script>
+    <script src="_content/BlazorMonaco/lib/monaco-editor/min/vs/editor/editor.main.js"></script>
+</SectionContent>
+
+@* Everything above is page-scoped, so this page must only ever be entered with a full page
+   load — a spa-engine region swap would not execute these scripts. That holds by construction:
+   PlaygroundLayout declares no data-spa-region, so spa-engine sees a region mismatch on any
+   soft navigation into (or out of) this page and falls back to location.href, and it never
+   pushes a same-document history entry for /playground, so back/forward into it is a real
+   document load (or bfcache restore) too. The header link's data-spa-reload just skips the
+   wasted fetch. *@
 
 @* Static-SSR route so Pennington's crawler emits /playground into the static export; the
    interactive UI is a WebAssembly island (MonorailCss.Docs.Client) that compiles utility

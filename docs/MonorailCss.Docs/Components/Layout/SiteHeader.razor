@@ -32,8 +32,9 @@
     </div>
 
     <div class="flex items-center gap-1 flex-shrink-0">
-        @* Full page load into /playground so Monaco boots cleanly (see spa-engine's
-           data-spa-reload opt-out). *@
+        @* Full page load into /playground, which carries its own Monaco scripts. spa-engine
+           would fall back to one anyway (region mismatch); data-spa-reload skips the
+           wasted fetch and the hover prefetch. *@
         <a href="/playground" data-spa-reload
            class="hidden sm:inline-flex px-3 py-1.5 rounded-md text-[13px] font-medium text-base-700 dark:text-base-300 hover:text-primary-700 dark:hover:text-primary-400 hover:bg-base-100 dark:hover:bg-base-900 transition-colors">
             Playground

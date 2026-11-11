@@ -4,24 +4,44 @@
    component just supplies the in-browser interactivity — it compiles the utility classes
    you type to CSS with the real MonorailCss engine, live, entirely client-side.
 
-   Ported from tests/TryMonorail, restyled to the docs colour scheme (base/primary map to
-   the frosted/sanibel palettes via /styles.css) and laid out full-height like the Beck
-   playground. *@
+   Ported from tests/TryMonorail. The chrome is restyled to the docs colour scheme
+   (base/primary map to the frosted/sanibel palettes via the host's /styles.css) and laid out
+   full-height like the Beck playground; the user's own markup, by contrast, is compiled by a
+   stock CssFramework, so the docs palette never leaks into their output. *@
 @rendermode InteractiveWebAssembly
 @inject IJSRuntime Js
 @implements IAsyncDisposable
 @using System.Text
 @using Global = BlazorMonaco.Editor.Global
 
+@* Pane grids. Every track is minmax(0, …) so a pane can always shrink below Monaco's current
+   pixel width — with auto-sized tracks the editor holds its track open and spills over the
+   preview when the window narrows. The splits are fr pairs in custom properties, written by
+   the drag handles in /js/playground.js (--pg-main-a/b on .pg-main, --pg-left-a/b on .pg-left). *@
+<style>
+    .pg-main, .pg-left { display: grid; grid-template-columns: minmax(0, 1fr); }
+    .pg-main { grid-template-rows: minmax(0, var(--pg-main-a, 1fr)) 5px minmax(0, var(--pg-main-b, 1fr)); }
+    .pg-left { grid-template-rows: minmax(0, var(--pg-left-a, 1fr)) 5px minmax(0, var(--pg-left-b, 1fr)); }
+    .pg-gutter { touch-action: none; cursor: row-resize; }
+    @@media (min-width: 64rem) {
+        .pg-main {
+            grid-template-rows: minmax(0, 1fr);
+            grid-template-columns: minmax(0, var(--pg-main-a, 1fr)) 5px minmax(0, var(--pg-main-b, 1fr));
+        }
+        .pg-gutter[data-pg-gutter="main"] { cursor: col-resize; }
+    }
+    body.pg-dragging { user-select: none; }
+</style>
+
 <div class="flex h-full flex-col bg-base-50 dark:bg-base-950">
     @* Panes: editor stack (HTML + generated CSS) on the left, live preview on the right.
-       Stacks vertically below lg. *@
-    <div class="grid min-h-0 flex-1 lg:grid-cols-2 max-lg:grid-rows-2">
+       Stacks vertically below lg. Both splits are draggable (double-click a handle to reset). *@
+    <div class="pg-main min-h-0 flex-1">
 
         @* Left column: HTML editor (top) over generated CSS (bottom). *@
-        <div class="grid min-h-0 grid-rows-2 border-base-200 dark:border-base-800 lg:border-r max-lg:border-b">
+        <div class="pg-left min-h-0 min-w-0">
 
-            <div class="flex min-h-0 flex-col border-b border-base-200 dark:border-base-800">
+            <div class="flex min-h-0 min-w-0 flex-col overflow-hidden">
                 <header class="flex flex-none items-center gap-2 border-b border-base-200 bg-base-100 px-4 py-[7px] font-mono text-[11.5px] text-base-500 dark:border-base-800 dark:bg-base-900 dark:text-base-400">
                     <svg class="h-3.5 w-3.5 text-primary-600 dark:text-primary-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
                     <span>index.html</span>
@@ -30,7 +50,7 @@
                         Reset
                     </button>
                 </header>
-                <div class="min-h-0 flex-auto">
+                <div class="min-h-0 min-w-0 flex-auto">
                     <StandaloneCodeEditor @ref="_htmlEditor" Id="pg-html" CssClass="h-full w-full"
                                           ConstructionOptions="HtmlEditorOptions"
                                           OnDidInit="EditorInitAsync"
@@ -38,20 +58,26 @@
                 </div>
             </div>
 
-            <div class="flex min-h-0 flex-col">
+            <div data-pg-gutter="left" role="separator" aria-orientation="horizontal" aria-label="Resize the HTML and CSS panes" tabindex="0"
+                 class="pg-gutter bg-base-200 transition-colors hover:bg-primary-400 focus-visible:bg-primary-400 focus-visible:outline-none dark:bg-base-800 dark:hover:bg-primary-600 dark:focus-visible:bg-primary-600"></div>
+
+            <div class="flex min-h-0 min-w-0 flex-col overflow-hidden">
                 <header class="flex flex-none items-center gap-2 border-b border-base-200 bg-base-100 px-4 py-[7px] font-mono text-[11.5px] text-base-500 dark:border-base-800 dark:bg-base-900 dark:text-base-400">
                     <svg class="h-3.5 w-3.5 text-primary-600 dark:text-primary-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 3h16a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1Z"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>
                     <span>generated.css</span>
                 </header>
-                <div class="min-h-0 flex-auto">
+                <div class="min-h-0 min-w-0 flex-auto">
                     <StandaloneCodeEditor @ref="_cssEditor" Id="pg-css" CssClass="h-full w-full"
                                           ConstructionOptions="CssViewerOptions" />
                 </div>
             </div>
         </div>
 
+        <div data-pg-gutter="main" role="separator" aria-orientation="vertical" aria-label="Resize the editors and the preview" tabindex="0"
+             class="pg-gutter bg-base-200 transition-colors hover:bg-primary-400 focus-visible:bg-primary-400 focus-visible:outline-none dark:bg-base-800 dark:hover:bg-primary-600 dark:focus-visible:bg-primary-600"></div>
+
         @* Right column: sandboxed live preview. *@
-        <div class="flex min-h-0 flex-col">
+        <div class="flex min-h-0 min-w-0 flex-col overflow-hidden">
             <header class="flex flex-none items-center gap-2 border-b border-base-200 bg-base-100 px-4 py-[7px] font-mono text-[11.5px] text-base-500 dark:border-base-800 dark:bg-base-900 dark:text-base-400">
                 <span>preview</span>
                 <span class="ml-auto inline-flex items-center gap-1.5 text-primary-700 dark:text-primary-400">
@@ -68,7 +94,7 @@
     <div class="flex flex-none items-center gap-4 border-t border-base-200 bg-base-100 px-5 py-[7px] font-mono text-[11.5px] text-base-500 dark:border-base-800 dark:bg-base-900 dark:text-base-400">
         <span>@_classCount classes</span>
         <span>@FormatBytes(_cssBytes) css</span>
-        <span class="ml-auto">Compiled live by MonorailCss</span>
+        <span class="ml-auto">Default theme · compiled live by MonorailCss</span>
     </div>
 </div>
 
@@ -77,10 +103,13 @@
     private StandaloneCodeEditor _cssEditor = null!;
     private PreviewViewer _preview = null!;
 
-    // Two engines, both on the docs palette: one with preflight for the isolated preview
-    // iframe (a clean reset), one without for the "generated CSS" pane and the per-class hover.
-    private readonly CssFramework _previewFramework = DocsTheme.CreateFramework(includePreflight: true);
-    private readonly CssFramework _displayFramework = DocsTheme.CreateFramework(includePreflight: false);
+    // Two stock engines — `new CssFramework()` with no theme customisation, so what the user
+    // sees (palette, generated theme variables, autocomplete) is exactly what they'd get out of
+    // the box, not the docs site's own primary/accent/base scheme. One with preflight for the
+    // isolated preview iframe (a clean reset), one without for the "generated CSS" pane, the
+    // per-class hover and autocomplete.
+    private readonly CssFramework _previewFramework = new();
+    private readonly CssFramework _displayFramework = new(new CssFrameworkSettings { IncludePreflight = false });
 
     private readonly DebounceHelper _debouncer = new();
     private DotNetObjectReference<PlaygroundIsland>? _selfRef;
@@ -97,6 +126,7 @@
         }
 
         await RegisterHoverProviderAsync();
+        await RegisterCompletionProviderAsync();
         _selfRef = DotNetObjectReference.Create(this);
         var theme = await Js.InvokeAsync<string>("monorailPlayground.observeTheme", _selfRef);
         await Global.SetTheme(Js, theme == "dark" ? "monorail-dark" : "monorail-light");
@@ -118,6 +148,10 @@
         // paints immediately rather than after the debounce window.
         await _htmlEditor.SetValue(InitialHtml);
         await UpdateViewAsync();
+        await MarkAsync("pg:first-preview");
+
+        // Start filling the autocomplete list now the playground has painted.
+        EnsureClassNamesBuilding();
     }
 
     private async Task<bool> ModelChangedAsync() =>
@@ -169,14 +203,18 @@
                 return null;
             }
 
-            var utilityClass = await GetUtilityClassAtPositionAsync(model, position);
-            if (utilityClass == null)
+            // Hover positions name the character under the pointer, so a delimiter (the space
+            // between two classes, the closing quote) means "not over a class".
+            var token = await GetClassTokenAtPositionAsync(model, position);
+            if (token is null
+                || string.IsNullOrWhiteSpace(token.ClassName)
+                || (token.CaretIndex < token.Line.Length && IsClassDelimiter(token.Line[token.CaretIndex])))
             {
                 return null;
             }
 
-            var css = ExtractLayerContent(_displayFramework.Process(utilityClass.ClassName));
-            if (string.IsNullOrWhiteSpace(css))
+            var css = CompileForDisplay(token.ClassName);
+            if (css is null)
             {
                 return null;
             }
@@ -184,20 +222,34 @@
             return new Hover
             {
                 Contents = [new MarkdownString { Value = $"```css\n{css}\n```", SupportThemeIcons = false }],
-                Range = new BlazorMonaco.Range
-                {
-                    StartLineNumber = position.LineNumber,
-                    EndLineNumber = position.LineNumber,
-                    StartColumn = utilityClass.StartColumn,
-                    EndColumn = utilityClass.EndColumn,
-                },
+                Range = token.ToRange(position.LineNumber),
             };
         });
     }
 
-    private sealed record UtilityClassLocation(string ClassName, int StartColumn, int EndColumn);
+    // The class token around a caret inside a class="…" attribute: the run of non-delimiter
+    // characters either side of it (so `hover:bg-red-500` is one token). Empty when the caret
+    // sits between two classes or right after the opening quote. Shared by hover and completion.
+    private sealed record ClassToken(string Line, int CaretIndex, int StartIndex, int EndIndex)
+    {
+        public string ClassName => Line[StartIndex..EndIndex];
 
-    private static async Task<UtilityClassLocation?> GetUtilityClassAtPositionAsync(TextModel model, Position position)
+        // What has been typed of the token so far — completion filters on this.
+        public string TypedPrefix => Line[StartIndex..CaretIndex];
+
+        // Monaco columns are 1-indexed and the end column is exclusive.
+        public BlazorMonaco.Range ToRange(int lineNumber) => new()
+        {
+            StartLineNumber = lineNumber,
+            EndLineNumber = lineNumber,
+            StartColumn = StartIndex + 1,
+            EndColumn = EndIndex + 1,
+        };
+    }
+
+    private static bool IsClassDelimiter(char c) => c is ' ' or '\t' or '"' or '\'' or '<' or '>' or '\n' or '\r';
+
+    private static async Task<ClassToken?> GetClassTokenAtPositionAsync(TextModel model, Position position)
     {
         var lineContent = await model.GetLineContent(position.LineNumber);
         if (string.IsNullOrEmpty(lineContent))
@@ -212,40 +264,243 @@
             return null;
         }
 
-        // Only offer a hover when the caret sits inside a class attribute.
-        var textUpToCursor = lineContent[..cursorIndex];
-        if (!CssParser.IsInCssClass(textUpToCursor))
-        {
-            return null;
-        }
-
-        static bool IsDelimiter(char c) => c is ' ' or '\t' or '"' or '\'' or '<' or '>' or '\n' or '\r';
-
-        if (cursorIndex < lineContent.Length && IsDelimiter(lineContent[cursorIndex]))
+        // Only when the caret sits inside a class attribute.
+        if (!CssParser.IsInCssClass(lineContent[..cursorIndex]))
         {
             return null;
         }
 
         var startIndex = cursorIndex;
-        while (startIndex > 0 && !IsDelimiter(lineContent[startIndex - 1]))
+        while (startIndex > 0 && !IsClassDelimiter(lineContent[startIndex - 1]))
         {
             startIndex--;
         }
 
         var endIndex = cursorIndex;
-        while (endIndex < lineContent.Length && !IsDelimiter(lineContent[endIndex]))
+        while (endIndex < lineContent.Length && !IsClassDelimiter(lineContent[endIndex]))
         {
             endIndex++;
         }
 
-        var className = lineContent.Substring(startIndex, endIndex - startIndex);
-        if (string.IsNullOrWhiteSpace(className))
+        return new ClassToken(lineContent, cursorIndex, startIndex, endIndex);
+    }
+
+    // The lean `@layer utilities` CSS for one class (variants included), or null if it emits none.
+    private string? CompileForDisplay(string className)
+    {
+        var css = ExtractLayerContent(_displayFramework.Process(className));
+        return string.IsNullOrWhiteSpace(css) ? null : css;
+    }
+
+    // ---- utility-class autocomplete ------------------------------------------
+    // Inside a class="…" attribute, suggests MonorailCss utility classes for the playground's
+    // theme. The candidate list comes from CssFramework.GetSuggestedClassNames (static names plus
+    // functional roots expanded over the theme, every one known to compile). Producing it means
+    // compiling ~30k probes — seconds on the WASM interpreter — so it's built once, in the
+    // background after the editor loads, in short time slices that keep the page responsive
+    // (see BuildClassNamesAsync). Each request filters it in .NET by the typed prefix and sends
+    // at most MaxCompletionItems across interop, marking the list incomplete when capped (or
+    // while the build is still running) so Monaco asks again as you type. The CSS for an item is
+    // compiled lazily, only when Monaco resolves the focused item, never for the whole list.
+    private const int MaxCompletionItems = 150;
+
+    // Longest stretch the background build holds the (single) WASM thread before yielding.
+    private const int ClassNameBuildSliceMs = 12;
+
+    // Space/quote open the list for a fresh class; '-' and ':' re-query because the HTML word
+    // definition treats ':' as a separator (which would otherwise close the widget) and a new
+    // segment narrows the prefix past the capped first page.
+    private static readonly List<string> CompletionTriggerCharacters = [" ", "\"", "'", "-", ":"];
+
+    // A small set of common variants, offered when the typed segment matches one; accepting
+    // inserts `name:` and reopens the list for the utility part. Filtered to those the engine
+    // actually knows (see Variants).
+    private static readonly string[] CommonVariants =
+    [
+        "hover", "focus", "focus-visible", "focus-within", "active", "visited", "disabled",
+        "first", "last", "odd", "even", "group-hover", "peer-focus", "placeholder", "before", "after",
+        "dark", "sm", "md", "lg", "xl", "2xl", "motion-safe", "motion-reduce", "print",
+    ];
+
+    // Filled by BuildClassNamesAsync in the engine's order (grouped by root, natural within a
+    // root). Requests that arrive mid-build filter whatever is there so far.
+    private readonly List<string> _classNames = [];
+    private bool _classNamesComplete;
+    private Task? _classNamesBuild;
+    private readonly CancellationTokenSource _disposeCts = new();
+
+    private string[]? _variants;
+    private readonly Dictionary<string, string?> _swatchCache = new(StringComparer.Ordinal);
+
+    private void EnsureClassNamesBuilding() => _classNamesBuild ??= BuildClassNamesAsync(_disposeCts.Token);
+
+    // The engine yields names lazily, compiling as it goes, so pull them in slices of
+    // ClassNameBuildSliceMs and hand the thread back between slices — typing, hover and the
+    // live recompile stay responsive while the list fills (a few seconds in all).
+    private async Task BuildClassNamesAsync(CancellationToken cancellationToken)
+    {
+        try
         {
-            return null;
+            await Task.Yield();
+            var slice = System.Diagnostics.Stopwatch.StartNew();
+            foreach (var name in _displayFramework.GetSuggestedClassNames())
+            {
+                _classNames.Add(name);
+                if (slice.ElapsedMilliseconds >= ClassNameBuildSliceMs)
+                {
+                    await Task.Delay(1, cancellationToken);
+                    slice.Restart();
+                }
+            }
+
+            _classNamesComplete = true;
+            await MarkAsync("pg:suggestions-ready");
+        }
+        catch (OperationCanceledException)
+        {
+            // Component disposed mid-build.
+        }
+    }
+
+    private string[] Variants =>
+        _variants ??= CommonVariants.Where(v => _displayFramework.TryValidateCandidate($"{v}:flex")).ToArray();
+
+    private async Task RegisterCompletionProviderAsync()
+    {
+        await BlazorMonaco.Languages.Global.RegisterCompletionItemProvider(Js, "html",
+            new CompletionItemProvider(CompletionTriggerCharacters, ProvideCompletionItemsAsync, ResolveCompletionItemAsync));
+    }
+
+    private async Task<CompletionList> ProvideCompletionItemsAsync(string uri, Position position, CompletionContext context)
+    {
+        // Nothing outside a class attribute, so Monaco's built-in HTML completions are untouched.
+        var model = await Global.GetModel(Js, uri);
+        var token = model is null ? null : await GetClassTokenAtPositionAsync(model, position);
+        if (token is null)
+        {
+            return new CompletionList { Suggestions = [], Incomplete = false };
         }
 
-        // Back to 1-indexed Monaco columns.
-        return new UtilityClassLocation(className, startIndex + 1, endIndex + 1);
+        // Keep any variant chain (`md:dark:`) and complete only the utility after the last ':'.
+        // The replace range is the whole token, so filtering sees `hover:bg-` and accepting
+        // mid-token swaps the token instead of splicing into it; insert/filter text carry the
+        // variant prefix to match.
+        EnsureClassNamesBuilding();
+
+        var typed = token.TypedPrefix;
+        var colon = typed.LastIndexOf(':');
+        var variantPrefix = typed[..(colon + 1)];
+        var utilityPrefix = typed[(colon + 1)..];
+        var range = token.ToRange(position.LineNumber);
+
+        var suggestions = new List<CompletionItem>();
+        var capped = false;
+
+        // Variants first in the list when the typed segment starts one (`ho` -> hover:).
+        if (utilityPrefix.Length > 0)
+        {
+            foreach (var variant in Variants)
+            {
+                if (variant.StartsWith(utilityPrefix, StringComparison.Ordinal))
+                {
+                    var text = $"{variantPrefix}{variant}:";
+                    suggestions.Add(new CompletionItem
+                    {
+                        LabelAsString = text,
+                        Kind = CompletionItemKind.Keyword,
+                        Detail = "variant",
+                        InsertText = text,
+                        FilterText = text,
+                        SortText = $"0{suggestions.Count:D4}",
+                        RangeAsObject = range,
+                        Command = new Command { Id = "editor.action.triggerSuggest", Title = "Suggest utilities" },
+                    });
+                }
+            }
+        }
+
+        // Prefix matches in list order (p-2 before p-10), then — if there's room — classes where
+        // the typed text starts a later segment (`red` -> bg-red-500), which Monaco's fuzzy
+        // filter also accepts.
+        foreach (var prefixPass in new[] { true, false })
+        {
+            if (!prefixPass && utilityPrefix.Length == 0)
+            {
+                break;
+            }
+
+            // Index loop: _classNames may still be growing (it can't change during this loop —
+            // there's no await in it — but a foreach would also be wrong across requests).
+            for (var i = 0; i < _classNames.Count; i++)
+            {
+                var name = _classNames[i];
+                var matches = prefixPass
+                    ? name.StartsWith(utilityPrefix, StringComparison.Ordinal)
+                    : !name.StartsWith(utilityPrefix, StringComparison.Ordinal)
+                      && name.Contains("-" + utilityPrefix, StringComparison.Ordinal);
+                // At-rule utilities (@container) don't take variants.
+                if (!matches || (variantPrefix.Length > 0 && name[0] == '@'))
+                {
+                    continue;
+                }
+
+                if (suggestions.Count >= MaxCompletionItems)
+                {
+                    capped = true;
+                    break;
+                }
+
+                suggestions.Add(CreateUtilityItem(name, variantPrefix, range, suggestions.Count));
+            }
+
+            if (capped)
+            {
+                break;
+            }
+        }
+
+        // Incomplete makes Monaco re-query on the next keystroke instead of filtering this page
+        // client-side: needed when capped, and while the list is still being built.
+        return new CompletionList { Suggestions = suggestions, Incomplete = capped || !_classNamesComplete };
+    }
+
+    private CompletionItem CreateUtilityItem(string name, string variantPrefix, BlazorMonaco.Range range, int order)
+    {
+        var text = variantPrefix + name;
+
+        // Colour utilities get Monaco's swatch: it paints one when the detail is a hex colour.
+        if (!_swatchCache.TryGetValue(name, out var hex))
+        {
+            hex = ColorSwatch.TryGetHex(name, _displayFramework.Settings.Theme);
+            _swatchCache[name] = hex;
+        }
+
+        return new CompletionItem
+        {
+            LabelAsString = text,
+            Kind = hex is null ? CompletionItemKind.Value : CompletionItemKind.Color,
+            Detail = hex,
+            InsertText = text,
+            FilterText = text,
+            SortText = $"1{order:D4}",
+            RangeAsObject = range,
+        };
+    }
+
+    // Monaco calls this for the focused item only: compile its CSS (variants included) then.
+    private Task<CompletionItem> ResolveCompletionItemAsync(CompletionItem item)
+    {
+        var className = item.InsertText ?? item.LabelAsString;
+        if (!string.IsNullOrEmpty(className) && !className.EndsWith(':'))
+        {
+            var css = CompileForDisplay(className);
+            if (css is not null)
+            {
+                item.DocumentationAsObject = new MarkdownString { Value = $"```css\n{css}\n```", SupportThemeIcons = false };
+            }
+        }
+
+        return Task.FromResult(item);
     }
 
     // ---- Monaco setup --------------------------------------------------------
@@ -270,6 +525,10 @@
     {
         var opts = StandardOptions();
         opts.Language = "html";
+
+        // Let the hover and the suggest widget's CSS details pane escape the editor pane instead
+        // of being clipped at its edge (the pane is only half the viewport wide).
+        opts.FixedOverflowWidgets = true;
         return opts;
     }
 
@@ -319,6 +578,10 @@
 
     public async ValueTask DisposeAsync()
     {
+        // Stop the background autocomplete build, if it's still running.
+        await _disposeCts.CancelAsync();
+        _disposeCts.Dispose();
+
         // _selfRef is only created in OnAfterRenderAsync, which runs in the browser — never
         // during the server prerender. So its presence is our signal that JS is actually
         // available; skipping the call otherwise avoids "interop during static rendering".
@@ -341,6 +604,10 @@
     }
 
     // ---- helpers -------------------------------------------------------------
+    // User Timing marks (visible in DevTools' Performance panel and to perf tooling) for the
+    // playground's milestones: first preview painted, autocomplete list ready.
+    private async Task MarkAsync(string name) => await Js.InvokeVoidAsync("monorailPlayground.mark", name);
+
     private static string FormatBytes(int bytes) =>
         bytes < 1024 ? $"{bytes} B" : $"{bytes / 1024.0:0.0} KB";
 
@@ -438,16 +705,16 @@
 
     private const string InitialHtml = """
         <!-- Edit this markup — the preview and CSS recompile live in your browser. -->
-        <div class="grid min-h-screen place-items-center bg-gradient-to-br from-base-100 to-base-200 p-6 font-sans">
-          <div class="w-full max-w-sm rounded-3xl bg-base-50 p-8 shadow-2xl shadow-primary-950/10 ring-1 ring-base-950/5">
-            <div class="flex size-12 items-center justify-center rounded-2xl bg-gradient-to-br from-primary-500 to-accent-500 text-white shadow-lg shadow-primary-600/30">
+        <div class="grid min-h-screen place-items-center bg-gradient-to-br from-slate-100 to-slate-200 p-6 font-sans">
+          <div class="w-full max-w-sm rounded-3xl bg-slate-50 p-8 shadow-2xl shadow-indigo-950/10 ring-1 ring-slate-950/5">
+            <div class="flex size-12 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-500 to-violet-500 text-white shadow-lg shadow-indigo-600/30">
               <svg class="size-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m4 12 5 5L20 6" /></svg>
             </div>
-            <h1 class="mt-6 text-2xl font-bold tracking-tight text-base-900">Styled by MonorailCss</h1>
-            <p class="mt-2 text-sm leading-relaxed text-base-600">Every class here compiled to CSS in your browser — edit the markup and watch it update live.</p>
+            <h1 class="mt-6 text-2xl font-bold tracking-tight text-slate-900">Styled by MonorailCss</h1>
+            <p class="mt-2 text-sm leading-relaxed text-slate-600">Every class here compiled to CSS in your browser — edit the markup and watch it update live.</p>
             <div class="mt-7 flex items-center gap-3">
-              <button class="flex-1 rounded-xl bg-primary-600 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-primary-700">Get started</button>
-              <button class="rounded-xl px-4 py-2.5 text-sm font-semibold text-base-600 transition-colors hover:bg-base-100">Docs</button>
+              <button class="flex-1 rounded-xl bg-indigo-600 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-indigo-700">Get started</button>
+              <button class="rounded-xl px-4 py-2.5 text-sm font-semibold text-slate-600 transition-colors hover:bg-slate-100">Docs</button>
             </div>
           </div>
         </div>
