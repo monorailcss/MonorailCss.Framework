@@ -9,7 +9,7 @@
 
   <ItemGroup>
     <PackageReference Include="Ashcroft" Version="0.5.1" />
-    <PackageReference Include="HarfBuzzSharp.NativeAssets.Linux" Version="14.2.1" />
+    <PackageReference Include="HarfBuzzSharp.NativeAssets.Linux" Version="14.4.0.100" />
     <PackageReference Include="Pennington" Version="0.2.0" />
     <PackageReference Include="Pennington.ApiMetadata" Version="0.2.0" />
     <PackageReference Include="Pennington.ApiMetadata.Reflection" Version="0.2.0" />
